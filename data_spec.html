@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מפרט נתונים — דאשבורד ניהול סוכנות ביטוח</title>
+<style>
+  :root {
+    --navy:   #1e3a5f;
+    --blue:   #1e5276;
+    --mid:    #2d7dd2;
+    --green:  #16a34a;
+    --red:    #dc2626;
+    --amber:  #d97706;
+    --purple: #6d28d9;
+    --teal:   #0891b2;
+    --bg:     #f8fafc;
+    --border: #cbd5e1;
+    --text:   #1a202c;
+    --muted:  #64748b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--text); font-size: 13px; line-height: 1.6; }
+
+  /* ── Layout ── */
+  .page { max-width: 1100px; margin: 0 auto; padding: 24px 20px 60px; }
+
+  /* ── Cover ── */
+  .cover { background: linear-gradient(135deg, var(--navy) 0%, #2d5986 100%); color: #fff; border-radius: 12px; padding: 40px 36px 32px; margin-bottom: 32px; }
+  .cover h1 { font-size: 1.9rem; font-weight: 800; margin-bottom: 8px; }
+  .cover p  { font-size: 1rem; color: #c8daff; }
+  .cover .meta { display: flex; gap: 24px; margin-top: 20px; flex-wrap: wrap; }
+  .cover .badge { background: rgba(255,255,255,.15); border-radius: 20px; padding: 4px 14px; font-size: .8rem; }
+
+  /* ── Section header ── */
+  .sec-hdr { background: var(--navy); color: #fff; border-radius: 8px 8px 0 0; padding: 10px 18px; margin-top: 36px; }
+  .sec-hdr h2 { font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+  .sec-hdr p  { font-size: .82rem; color: #c0d0f0; margin-top: 2px; }
+  .sec-body { background: #fff; border: 1px solid var(--border); border-top: none; border-radius: 0 0 8px 8px; padding: 18px; margin-bottom: 4px; }
+
+  /* ── Tables ── */
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th { background: var(--navy); color: #fff; padding: 7px 10px; text-align: right; font-weight: 600; }
+  td { padding: 6px 10px; border-bottom: 1px solid #e8edf5; vertical-align: top; }
+  tr:nth-child(even) td { background: #f4f7fb; }
+  tr:last-child td { border-bottom: none; }
+  .tbl-blue th  { background: var(--blue); }
+  .tbl-green th { background: #15803d; }
+  .tbl-purple th{ background: var(--purple); }
+  .tbl-teal th  { background: var(--teal); }
+  .tbl-amber th { background: var(--amber); color: #fff; }
+
+  /* ── Tag badges ── */
+  .tag { display: inline-block; border-radius: 4px; padding: 1px 7px; font-size: .72rem; font-weight: 600; margin: 1px; }
+  .tag-key    { background: #fef9c3; color: #854d0e; }
+  .tag-fk     { background: #e0f2fe; color: #075985; }
+  .tag-str    { background: #dcfce7; color: #166534; }
+  .tag-num    { background: #ede9fe; color: #4c1d95; }
+  .tag-date   { background: #fee2e2; color: #991b1b; }
+  .tag-bool   { background: #fce7f3; color: #9d174d; }
+  .tag-calc   { background: #fff7ed; color: #9a3412; }
+  .tag-agg    { background: #f0fdf4; color: #14532d; }
+  .tag-dim    { background: #f5f3ff; color: #4c1d95; }
+
+  /* ── Hierarchy diagram ── */
+  .hier { display: flex; flex-direction: column; align-items: flex-start; gap: 0; padding: 16px; background: #f8fafc; border-radius: 8px; }
+  .hier-row { display: flex; align-items: center; gap: 10px; }
+  .hier-node { border-radius: 8px; padding: 6px 16px; font-weight: 700; font-size: .85rem; color: #fff; }
+  .hier-line { width: 2px; height: 20px; background: var(--border); margin-right: 28px; }
+  .hier-label { font-size: .75rem; color: var(--muted); }
+
+  /* ── Callout ── */
+  .callout { border-right: 4px solid var(--mid); background: #eff6ff; border-radius: 0 8px 8px 0; padding: 10px 14px; margin: 12px 0; }
+  .callout.green  { border-color: var(--green);  background: #f0fdf4; }
+  .callout.amber  { border-color: var(--amber);  background: #fffbeb; }
+  .callout.red    { border-color: var(--red);    background: #fff1f2; }
+  .callout.purple { border-color: var(--purple); background: #f5f3ff; }
+  .callout h4 { font-size: .85rem; font-weight: 700; margin-bottom: 4px; }
+  .callout p, .callout li { font-size: .82rem; color: #374151; }
+
+  /* ── Grid 2 col ── */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+  /* ── Entity card ── */
+  .entity { background: #fff; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .entity-hdr { padding: 10px 14px; color: #fff; font-weight: 700; font-size: .9rem; }
+  .entity-body { padding: 0; }
+  .entity-body table th { font-size: .72rem; }
+  .entity-body table td { font-size: .72rem; }
+
+  /* ── Agg block ── */
+  .agg-block { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 14px; }
+  .agg-block h3 { font-size: .9rem; font-weight: 700; color: var(--navy); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 2px solid #e2e8f0; }
+  .agg-block .grain { display: inline-block; background: #1e3a5f; color: #fff; border-radius: 4px; padding: 2px 10px; font-size: .75rem; margin-bottom: 8px; }
+
+  /* ── Formula ── */
+  .formula { font-family: 'Courier New', monospace; background: #1e293b; color: #7dd3fc; padding: 8px 12px; border-radius: 6px; font-size: .82rem; margin: 6px 0; direction: ltr; text-align: left; }
+
+  /* ── TOC ── */
+  .toc { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; margin-bottom: 28px; }
+  .toc h3 { font-size: .95rem; color: var(--navy); font-weight: 700; margin-bottom: 10px; }
+  .toc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .toc a { color: var(--mid); text-decoration: none; font-size: .82rem; display: flex; align-items: center; gap: 6px; }
+  .toc a:hover { text-decoration: underline; }
+  .toc .num { background: var(--navy); color: #fff; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: .65rem; flex-shrink: 0; }
+
+  h3.sub { font-size: .95rem; color: var(--navy); font-weight: 700; margin: 16px 0 8px; }
+  .note  { font-size: .78rem; color: var(--muted); font-style: italic; margin-top: 4px; }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- COVER -->
+<div class="cover">
+  <h1>מפרט נתונים — דאשבורד ניהול ביטוח</h1>
+  <p>מסמך לאנליסט / מנתח מערכות: כלל השדות, ישויות, היררכיות ואגריגציות הנדרשות לבניית הדאשבורד</p>
+  <div class="meta">
+    <span class="badge">גרסה 1.0</span>
+    <span class="badge">מאי 2026</span>
+    <span class="badge">סודי — שימוש פנימי</span>
+    <span class="badge">6 ישויות מרכזיות</span>
+    <span class="badge">5 רמות אגריגציה</span>
+    <span class="badge">8 KPIs מחושבים</span>
+  </div>
+</div>
+
+<!-- TOC -->
+<div class="toc">
+  <h3>תוכן עניינים</h3>
+  <div class="toc-grid">
+    <a href="#s1"><span class="num">1</span> היררכיית הנתונים</a>
+    <a href="#s2"><span class="num">2</span> ישויות ושדות</a>
+    <a href="#s3"><span class="num">3</span> מקורות נתונים</a>
+    <a href="#s4"><span class="num">4</span> אגריגציות נדרשות</a>
+    <a href="#s5"><span class="num">5</span> חישוב KPIs</a>
+    <a href="#s6"><span class="num">6</span> פנלים — צרכי נתונים</a>
+    <a href="#s7"><span class="num">7</span> ממד זמן</a>
+    <a href="#s8"><span class="num">8</span> לוגיקת סגמנט</a>
+    <a href="#s9"><span class="num">9</span> Data Dictionary</a>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 1 — HIERARCHY
+     ═══════════════════════════════════════════════════════ -->
+<div id="s1">
+  <div class="sec-hdr">
+    <h2>📐 סעיף 1 — היררכיית הנתונים</h2>
+    <p>מי תחת מי — שרשרת הניהול ורמות הצבירה</p>
+  </div>
+  <div class="sec-body">
+
+    <div class="grid2">
+      <div>
+        <h3 class="sub">עץ ההיררכיה</h3>
+        <div class="hier">
+          <div class="hier-row"><div class="hier-node" style="background:#1e3a5f">🏢 חברה (Company)</div><span class="hier-label">רמת רמה 1 — בסיס הכל</span></div>
+          <div class="hier-line"></div>
+          <div class="hier-row" style="margin-right:20px">
+            <div class="hier-node" style="background:#0891b2">👤 מפקח (Supervisor)</div>
+            <span class="hier-label">אדם ספציפי בשם (למשל "ענת כהן") — שדה אופציונלי</span>
+          </div>
+          <div style="margin-right:20px;display:flex;align-items:flex-start;gap:8px;margin-top:4px;margin-bottom:4px">
+            <div style="width:2px;height:20px;background:#cbd5e1;margin-right:28px"></div>
+            <span style="font-size:.72rem;color:#dc2626;font-style:italic;padding-top:2px">⚠ סוכן שאין לו מפקח → supervisor_id = NULL → מוצג בקבוצה "ללא מפקח"</span>
+          </div>
+          <div class="hier-row" style="margin-right:40px"><div class="hier-node" style="background:#2d7dd2">🏬 סוכנות (Agency)</div><span class="hier-label">יחידה עסקית — יכולה לכלול מספר סוכנים</span></div>
+          <div class="hier-line" style="margin-right:68px"></div>
+          <div class="hier-row" style="margin-right:60px"><div class="hier-node" style="background:#16a34a">🧑‍💼 סוכן (Agent)</div><span class="hier-label">הישות האופרטיבית</span></div>
+          <div class="hier-line" style="margin-right:88px"></div>
+          <div class="hier-row" style="margin-right:80px"><div class="hier-node" style="background:#6d28d9">📄 פוליסה (Policy)</div><span class="hier-label">הרמה האטומית — גרעין הנתון</span></div>
+        </div>
+
+        <div style="background:#fff9c4;border:1px solid #fcd34d;border-radius:8px;padding:10px 14px;margin-top:12px">
+          <strong style="color:#92400e;font-size:.82rem">2 סוגי סוכנים מבחינת פיקוח:</strong>
+          <div style="font-size:.8rem;margin-top:6px;color:#374151">
+            <div>🔵 <strong>סוכן מפוקח</strong> — supervisor_id = שם אדם ספציפי (למשל "ענת כהן"), מפקח רואה אותו בדאשבורד שלו</div>
+            <div style="margin-top:4px">⚪ <strong>סוכן ללא מפקח</strong> — supervisor_id = NULL, מופיע בקבוצה "ללא מפקח" בדאשבורד</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3 class="sub">כללי אגריגציה בעץ</h3>
+        <table>
+          <tr><th>רמה</th><th>מה צובר מלמטה</th><th>כיוון</th></tr>
+          <tr><td>פוליסה → סוכן</td><td>COUNT, SUM(פרמיה), שיעור חידוש, תביעות</td><td>⬆ roll-up</td></tr>
+          <tr><td>סוכן → סוכנות</td><td>סה"כ פוליסות, פרמיה, ממוצע KPIs</td><td>⬆ roll-up</td></tr>
+          <tr><td>סוכן (מפוקח) → מפקח</td><td>ממוצעים, ספירות סוכנים, KPI מצרפי</td><td>⬆ roll-up לפי שם המפקח</td></tr>
+          <tr><td>סוכן (ללא מפקח) → חברה</td><td>מדווח לקבוצת "ללא מפקח" ברמה הכוללת</td><td>⬆ roll-up לקבוצה נפרדת</td></tr>
+          <tr><td>מפקח → חברה</td><td>מבט-על הנהלה, KPIs כלל-חברתיים</td><td>⬆ roll-up</td></tr>
+        </table>
+
+        <div class="callout" style="margin-top:14px">
+          <h4>חתך צולב — סגמנט</h4>
+          <p>סגמנט <strong>חוצה</strong> את העץ — סוכן יכול להיות ב-"Watch" בעוד שהסניף שלו ב-"Growth". יש לחשב סגמנט <strong>ברמת הסוכן בלבד</strong> ואין לאגרג אותו לרמות גבוהות יותר.</p>
+        </div>
+
+        <div class="callout amber" style="margin-top:10px">
+          <h4>חתך צולב — ענף ביטוח</h4>
+          <p>כל סוכן יכול לפעול במספר ענפים (רכב, דירה, עסקים...). האגריגציה לפי ענף היא מימד נוסף שחוצה את העץ הניהולי.</p>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+    <h3 class="sub">מטריצת רמות × מימדים — מה ניתן לחתוך בכל רמה</h3>
+    <table>
+      <tr>
+        <th>רמת אגריגציה</th>
+        <th>חתך לפי זמן</th>
+        <th>חתך לפי ענף</th>
+        <th>חתך לפי סגמנט</th>
+        <th>חתך לפי מפקח</th>
+        <th>חתך לפי מפקח / ללא מפקח</th>
+      </tr>
+      <tr><td><strong>פוליסה</strong> (גרעין)</td><td>✅</td><td>✅</td><td>❌</td><td>✅ דרך סוכן</td><td>✅ דרך supervisor_id</td></tr>
+      <tr><td><strong>סוכן</strong></td><td>✅</td><td>✅</td><td>✅</td><td>✅ / NULL</td><td>✅ ישיר</td></tr>
+      <tr><td><strong>מפקח</strong></td><td>✅</td><td>✅ ממוצע</td><td>✅ התפלגות</td><td>N/A (הוא עצמו)</td><td>✅ סוכנים שלו</td></tr>
+      <tr><td><strong>ללא מפקח (קבוצה)</strong></td><td>✅</td><td>✅ ממוצע</td><td>✅ התפלגות</td><td>N/A — אין מפקח</td><td>✅</td></tr>
+      <tr><td><strong>חברה</strong></td><td>✅</td><td>✅ benchmark</td><td>✅ התפלגות</td><td>✅</td><td>✅ הכל</td></tr>
+    </table>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 2 — ENTITIES & FIELDS
+     ═══════════════════════════════════════════════════════ -->
+<div id="s2">
+  <div class="sec-hdr">
+    <h2>🗃 סעיף 2 — ישויות ושדות</h2>
+    <p>6 ישויות מרכזיות — שם שדה, סוג נתון, תפקיד, הערות</p>
+  </div>
+  <div class="sec-body">
+
+    <div class="grid2">
+
+      <!-- AGENT -->
+      <div class="entity">
+        <div class="entity-hdr" style="background:#16a34a">👤 סוכן (DIM_AGENT)</div>
+        <div class="entity-body">
+          <table>
+            <tr><th>שדה</th><th>סוג</th><th>תפקיד</th></tr>
+            <tr><td>agent_id</td><td><span class="tag tag-key">PK</span></td><td>מפתח ייחודי</td></tr>
+            <tr><td>agent_name</td><td><span class="tag tag-str">טקסט</span></td><td>שם מלא</td></tr>
+            <tr><td>agency_name</td><td><span class="tag tag-str">טקסט</span></td><td>שם הסוכנות</td></tr>
+            <tr><td>supervisor_id</td><td><span class="tag tag-fk">FK</span></td><td>→ DIM_SUPERVISOR | NULL = "ללא מפקח"</td></tr>
+            <tr><td>agency_id</td><td><span class="tag tag-fk">FK</span></td><td>→ DIM_AGENCY</td></tr>
+            <tr><td>license_number</td><td><span class="tag tag-str">טקסט</span></td><td>מספר רישיון</td></tr>
+            <tr><td>license_exp_date</td><td><span class="tag tag-date">תאריך</span></td><td>תפוגת רישיון</td></tr>
+            <tr><td>start_date</td><td><span class="tag tag-date">תאריך</span></td><td>תחילת פעילות</td></tr>
+            <tr><td>is_active</td><td><span class="tag tag-bool">בוליאני</span></td><td>פעיל / לא</td></tr>
+            <tr><td>segment</td><td><span class="tag tag-calc">מחושב</span></td><td>פנימי! A/B/C/Growth/Watch</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- POLICY -->
+      <div class="entity">
+        <div class="entity-hdr" style="background:#6d28d9">📄 פוליסה (FACT_POLICY)</div>
+        <div class="entity-body">
+          <table>
+            <tr><th>שדה</th><th>סוג</th><th>תפקיד</th></tr>
+            <tr><td>policy_id</td><td><span class="tag tag-key">PK</span></td><td>מפתח ייחודי</td></tr>
+            <tr><td>agent_id</td><td><span class="tag tag-fk">FK</span></td><td>→ DIM_AGENT</td></tr>
+            <tr><td>customer_id</td><td><span class="tag tag-fk">FK</span></td><td>→ DIM_CUSTOMER</td></tr>
+            <tr><td>insurance_type_id</td><td><span class="tag tag-fk">FK</span></td><td>→ DIM_INS_TYPE</td></tr>
+            <tr><td>sub_type</td><td><span class="tag tag-str">טקסט</span></td><td>רכב חובה / רכב רכוש / ...</td></tr>
+            <tr><td>premium_annual</td><td><span class="tag tag-num">מספר</span></td><td>פרמיה שנתית ₪</td></tr>
+            <tr><td>premium_monthly</td><td><span class="tag tag-num">מספר</span></td><td>פרמיה חודשית ₪</td></tr>
+            <tr><td>start_date</td><td><span class="tag tag-date">תאריך</span></td><td>תחילת פוליסה</td></tr>
+            <tr><td>renewal_date</td><td><span class="tag tag-date">תאריך</span></td><td>מועד חידוש</td></tr>
+            <tr><td>end_date</td><td><span class="tag tag-date">תאריך</span></td><td>סיום (אם בוטלה)</td></tr>
+            <tr><td>status</td><td><span class="tag tag-str">enum</span></td><td>פעיל / בוטל / פג / ממתין</td></tr>
+            <tr><td>cancellation_reason</td><td><span class="tag tag-str">enum</span></td><td>חוב / בקשת לקוח / אחר</td></tr>
+            <tr><td>issue_request_date</td><td><span class="tag tag-date">תאריך</span></td><td>לחישוב מהירות הנפקה</td></tr>
+            <tr><td>issue_date</td><td><span class="tag tag-date">תאריך</span></td><td>מועד הנפקה בפועל</td></tr>
+            <tr><td>is_renewed</td><td><span class="tag tag-bool">בוליאני</span></td><td>חודשה? (לחישוב שיעור חידוש)</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- CLAIM -->
+      <div class="entity">
+        <div class="entity-hdr" style="background:#dc2626">🚨 תביעה (FACT_CLAIM)</div>
+        <div class="entity-body">
+          <table>
+            <tr><th>שדה</th><th>סוג</th><th>תפקיד</th></tr>
+            <tr><td>claim_id</td><td><span class="tag tag-key">PK</span></td><td>מפתח</td></tr>
+            <tr><td>policy_id</td><td><span class="tag tag-fk">FK</span></td><td>→ FACT_POLICY</td></tr>
+            <tr><td>agent_id</td><td><span class="tag tag-fk">FK</span></td><td>→ DIM_AGENT (denorm)</td></tr>
+            <tr><td>open_date</td><td><span class="tag tag-date">תאריך</span></td><td>פתיחת תביעה</td></tr>
+            <tr><td>close_date</td><td><span class="tag tag-date">תאריך</span></td><td>סגירה (null אם פתוחה)</td></tr>
+            <tr><td>claim_amount</td><td><span class="tag tag-num">מספר</span></td><td>סכום התביעה ₪</td></tr>
+            <tr><td>approved_amount</td><td><span class="tag tag-num">מספר</span></td><td>סכום שאושר ₪</td></tr>
+            <tr><td>severity</td><td><span class="tag tag-str">enum</span></td><td>נמוך / בינוני / גבוה / קטסטרופלי</td></tr>
+            <tr><td>status</td><td><span class="tag tag-str">enum</span></td><td>פתוח / בטיפול / נסגר / נדחה</td></tr>
+            <tr><td>is_fraud_suspect</td><td><span class="tag tag-bool">בוליאני</span></td><td>חשד להונאה</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- PAYMENT -->
+      <div class="entity">
+        <div class="entity-hdr" style="background:#d97706">💳 תשלום (FACT_PAYMENT)</div>
+        <div class="entity-body">
+          <table>
+            <tr><th>שדה</th><th>סוג</th><th>תפקיד</th></tr>
+            <tr><td>payment_id</td><td><span class="tag tag-key">PK</span></td><td>מפתח</td></tr>
+            <tr><td>policy_id</td><td><span class="tag tag-fk">FK</span></td><td>→ FACT_POLICY</td></tr>
+            <tr><td>agent_id</td><td><span class="tag tag-fk">FK</span></td><td>→ DIM_AGENT (denorm)</td></tr>
+            <tr><td>due_date</td><td><span class="tag tag-date">תאריך</span></td><td>מועד לתשלום</td></tr>
+            <tr><td>paid_date</td><td><span class="tag tag-date">תאריך</span></td><td>null = לא שולם</td></tr>
+            <tr><td>amount</td><td><span class="tag tag-num">מספר</span></td><td>סכום לתשלום ₪</td></tr>
+            <tr><td>status</td><td><span class="tag tag-str">enum</span></td><td>שולם / ממתין / פיגור / נכשל</td></tr>
+            <tr><td>days_overdue</td><td><span class="tag tag-calc">מחושב</span></td><td>paid_date − due_date (אם שלילי)</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- NPS -->
+      <div class="entity">
+        <div class="entity-hdr" style="background:#0891b2">⭐ שביעות רצון (FACT_NPS)</div>
+        <div class="entity-body">
+          <table>
+            <tr><th>שדה</th><th>סוג</th><th>תפקיד</th></tr>
+            <tr><td>survey_id</td><td><span class="tag tag-key">PK</span></td><td>מפתח</td></tr>
+            <tr><td>agent_id</td><td><span class="tag tag-fk">FK</span></td><td>→ DIM_AGENT</td></tr>
+            <tr><td>customer_id</td><td><span class="tag tag-fk">FK</span></td><td>→ DIM_CUSTOMER</td></tr>
+            <tr><td>survey_date</td><td><span class="tag tag-date">תאריך</span></td><td>מועד הסקר</td></tr>
+            <tr><td>nps_score</td><td><span class="tag tag-num">מספר</span></td><td>0-10</td></tr>
+            <tr><td>nps_category</td><td><span class="tag tag-calc">מחושב</span></td><td>Promoter / Passive / Detractor</td></tr>
+            <tr><td>comment</td><td><span class="tag tag-str">טקסט</span></td><td>תגובה חופשית</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- TARGETS -->
+      <div class="entity">
+        <div class="entity-hdr" style="background:#1e3a5f">🎯 יעדים (DIM_TARGET)</div>
+        <div class="entity-body">
+          <table>
+            <tr><th>שדה</th><th>סוג</th><th>תפקיד</th></tr>
+            <tr><td>target_id</td><td><span class="tag tag-key">PK</span></td><td>מפתח</td></tr>
+            <tr><td>agent_id</td><td><span class="tag tag-fk">FK</span></td><td>→ DIM_AGENT</td></tr>
+            <tr><td>period_month</td><td><span class="tag tag-date">YYYY-MM</span></td><td>חודש היעד</td></tr>
+            <tr><td>target_renewals_pct</td><td><span class="tag tag-num">מספר</span></td><td>יעד שיעור חידוש %</td></tr>
+            <tr><td>target_new_policies</td><td><span class="tag tag-num">מספר</span></td><td>יעד פוליסות חדשות</td></tr>
+            <tr><td>target_premium</td><td><span class="tag tag-num">מספר</span></td><td>יעד פרמיה ₪</td></tr>
+            <tr><td>target_nps</td><td><span class="tag tag-num">מספר</span></td><td>יעד NPS</td></tr>
+            <tr><td>set_by</td><td><span class="tag tag-fk">FK</span></td><td>supervisor_id שהגדיר</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Additional dims -->
+    <hr class="divider">
+    <h3 class="sub">ישויות תומכות (Dimension Tables)</h3>
+    <table class="tbl-blue">
+      <tr><th>טבלה</th><th>שדות עיקריים</th><th>שימוש בדאשבורד</th></tr>
+      <tr><td><strong>DIM_SUPERVISOR</strong></td><td>supervisor_id, full_name, phone, email</td><td>אנשים ספציפיים בשמם — עמודת "מפקח" בטבלת הסוכנים, פילטר</td></tr>
+      <tr><td><strong>DIM_AGENCY</strong></td><td>agency_id, agency_name, address, city</td><td>ישות הסוכנות — מקושרת לסוכנים דרך DIM_AGENT</td></tr>
+      <tr><td><strong>DIM_INSURANCE_TYPE</strong></td><td>type_id, category (רכב/דירה/עסקים/חיים), sub_type, name_he</td><td>6 פנלים ענפיים, פילטר ענף</td></tr>
+      <tr><td><strong>DIM_CUSTOMER</strong></td><td>customer_id, name, id_number, phone, email, city</td><td>ריכוז לקוחות, NPS</td></tr>
+      <tr><td><strong>DIM_DATE</strong></td><td>date_id, day, month, quarter, year, month_name_he</td><td>כל פילטרי הזמן, מגמות</td></tr>
+    </table>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 3 — DATA SOURCES
+     ═══════════════════════════════════════════════════════ -->
+<div id="s3">
+  <div class="sec-hdr">
+    <h2>🔌 סעיף 3 — מקורות נתונים</h2>
+    <p>מי מייצר כל נתון, באיזה תדירות, ומה הפורמט הנדרש</p>
+  </div>
+  <div class="sec-body">
+    <table class="tbl-green">
+      <tr>
+        <th>מקור</th><th>ישויות שמספק</th><th>פורמט</th><th>תדירות עדכון</th><th>בעל הנתון</th><th>אמינות</th>
+      </tr>
+      <tr>
+        <td><strong>Core Insurance System</strong></td>
+        <td>FACT_POLICY, DIM_INSURANCE_TYPE</td>
+        <td>DB / API</td>
+        <td>יומי (לילה)</td>
+        <td>מחלקת IT</td>
+        <td><span style="color:green">⬛⬛⬛⬛⬜ גבוהה</span></td>
+      </tr>
+      <tr>
+        <td><strong>Claims System</strong></td>
+        <td>FACT_CLAIM</td>
+        <td>DB / API</td>
+        <td>שעתי</td>
+        <td>מחלקת תביעות</td>
+        <td><span style="color:green">⬛⬛⬛⬛⬜ גבוהה</span></td>
+      </tr>
+      <tr>
+        <td><strong>מערכת גבייה</strong></td>
+        <td>FACT_PAYMENT</td>
+        <td>DB</td>
+        <td>יומי</td>
+        <td>מחלקת כספים</td>
+        <td><span style="color:orange">⬛⬛⬛⬜⬜ בינונית</span></td>
+      </tr>
+      <tr>
+        <td><strong>CRM</strong></td>
+        <td>DIM_AGENT, DIM_CUSTOMER, DIM_SUPERVISOR</td>
+        <td>API / CSV</td>
+        <td>יומי</td>
+        <td>מחלקת מכירות</td>
+        <td><span style="color:orange">⬛⬛⬛⬜⬜ בינונית</span></td>
+      </tr>
+      <tr>
+        <td><strong>סקרי NPS</strong></td>
+        <td>FACT_NPS</td>
+        <td>API (SurveyMonkey/Qualtrics)</td>
+        <td>שבועי</td>
+        <td>מחלקת שירות</td>
+        <td><span style="color:orange">⬛⬛⬜⬜⬜ נמוכה-בינונית</span></td>
+      </tr>
+      <tr>
+        <td><strong>הזנה ידנית — יעדים</strong></td>
+        <td>DIM_TARGET</td>
+        <td>Excel / טופס UI</td>
+        <td>חודשי (תחילת חודש)</td>
+        <td>מפקחים</td>
+        <td><span style="color:red">⬛⬜⬜⬜⬜ תלוי-אדם</span></td>
+      </tr>
+      <tr>
+        <td><strong>מבנה ארגוני</strong></td>
+        <td>DIM_BRANCH, DIM_REGION</td>
+        <td>HR System / Excel</td>
+        <td>לפי שינוי</td>
+        <td>משאבי אנוש</td>
+        <td><span style="color:green">⬛⬛⬛⬛⬛ גבוהה</span></td>
+      </tr>
+    </table>
+
+    <div class="callout amber" style="margin-top:14px">
+      <h4>⚠ נקודות סיכון במקורות הנתונים</h4>
+      <p>• <strong>ביטול פוליסה ב-Core:</strong> לא תמיד נרשמת סיבת הביטול — דורש validation חובה</p>
+      <p>• <strong>NPS:</strong> לא לכל לקוח יש סקר — חשוב לרשום NULL, לא 0</p>
+      <p>• <strong>יעדים ידניים:</strong> אם מפקח לא הכניס יעד — חישוב KPI "מול יעד" יחזיר NULL, לא 0%</p>
+      <p>• <strong>גבייה:</strong> עדכון עשוי לאחר עד 3 ימים — לסמן "נתון ברנץ'" אם לא עודכן ב-72 שעות</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 4 — AGGREGATIONS
+     ═══════════════════════════════════════════════════════ -->
+<div id="s4">
+  <div class="sec-hdr">
+    <h2>⚙ סעיף 4 — אגריגציות נדרשות</h2>
+    <p>טבלאות מסכמות (Aggregate Tables) שצריך לבנות — גרעין הדאשבורד</p>
+  </div>
+  <div class="sec-body">
+
+    <div class="grid2">
+
+      <!-- AGG 1: Agent Monthly -->
+      <div class="agg-block">
+        <h3>AGG_1 — סוכן × חודש</h3>
+        <span class="grain">גרעין: agent_id + year_month</span>
+        <p class="note">1 שורה = סוכן בודד בחודש בודד</p>
+        <table style="margin-top:8px">
+          <tr><th>שדה</th><th>חישוב</th></tr>
+          <tr><td>total_policies</td><td>COUNT(policy_id) WHERE status='פעיל'</td></tr>
+          <tr><td>new_policies</td><td>COUNT WHERE start_date IN month</td></tr>
+          <tr><td>renewed_policies</td><td>COUNT WHERE is_renewed=true AND renewal_date IN month</td></tr>
+          <tr><td>expired_policies</td><td>COUNT WHERE renewal_date IN month AND is_renewed=false</td></tr>
+          <tr><td>cancelled_debt</td><td>COUNT WHERE cancellation_reason='חוב'</td></tr>
+          <tr><td>total_premium</td><td>SUM(premium_monthly)</td></tr>
+          <tr><td>claims_count</td><td>COUNT(claim_id) WHERE open_date IN month</td></tr>
+          <tr><td>claims_amount</td><td>SUM(claim_amount)</td></tr>
+          <tr><td>paid_policies</td><td>COUNT payments WHERE status='שולם'</td></tr>
+          <tr><td>overdue_policies</td><td>COUNT payments WHERE status='פיגור'</td></tr>
+          <tr><td>avg_nps</td><td>AVG(nps_score) WHERE survey_date IN month</td></tr>
+          <tr><td>avg_issue_days</td><td>AVG(issue_date − issue_request_date)</td></tr>
+          <tr><td>active_ins_types</td><td>COUNT DISTINCT insurance_type_id</td></tr>
+        </table>
+      </div>
+
+      <!-- AGG 2: Agent KPI (derived) -->
+      <div class="agg-block">
+        <h3>AGG_2 — KPIs מחושבים לסוכן</h3>
+        <span class="grain">גרעין: agent_id + year_month</span>
+        <p class="note">נגזר מ-AGG_1 — כל שדה זהו חישוב</p>
+        <table style="margin-top:8px">
+          <tr><th>KPI</th><th>נוסחה מ-AGG_1</th></tr>
+          <tr><td>renewal_rate</td><td>renewed / (renewed + expired)</td></tr>
+          <tr><td>churn_rate</td><td>1 − renewal_rate</td></tr>
+          <tr><td>claim_score</td><td>1 − (claims_count / total_policies) × severity_weight</td></tr>
+          <tr><td>portfolio_growth</td><td>(total_policies − prev_month.total_policies) / prev_month</td></tr>
+          <tr><td>non_payment_rate</td><td>cancelled_debt / total_policies</td></tr>
+          <tr><td>collection_rate</td><td>paid_policies / (paid_policies + overdue_policies)</td></tr>
+          <tr><td>customer_concentration</td><td>1 − (max_customer_premium / total_premium)</td></tr>
+          <tr><td>vs_target_renewal</td><td>renewal_rate / target_renewals_pct</td></tr>
+          <tr><td>vs_target_new</td><td>new_policies / target_new_policies</td></tr>
+          <tr><td>composite_score</td><td>ראה סעיף 5 — ממוצע משוקלל</td></tr>
+          <tr><td>segment</td><td>ראה סעיף 8 — לוגיקת סגמנט</td></tr>
+          <tr><td>segment_trend</td><td>segment − prev_quarter.segment</td></tr>
+        </table>
+      </div>
+
+      <!-- AGG 3: Branch/Supervisor Monthly -->
+      <div class="agg-block">
+        <h3>AGG_3א — סוכנות × חודש</h3>
+        <span class="grain">גרעין: agency_id + year_month</span>
+        <p class="note">צבירה מ-AGG_1 של כל סוכנים עם אותו supervisor_id. קבוצת "ללא מפקח" = NULL group.</p>
+        <table style="margin-top:8px">
+          <tr><th>שדה</th><th>חישוב</th></tr>
+          <tr><td>agents_count</td><td>COUNT DISTINCT agent_id</td></tr>
+          <tr><td>agents_green</td><td>COUNT WHERE composite_score ≥ 80</td></tr>
+          <tr><td>agents_yellow</td><td>COUNT WHERE composite_score 65-79</td></tr>
+          <tr><td>agents_red</td><td>COUNT WHERE composite_score < 65</td></tr>
+          <tr><td>total_policies</td><td>SUM(total_policies)</td></tr>
+          <tr><td>avg_renewal_rate</td><td>AVG(renewal_rate) — משוקלל לפי גודל תיק</td></tr>
+          <tr><td>total_premium</td><td>SUM(total_premium)</td></tr>
+          <tr><td>avg_composite_score</td><td>AVG(composite_score)</td></tr>
+          <tr><td>at_risk_agents</td><td>COUNT WHERE segment='Watch'</td></tr>
+        </table>
+      </div>
+
+      <!-- AGG 4: Branch Monthly -->
+      <div class="agg-block">
+        <h3>AGG_3ב — מפקח × חודש</h3>
+        <span class="grain">גרעין: supervisor_id + year_month</span>
+        <p class="note">כל הסוכנים שה-supervisor_id שלהם = NULL — מוצגים יחד כ"ללא מפקח" בדאשבורד.</p>
+        <table style="margin-top:8px">
+          <tr><th>שדה</th><th>חישוב</th></tr>
+          <tr><td>agencies_count</td><td>COUNT DISTINCT agency_id (של מפקח זה)</td></tr>
+          <tr><td>agents_count</td><td>SUM(agents_count)</td></tr>
+          <tr><td>total_policies</td><td>SUM(total_policies)</td></tr>
+          <tr><td>total_premium</td><td>SUM(total_premium)</td></tr>
+          <tr><td>avg_renewal_rate</td><td>AVG משוקלל</td></tr>
+          <tr><td>avg_composite_score</td><td>AVG(composite_score)</td></tr>
+          <tr><td>pct_green_agents</td><td>agents_green / agents_count</td></tr>
+          <tr><td>rank_vs_other_supervisors</td><td>RANK() OVER (חברה כולה)</td></tr>
+        </table>
+      </div>
+
+    </div>
+
+    <!-- AGG 5: Insurance Type -->
+    <hr class="divider">
+    <h3 class="sub">AGG_5 — ענף ביטוח × סוכן × חודש (לפנלים הענפיים)</h3>
+    <div class="callout purple">
+      <h4>למה AGG נפרד לפי ענף?</h4>
+      <p>הדאשבורד מציג 6 פנלים (רכב חובה, רכב רכוש, דירה, משכנתא, עסקים-נישה, עסקים-מסחרי). כל פנל צריך נתונים <strong>רק מפוליסות מאותו ענף</strong>. הנתונים האגרגטיביים לסוכן (AGG_1) הם cross-type ואי אפשר לחלק אחורה.</p>
+    </div>
+    <table class="tbl-purple" style="margin-top:8px">
+      <tr><th>שדה</th><th>חישוב</th><th>פנל שמשתמש</th></tr>
+      <tr><td>type_policies_count</td><td>COUNT policies WHERE insurance_type = X</td><td>כל הפנלים</td></tr>
+      <tr><td>type_renewal_rate</td><td>renewed/expired בתוך הענף בלבד</td><td>כל הפנלים</td></tr>
+      <tr><td>type_premium</td><td>SUM(premium) לפי ענף</td><td>כל הפנלים</td></tr>
+      <tr><td>type_claims_ratio</td><td>claims / policies בתוך הענף</td><td>רכב חובה, רכב רכוש</td></tr>
+      <tr><td>type_avg_premium</td><td>AVG(premium_annual) לפי ענף</td><td>דירה, משכנתא</td></tr>
+      <tr><td>type_growth_pct</td><td>MoM growth בתוך הענף</td><td>עסקים-נישה, עסקים-מסחרי</td></tr>
+      <tr><td>type_non_payment</td><td>cancelled_debt / policies בתוך הענף</td><td>משכנתא, עסקים</td></tr>
+      <tr><td>trend_6m</td><td>array של type_policies_count לאחרון 6 חודשים</td><td>גרפי מגמה בפנלים</td></tr>
+    </table>
+
+    <!-- AGG 6: Company KPI snapshot -->
+    <hr class="divider">
+    <h3 class="sub">AGG_6 — תמונת מצב חברה (לטאב מבט-על)</h3>
+    <table class="tbl-teal">
+      <tr><th>מדד</th><th>חישוב</th><th>תצוגה בדאשבורד</th></tr>
+      <tr><td>total_active_policies</td><td>COUNT כלל פוליסות פעילות</td><td>KPI ראשי</td></tr>
+      <tr><td>company_renewal_rate</td><td>AVG משוקלל לפי גודל תיק</td><td>KPI ראשי + גרף מגמה</td></tr>
+      <tr><td>company_claim_ratio</td><td>SUM(claims) / SUM(policies)</td><td>KPI ראשי</td></tr>
+      <tr><td>company_non_payment</td><td>AVG(non_payment_rate)</td><td>KPI ראשי</td></tr>
+      <tr><td>agents_green_pct</td><td>agents_green / total_agents</td><td>KPI + מפת חום</td></tr>
+      <tr><td>top_agent_score</td><td>MAX(composite_score)</td><td>כרטיס "מוביל החודש"</td></tr>
+      <tr><td>at_risk_count</td><td>COUNT WHERE segment='Watch'</td><td>התראה / KPI</td></tr>
+      <tr><td>premium_total</td><td>SUM(total_premium)</td><td>KPI ראשי</td></tr>
+      <tr><td>premium_growth_yoy</td><td>(premium_this_year − prev_year) / prev_year</td><td>KPI ראשי</td></tr>
+    </table>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 5 — KPI FORMULAS
+     ═══════════════════════════════════════════════════════ -->
+<div id="s5">
+  <div class="sec-hdr">
+    <h2>🧮 סעיף 5 — נוסחאות KPI מלאות</h2>
+    <p>הגדרה מדויקת של 8 המדדים + הציון הכולל — כולל מקרי קצה</p>
+  </div>
+  <div class="sec-body">
+
+    <div class="grid2">
+
+      <div>
+        <h3 class="sub">1. שיעור חידוש (Renewal Rate)</h3>
+        <div class="formula">renewal_rate =
+  COUNT(policy_id WHERE is_renewed = TRUE
+        AND renewal_date BETWEEN period_start AND period_end)
+  /
+  COUNT(policy_id WHERE renewal_date BETWEEN period_start AND period_end)</div>
+        <div class="callout">
+          <p><strong>מכנה:</strong> רק פוליסות שתאריך חידושן נפל בתקופה — לא כל הפוליסות</p>
+          <p><strong>Edge case:</strong> אם מכנה = 0 (אין פוליסות לחידוש) → הציון = NULL, לא 100%</p>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="sub">2. ציון תביעות (Claims Score)</h3>
+        <div class="formula">severity_map = {נמוך:1, בינוני:2, גבוה:3, קטסטרופלי:5}
+
+weighted_claims =
+  SUM(severity_map[claim.severity] FOR claim IN period)
+
+claim_score = MAX(0,
+  100 × (1 − weighted_claims / (total_policies × 1.5))
+)</div>
+        <div class="callout">
+          <p><strong>עיקרון:</strong> תביעה אחת "נמוכה" = פגיעה קטנה, תביעה "קטסטרופלית" = פגיעה 5×</p>
+          <p><strong>Edge case:</strong> ציון לא יכול להיות שלילי — MAX(0, ...)</p>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="sub">3. גידול תיק (Portfolio Growth)</h3>
+        <div class="formula">growth_pct =
+  (policies_this_month - policies_prev_month)
+  / policies_prev_month × 100</div>
+        <div class="callout">
+          <p><strong>Edge case:</strong> סוכן חדש (prev_month = 0) → growth = NULL, לא אינסוף</p>
+          <p><strong>תצוגה:</strong> חץ ↑/↓ + אחוז + צבע ירוק/אדום</p>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="sub">4. אי-תשלום (Non-Payment Rate)</h3>
+        <div class="formula">non_payment_rate =
+  COUNT(policy_id WHERE cancellation_reason = 'חוב'
+        AND end_date IN period)
+  / total_policies × 100</div>
+        <div class="callout red">
+          <p><strong>חשוב:</strong> לספור רק ביטולים <em>בגין חוב</em> — לא ביטולים מסיבות אחרות</p>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="sub">5. שביעות רצון לקוח (NPS)</h3>
+        <div class="formula">nps_score = AVG(survey.nps_score × 10)
+  WHERE survey.agent_id = agent_id
+  AND survey_date IN last_90_days
+
+/* 0-10 → מוכפל ל-0-100 */
+
+nps_category:
+  9-10 → Promoter
+  7-8  → Passive
+  0-6  → Detractor</div>
+        <div class="callout">
+          <p><strong>חלון זמן:</strong> 90 יום גלגלתי — לא לפי חודש קלנדרי</p>
+          <p><strong>Edge case:</strong> פחות מ-5 סקרים → לסמן כ-"מדגם חלקי"</p>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="sub">6–8. שלושת המדדים הנוספים</h3>
+        <div class="formula">/* כיסוי מוצרים */
+product_coverage = COUNT(DISTINCT insurance_type_id)
+  WHERE agent_id AND status='פעיל'
+  /* ירוק: ≥3 | צהוב: 2 | אדום: 1 */
+
+/* מהירות הנפקה */
+issue_speed_days = AVG(issue_date - request_date)
+  WHERE period
+  /* ירוק: ≤2 | צהוב: 3-5 | אדום: >5 */
+
+/* ריכוז לקוחות */
+max_premium = MAX(SUM(premium) GROUP BY customer_id)
+concentration = 1 - (max_premium / total_premium)
+  /* ירוק: >0.7 | צהוב: 0.5-0.7 | אדום: <0.5 */</div>
+      </div>
+
+    </div>
+
+    <hr class="divider">
+    <h3 class="sub">ציון כולל (Composite Score) — ממוצע משוקלל</h3>
+    <table>
+      <tr><th>#</th><th>מדד</th><th>משקל</th><th>תרומה מקסימלית</th><th>שיטת נרמול</th></tr>
+      <tr><td>1</td><td>שיעור חידוש</td><td>25%</td><td>25 נקודות</td><td>pct × 100</td></tr>
+      <tr><td>2</td><td>ציון תביעות</td><td>20%</td><td>20 נקודות</td><td>חישוב ישיר 0-100</td></tr>
+      <tr><td>3</td><td>גידול תיק</td><td>20%</td><td>20 נקודות</td><td>MIN(growth_pct/10 × 100, 100)</td></tr>
+      <tr><td>4</td><td>אי-תשלום</td><td>15%</td><td>15 נקודות</td><td>MAX(0, 100 − non_payment × 10)</td></tr>
+      <tr><td>5</td><td>שביעות רצון</td><td>10%</td><td>10 נקודות</td><td>nps_score (כבר 0-100)</td></tr>
+      <tr><td>6</td><td>כיסוי מוצרים</td><td>5%</td><td>5 נקודות</td><td>MIN(product_count/4 × 100, 100)</td></tr>
+      <tr><td>7</td><td>מהירות הנפקה</td><td>3%</td><td>3 נקודות</td><td>MAX(0, 100 − issue_days × 15)</td></tr>
+      <tr><td>8</td><td>ריכוז לקוחות</td><td>2%</td><td>2 נקודות</td><td>concentration × 100</td></tr>
+      <tr style="background:#1e3a5f;color:#fff"><td colspan="2"><strong>סה"כ</strong></td><td><strong>100%</strong></td><td><strong>100 נקודות</strong></td><td>SUM(score_i × weight_i)</td></tr>
+    </table>
+    <div class="callout red" style="margin-top:10px">
+      <h4>חשוב: הציון הכולל הוא מידע פנימי בלבד</h4>
+      <p>לא להציג לסוכן — לא בדאשבורד הסוכן, לא בדוח ולא בהתראות שנשלחות לסוכן.</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 6 — PANEL DATA REQUIREMENTS
+     ═══════════════════════════════════════════════════════ -->
+<div id="s6">
+  <div class="sec-hdr">
+    <h2>📊 סעיף 6 — דרישות נתונים לכל פנל</h2>
+    <p>מה כל אחד מ-6 הפנלים הענפיים + הפנלים הנוספים צריך</p>
+  </div>
+  <div class="sec-body">
+
+    <table>
+      <tr>
+        <th>פנל</th>
+        <th>ענף / סוג פוליסה</th>
+        <th>מדד ראשי</th>
+        <th>מדד משני</th>
+        <th>גרף מגמה</th>
+        <th>התראה מרכזית</th>
+      </tr>
+      <tr>
+        <td><strong>🚗 רכב חובה</strong></td>
+        <td>insurance_type = 'רכב_חובה'</td>
+        <td>ספירת פוליסות</td>
+        <td>יחס תביעות %</td>
+        <td>6 חודשים — פוליסות</td>
+        <td>תביעות > 15%</td>
+      </tr>
+      <tr>
+        <td><strong>🚙 רכב רכוש</strong></td>
+        <td>insurance_type = 'רכב_רכוש'</td>
+        <td>ספירת פוליסות</td>
+        <td>פרמיה ממוצעת</td>
+        <td>6 חודשים — פוליסות</td>
+        <td>ירידה > 10%</td>
+      </tr>
+      <tr>
+        <td><strong>🏠 דירה</strong></td>
+        <td>insurance_type = 'דירה'</td>
+        <td>ספירת פוליסות</td>
+        <td>שיעור חידוש %</td>
+        <td>6 חודשים — פוליסות</td>
+        <td>חידוש < 80%</td>
+      </tr>
+      <tr>
+        <td><strong>🏦 משכנתא</strong></td>
+        <td>insurance_type = 'משכנתא'</td>
+        <td>ספירת פוליסות</td>
+        <td>אי-תשלום %</td>
+        <td>6 חודשים — פוליסות</td>
+        <td>אי-תשלום > 5%</td>
+      </tr>
+      <tr>
+        <td><strong>🏪 עסקים-נישה</strong></td>
+        <td>insurance_type = 'עסקים_נישה'</td>
+        <td>ספירת פוליסות</td>
+        <td>גידול רבעוני %</td>
+        <td>4 רבעונים — פוליסות</td>
+        <td>גידול < 0%</td>
+      </tr>
+      <tr>
+        <td><strong>🏭 עסקים-מסחרי</strong></td>
+        <td>insurance_type = 'עסקים_מסחרי'</td>
+        <td>ספירת פוליסות</td>
+        <td>פרמיה כוללת</td>
+        <td>4 רבעונים — פרמיה</td>
+        <td>ירידה רציפה 2+ רבעונים</td>
+      </tr>
+    </table>
+
+    <hr class="divider">
+    <h3 class="sub">פנלי KPI ראשיים (טאב מבט-על)</h3>
+    <table class="tbl-blue">
+      <tr><th>כרטיס KPI</th><th>שדה מ-AGG</th><th>השוואה ל-</th><th>צבע לוגיקה</th></tr>
+      <tr><td>סה"כ פוליסות פעילות</td><td>AGG_6.total_active_policies</td><td>חודש קודם</td><td>↑ ירוק / ↓ אדום</td></tr>
+      <tr><td>שיעור חידוש ממוצע</td><td>AGG_6.company_renewal_rate</td><td>יעד חברה (85%)</td><td>≥85 ירוק / 70-84 צהוב / <70 אדום</td></tr>
+      <tr><td>פרמיה כוללת</td><td>AGG_6.premium_total</td><td>חודש קודם + YoY</td><td>↑ ירוק</td></tr>
+      <tr><td>סוכנים בסיכון</td><td>AGG_6.at_risk_count</td><td>חודש קודם</td><td>↑ אדום / ↓ ירוק</td></tr>
+      <tr><td>יחס תביעות</td><td>AGG_6.company_claim_ratio</td><td>בנצ'מרק ענף</td><td>threshold מוגדר לפי ענף</td></tr>
+      <tr><td>אי-תשלום ממוצע</td><td>AGG_6.company_non_payment</td><td>יעד (3%)</td><td><3 ירוק / 3-7 צהוב / >7 אדום</td></tr>
+    </table>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 7 — TIME DIMENSION
+     ═══════════════════════════════════════════════════════ -->
+<div id="s7">
+  <div class="sec-hdr">
+    <h2>📅 סעיף 7 — ממד הזמן</h2>
+    <p>חלוני זמן, השוואות ותקופות סטנדרטיות</p>
+  </div>
+  <div class="sec-body">
+
+    <div class="grid2">
+      <div>
+        <h3 class="sub">תקופות סטנדרטיות בדאשבורד</h3>
+        <table>
+          <tr><th>תקופה</th><th>הגדרה</th><th>שימוש</th></tr>
+          <tr><td>החודש הנוכחי (MTD)</td><td>תחילת חודש → היום</td><td>KPIs ראשיים</td></tr>
+          <tr><td>חודש קודם</td><td>calendar month − 1</td><td>השוואה MoM</td></tr>
+          <tr><td>12 חודשים אחרונים</td><td>גלגלתי</td><td>גרפי מגמה</td></tr>
+          <tr><td>הרבעון הנוכחי (QTD)</td><td>תחילת רבעון → היום</td><td>פנלי עסקים</td></tr>
+          <tr><td>שנה קלנדרית (YTD)</td><td>1 ינואר → היום</td><td>KPIs שנתיים</td></tr>
+          <tr><td>שנה קודמת (YoY)</td><td>same period − 12M</td><td>השוואת צמיחה</td></tr>
+          <tr><td>90 יום גלגלתי</td><td>היום − 90 → היום</td><td>NPS בלבד</td></tr>
+        </table>
+      </div>
+      <div>
+        <h3 class="sub">טיפול ב-"חצי חודש" ומקרי קצה</h3>
+        <div class="callout amber">
+          <h4>חצי חודש / MTD</h4>
+          <p>כשמחשבים MTD לחידושים — להשוות ל-<strong>אותה נקודה בחודש קודם</strong> (ולא לסוף חודש קודם), כדי למנוע השוואה מוטה.</p>
+        </div>
+        <div class="callout" style="margin-top:10px">
+          <h4>סוכן חדש (פחות מ-3 חודשי פעילות)</h4>
+          <p>מדדים שדורשים נתונים היסטוריים (growth, trend) יוצגו כ-NULL עם תווית "סוכן חדש" — לא ישפיעו לרעה על הציון.</p>
+        </div>
+        <div class="callout green" style="margin-top:10px">
+          <h4>עדכון נתונים — timestamp</h4>
+          <p>כל AGG table צריך שדה <code>last_updated_at</code>. אם עברו יותר מ-24 שעות — הדאשבורד מציג אייקון ⚠️ "נתון ישן".</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 8 — SEGMENT LOGIC
+     ═══════════════════════════════════════════════════════ -->
+<div id="s8">
+  <div class="sec-hdr">
+    <h2>🔒 סעיף 8 — לוגיקת סגמנט (פנימי בלבד)</h2>
+    <p>כיצד מסווגים סוכן לסגמנט — מידע סודי, לא מוצג לסוכן</p>
+  </div>
+  <div class="sec-body">
+
+    <div class="callout red">
+      <h4>🔒 סודיות</h4>
+      <p>הסגמנט הוא כלי ניהולי פנימי בלבד. <strong>אסור לחשוף לסוכן</strong> — לא בדאשבורד, לא בדוח, לא בהתראות.</p>
+    </div>
+
+    <h3 class="sub" style="margin-top:16px">מטריצת סגמנטים</h3>
+    <table>
+      <tr><th>סגמנט</th><th>צבע</th><th>תיאור</th><th>תנאי composite_score</th><th>תנאי נוסף</th></tr>
+      <tr><td><strong>A — Elite</strong></td><td style="color:#16a34a">●</td><td>סוכן מוביל, יציב ומצמיח</td><td>≥ 90</td><td>trend יציב 3 חודשים</td></tr>
+      <tr><td><strong>B — Solid</strong></td><td style="color:#2d7dd2">●</td><td>ביצועים טובים, אין דאגה</td><td>75–89</td><td>—</td></tr>
+      <tr><td><strong>C — Stable</strong></td><td style="color:#d97706">●</td><td>סביר, יש מה לשפר</td><td>60–74</td><td>—</td></tr>
+      <tr><td><strong>Growth</strong></td><td style="color:#6d28d9">●</td><td>ביצוע נמוך אבל עם מגמת עלייה</td><td>כל ציון</td><td>3 חודשי עלייה רצופה</td></tr>
+      <tr><td><strong>Watch</strong></td><td style="color:#dc2626">●</td><td>בסיכון — דרוש טיפול מפקח</td><td>< 60</td><td>או: ירידה 2+ חודשים</td></tr>
+    </table>
+
+    <div class="callout" style="margin-top:12px">
+      <h4>עדיפות בסיווג</h4>
+      <p>1. אם עומד בתנאי Growth → Growth (גם אם ציון נמוך)<br>
+         2. אם עומד בתנאי Watch → Watch (גם אם ציון בינוני, בגלל מגמה)<br>
+         3. אחרת → לפי composite_score</p>
+    </div>
+
+    <h3 class="sub" style="margin-top:14px">שינוי סגמנט — כללי יציבות</h3>
+    <table class="tbl-blue">
+      <tr><th>מעבר</th><th>דרישה לאישור</th><th>טריגר לוגי</th></tr>
+      <tr><td>שיפור (e.g. C → B)</td><td>2 חודשים עקביים מעל הסף</td><td>composite_score ≥ threshold × 2m</td></tr>
+      <tr><td>הורדה (e.g. B → Watch)</td><td>חודש אחד מספיק</td><td>composite_score < 60 OR ירידה 2m</td></tr>
+      <tr><td>Watch → Growth</td><td>3 חודשי עלייה רצופה</td><td>MoM_growth > 0 × 3</td></tr>
+    </table>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 9 — DATA DICTIONARY
+     ═══════════════════════════════════════════════════════ -->
+<div id="s9">
+  <div class="sec-hdr">
+    <h2>📖 סעיף 9 — Data Dictionary — מילון מונחים</h2>
+    <p>הגדרה מדויקת של כל מונח — להסרת עמימות בין מפתחים, אנליסטים ועסק</p>
+  </div>
+  <div class="sec-body">
+    <table>
+      <tr><th>מונח</th><th>הגדרה מדויקת</th><th>מה לא נכלל</th><th>הערה</th></tr>
+      <tr>
+        <td><strong>פוליסה פעילה</strong></td>
+        <td>פוליסה עם status='פעיל' AND end_date IS NULL</td>
+        <td>ממתין, מושעה, בוטל</td>
+        <td>בסיס לכל מדדי הגידול</td>
+      </tr>
+      <tr>
+        <td><strong>חידוש</strong></td>
+        <td>פוליסה שתאריך חידושה חל בתקופה, ונוצרה פוליסה חדשה לאותו לקוח ואותו סוג</td>
+        <td>שדרוג כיסוי, פוליסה חדשה לאחר 60+ יום</td>
+        <td>חלון חידוש = renewal_date ± 30 יום</td>
+      </tr>
+      <tr>
+        <td><strong>פוליסה חדשה</strong></td>
+        <td>פוליסה שנוצרה ב-start_date ואין לה predecessor_policy_id</td>
+        <td>חידושים (גם אם הם start_date חדש)</td>
+        <td>predecessor_policy_id = FK לפוליסה קודמת</td>
+      </tr>
+      <tr>
+        <td><strong>ביטול מחוב</strong></td>
+        <td>פוליסה עם status='בוטל' AND cancellation_reason='חוב'</td>
+        <td>ביטול ביוזמת לקוח, ביטול בגלל סיום תקופה</td>
+        <td>רלוונטי לחישוב non_payment_rate</td>
+      </tr>
+      <tr>
+        <td><strong>אי-תשלום</strong></td>
+        <td>ביטולי חוב ÷ סה"כ פוליסות פעילות בתקופה</td>
+        <td>פיגורים שלא הובילו לביטול</td>
+        <td>שלב ה"אזהרה" הנו פיגור 30+ ימים (לא נספר כאי-תשלום)</td>
+      </tr>
+      <tr>
+        <td><strong>תביעה</strong></td>
+        <td>כל אירוע שנפתח claim_id, ללא קשר לסטטוס</td>
+        <td>—</td>
+        <td>כולל תביעות שנסגרו ונדחו — לצורך חישוב יחס</td>
+      </tr>
+      <tr>
+        <td><strong>NPS סוכן</strong></td>
+        <td>ממוצע ציוני NPS של לקוחות שהפוליסה שלהם מנוהלת ע"י הסוכן</td>
+        <td>סקרים על תביעות (שרות תביעות אחראי)</td>
+        <td>90 יום גלגלתי, מינ' 5 תגובות</td>
+      </tr>
+      <tr>
+        <td><strong>סגמנט</strong></td>
+        <td>סיווג ניהולי פנימי של איכות הסוכן: A/B/C/Growth/Watch</td>
+        <td>—</td>
+        <td>סודי — לא לסוכן</td>
+      </tr>
+      <tr>
+        <td><strong>composite_score</strong></td>
+        <td>ממוצע משוקלל של 8 KPIs (ראה סעיף 5)</td>
+        <td>—</td>
+        <td>סודי — לא לסוכן</td>
+      </tr>
+      <tr>
+        <td><strong>מפקח</strong></td>
+        <td>עובד חברה שמנהל קבוצת סוכנים ישירים</td>
+        <td>מנהל סניף (רמה גבוהה יותר)</td>
+        <td>יחס 1:N (מפקח:סוכנים)</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<!-- Footer -->
+<div style="text-align:center; color:var(--muted); font-size:.78rem; margin-top:40px; padding-top:20px; border-top:1px solid var(--border)">
+  מסמך זה סודי ומיועד לשימוש פנימי בלבד | דאשבורד ניהול ביטוח | גרסה 1.0 | מאי 2026
+</div>
+
+</div><!-- /page -->
+</body>
+</html>
