@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מסמך איפיון — לוח בקרה מגדל אלמנטר</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1a4a8a;
+  --blue2:#2563eb;
+  --blue3:#eff6ff;
+  --teal:#0891b2;
+  --red:#dc2626;
+  --green:#16a34a;
+  --orange:#ea580c;
+  --purple:#7c3aed;
+  --muted:#64748b;
+  --border:#e2e8f0;
+  --bg:#f8fafc;
+}
+body{
+  font-family:'Heebo',sans-serif;
+  background:#fff;
+  color:#1e293b;
+  direction:rtl;
+  font-size:14px;
+  line-height:1.7;
+}
+a{color:var(--blue2);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ── Cover ── */
+.cover{
+  background:linear-gradient(160deg,#1a4a8a 0%,#1e40af 60%,#0f172a 100%);
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;padding:60px 40px;
+  page-break-after:always;
+}
+.cover-logo{font-size:1rem;font-weight:800;color:rgba(255,255,255,.5);letter-spacing:2px;text-transform:uppercase;margin-bottom:40px}
+.cover-title{font-size:3.2rem;font-weight:900;color:#fff;line-height:1.15;margin-bottom:16px}
+.cover-title span{color:#93c5fd}
+.cover-subtitle{font-size:1.15rem;color:#93c5fd;font-weight:400;margin-bottom:48px;max-width:560px}
+.cover-meta{display:flex;gap:40px;flex-wrap:wrap;justify-content:center}
+.cover-meta-item{text-align:center}
+.cover-meta-label{font-size:.72rem;color:rgba(255,255,255,.5);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+.cover-meta-val{font-size:.95rem;font-weight:700;color:#fff}
+.cover-version{margin-top:48px;font-size:.75rem;color:rgba(255,255,255,.3)}
+
+/* ── Layout ── */
+.container{max-width:900px;margin:0 auto;padding:48px 40px}
+
+/* ── TOC ── */
+.toc{
+  background:var(--bg);border:1px solid var(--border);border-radius:12px;
+  padding:28px 32px;margin:40px 0;
+}
+.toc-title{font-size:1rem;font-weight:700;color:var(--blue);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.toc-list{list-style:none;columns:2;gap:24px}
+.toc-item{margin-bottom:6px}
+.toc-item a{font-size:.85rem;color:var(--muted);display:flex;align-items:center;gap:6px}
+.toc-item a:hover{color:var(--blue)}
+.toc-num{font-size:.7rem;font-weight:700;background:var(--blue3);color:var(--blue);padding:1px 6px;border-radius:4px;flex-shrink:0}
+
+/* ── Sections ── */
+.section{margin-bottom:56px}
+.section-header{
+  display:flex;align-items:flex-start;gap:14px;
+  border-bottom:2px solid var(--border);
+  padding-bottom:14px;margin-bottom:28px;
+}
+.section-num{
+  min-width:40px;height:40px;border-radius:10px;
+  background:var(--blue);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;font-weight:800;flex-shrink:0;margin-top:2px;
+}
+.section-title{font-size:1.6rem;font-weight:800;color:var(--blue)}
+.section-sub-title{font-size:1.05rem;font-weight:700;color:var(--blue);margin:24px 0 12px;padding-right:12px;border-right:3px solid var(--blue2)}
+
+/* ── Sub sections ── */
+.sub-section{margin-bottom:32px}
+h3.sub{font-size:.95rem;font-weight:700;color:#334155;margin:20px 0 10px;display:flex;align-items:center;gap:8px}
+h3.sub::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--blue2);flex-shrink:0}
+
+/* ── Callout boxes ── */
+.callout{border-radius:10px;padding:16px 20px;margin:16px 0;font-size:.875rem}
+.callout-blue{background:var(--blue3);border-right:4px solid var(--blue2)}
+.callout-green{background:#f0fdf4;border-right:4px solid var(--green)}
+.callout-orange{background:#fff7ed;border-right:4px solid var(--orange)}
+.callout-red{background:#fef2f2;border-right:4px solid var(--red)}
+.callout-purple{background:#faf5ff;border-right:4px solid var(--purple)}
+.callout-title{font-weight:700;margin-bottom:6px;font-size:.875rem}
+
+/* ── Tables ── */
+.spec-table{width:100%;border-collapse:collapse;font-size:.82rem;margin:16px 0;box-shadow:0 1px 4px rgba(0,0,0,.06);border-radius:8px;overflow:hidden}
+.spec-table th{background:#f1f5f9;padding:10px 14px;text-align:right;font-weight:700;color:var(--muted);border-bottom:2px solid var(--border);white-space:nowrap;font-size:.78rem}
+.spec-table td{padding:10px 14px;border-bottom:1px solid #f8fafc;vertical-align:top}
+.spec-table tr:last-child td{border-bottom:none}
+.spec-table tr:hover td{background:#fafafa}
+.spec-table .first-col{font-weight:600;color:#334155;white-space:nowrap}
+
+/* ── Badges ── */
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.7rem;font-weight:700}
+.badge-must{background:#fef2f2;color:#b91c1c}
+.badge-should{background:#fff7ed;color:#c2410c}
+.badge-nice{background:#f0fdf4;color:#15803d}
+.badge-open{background:#faf5ff;color:#6d28d9}
+.badge-done{background:#f0fdf4;color:#16a34a}
+.badge-p0{background:#fee2e2;color:#dc2626}
+.badge-p1{background:#ffedd5;color:#ea580c}
+.badge-p2{background:#f0fdf4;color:#16a34a}
+
+/* ── User stories ── */
+.story{
+  background:#fafafa;border:1px solid var(--border);
+  border-radius:8px;padding:14px 16px;margin-bottom:10px;
+}
+.story-role{font-size:.7rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.story-text{font-size:.875rem;font-weight:500;color:#334155}
+.story-text em{color:var(--muted);font-style:normal;font-weight:400}
+
+/* ── Metric cards ── */
+.metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:14px 0}
+.metric-card{
+  border:1px solid var(--border);border-radius:10px;padding:14px 16px;
+  border-top:3px solid var(--blue);
+}
+.metric-card.red{border-top-color:var(--red)}
+.metric-card.orange{border-top-color:var(--orange)}
+.metric-card.green{border-top-color:var(--green)}
+.metric-card.purple{border-top-color:var(--purple)}
+.metric-card.teal{border-top-color:var(--teal)}
+.metric-name{font-size:.78rem;font-weight:700;color:var(--blue);margin-bottom:4px}
+.metric-def{font-size:.75rem;color:var(--muted);margin-bottom:8px;line-height:1.5}
+.metric-formula{font-size:.7rem;background:#f1f5f9;border-radius:4px;padding:4px 8px;font-family:monospace;color:#334155}
+.metric-thresh{font-size:.68rem;margin-top:6px;font-weight:600}
+.metric-thresh.red{color:var(--red)}
+.metric-thresh.orange{color:var(--orange)}
+.metric-thresh.green{color:var(--green)}
+
+/* ── Alert config table ── */
+.alert-cat{
+  margin-bottom:20px;border:1px solid var(--border);border-radius:10px;overflow:hidden;
+}
+.alert-cat-header{
+  padding:10px 16px;font-weight:700;font-size:.88rem;display:flex;align-items:center;gap:8px;
+}
+
+/* ── Open questions ── */
+.question{
+  background:#fff;border:1px solid #e9d5ff;border-right:4px solid var(--purple);
+  border-radius:8px;padding:14px 16px;margin-bottom:10px;
+}
+.question-id{font-size:.68rem;font-weight:700;color:var(--purple);margin-bottom:4px}
+.question-text{font-size:.875rem;font-weight:500;color:#334155;margin-bottom:6px}
+.question-context{font-size:.78rem;color:var(--muted)}
+.question-owner{font-size:.7rem;font-weight:700;color:var(--purple);margin-top:6px}
+
+/* ── Print ── */
+@media print{
+  .cover{min-height:auto;padding:40px}
+  .container{padding:24px 20px;max-width:100%}
+  .section{page-break-inside:avoid}
+  .no-print{display:none}
+}
+
+/* ── Misc ── */
+.divider{border:none;border-top:1px solid var(--border);margin:32px 0}
+p{margin-bottom:10px}
+ul,ol{padding-right:20px;margin-bottom:10px}
+li{margin-bottom:4px;font-size:.875rem}
+.muted{color:var(--muted);font-size:.82rem}
+.tag-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.tag{display:inline-block;padding:3px 10px;border-radius:12px;font-size:.7rem;font-weight:700;background:var(--blue3);color:var(--blue)}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════
+     COVER PAGE
+════════════════════════════════════════════ -->
+<div class="cover">
+  <div class="cover-logo">מגדל ביטוח · מערך אלמנטר</div>
+  <h1 class="cover-title">מסמך <span>איפיון</span><br>לוח בקרה ביצועים</h1>
+  <p class="cover-subtitle">הגדרות מפורטות לטאב פרופיל סוכן ומערך ההתראות — מדדים, חיתוכים, לוגיקת עסק</p>
+  <div class="cover-meta">
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">גרסה</div>
+      <div class="cover-meta-val">v1.0 — טיוטה</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">תאריך</div>
+      <div class="cover-meta-val">מאי 2026</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">סטטוס</div>
+      <div class="cover-meta-val">לאישור</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">מוצר</div>
+      <div class="cover-meta-val">Dashboard v1</div>
+    </div>
+  </div>
+  <div class="cover-version">מסמך פנימי — לא להפצה</div>
+</div>
+
+
+<!-- ════════════════════════════════════════════
+     DOCUMENT BODY
+════════════════════════════════════════════ -->
+<div class="container">
+
+<!-- ── TOC ── -->
+<div class="toc">
+  <div class="toc-title">📋 תוכן עניינים</div>
+  <ul class="toc-list">
+    <li class="toc-item"><a href="#s1"><span class="toc-num">1</span> רקע ומטרות</a></li>
+    <li class="toc-item"><a href="#s2"><span class="toc-num">2</span> משתמשים ותפקידים</a></li>
+    <li class="toc-item"><a href="#s3"><span class="toc-num">3</span> פרופיל סוכן — הגדרות כלליות</a></li>
+    <li class="toc-item"><a href="#s4"><span class="toc-num">4</span> מדדי איכות המכר</a></li>
+    <li class="toc-item"><a href="#s5"><span class="toc-num">5</span> חיתוכים ופילטרים</a></li>
+    <li class="toc-item"><a href="#s6"><span class="toc-num">6</span> מבנה תצוגת פרופיל הסוכן</a></li>
+    <li class="toc-item"><a href="#s7"><span class="toc-num">7</span> מערך ההתראות — הגדרות</a></li>
+    <li class="toc-item"><a href="#s8"><span class="toc-num">8</span> בנק ההתראות המלא</a></li>
+    <li class="toc-item"><a href="#s9"><span class="toc-num">9</span> מודל נתונים</a></li>
+    <li class="toc-item"><a href="#s10"><span class="toc-num">10</span> שאלות פתוחות</a></li>
+    <li class="toc-item"><a href="#s11"><span class="toc-num">11</span> דוח לסוכן — מפרט מלא</a></li>
+  </ul>
+</div>
+
+
+<!-- ════════════ 1. רקע ════════════ -->
+<div class="section" id="s1">
+  <div class="section-header">
+    <div class="section-num">1</div>
+    <div>
+      <div class="section-title">רקע ומטרות</div>
+      <div class="muted">מה המוצר נועד לפתור?</div>
+    </div>
+  </div>
+
+  <div class="callout callout-blue">
+    <div class="callout-title">📌 הצהרת הבעיה</div>
+    כיום, מנהלים ומפקחים מתקשים לקבל תמונה אחידה ומיידית על ביצועי הסוכנים שלהם. הנתונים מפוזרים בין מערכות שונות, מדדי האיכות אינם מוגדרים אחידות, ואין מנגנון שיגרתי שמחבר בין נתון לפעולה — בין "הסוכן מתחת ליעד" לבין "מה לעשות עכשיו".
+  </div>
+
+  <div class="section-sub-title">מטרות המוצר</div>
+  <table class="spec-table">
+    <thead><tr><th>#</th><th>מטרה</th><th>מדד הצלחה</th><th>עדיפות</th></tr></thead>
+    <tbody>
+      <tr><td class="first-col">M1</td><td>לאפשר לכל מפקח לראות את כל הסוכנים שלו בלוח אחד</td><td>100% כיסוי סוכנים במערכת</td><td><span class="badge badge-p0">P0</span></td></tr>
+      <tr><td class="first-col">M2</td><td>להגדיר ולמדוד "איכות מכר" בצורה אחידה וברורה</td><td>הגדרת 5+ מדדי איכות, עם ספי אזהרה</td><td><span class="badge badge-p0">P0</span></td></tr>
+      <tr><td class="first-col">M3</td><td>לחבר בין ממצא לפעולה — תמצית שיחה מוכנה למפקח</td><td>דוח שיחה ניתן להדפסה לכל פרופיל</td><td><span class="badge badge-p0">P0</span></td></tr>
+      <tr><td class="first-col">M4</td><td>מנגנון התראות פרואקטיבי שמזהה בעיות לפני שהן מחריפות</td><td>≥25 כללי התראה מוגדרים ופעילים</td><td><span class="badge badge-p1">P1</span></td></tr>
+      <tr><td class="first-col">M5</td><td>תמיכה בשני פרופילי משתמש: מנהל (all-up) ומפקח (תת-קבוצה)</td><td>הפרדת תצוגה לפי תפקיד</td><td><span class="badge badge-p1">P1</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ════════════ 2. משתמשים ════════════ -->
+<div class="section" id="s2">
+  <div class="section-header">
+    <div class="section-num">2</div>
+    <div>
+      <div class="section-title">משתמשים ותפקידים</div>
+      <div class="muted">מי משתמש במוצר ואיך?</div>
+    </div>
+  </div>
+
+  <div class="callout callout-orange">
+    <div class="callout-title">⚠️ הנחת יסוד קריטית</div>
+    כל תפקיד רואה רק את הנתונים הרלוונטיים לו. מפקח לא רואה סוכנים של מפקח אחר. הסוכן עצמו לא מקבל גישה לדאשבורד — רק לדוח המודפס שמפקחו מביא לפגישה.
+  </div>
+
+  <table class="spec-table" style="margin-top:20px">
+    <thead><tr><th>תפקיד</th><th>תיאור</th><th>מה הוא רואה</th><th>מה הוא לא רואה</th><th>פעולות זמינות</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="first-col">מנהל<br><span style="font-weight:400;color:var(--muted);font-size:.75rem">Regional Manager</span></td>
+        <td>אחראי על כלל המפקחים והסוכנים באזור</td>
+        <td>כל הסוכנים, כל המפקחים, כל הענפים</td>
+        <td>—</td>
+        <td>צפייה בכל פרופילי סוכן, ייצוא דוחות, הגדרת התראות, הצגת שם המפקח לכל סוכן</td>
+      </tr>
+      <tr>
+        <td class="first-col">מפקח<br><span style="font-weight:400;color:var(--muted);font-size:.75rem">Supervisor</span></td>
+        <td>אחראי על 10–30 סוכנים בסוכנות / אזור</td>
+        <td>רק הסוכנים שלו, ביצועים לפי ענף רלוונטי</td>
+        <td>סוכנים של מפקחים אחרים, הגדרות התראות של מנהל</td>
+        <td>צפייה בפרופיל סוכן, הדפסת דוח לסוכן, קבלת התראות (לא הגדרתן)</td>
+      </tr>
+      <tr>
+        <td class="first-col">מנתח נתונים<br><span style="font-weight:400;color:var(--muted);font-size:.75rem">Analyst (עתידי)</span></td>
+        <td>תפקיד עתידי — גישה לנתונים גולמיים</td>
+        <td>נתונים אגרגטיביים, אין פרופיל פרטני</td>
+        <td>נתוני פרט רגישים</td>
+        <td>ייצוא, סינונים מתקדמים</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-purple" style="margin-top:16px">
+    <div class="callout-title">🔑 שאלה פתוחה — בקרת גישה</div>
+    האם ה-authentication יהיה SSO עם מגדל Active Directory, או login עצמאי? מה קורה אם מפקח עזב והסוכנים שלו עדיין בפורטפוליו? נושא זה צריך לקבל מענה בשלב ה-Phase 2.
+  </div>
+</div>
+
+
+<!-- ════════════ 3. פרופיל סוכן ════════════ -->
+<div class="section" id="s3">
+  <div class="section-header">
+    <div class="section-num">3</div>
+    <div>
+      <div class="section-title">פרופיל סוכן — הגדרות כלליות</div>
+      <div class="muted">מטרת הטאב, user stories, ומה בו</div>
+    </div>
+  </div>
+
+  <div class="section-sub-title">מטרת הטאב</div>
+  <p>הטאב הזה הוא <strong>כלי עבודה של המפקח לפני ובמהלך שיחת המשוב עם הסוכן</strong>. הוא אמור לתת תשובה לשאלה: "מה מצבו של הסוכן הזה, מה השתבש, ועל מה לדבר איתו היום?"</p>
+  <p>הטאב פונה לשני שימושים שונים:</p>
+  <ul>
+    <li><strong>מבט מפקח</strong> — עם הערות פנימיות, ציון מכר, נתוני השוואה, מפקח משויך</li>
+    <li><strong>דוח סוכן (הדפסה בלבד)</strong> — ללא ציון סגמנט פנימי, עם יעדים קונקרטיים ומחוון אישי</li>
+  </ul>
+
+  <div class="section-sub-title" style="margin-top:24px">User Stories</div>
+
+  <div class="story">
+    <div class="story-role">👤 מפקח</div>
+    <div class="story-text">אני רוצה לפתוח פרופיל של סוכן ולהבין <em>תוך 30 שניות</em> מה מצבו, כדי שאוכל לבוא מוכן לשיחה מבלי לחפש נתונים ממערכות אחרות.</div>
+  </div>
+
+  <div class="story">
+    <div class="story-role">👤 מפקח</div>
+    <div class="story-text">אני רוצה לראות <em>דגלים אדומים ממוקדים</em> — "56 לקוחות רכוש ללא חובה" ולא רק "יחס 0.72" — כדי שאוכל לדעת מה בדיוק לבקש מהסוכן.</div>
+  </div>
+
+  <div class="story">
+    <div class="story-role">👤 מפקח</div>
+    <div class="story-text">אני רוצה להדפיס דוח <em>אישי לסוכן</em> לפני הפגישה — עם יעד ₪ ספציפי לכל פעולה — כדי שהשיחה תהיה עניינית ומבוססת מספרים.</div>
+  </div>
+
+  <div class="story">
+    <div class="story-role">👤 מנהל</div>
+    <div class="story-text">אני רוצה לראות <em>לאיזה מפקח שייך כל סוכן</em> כדי לדעת עם מי לדבר כשאני רואה בעיה בביצועים.</div>
+  </div>
+
+  <div class="story">
+    <div class="story-role">👤 מנהל</div>
+    <div class="story-text">אני רוצה לראות <em>מגמה חודשית / רבעונית</em> לכל ענף בפרופיל, כדי לדעת אם הסוכן בשיפור גם אם טרם הגיע ליעד.</div>
+  </div>
+
+  <div class="section-sub-title">אנטומיה של פרופיל הסוכן</div>
+  <table class="spec-table">
+    <thead><tr><th>אזור</th><th>תוכן</th><th>מי רואה</th><th>דרישה</th></tr></thead>
+    <tbody>
+      <tr><td class="first-col">כותרת</td><td>שם סוכן, שם סוכנות, שם מפקח, תאריך עדכון</td><td>מנהל + מפקח</td><td><span class="badge badge-must">חובה</span></td></tr>
+      <tr><td class="first-col">ציון מכר</td><td>ציון 0–100 מחושב אוטומטית (ראה סעיף 4)</td><td>מנהל + מפקח (לא בדוח הסוכן)</td><td><span class="badge badge-must">חובה</span></td></tr>
+      <tr><td class="first-col">תמצית מנהלים</td><td>3 ממצאים קריטיים + 3 פעולות עם מספרים ₪ + תמלול לשיחת מפקח</td><td>מנהל + מפקח</td><td><span class="badge badge-must">חובה</span></td></tr>
+      <tr><td class="first-col">טאבים עולמות</td><td>רכב / דירות / עסקים — פירוט לפי ענף</td><td>מנהל + מפקח</td><td><span class="badge badge-must">חובה</span></td></tr>
+      <tr><td class="first-col">גרפי מגמה</td><td>חודשי לרכב/דירות, רבעוני לעסקים</td><td>מנהל + מפקח</td><td><span class="badge badge-must">חובה</span></td></tr>
+      <tr><td class="first-col">מדד גבייה</td><td>% גבייה, פירוט לפי אמצעי תשלום</td><td>מנהל + מפקח</td><td><span class="badge badge-must">חובה</span></td></tr>
+      <tr><td class="first-col">דוח הדפסה</td><td>One-pager לסוכן — ללא נתונים פנימיים</td><td>מנהל + מפקח (מביאים לסוכן)</td><td><span class="badge badge-must">חובה</span></td></tr>
+      <tr><td class="first-col">סגמנט פנימי</td><td>Growth / Improve / Basis — לשימוש פנימי בלבד</td><td>מנהל + מפקח <strong>בלבד</strong></td><td><span class="badge badge-must">חובה</span></td></tr>
+      <tr><td class="first-col">הערות מפקח</td><td>שדה חופשי לכתיבת הערות לשיחה</td><td>המפקח הרלוונטי בלבד</td><td><span class="badge badge-should">רצוי</span></td></tr>
+      <tr><td class="first-col">היסטוריית שיחות</td><td>תאריכי פגישות קודמות + תמצית</td><td>מנהל + מפקח</td><td><span class="badge badge-nice">יפה לו</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ════════════ 4. מדדי איכות המכר ════════════ -->
+<div class="section" id="s4">
+  <div class="section-header">
+    <div class="section-num">4</div>
+    <div>
+      <div class="section-title">מדדי איכות המכר</div>
+      <div class="muted">הגדרות, נוסחאות, ספי אזהרה</div>
+    </div>
+  </div>
+
+  <div class="callout callout-blue">
+    <div class="callout-title">📐 מה זה "ציון מכר"?</div>
+    ציון מכר הוא מספר כולל 0–100 שמאגד את כלל ממדי האיכות של הסוכן לציון אחד. הוא מאפשר להשוות סוכנים מקבוצות שונות ולעקוב אחר שיפור. הוא <strong>אינו</strong> מחליף את המדדים הפרטניים — הוא מדד כניסה בלבד, ואחריו יש drill-down לפי ממד.
+  </div>
+
+  <div class="section-sub-title">ממדי הציון — הגדרות</div>
+
+  <div class="metric-grid">
+
+    <div class="metric-card">
+      <div class="metric-name">📊 עמידה ביעד פרמיה</div>
+      <div class="metric-def">עמידת הסוכן ביעד הפרמיה השנתי שנקבע לו, מחושב על בסיס YTD לינארי.</div>
+      <div class="metric-formula">% = YTD_actual ÷ YTD_linear_target × 100</div>
+      <div class="metric-thresh green">✅ ≥90% — ירוק</div>
+      <div class="metric-thresh orange">⚠️ 70%–90% — כתום</div>
+      <div class="metric-thresh red">🚨 &lt;70% — אדום</div>
+    </div>
+
+    <div class="metric-card orange">
+      <div class="metric-name">🔄 שיעור חידוש פוליסות</div>
+      <div class="metric-def">אחוז פוליסות שחודשו מסך הפוליסות שהגיעו לחידוש בתקופה, לפי ענף.</div>
+      <div class="metric-formula">% = חודשו ÷ (חודשו + לא חודשו) × 100</div>
+      <div class="metric-thresh green">✅ ≥85% — ירוק</div>
+      <div class="metric-thresh orange">⚠️ 75%–85% — כתום</div>
+      <div class="metric-thresh red">🚨 &lt;75% — אדום</div>
+    </div>
+
+    <div class="metric-card red">
+      <div class="metric-name">🚦 יחס חובה/רכוש</div>
+      <div class="metric-def">לכמה מלקוחות הרכוש של הסוכן יש גם ביטוח חובה? מצביע על cross-sell. מדד ייחודי לרכב.</div>
+      <div class="metric-formula">יחס = פוליסות חובה ÷ פוליסות רכוש</div>
+      <div class="metric-thresh green">✅ ≥0.85 — ירוק (ממוצע חברה)</div>
+      <div class="metric-thresh orange">⚠️ 0.70–0.85 — כתום</div>
+      <div class="metric-thresh red">🚨 &lt;0.70 — אדום</div>
+    </div>
+
+    <div class="metric-card purple">
+      <div class="metric-name">🎯 שיעור ריידרים</div>
+      <div class="metric-def">אחוז הפוליסות שיש להן ריידרים (כיסויים נוספים) מסך הפוליסות. מדד cross-sell של כיסויים נוספים.</div>
+      <div class="metric-formula">% = פוליסות עם ≥1 ריידר ÷ סה"כ פוליסות × 100</div>
+      <div class="metric-thresh green">✅ ≥65% — ירוק</div>
+      <div class="metric-thresh orange">⚠️ 50%–65% — כתום</div>
+      <div class="metric-thresh red">🚨 &lt;50% — אדום</div>
+    </div>
+
+    <div class="metric-card teal">
+      <div class="metric-name">💳 מדד גבייה</div>
+      <div class="metric-def">אחוז הפרמיה שנגבתה בפועל מסך הפרמיה שהיה אמור להיגבות. כולל כל אמצעי התשלום.</div>
+      <div class="metric-formula">% = גבייה בפועל ÷ פרמיה לגבייה × 100</div>
+      <div class="metric-thresh green">✅ ≥96% — ירוק (ממוצע חברה)</div>
+      <div class="metric-thresh orange">⚠️ 92%–96% — כתום</div>
+      <div class="metric-thresh red">🚨 &lt;92% — אדום</div>
+    </div>
+
+    <div class="metric-card red">
+      <div class="metric-name">🔴 שיעור תביעות (CLR)</div>
+      <div class="metric-def">יחס תביעות — Combined Loss Ratio. שיעור גבוה מצביע על סיכון חיתום גבוה בפורטפוליו הסוכן.</div>
+      <div class="metric-formula">CLR% = תשלומי תביעות ÷ פרמיה מצוברת × 100</div>
+      <div class="metric-thresh green">✅ &lt;60% — ירוק</div>
+      <div class="metric-thresh orange">⚠️ 60%–80% — כתום</div>
+      <div class="metric-thresh red">🚨 &gt;80% — אדום</div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-name">🔩 מוסכי הסדר</div>
+      <div class="metric-def">אחוז לקוחות רכוש שבחרו במוסך הסדר לעומת מוסך חופשי. מדד איכות שירות ועלות תביעה.</div>
+      <div class="metric-formula">% = תביעות במוסך הסדר ÷ סה"כ תביעות רכב × 100</div>
+      <div class="metric-thresh green">✅ ≥70% — ירוק</div>
+      <div class="metric-thresh orange">⚠️ 55%–70% — כתום</div>
+      <div class="metric-thresh red">🚨 &lt;55% — אדום</div>
+    </div>
+
+    <div class="metric-card green">
+      <div class="metric-name">🏦 ריכוזיות — Multi-Product</div>
+      <div class="metric-def">אחוז לקוחות שיש להם יותר מענף ביטוח אחד. מדד נאמנות לקוח ועמידות הפורטפוליו.</div>
+      <div class="metric-formula">% = לקוחות עם ≥2 ענפים ÷ סה"כ לקוחות × 100</div>
+      <div class="metric-thresh green">✅ ≥35% — ירוק</div>
+      <div class="metric-thresh orange">⚠️ 20%–35% — כתום</div>
+      <div class="metric-thresh red">🚨 &lt;20% — אדום</div>
+    </div>
+
+  </div>
+
+  <div class="section-sub-title">חישוב ציון מכר מצרפי</div>
+  <table class="spec-table">
+    <thead><tr><th>ממד</th><th>משקל</th><th>נוסחת נרמול</th><th>הערה</th></tr></thead>
+    <tbody>
+      <tr><td class="first-col">עמידה ביעד פרמיה</td><td>30%</td><td>min(actual/target,1.2)×100 → ×0.3</td><td>מדד הכי משפיע</td></tr>
+      <tr><td class="first-col">שיעור חידוש</td><td>25%</td><td>renewal% × 0.25</td><td>מחושב לפי ענף הכי גדול</td></tr>
+      <tr><td class="first-col">יחס חובה/רכוש</td><td>15%</td><td>min(ratio/0.85,1)×100 × 0.15</td><td>רק לסוכני רכב</td></tr>
+      <tr><td class="first-col">מדד גבייה</td><td>15%</td><td>collection% × 0.15</td><td>—</td></tr>
+      <tr><td class="first-col">ריידרים</td><td>10%</td><td>rider_pct/65×100 × 0.10</td><td>—</td></tr>
+      <tr><td class="first-col">מוסכי הסדר</td><td>5%</td><td>garage_pct/70×100 × 0.05</td><td>רק לסוכני רכב</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-orange">
+    <div class="callout-title">⚠️ נקודות לדיון בצוות</div>
+    <ul style="margin-top:8px">
+      <li>האם המשקלים נכונים? צריך לוולידציה עם בעלי הידע בחיתום ובשטח.</li>
+      <li>לסוכנים שעובדים רק בעסקים — האם מחשבים ציון ללא ממדי רכב? צריך לוגיקת נרמול לפי סוג הסוכן.</li>
+      <li>האם ציון מכר יופיע בפרופיל בלבד, או גם בטאב הסוכנים (ב-ranking)?</li>
+    </ul>
+  </div>
+
+  <div class="section-sub-title">ממדי איכות לפי ענף</div>
+  <table class="spec-table">
+    <thead><tr><th>ענף</th><th>ממדי איכות רלוונטיים</th><th>ממד ייחודי</th></tr></thead>
+    <tbody>
+      <tr><td class="first-col">🚗 רכב חובה</td><td>עמידה ביעד, חידוש, גבייה</td><td>יחס חובה/רכוש — כמה לקוחות רכוש יש להם גם חובה</td></tr>
+      <tr><td class="first-col">🔧 רכב רכוש</td><td>עמידה ביעד, חידוש, ריידרים, גבייה, CLR</td><td>מוסכי הסדר, פירוט ריידרים (גרירה/חליפי/שמשות/פנסים)</td></tr>
+      <tr><td class="first-col">🏠 דירה רגילה</td><td>עמידה ביעד, חידוש, ריידרים, גבייה</td><td>שרברב הסדר, ר"א, קומת ביניים — כל אחד לפי ממוצע חברה</td></tr>
+      <tr><td class="first-col">🏦 מבנה משכנתא</td><td>עמידה ביעד, חידוש, גבייה</td><td>קצב גידול YoY — ייחודי בגלל קשר לשוק הנדל"ן</td></tr>
+      <tr><td class="first-col">⚡ נישות</td><td>עמידה ביעד, חידוש, גבייה, CLR</td><td>קצב צמיחה רבעוני — בגלל אופי המכירה</td></tr>
+      <tr><td class="first-col">🏢 עסק מרחבי</td><td>עמידה ביעד, חידוש, CLR</td><td>ירידה YoY — דגל אדום מיידי אם &gt;-10%</td></tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ════════════ 5. חיתוכים ════════════ -->
+<div class="section" id="s5">
+  <div class="section-header">
+    <div class="section-num">5</div>
+    <div>
+      <div class="section-title">חיתוכים ופילטרים</div>
+      <div class="muted">אילו ממדי ניתוח נדרשים לכל תצוגה</div>
+    </div>
+  </div>
+
+  <div class="section-sub-title">ממדי הסתכלות — מטריצה</div>
+  <table class="spec-table">
+    <thead>
+      <tr>
+        <th>ממד ↓ \ תצוגה →</th>
+        <th>מבט הנהלה</th>
+        <th>טאב ביצועים</th>
+        <th>טאב סוכנים</th>
+        <th>פרופיל סוכן</th>
+        <th>התראות</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class="first-col">ענף (כל הענפים)</td><td>✅</td><td>✅</td><td>✅</td><td>✅ (טאבים)</td><td>✅</td></tr>
+      <tr><td class="first-col">תקופה (YTD / MTD / רבעון)</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>—</td></tr>
+      <tr><td class="first-col">סוכנות (Agency)</td><td>✅</td><td>✅</td><td>✅</td><td>—</td><td>✅</td></tr>
+      <tr><td class="first-col">מפקח</td><td>✅</td><td>—</td><td>✅</td><td>מוצג</td><td>✅</td></tr>
+      <tr><td class="first-col">סוכן בודד</td><td>—</td><td>—</td><td>✅ (drill)</td><td>✅ (הטאב הזה)</td><td>✅</td></tr>
+      <tr><td class="first-col">סגמנט (Growth/Improve/Basis)</td><td>✅</td><td>✅</td><td>— (הוסר)</td><td>פנימי בלבד</td><td>—</td></tr>
+      <tr><td class="first-col">YoY / מגמה</td><td>✅</td><td>✅</td><td>✅</td><td>✅ (גרף)</td><td>—</td></tr>
+      <tr><td class="first-col">לפי אמצעי תשלום</td><td>—</td><td>—</td><td>—</td><td>✅ (גבייה)</td><td>✅</td></tr>
+    </tbody>
+  </table>
+
+  <div class="section-sub-title">פילטרים גלובליים בדאשבורד</div>
+  <table class="spec-table">
+    <thead><tr><th>פילטר</th><th>ערכים</th><th>ברירת מחדל</th><th>משפיע על</th></tr></thead>
+    <tbody>
+      <tr><td class="first-col">תקופה</td><td>YTD / MTD / Q1 / Q2 / Q3 / Q4</td><td>YTD</td><td>כל הטאבים</td></tr>
+      <tr><td class="first-col">ענף</td><td>כל הענפים / רכב / דירות / עסקים / נישות</td><td>כל הענפים</td><td>טאב ביצועים, סוכנים</td></tr>
+      <tr><td class="first-col">סוכנות</td><td>רשימה דינמית מהמערכת</td><td>כולם</td><td>כל הטאבים</td></tr>
+      <tr><td class="first-col">שנה</td><td>2024 / 2025 / 2026</td><td>2026</td><td>כל הטאבים</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-purple">
+    <div class="callout-title">🔑 שאלה פתוחה — פילטרים בפרופיל סוכן</div>
+    כרגע פרופיל הסוכן הוא תמיד "המצב הנוכחי" (YTD שוטף). האם יש צורך להציג פרופיל היסטורי — למשל "מצב הסוכן ב-Q3 2025"? זה ישפיע על ארכיטקטורת הנתונים.
+  </div>
+</div>
+
+
+<!-- ════════════ 6. מבנה תצוגה ════════════ -->
+<div class="section" id="s6">
+  <div class="section-header">
+    <div class="section-num">6</div>
+    <div>
+      <div class="section-title">מבנה תצוגת פרופיל הסוכן</div>
+      <div class="muted">היררכיית המידע בתוך הפרופיל</div>
+    </div>
+  </div>
+
+  <div class="section-sub-title">אזור 1 — כותרת ותמצית</div>
+  <table class="spec-table">
+    <thead><tr><th>שדה</th><th>מקור</th><th>פורמט</th><th>הערות</th></tr></thead>
+    <tbody>
+      <tr><td class="first-col">שם סוכן</td><td>CRM</td><td>טקסט</td><td>חובה</td></tr>
+      <tr><td class="first-col">שם סוכנות</td><td>CRM</td><td>טקסט</td><td>חובה</td></tr>
+      <tr><td class="first-col">שם מפקח</td><td>CRM / HR</td><td>טקסט</td><td>מוצג למנהל ולמפקח, לא לסוכן</td></tr>
+      <tr><td class="first-col">סגמנט</td><td>מחושב פנימי</td><td>Growth / Improve / Basis / None</td><td>מוצג פנימית בלבד — לא בדוח סוכן</td></tr>
+      <tr><td class="first-col">ציון מכר</td><td>מחושב</td><td>0–100, עם צבע</td><td>לא בדוח הסוכן</td></tr>
+      <tr><td class="first-col">תאריך עדכון</td><td>ETL</td><td>DD/MM/YYYY HH:MM</td><td>כדי לדעת עד מתי הנתונים</td></tr>
+    </tbody>
+  </table>
+
+  <div class="section-sub-title">אזור 2 — תמצית מנהלים (Call to Action)</div>
+  <p>זה האזור הכי חשוב למפקח — תמצית שמציגה <strong>מה לעשות עכשיו</strong>, לא רק מה קורה.</p>
+  <table class="spec-table">
+    <thead><tr><th>קומפוננטה</th><th>תוכן נדרש</th><th>לוגיקת בחירה</th></tr></thead>
+    <tbody>
+      <tr><td class="first-col">ממצאים קריטיים (3 מקסימום)</td><td>ממצא + עצמת הבעיה (פוטנציאל ₪ / מספר פוליסות)</td><td>ממוין לפי חומרה: אדום → כתום → ירוק</td></tr>
+      <tr><td class="first-col">פעולות נדרשות (3 מקסימום)</td><td>פעולה + יעד קונקרטי + תועלת ₪ + דדליין</td><td>כל פעולה מחוברת לממצא ספציפי</td></tr>
+      <tr><td class="first-col">תמלול לשיחה</td><td>3 נקודות דיון מוכנות למפקח, בנוסח שיחה</td><td>מחושב אוטומטית, בסגנון "שאל את הסוכן..."</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-green">
+    <div class="callout-title">✅ דוגמה — פעולה נכונה</div>
+    <strong>❌ גרוע:</strong> "יחס חובה/רכוש נמוך"<br>
+    <strong>✅ טוב:</strong> "56 לקוחות רכוש ללא חובה — אם תסגור 15 מהם: +₪63K פרמיה שנתית. יעד: אפריל 2026"
+  </div>
+
+  <div class="section-sub-title">אזור 3 — ביצועים לפי עולם</div>
+  <p>שלושה טאבים: רכב / דירות / עסקים. כל טאב מכיל את כל הענפים הרלוונטיים לאותו עולם.</p>
+
+  <table class="spec-table">
+    <thead><tr><th>טאב</th><th>ענפים</th><th>מדדי איכות מוצגים</th><th>גרף מגמה</th></tr></thead>
+    <tbody>
+      <tr><td class="first-col">🚗 רכב</td><td>חובה (ענף 20), רכוש (ענף 25, 125)</td><td>יחס חובה/רכוש, ריידרים (4 סוגים), מוסכי הסדר</td><td>חודשי — 6 חודשים אחרונים</td></tr>
+      <tr><td class="first-col">🏠 דירות</td><td>דירה רגילה (180), מבנה משכנתא (328)</td><td>שרברב הסדר, ר"א, קומת ביניים</td><td>חודשי — 6 חודשים אחרונים</td></tr>
+      <tr><td class="first-col">🏢 עסקים</td><td>נישות (650,550), עסק מרחבי (150,850,950,152,450)</td><td>CLR, YoY</td><td>רבעוני — 4 רבעונים</td></tr>
+    </tbody>
+  </table>
+
+  <div class="section-sub-title">דוח הדפסה — One Pager לסוכן</div>
+  <div class="callout callout-orange">
+    <div class="callout-title">⚠️ כלל ברזל — הפרדת מידע</div>
+    הדוח המודפס לסוכן <strong>לעולם לא יכיל</strong>: ציון מכר, סגמנט, השוואה לסוכנים אחרים, הערות מפקח פנימיות.
+  </div>
+  <table class="spec-table">
+    <thead><tr><th>חלק</th><th>תוכן</th></tr></thead>
+    <tbody>
+      <tr><td class="first-col">כותרת</td><td>שם סוכן, סוכנות, תקופת הדוח (לא ציון, לא סגמנט)</td></tr>
+      <tr><td class="first-col">ביצועים YTD</td><td>פרמיה בפועל vs יעד vs ממוצע חברה — לפי ענף</td></tr>
+      <tr><td class="first-col">מדדי איכות</td><td>חידוש, גבייה, ריידרים — עם ממוצע חברה לצד</td></tr>
+      <tr><td class="first-col">3 פעולות</td><td>מה לעשות, יעד כמותי, מה הרווח ₪, דדליין</td></tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ════════════ 7. מערך ההתראות ════════════ -->
+<div class="section" id="s7">
+  <div class="section-header">
+    <div class="section-num">7</div>
+    <div>
+      <div class="section-title">מערך ההתראות — הגדרות</div>
+      <div class="muted">לוגיקת עסק, ערוצים, הגדרות</div>
+    </div>
+  </div>
+
+  <div class="section-sub-title">עקרונות מנחים</div>
+  <ul>
+    <li><strong>פרואקטיביות:</strong> התראה מגיעה לפני שהבעיה הופכת למשבר, לא אחרי.</li>
+    <li><strong>ניתנת לפעולה:</strong> כל התראה מגיעה עם הצעת פעולה ברורה — "מה לעשות עכשיו".</li>
+    <li><strong>לא רועשת:</strong> המנהל לא צריך לראות 50 התראות ביום. כל התראה צריכה להיות משמעותית.</li>
+    <li><strong>ניתנת להגדרה:</strong> כל מנהל מגדיר אילו התראות הוא רוצה לקבל ובאיזה ערוץ.</li>
+  </ul>
+
+  <div class="section-sub-title">ערוצי התראה</div>
+  <table class="spec-table">
+    <thead><tr><th>ערוץ</th><th>שימוש מתאים</th><th>תדירות מקסימלית</th><th>סטטוס</th></tr></thead>
+    <tbody>
+      <tr><td class="first-col">📊 דאשבורד</td><td>כל התראה — מוצגת בלוח הבקרה</td><td>בזמן אמת (ב-refresh)</td><td><span class="badge badge-done">✅ Phase 1</span></td></tr>
+      <tr><td class="first-col">📧 מייל</td><td>התראות יומיות / שבועיות — digest</td><td>1× ביום / 1× שבוע</td><td><span class="badge badge-should">Phase 2</span></td></tr>
+      <tr><td class="first-col">📱 Push Mobile</td><td>התראות קריטיות בלבד (P0)</td><td>מקסימום 3× ביום</td><td><span class="badge badge-nice">Phase 3</span></td></tr>
+      <tr><td class="first-col">💬 Teams/Slack</td><td>התראות צוות — שיתוף בין מפקחים</td><td>—</td><td><span class="badge badge-open">לדיון</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="section-sub-title">רמות התראה</div>
+  <table class="spec-table">
+    <thead><tr><th>רמה</th><th>הגדרה</th><th>צבע</th><th>ערוץ מינימלי</th></tr></thead>
+    <tbody>
+      <tr><td class="first-col">🔴 קריטי (P0)</td><td>בעיה שמצריכה התייחסות מיידית — תוך 24 שעות</td><td>אדום</td><td>דאשבורד + מייל + Push</td></tr>
+      <tr><td class="first-col">🟡 אזהרה (P1)</td><td>בעיה שמצריכה התייחסות תוך שבוע</td><td>כתום</td><td>דאשבורד + מייל</td></tr>
+      <tr><td class="first-col">🟢 תשומת לב (P2)</td><td>מגמה שכדאי לעקוב אחריה</td><td>ירוק/כחול</td><td>דאשבורד בלבד</td></tr>
+    </tbody>
+  </table>
+
+  <div class="section-sub-title">מבנה כלל התראה</div>
+  <table class="spec-table">
+    <thead><tr><th>שדה</th><th>תיאור</th><th>דוגמה</th></tr></thead>
+    <tbody>
+      <tr><td class="first-col">ID</td><td>מזהה ייחודי</td><td>ALERT-CAR-001</td></tr>
+      <tr><td class="first-col">קטגוריה</td><td>סיווג נושאי</td><td>קצב מכירות</td></tr>
+      <tr><td class="first-col">שם ההתראה</td><td>תיאור קצר</td><td>ירידה חודשית בפרמיה &gt;15%</td></tr>
+      <tr><td class="first-col">רמה</td><td>P0 / P1 / P2</td><td>P1</td></tr>
+      <tr><td class="first-col">סף</td><td>הגדרה כמותית</td><td>15% ירידה</td></tr>
+      <tr><td class="first-col">תדירות בדיקה</td><td>כמה פעמים בודקים</td><td>יומי</td></tr>
+      <tr><td class="first-col">רמת ריצה</td><td>סוכן / סוכנות / מפקח / כולל</td><td>סוכן</td></tr>
+      <tr><td class="first-col">הצעת פעולה</td><td>מה לעשות כשמתקבלת</td><td>פתח פרופיל סוכן → שיחת בירור</td></tr>
+      <tr><td class="first-col">ניתן לכיבוי</td><td>האם המנהל יכול לכבות</td><td>כן</td></tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ════════════ 8. בנק התראות ════════════ -->
+<div class="section" id="s8">
+  <div class="section-header">
+    <div class="section-num">8</div>
+    <div>
+      <div class="section-title">בנק ההתראות המלא</div>
+      <div class="muted">כל ההתראות המוגדרות — לוגיקת עסק ורמות חומרה</div>
+    </div>
+  </div>
+
+  <!-- קטגוריה: יעדים -->
+  <div class="alert-cat">
+    <div class="alert-cat-header" style="background:#eff6ff;color:#1a4a8a">🎯 עמידה ביעדים</div>
+    <table class="spec-table" style="margin:0;border-radius:0">
+      <thead><tr><th>ID</th><th>שם ההתראה</th><th>רמה</th><th>סף</th><th>תדירות</th><th>פעולה מוצעת</th></tr></thead>
+      <tbody>
+        <tr><td>A-01</td><td>סוכן מתחת לX% מהיעד הרבעוני</td><td><span class="badge badge-p0">P0</span></td><td>70% (ניתן לשינוי)</td><td>יומי</td><td>פתח פרופיל → קבע שיחה</td></tr>
+        <tr><td>A-02</td><td>סוכנות מתחת ל-75% מהיעד</td><td><span class="badge badge-p0">P0</span></td><td>75%</td><td>שבועי</td><td>שיחת מפקח → בדוק סוכנים ספציפיים</td></tr>
+        <tr><td>A-03</td><td>ענף בירידה — מתחת ל-80% כולל</td><td><span class="badge badge-p1">P1</span></td><td>80%</td><td>שבועי</td><td>בדוק חלוקה בין סוכנים</td></tr>
+        <tr><td>A-04</td><td>חיזוי: סוכן לא יגיע ליעד בקצב הנוכחי</td><td><span class="badge badge-p1">P1</span></td><td>חיזוי לינארי</td><td>שבועי</td><td>התערב מוקדם — לפני סוף הרבעון</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- קטגוריה: קצב -->
+  <div class="alert-cat">
+    <div class="alert-cat-header" style="background:#fef2f2;color:#b91c1c">📉 קצב מכירות</div>
+    <table class="spec-table" style="margin:0;border-radius:0">
+      <thead><tr><th>ID</th><th>שם ההתראה</th><th>רמה</th><th>סף</th><th>תדירות</th><th>פעולה מוצעת</th></tr></thead>
+      <tbody>
+        <tr><td>B-01</td><td>ירידה בפרמיה חודשית vs חודש קודם</td><td><span class="badge badge-p1">P1</span></td><td>&gt;10% ירידה</td><td>חודשי</td><td>פתח פרופיל → בדוק ענף ספציפי</td></tr>
+        <tr><td>B-02</td><td>ירידה רצופה 3 חודשים</td><td><span class="badge badge-p0">P0</span></td><td>3 חודשים</td><td>חודשי</td><td>שיחת מפקח דחופה</td></tr>
+        <tr><td>B-03</td><td>ירידה בכמות פוליסות חדשות</td><td><span class="badge badge-p1">P1</span></td><td>&gt;15% ירידה</td><td>חודשי</td><td>בדוק pipeline ותיק</td></tr>
+        <tr><td>B-04</td><td>ירידה בפרמיה ברמת ענף כולל</td><td><span class="badge badge-p1">P1</span></td><td>&gt;10% ירידה</td><td>חודשי</td><td>פגישת ניתוח שוק</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- קטגוריה: איכות -->
+  <div class="alert-cat">
+    <div class="alert-cat-header" style="background:#faf5ff;color:#6d28d9">⭐ ממדי איכות מכר</div>
+    <table class="spec-table" style="margin:0;border-radius:0">
+      <thead><tr><th>ID</th><th>שם ההתראה</th><th>רמה</th><th>סף</th><th>תדירות</th><th>פעולה מוצעת</th></tr></thead>
+      <tbody>
+        <tr><td>C-01</td><td>ציון מכר ירד מ-60 נקודות</td><td><span class="badge badge-p1">P1</span></td><td>60</td><td>שבועי</td><td>פרופיל → בחן איזה ממד ירד</td></tr>
+        <tr><td>C-02</td><td>יחס חובה/רכוש מתחת ל-0.8</td><td><span class="badge badge-p1">P1</span></td><td>0.8</td><td>שבועי</td><td>רשימת לקוחות לגישה = הזדמנות מיידית</td></tr>
+        <tr><td>C-03</td><td>ריידרים פחות מ-50% מממוצע חברה</td><td><span class="badge badge-p1">P1</span></td><td>50%</td><td>שבועי</td><td>הכשרה בנושא ריידרים + שיחה</td></tr>
+        <tr><td>C-04</td><td>חידוש מתחת ל-75%</td><td><span class="badge badge-p0">P0</span></td><td>75%</td><td>שבועי</td><td>מיפוי לקוחות שלא חידשו → גישה</td></tr>
+        <tr><td>C-05</td><td>CLR מעל 95% (יחס תביעות גבוה)</td><td><span class="badge badge-p0">P0</span></td><td>95%</td><td>חודשי</td><td>עצור קבלת סיכונים חדשים + חיתום</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- קטגוריה: גבייה -->
+  <div class="alert-cat">
+    <div class="alert-cat-header" style="background:#f0f9ff;color:#0369a1">💳 גבייה</div>
+    <table class="spec-table" style="margin:0;border-radius:0">
+      <thead><tr><th>ID</th><th>שם ההתראה</th><th>רמה</th><th>סף</th><th>תדירות</th><th>פעולה מוצעת</th></tr></thead>
+      <tbody>
+        <tr><td>D-01</td><td>גבייה כוללת מתחת ל-92%</td><td><span class="badge badge-p1">P1</span></td><td>92%</td><td>חודשי</td><td>בחן סוג אמצעי תשלום → המר למזומן→אשראי</td></tr>
+        <tr><td>D-02</td><td>גבייה במזומן מתחת ל-85%</td><td><span class="badge badge-p1">P1</span></td><td>85%</td><td>חודשי</td><td>המר לקוחות אלו לאשראי קבוע</td></tr>
+        <tr><td>D-03</td><td>חוב פתוח מעל 60 יום</td><td><span class="badge badge-p0">P0</span></td><td>60 יום</td><td>שבועי</td><td>תהליך גבייה ידני / פנה ל-Collections</td></tr>
+        <tr><td>D-04</td><td>פוליסות בסיכון ביטול בשל אי-גבייה</td><td><span class="badge badge-p0">P0</span></td><td>לפי כלל החברה</td><td>יומי</td><td>יצירת קשר דחופה עם הלקוח</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- קטגוריה: תפעול -->
+  <div class="alert-cat">
+    <div class="alert-cat-header" style="background:#fff7ed;color:#c2410c">⚙️ תפעול</div>
+    <table class="spec-table" style="margin:0;border-radius:0">
+      <thead><tr><th>ID</th><th>שם ההתראה</th><th>רמה</th><th>סף</th><th>תדירות</th><th>פעולה מוצעת</th></tr></thead>
+      <tbody>
+        <tr><td>E-01</td><td>פוליסה ממתינה לחתימה &gt;7 ימים</td><td><span class="badge badge-p1">P1</span></td><td>7 ימים</td><td>יומי</td><td>עדכן את הסוכן לסגור</td></tr>
+        <tr><td>E-02</td><td>תביעה פתוחה &gt;30 יום ללא עדכון</td><td><span class="badge badge-p1">P1</span></td><td>30 ימים</td><td>שבועי</td><td>בדוק עם Claims</td></tr>
+        <tr><td>E-03</td><td>מסמכים חסרים בפוליסה חדשה</td><td><span class="badge badge-p2">P2</span></td><td>—</td><td>יומי</td><td>עדכן את הסוכן להשלים</td></tr>
+        <tr><td>E-04</td><td>שינוי חריג בתמהיל ביטחונות (סיכון חיתום)</td><td><span class="badge badge-p0">P0</span></td><td>±20% שינוי</td><td>שבועי</td><td>פגישת חיתום</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- קטגוריה: נטישה -->
+  <div class="alert-cat">
+    <div class="alert-cat-header" style="background:#fef2f2;color:#7f1d1d">🔴 נטישת לקוחות</div>
+    <table class="spec-table" style="margin:0;border-radius:0">
+      <thead><tr><th>ID</th><th>שם ההתראה</th><th>רמה</th><th>סף</th><th>תדירות</th><th>פעולה מוצעת</th></tr></thead>
+      <tbody>
+        <tr><td>F-01</td><td>לקוח ביטל יותר מפוליסה אחת ב-30 יום</td><td><span class="badge badge-p1">P1</span></td><td>2+ ביטולים</td><td>שבועי</td><td>שיחת שימור לסוכן</td></tr>
+        <tr><td>F-02</td><td>שיעור ביטול מעל 10% ברבעון</td><td><span class="badge badge-p0">P0</span></td><td>10%</td><td>חודשי</td><td>ניתוח סיבות + שיחת מפקח דחופה</td></tr>
+        <tr><td>F-03</td><td>לקוח VIP (פרמיה &gt;₪50K) לא חידש</td><td><span class="badge badge-p0">P0</span></td><td>50K ₪</td><td>יומי</td><td>מנהל יוצר קשר אישי</td></tr>
+        <tr><td>F-04</td><td>ענף עם שיעור נטישה גבוה מהממוצע</td><td><span class="badge badge-p1">P1</span></td><td>+5% מממוצע</td><td>חודשי</td><td>פגישת ניתוח שוק</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- קטגוריה: סיכון -->
+  <div class="alert-cat">
+    <div class="alert-cat-header" style="background:#f8fafc;color:#475569">🛡️ סיכון וציות</div>
+    <table class="spec-table" style="margin:0;border-radius:0">
+      <thead><tr><th>ID</th><th>שם ההתראה</th><th>רמה</th><th>סף</th><th>תדירות</th><th>פעולה מוצעת</th></tr></thead>
+      <tbody>
+        <tr><td>G-01</td><td>סוכן עם תלונות לקוח &gt;2 ברבעון</td><td><span class="badge badge-p0">P0</span></td><td>2 תלונות</td><td>שבועי</td><td>תחקיר + שיחת מנהל</td></tr>
+        <tr><td>G-02</td><td>כישלון בדיקת AML / רגולציה</td><td><span class="badge badge-p0">P0</span></td><td>—</td><td>מיידי</td><td>הקפאת פעילות + Compliance</td></tr>
+        <tr><td>G-03</td><td>שינוי חריג בדפוס מכירות (חשד הונאה)</td><td><span class="badge badge-p0">P0</span></td><td>אנומליה סטטיסטית</td><td>יומי</td><td>מיידי ל-Risk Management</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+<!-- ════════════ 9. מודל נתונים ════════════ -->
+<div class="section" id="s9">
+  <div class="section-header">
+    <div class="section-num">9</div>
+    <div>
+      <div class="section-title">מודל נתונים</div>
+      <div class="muted">אילו שדות נדרשים ממאגר הנתונים</div>
+    </div>
+  </div>
+
+  <h3 class="sub">ישות: סוכן (Agent)</h3>
+  <table class="spec-table">
+    <thead><tr><th>שדה</th><th>סוג</th><th>מקור</th><th>נדרש לפרופיל?</th></tr></thead>
+    <tbody>
+      <tr><td class="first-col">agent_id</td><td>String</td><td>CRM</td><td>✅</td></tr>
+      <tr><td class="first-col">agent_name</td><td>String</td><td>CRM</td><td>✅</td></tr>
+      <tr><td class="first-col">agency_id / agency_name</td><td>String</td><td>CRM</td><td>✅</td></tr>
+      <tr><td class="first-col">supervisor_id / supervisor_name</td><td>String</td><td>HR / CRM</td><td>✅</td></tr>
+      <tr><td class="first-col">segment</td><td>Enum: growth/improve/basis/none</td><td>מחושב</td><td>פנימי בלבד</td></tr>
+      <tr><td class="first-col">active_since</td><td>Date</td><td>CRM</td><td>עתידי</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="sub">ישות: ביצועי סוכן לפי ענף ותקופה (AgentBranchPerf)</h3>
+  <table class="spec-table">
+    <thead><tr><th>שדה</th><th>סוג</th><th>תיאור</th></tr></thead>
+    <tbody>
+      <tr><td class="first-col">agent_id</td><td>FK</td><td>—</td></tr>
+      <tr><td class="first-col">branch_code</td><td>Enum</td><td>20/25/125/180/328/150/650...</td></tr>
+      <tr><td class="first-col">period</td><td>YYYY-MM</td><td>רמת חודש</td></tr>
+      <tr><td class="first-col">premium_ytd</td><td>Decimal</td><td>פרמיה מצטברת YTD</td></tr>
+      <tr><td class="first-col">premium_target_ytd</td><td>Decimal</td><td>יעד YTD לינארי</td></tr>
+      <tr><td class="first-col">premium_yoy</td><td>Decimal %</td><td>שינוי vs שנה קודמת</td></tr>
+      <tr><td class="first-col">policies_count</td><td>Integer</td><td>כמות פוליסות פעילות</td></tr>
+      <tr><td class="first-col">renewal_rate</td><td>Decimal %</td><td>% חידוש</td></tr>
+      <tr><td class="first-col">collection_rate</td><td>Decimal %</td><td>% גבייה</td></tr>
+      <tr><td class="first-col">clr</td><td>Decimal %</td><td>Combined Loss Ratio</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="sub">ישות: מדדי איכות ספציפיים (QualityMetrics)</h3>
+  <table class="spec-table">
+    <thead><tr><th>שדה</th><th>ענפים רלוונטיים</th><th>תיאור</th></tr></thead>
+    <tbody>
+      <tr><td class="first-col">liability_to_property_ratio</td><td>חובה / רכוש</td><td>יחס חובה/רכוש</td></tr>
+      <tr><td class="first-col">rider_rate_total</td><td>רכוש, דירה</td><td>% ריידרים כוללים</td></tr>
+      <tr><td class="first-col">rider_towing / rider_substitute / rider_glass / rider_lights</td><td>רכוש</td><td>פירוט ריידרים לפי סוג</td></tr>
+      <tr><td class="first-col">authorized_garage_rate</td><td>רכוש</td><td>% מוסכי הסדר</td></tr>
+      <tr><td class="first-col">plumber_rate / earthquake_rate / intermediate_floor_rate</td><td>דירה</td><td>ריידרים לדירה</td></tr>
+      <tr><td class="first-col">cash_collection_rate / bank_collection_rate / credit_collection_rate</td><td>כולם</td><td>גבייה לפי אמצעי</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-orange">
+    <div class="callout-title">⚠️ פער נתונים קריטי לבדיקה</div>
+    <ol style="margin-top:8px">
+      <li>האם שדה <strong>supervisor_id</strong> קיים ב-CRM ומעודכן? בלעדיו, כפתור "מפקח" בדאשבורד לא יעבוד.</li>
+      <li>האם ניתן לקבל נתוני <strong>ריידרים לפי סוג</strong> (גרירה/חליפי/שמשות/פנסים) ברמת סוכן?</li>
+      <li>האם נתוני <strong>תלונות לקוח</strong> נגישים ב-API? או שצריך אינטגרציה נפרדת?</li>
+    </ol>
+  </div>
+</div>
+
+
+<!-- ════════════ 10. שאלות פתוחות ════════════ -->
+<div class="section" id="s10">
+  <div class="section-header">
+    <div class="section-num">10</div>
+    <div>
+      <div class="section-title">שאלות פתוחות</div>
+      <div class="muted">נושאים שדורשים החלטה לפני פיתוח</div>
+    </div>
+  </div>
+
+  <div class="question">
+    <div class="question-id">Q-01 — עדיפות גבוהה</div>
+    <div class="question-text">כיצד מחשבים ציון מכר לסוכן שעובד רק בעסקים? האם הציון מנורמל לפי ענפים פעילים?</div>
+    <div class="question-context">כרגע הציון מניח פעילות בכל הענפים. סוכן עסקים טהור יקבל ציון נמוך באופן מלאכותי.</div>
+    <div class="question-owner">👤 אחראי: מנהל מוצר + חיתום</div>
+  </div>
+
+  <div class="question">
+    <div class="question-id">Q-02 — עדיפות גבוהה</div>
+    <div class="question-text">מה ה-benchmark הנכון לכל מדד — ממוצע חברה? ממוצע סגמנט? יעד נקודתי שנקבע לסוכן?</div>
+    <div class="question-context">כרגע מדגמנים ממוצע חברה. ייתכן שסוכן growth צריך יעד גבוה יותר מסוכן basis.</div>
+    <div class="question-owner">👤 אחראי: מנהל מכירות + Analytics</div>
+  </div>
+
+  <div class="question">
+    <div class="question-id">Q-03 — עדיפות בינונית</div>
+    <div class="question-text">האם תמצית השיחה ("תמלול לשיחה") מחושבת אוטומטית או שהמפקח כותב אותה ידנית?</div>
+    <div class="question-context">חישוב אוטומטי דורש לוגיקת NLG (natural language generation) עם Claude API. ידני מצריך שדה עריכה בממשק.</div>
+    <div class="question-owner">👤 אחראי: מנהל מוצר + Engineering</div>
+  </div>
+
+  <div class="question">
+    <div class="question-id">Q-04 — עדיפות בינונית</div>
+    <div class="question-text">כמה מפקחים יש? מה הגודל הממוצע של פורטפוליו מפקח (כמה סוכנים)?</div>
+    <div class="question-context">ישפיע על ארכיטקטורת הפילטרים ועל מבנה ה-DB queries. מפקח עם 5 סוכנים ≠ מפקח עם 50.</div>
+    <div class="question-owner">👤 אחראי: מנהל השטח</div>
+  </div>
+
+  <div class="question">
+    <div class="question-id">Q-05 — עדיפות בינונית</div>
+    <div class="question-text">מהי תדירות עדכון הנתונים? האם נדרש near-real-time (מספר פעמים ביום) או daily refresh מספיק?</div>
+    <div class="question-context">Daily refresh מוריד עלות infrastructure משמעותית. Near-real-time מצריך streaming ועלות גבוהה יותר.</div>
+    <div class="question-owner">👤 אחראי: Engineering + Finance</div>
+  </div>
+
+  <div class="question">
+    <div class="question-id">Q-06 — עדיפות נמוכה</div>
+    <div class="question-text">האם דוח ה-PDF לסוכן יכיל גרפים (שמצריכים render בשרת), או טבלאות בלבד?</div>
+    <div class="question-context">גרפים ב-PDF מצריכים שלב server-side rendering. טבלאות ניתנות לייצוא ישיר דרך CSS print.</div>
+    <div class="question-owner">👤 אחראי: Engineering + UX</div>
+  </div>
+
+  <div class="question">
+    <div class="question-id">Q-07 — עדיפות נמוכה</div>
+    <div class="question-text">האם התראות יכילו לינק עמוק (deep link) ישירות לפרופיל הסוכן הרלוונטי?</div>
+    <div class="question-context">ישפיע על מבנה ה-URL routing ועל מנגנון ה-authentication של הדאשבורד.</div>
+    <div class="question-owner">👤 אחראי: Engineering</div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="callout callout-blue">
+    <div class="callout-title">📋 צעדים הבאים מומלצים</div>
+    <ol style="margin-top:8px">
+      <li><strong>ולידציה עם מנהלי שטח</strong> — האם ממדי האיכות נכונים? האם ספי האזהרה ריאליים?</li>
+      <li><strong>בדיקת זמינות נתונים</strong> — Q-01 ו-Q-02 בסעיף 9 לפני כל פיתוח.</li>
+      <li><strong>סדנת חיתוכים</strong> — ישיבה עם מנהל מכירות להגדיר במדויק אילו פילטרים קריטיים לשלב 1.</li>
+      <li><strong>Prototype חי</strong> — הדגמת פרופיל הסוכן עם נתונים אמיתיים → שיחת feedback עם 2–3 מפקחים.</li>
+      <li><strong>Phase 2 Backlog</strong> — מייל, Push, authentication, היסטוריית שיחות.</li>
+    </ol>
+  </div>
+
+</div>
+
+
+<!-- ════════════ 11. דוח לסוכן ════════════ -->
+<div class="section" id="s11">
+  <div class="section-header">
+    <div class="section-num">11</div>
+    <div>
+      <div class="section-title">דוח לסוכן — מפרט מלא</div>
+      <div class="muted">המסמך שנשאר אצל הסוכן אחרי הפגישה</div>
+    </div>
+  </div>
+
+  <div class="callout callout-blue">
+    <div class="callout-title">📌 מטרת הדוח</div>
+    הדוח הוא <strong>כלי עבודה של הסוכן עצמו</strong> — לא של המפקח. הוא נמסר לסוכן בסיום שיחת המשוב, ומשמש אותו כתוכנית עבודה אישית ברורה ומדידה לתקופה הקרובה. הדוח כתוב בשפה ישירה, תומכת, וממוקדת במה שהסוכן <em>יכול לשנות</em> — לא בדירוג שלו ביחס לאחרים.
+  </div>
+
+  <div class="section-sub-title">עקרונות עיצוב הדוח</div>
+  <table class="spec-table">
+    <thead><tr><th>עיקרון</th><th>הסבר</th><th>דוגמה ליישום</th></tr></thead>
+    <tbody>
+      <tr><td class="first-col">ממוקד פעולה</td><td>כל שורה מסתיימת בפעולה ברורה שהסוכן יכול לעשות — לא בתיאור מצב</td><td>"צור קשר עם 20 לקוחות רכוש שאין להם חובה עד יוני"</td></tr>
+      <tr><td class="first-col">מספרים קונקרטיים</td><td>כל יעד מגיע עם כמות (פוליסות) ועם ערך ₪ מתורגם</td><td>"15 פוליסות = +₪63,000 פרמיה שנתית"</td></tr>
+      <tr><td class="first-col">ללא השוואה לאחרים</td><td>אין מידע על דירוג, אין "הסוכן הממוצע", אין מקום של הסוכן ב-ranking</td><td>✅ "ממוצע חברה: 85%" — ❌ "אתה במקום ה-7 מתוך 40"</td></tr>
+      <tr><td class="first-col">ללא תיוג פנימי</td><td>אין אזכור של סגמנט (Growth/Improve/Basis) ואין ציון מכר מספרי</td><td>✅ "ביצועי חידוש: 83% (יעד: 86%)" — ❌ "סגמנט: Basis"</td></tr>
+      <tr><td class="first-col">מוטיבציה חיובית</td><td>הדגשת מה טוב — לפני מה צריך לשפר</td><td>פותחים תמיד בהישג חיובי אחד לפחות</td></tr>
+      <tr><td class="first-col">דדליין ברור</td><td>כל פעולה מגיעה עם תאריך יעד</td><td>"עד 30 יוני 2026"</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-red">
+    <div class="callout-title">🚫 מה אסור להופיע בדוח הסוכן — רשימה מוחלטת</div>
+    <table class="spec-table" style="margin-top:10px">
+      <thead><tr><th>שדה אסור</th><th>סיבה</th><th>חלופה מותרת</th></tr></thead>
+      <tbody>
+        <tr><td class="first-col">סגמנט (Growth / Improve / Basis)</td><td>תיוג פנימי — עלול ליצור תחושת דירוג שלילי</td><td>לא להזכיר כלל</td></tr>
+        <tr><td class="first-col">ציון מכר מספרי (61/100)</td><td>המספר מנותק מהקשר ועלול להתפרש שלילית</td><td>ניתן לציין "תחומי שיפור" בלי ציון</td></tr>
+        <tr><td class="first-col">דירוג יחסי ("מקום X מתוך Y")</td><td>פוגע במוטיבציה ואינו מחובר לפעולה</td><td>השוואה לממוצע חברה — בלי דירוג</td></tr>
+        <tr><td class="first-col">שמות סוכנים אחרים</td><td>פרטיות + תחרות לא בריאה</td><td>לא להשוות לסוכן ספציפי</td></tr>
+        <tr><td class="first-col">הערות פנימיות של המפקח</td><td>הערות שמיועדות לניהול, לא לשיתוף</td><td>המפקח מעביר בעל-פה מה שרלוונטי</td></tr>
+        <tr><td class="first-col">נתוני תביעות פרטניים</td><td>חסיון ורגישות משפטית</td><td>שיעור CLR מצרפי בלבד</td></tr>
+        <tr><td class="first-col">מידע על לקוחות בשם</td><td>פרטיות לקוח (GDPR / חוק הגנת הפרטיות)</td><td>כמות לקוחות בלבד ("23 לקוחות")</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-sub-title">מבנה הדוח — פירוט סקשיינים</div>
+
+  <h3 class="sub">סקשיין 1 — כותרת ופרטי זיהוי</h3>
+  <table class="spec-table">
+    <thead><tr><th>שדה</th><th>מוצג?</th><th>הערה</th></tr></thead>
+    <tbody>
+      <tr><td class="first-col">שם הסוכן</td><td>✅ כן</td><td>—</td></tr>
+      <tr><td class="first-col">שם הסוכנות</td><td>✅ כן</td><td>—</td></tr>
+      <tr><td class="first-col">תקופת הדוח</td><td>✅ כן</td><td>לדוגמה: "ינואר–מרץ 2026 (Q1)"</td></tr>
+      <tr><td class="first-col">תאריך הפגישה</td><td>✅ כן</td><td>—</td></tr>
+      <tr><td class="first-col">שם המפקח</td><td>✅ כן</td><td>מי ניהל את הפגישה</td></tr>
+      <tr><td class="first-col">סגמנט פנימי</td><td>🚫 לא</td><td>פנימי בלבד</td></tr>
+      <tr><td class="first-col">ציון מכר</td><td>🚫 לא</td><td>פנימי בלבד</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="sub">סקשיין 2 — הישגים בולטים (פתיחה חיובית)</h3>
+  <p>תמיד פותחים בחיובי — 1–2 נושאים שהסוכן עשה טוב ברבעון. זה מקבע מוטיבציה ומראה שהדוח מאוזן.</p>
+  <table class="spec-table">
+    <thead><tr><th>מה מוצג</th><th>פורמט</th><th>דוגמה</th></tr></thead>
+    <tbody>
+      <tr><td class="first-col">הישג מספר 1</td><td>אייקון ✅ + משפט אחד + מספר</td><td>✅ גבייה בנקאית 97% — מעל ממוצע החברה (95%)</td></tr>
+      <tr><td class="first-col">הישג מספר 2</td><td>אייקון ✅ + משפט אחד + מספר</td><td>✅ חידוש דירות 88% — ביצוע מצוין</td></tr>
+      <tr><td class="first-col">מגמה חיובית (אם קיימת)</td><td>חץ ↑ + %, בלי דירוג</td><td>↑ פרמיה רכוש גדלה +6.2% לעומת אשתקד</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="sub">סקשיין 3 — ביצועים YTD לפי ענף</h3>
+  <p>טבלת ביצועים פשוטה — הסוכן רואה את המצב הנוכחי שלו מול יעד ומול ממוצע חברה. ללא דירוג.</p>
+  <table class="spec-table">
+    <thead><tr><th>עמודה</th><th>מה מוצג</th><th>הערה</th></tr></thead>
+    <tbody>
+      <tr><td class="first-col">ענף</td><td>שם הענף</td><td>רק ענפים שיש לסוכן פעילות בהם</td></tr>
+      <tr><td class="first-col">פרמיה YTD</td><td>₪X.XM</td><td>—</td></tr>
+      <tr><td class="first-col">יעד שנתי</td><td>₪X.XM</td><td>יעד שסוכם עם הסוכן — לא סגמנט פנימי</td></tr>
+      <tr><td class="first-col">% עמידה</td><td>XX% — עם צבע</td><td>ירוק ≥90%, כתום 70–90%, אדום &lt;70%</td></tr>
+      <tr><td class="first-col">חידוש %</td><td>XX%</td><td>עם ממוצע חברה לצד, ללא דירוג</td></tr>
+      <tr><td class="first-col">ממוצע חברה</td><td>XX%</td><td>מאפשר הקשר, לא מדרג</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="sub">סקשיין 4 — מדדי איכות אישיים</h3>
+  <p>3 כרטיסים ויזואליים — כל אחד מציג מדד עם הממוצע של החברה לצד, בלי להגיד "אתה טוב/רע".</p>
+  <table class="spec-table">
+    <thead><tr><th>כרטיס</th><th>מדד מוצג</th><th>הצגה</th></tr></thead>
+    <tbody>
+      <tr><td class="first-col">כרטיס 1</td><td>% חידוש (הענף הכי גדול)</td><td>מספר גדול + ממוצע חברה + חץ מגמה</td></tr>
+      <tr><td class="first-col">כרטיס 2</td><td>% גבייה כוללת</td><td>מספר גדול + ממוצע חברה</td></tr>
+      <tr><td class="first-col">כרטיס 3</td><td>% ריידרים / יחס חובה-רכוש (לפי ענף עיקרי)</td><td>מספר גדול + ממוצע חברה</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="sub">סקשיין 5 — 3 פעולות לתקופה הקרובה</h3>
+  <p>זה ה<strong>לב של הדוח</strong>. כל פעולה מנוסחת כמשימה ברורה עם יעד כמותי, ערך כספי ודדליין.</p>
+
+  <div class="callout callout-green">
+    <div class="callout-title">✅ תבנית פעולה נכונה</div>
+    <table class="spec-table" style="margin-top:8px">
+      <thead><tr><th>רכיב</th><th>תוכן</th><th>דוגמה</th></tr></thead>
+      <tbody>
+        <tr><td class="first-col">מה לעשות</td><td>פעולה אחת ברורה</td><td>"הצע ביטוח חובה ל-56 לקוחות רכוש ללא חובה"</td></tr>
+        <tr><td class="first-col">כמה</td><td>יעד כמותי ריאלי</td><td>"יעד: סגור 20 פוליסות עד יוני"</td></tr>
+        <tr><td class="first-col">מה מרוויחים</td><td>תרגום לפרמיה ₪</td><td>"= +₪84,000 פרמיה שנתית"</td></tr>
+        <tr><td class="first-col">עד מתי</td><td>תאריך יעד</td><td>"דדליין: 30 יוני 2026"</td></tr>
+        <tr><td class="first-col">רמת דחיפות</td><td>🔴 דחוף / 🟡 חשוב / 🟢 הזדמנות</td><td>🔴 דחוף</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub">סקשיין 6 — מחוון אישי (Progress Tracker)</h3>
+  <p>שורת התקדמות ויזואלית לכל ענף — כמה % מהיעד השנתי הושג. נותן לסוכן תמונה ברורה של "איפה אני עכשיו".</p>
+  <table class="spec-table">
+    <thead><tr><th>מה מוצג</th><th>פורמט</th><th>הערה</th></tr></thead>
+    <tbody>
+      <tr><td class="first-col">שם ענף</td><td>טקסט</td><td>—</td></tr>
+      <tr><td class="first-col">פרמיה בפועל</td><td>₪X.XM</td><td>—</td></tr>
+      <tr><td class="first-col">יעד שנתי</td><td>₪X.XM</td><td>—</td></tr>
+      <tr><td class="first-col">סרגל התקדמות</td><td>בר ויזואלי XX%</td><td>ירוק/כתום/אדום לפי % עמידה</td></tr>
+      <tr><td class="first-col">הערה</td><td>"X חודשים נותרו"</td><td>מסייע לסוכן לכוון את הקצב</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="sub">סקשיין 7 — פינת המפקח (אופציונלי)</h3>
+  <p>שדה חופשי שהמפקח יכול למלא ביד או להדפיס — הערה אישית, מסר לסוכן, תאריך פגישה הבאה.</p>
+  <table class="spec-table">
+    <thead><tr><th>שדה</th><th>מוצג בדוח?</th><th>הערה</th></tr></thead>
+    <tbody>
+      <tr><td class="first-col">הערה אישית מהמפקח</td><td>✅ כן — שורות ריקות להשארת כתב יד</td><td>המפקח כותב בעט בזמן הפגישה</td></tr>
+      <tr><td class="first-col">תאריך פגישה הבאה</td><td>✅ כן — שדה ריק להשלמה</td><td>—</td></tr>
+      <tr><td class="first-col">חתימת מפקח</td><td>✅ כן — שורת חתימה</td><td>לרמות אחריות</td></tr>
+      <tr><td class="first-col">הערות ניהוליות פנימיות</td><td>🚫 לא</td><td>נשמרות רק בדאשבורד</td></tr>
+    </tbody>
+  </table>
+
+  <div class="section-sub-title">כללי הפקה — מה חייב לקרות לפני הדפסה</div>
+  <table class="spec-table">
+    <thead><tr><th>#</th><th>בדיקה</th><th>אחראי</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>וידוא שאין אזכור של "סגמנט", "ציון מכר", "מקום X", "Growth/Improve/Basis"</td><td>מערכת — auto-filter</td></tr>
+      <tr><td>2</td><td>כל פעולה מכילה יעד כמותי + ₪ + דדליין (לא רק תיאור)</td><td>מערכת — validation</td></tr>
+      <tr><td>3</td><td>הדוח כולל לפחות הישג חיובי אחד</td><td>מערכת — validation</td></tr>
+      <tr><td>4</td><td>כל הנתונים מתייחסים לסוכן הספציפי — לא לסוכן "טמפלייט"</td><td>מערכת — data binding</td></tr>
+      <tr><td>5</td><td>תאריך עדכון הנתונים מצוין בבירור בתחתית הדוח</td><td>מערכת — auto-populate</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-purple">
+    <div class="callout-title">🔑 שאלות פתוחות — ספציפיות לדוח הסוכן</div>
+    <ul style="margin-top:8px">
+      <li><strong>Q-08:</strong> האם הדוח יודפס מהדאשבורד בלבד (CSS print), או שיש לייצר PDF אמיתי שנשמר ומשלוח גם במייל לסוכן?</li>
+      <li><strong>Q-09:</strong> האם המפקח יכול לערוך את הפעולות המוצעות לפני הדפסה — או שהן נוצרות אוטומטית ונעולות?</li>
+      <li><strong>Q-10:</strong> האם "ממוצע חברה" שמוצג לסוכן הוא ממוצע של כלל הסוכנים, או ממוצע סוכנים בעלי פורטפוליו דומה (גודל / אזור)?</li>
+      <li><strong>Q-11:</strong> מה הפורמט המועדף על הסוכנים — A4 פורטרט / לנדסקייפ? תלוי בכמות הענפים.</li>
+    </ul>
+  </div>
+
+  <div class="section-sub-title">תרשים זרימה — מחיי המפקח לדוח הסוכן</div>
+  <div style="background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:20px;margin:16px 0">
+    <div style="display:flex;align-items:center;flex-wrap:wrap;gap:0">
+      <div style="text-align:center;padding:10px 14px;background:#dbeafe;border-radius:8px;min-width:110px">
+        <div style="font-size:1.2rem">📋</div>
+        <div style="font-size:.72rem;font-weight:700;color:#1a4a8a;margin-top:4px">מפקח פותח<br>פרופיל סוכן</div>
+      </div>
+      <div style="font-size:1.4rem;color:#94a3b8;padding:0 6px">←</div>
+      <div style="text-align:center;padding:10px 14px;background:#ede9fe;border-radius:8px;min-width:110px">
+        <div style="font-size:1.2rem">🔍</div>
+        <div style="font-size:.72rem;font-weight:700;color:#6d28d9;margin-top:4px">מנהל עיון<br>בתמצית</div>
+      </div>
+      <div style="font-size:1.4rem;color:#94a3b8;padding:0 6px">←</div>
+      <div style="text-align:center;padding:10px 14px;background:#dcfce7;border-radius:8px;min-width:110px">
+        <div style="font-size:1.2rem">🖨️</div>
+        <div style="font-size:.72rem;font-weight:700;color:#16a34a;margin-top:4px">מדפיס דוח<br>לסוכן</div>
+      </div>
+      <div style="font-size:1.4rem;color:#94a3b8;padding:0 6px">←</div>
+      <div style="text-align:center;padding:10px 14px;background:#fef3c7;border-radius:8px;min-width:110px">
+        <div style="font-size:1.2rem">🤝</div>
+        <div style="font-size:.72rem;font-weight:700;color:#b45309;margin-top:4px">שיחת<br>פגישה</div>
+      </div>
+      <div style="font-size:1.4rem;color:#94a3b8;padding:0 6px">←</div>
+      <div style="text-align:center;padding:10px 14px;background:#fee2e2;border-radius:8px;min-width:110px">
+        <div style="font-size:1.2rem">📄</div>
+        <div style="font-size:.72rem;font-weight:700;color:#dc2626;margin-top:4px">הדוח נשאר<br>אצל הסוכן</div>
+      </div>
+    </div>
+    <div style="margin-top:14px;font-size:.75rem;color:var(--muted)">
+      ⏱️ זמן עד דוח מוכן: פחות מ-2 דקות מרגע פתיחת פרופיל הסוכן
+    </div>
+  </div>
+
+</div>
+
+<!-- Footer -->
+<div style="border-top:1px solid var(--border);padding:24px 0;margin-top:40px;display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted)">
+  <span>מגדל ביטוח — מסמך פנימי | v1.0 | מאי 2026</span>
+  <span class="no-print"><a href="javascript:window.print()">🖨️ הדפס מסמך</a></span>
+</div>
+
+</div><!-- /container -->
+
+<!-- Sticky TOC toggle (optional) -->
+<script>
+// Highlight active section in TOC on scroll
+var sections = document.querySelectorAll('.section');
+var tocLinks = document.querySelectorAll('.toc-item a');
+
+window.addEventListener('scroll', function(){
+  var scrollY = window.pageYOffset;
+  var active = 0;
+  sections.forEach(function(s, i){
+    if (s.offsetTop - 80 <= scrollY) { active = i; }
+  });
+  tocLinks.forEach(function(l, i){
+    l.style.color = i === active ? 'var(--blue)' : '';
+    l.style.fontWeight = i === active ? '700' : '';
+  });
+});
+</script>
+</body>
+</html>
