@@ -1,0 +1,1424 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ארכיטקטורת הדאטה המודרנית</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:     #0b1120;
+  --bg2:    #162032;
+  --bg3:    #1e2d42;
+  --border: rgba(148,163,184,0.12);
+  --text:   #e8f0fe;
+  --muted:  #8da2b5;
+  --blue:      #3b82f6;
+  --blue-l:    #93c5fd;
+  --amber:     #f59e0b;
+  --bronze:    #d97706;
+  --silver-c:  #94a3b8;
+  --gold-c:    #f59e0b;
+  --purple:    #8b5cf6;
+  --purple-l:  #c4b5fd;
+  --green:     #10b981;
+  --green-l:   #6ee7b7;
+  --cyan:      #06b6d4;
+  --cyan-l:    #67e8f9;
+  --rose:      #f43f5e;
+  --rose-l:    #fda4af;
+}
+
+html, body {
+  width: 100%; height: 100%;
+  font-family: -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  direction: rtl;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* ─── PROGRESS BAR ─── */
+#progress-bar {
+  position: fixed; top: 0; right: 0; left: 0;
+  height: 3px;
+  background: linear-gradient(to left, var(--amber), var(--blue));
+  transform-origin: right;
+  transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  z-index: 300;
+  width: 11.11%;
+}
+
+/* ─── SLIDE DECK ─── */
+.deck {
+  width: 100vw; height: 100vh;
+  position: relative; overflow: hidden;
+}
+
+.slide {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: center;
+  padding: 52px 72px 76px;
+  opacity: 0;
+  transform: translateX(-50px);
+  transition: opacity 0.45s ease, transform 0.45s ease;
+  pointer-events: none;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--bg3) transparent;
+}
+.slide::-webkit-scrollbar { width: 5px; }
+.slide::-webkit-scrollbar-track { background: transparent; }
+.slide::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 4px; }
+
+.slide.active {
+  opacity: 1; transform: translateX(0);
+  pointer-events: all;
+}
+.slide.exit {
+  opacity: 0; transform: translateX(50px);
+  pointer-events: none;
+}
+
+/* ─── NAVIGATION ─── */
+.nav {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 14px;
+  z-index: 200;
+  background: rgba(11,17,32,0.85);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  padding: 8px 18px;
+  backdrop-filter: blur(12px);
+}
+
+.nav-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 1px solid rgba(148,163,184,0.25);
+  background: transparent;
+  color: var(--blue-l);
+  font-size: 14px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.nav-btn:hover:not(:disabled) {
+  background: rgba(59,130,246,0.2);
+  border-color: var(--blue);
+}
+.nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.nav-counter { font-size: 12px; color: var(--muted); min-width: 48px; text-align: center; letter-spacing: 1px; }
+
+/* ─── MENU ─── */
+.menu-toggle {
+  position: fixed; top: 18px; left: 18px;
+  width: 38px; height: 38px; border-radius: 8px;
+  border: 1px solid var(--border);
+  background: rgba(22,32,50,0.85);
+  color: var(--muted); font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 300; backdrop-filter: blur(8px);
+  transition: all 0.2s;
+}
+.menu-toggle:hover { color: var(--text); border-color: var(--blue); }
+
+.menu-overlay {
+  position: fixed; inset: 0;
+  background: rgba(11,17,32,0.92);
+  backdrop-filter: blur(8px);
+  z-index: 250;
+  display: none;
+  align-items: center; justify-content: center;
+}
+.menu-overlay.open { display: flex; }
+
+.menu-panel {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px;
+  min-width: 340px;
+  max-width: 440px;
+}
+.menu-title {
+  font-size: 1.1rem; font-weight: 800; margin-bottom: 18px;
+  color: var(--blue-l);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.menu-close { cursor: pointer; color: var(--muted); font-size: 18px; }
+.menu-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px; border-radius: 8px; cursor: pointer;
+  transition: background 0.15s;
+  margin-bottom: 4px;
+}
+.menu-item:hover { background: rgba(59,130,246,0.1); }
+.menu-item.current { background: rgba(59,130,246,0.15); }
+.menu-num {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--bg3); border: 1px solid var(--border);
+  font-size: 11px; font-weight: 700; color: var(--muted);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.menu-item.current .menu-num { border-color: var(--blue); color: var(--blue-l); }
+.menu-label { font-size: 0.9rem; }
+.menu-item.current .menu-label { color: var(--blue-l); font-weight: 600; }
+
+/* ─── SHARED ELEMENTS ─── */
+.tag {
+  display: inline-flex; align-items: center;
+  padding: 4px 14px; border-radius: 20px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.8px;
+  text-transform: uppercase; margin-bottom: 10px;
+}
+
+.slide-header { text-align: center; margin-bottom: 28px; width: 100%; }
+.slide-title  { font-size: clamp(1.8rem, 3vw, 2.6rem); font-weight: 900; line-height: 1.15; margin-bottom: 8px; }
+.slide-desc   { font-size: 1rem; color: var(--muted); max-width: 680px; margin: 0 auto; line-height: 1.6; }
+
+.grid { display: grid; width: 100%; }
+.g2   { grid-template-columns: 1fr 1fr; gap: 16px; }
+.g3   { grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+.g4   { grid-template-columns: repeat(4, 1fr); gap: 12px; }
+
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px; padding: 18px;
+}
+.card-icon  { font-size: 1.8rem; margin-bottom: 8px; }
+.card-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 6px; }
+.card-body  { font-size: 0.84rem; color: var(--muted); line-height: 1.65; }
+
+.callout {
+  border-radius: 10px; padding: 14px 18px;
+  width: 100%; margin-top: 0;
+}
+.callout.simple  { background: rgba(59,130,246,0.07);  border: 1px solid rgba(59,130,246,0.22); }
+.callout.tech    { background: rgba(139,92,246,0.07);  border: 1px solid rgba(139,92,246,0.22); }
+.callout.warn    { background: rgba(245,158,11,0.07);  border: 1px solid rgba(245,158,11,0.22); }
+.callout.danger  { background: rgba(244,63,94,0.07);   border: 1px solid rgba(244,63,94,0.22);  }
+.callout.success { background: rgba(16,185,129,0.07);  border: 1px solid rgba(16,185,129,0.22); }
+
+.cl { font-size: 11px; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 5px; }
+.callout.simple  .cl { color: var(--blue-l); }
+.callout.tech    .cl { color: var(--purple-l); }
+.callout.warn    .cl { color: var(--amber); }
+.callout.danger  .cl { color: var(--rose-l); }
+.callout.success .cl { color: var(--green-l); }
+
+.cb { font-size: 0.9rem; line-height: 1.68; color: var(--text); }
+.cb strong { color: inherit; }
+
+.divider { width: 100%; height: 1px; background: var(--border); margin: 12px 0; }
+
+/* ─── SLIDE 1: TITLE ─── */
+#s1 {
+  background:
+    radial-gradient(ellipse at 20% 40%, rgba(59,130,246,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 60%, rgba(139,92,246,0.08) 0%, transparent 55%),
+    var(--bg);
+  justify-content: center;
+}
+.s1-title {
+  font-size: clamp(2.4rem, 5vw, 4rem); font-weight: 900;
+  text-align: center; line-height: 1.1; margin-bottom: 12px;
+  background: linear-gradient(135deg, #93c5fd 0%, #ffffff 50%, #c4b5fd 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.s1-sub {
+  font-size: 1.2rem; color: var(--muted); text-align: center;
+  margin-bottom: 52px; max-width: 600px;
+}
+.pill-row { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.pill {
+  display: flex; align-items: center; gap: 7px;
+  padding: 9px 20px; border-radius: 28px; font-size: 0.88rem; font-weight: 600;
+  border: 1px solid; cursor: pointer; transition: transform 0.15s;
+}
+.pill:hover { transform: translateY(-2px); }
+
+/* ─── SLIDE 2: PROBLEM ─── */
+.pain-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 980px; }
+.pain-item {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-right: 3px solid var(--rose);
+  border-radius: 10px; padding: 13px 15px;
+  display: flex; align-items: flex-start; gap: 11px;
+}
+.pain-emoji { font-size: 1.4rem; flex-shrink: 0; margin-top: 1px; }
+.pain-title { font-size: 0.9rem; font-weight: 700; margin-bottom: 2px; }
+.pain-desc  { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+/* ─── SLIDE 3: ARCHITECTURE ─── */
+.arch-wrap {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 6px; width: 100%; max-width: 980px;
+}
+.arch-row { display: flex; align-items: stretch; justify-content: center; gap: 8px; width: 100%; }
+.arch-box {
+  border-radius: 10px; padding: 10px 14px;
+  text-align: center; font-weight: 700; font-size: 0.82rem;
+  border: 1px solid; flex: 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  line-height: 1.4;
+}
+.arch-sub { font-size: 0.7rem; font-weight: 400; opacity: 0.75; margin-top: 2px; }
+.arch-arrow { color: var(--muted); font-size: 1rem; flex-shrink: 0; align-self: center; }
+.arch-conn { color: var(--muted); font-size: 0.72rem; text-align: center; padding: 2px 0; }
+
+/* ─── LAYER CARDS (Lakehouse slide) ─── */
+.layer-row { display: flex; gap: 14px; width: 100%; max-width: 920px; }
+.layer-card {
+  flex: 1; border-radius: 12px; padding: 20px; border: 1px solid;
+  display: flex; flex-direction: column;
+}
+.lc-icon { font-size: 2rem; margin-bottom: 8px; }
+.lc-name { font-size: 1rem; font-weight: 800; margin-bottom: 2px; }
+.lc-tag  { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.3px; margin-bottom: 12px; }
+.lc-items { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+.lc-items li { font-size: 0.81rem; color: var(--muted); display: flex; gap: 6px; }
+.lc-items li::before { content: "✓"; flex-shrink: 0; }
+
+/* ─── TWO COL ─── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; max-width: 980px; align-items: start; }
+
+/* ─── MDM SLIDE ─── */
+.check-list { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+.check-list li { font-size: 0.86rem; color: var(--muted); display: flex; gap: 8px; align-items: flex-start; }
+.check-list li .ico { flex-shrink: 0; margin-top: 1px; }
+
+/* ─── COMPARE TABLE ─── */
+.ctable { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.ctable th {
+  background: rgba(59,130,246,0.12);
+  padding: 9px 13px; text-align: right;
+  font-weight: 700; font-size: 0.8rem; color: var(--blue-l);
+  border-bottom: 1px solid rgba(59,130,246,0.2);
+}
+.ctable td {
+  padding: 9px 13px;
+  border-bottom: 1px solid rgba(148,163,184,0.07);
+  vertical-align: top; line-height: 1.55; color: var(--muted);
+}
+.ctable tr:last-child td { border-bottom: none; }
+.ctable .lbl  { color: var(--text); font-weight: 600; white-space: nowrap; }
+.ctable .good { color: #4ade80; }
+.ctable .bad  { color: #fb7185; }
+
+/* ─── ROADMAP ─── */
+.roadmap { display: flex; flex-direction: column; width: 100%; max-width: 820px; }
+.rm-step { display: flex; gap: 14px; }
+.rm-spine { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; width: 36px; }
+.rm-dot {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 0.85rem; border: 2px solid; flex-shrink: 0;
+}
+.rm-line { flex: 1; width: 2px; background: rgba(148,163,184,0.18); min-height: 20px; }
+.rm-body { padding-bottom: 18px; flex: 1; padding-top: 6px; }
+.rm-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 3px; }
+.rm-desc  { font-size: 0.82rem; color: var(--muted); line-height: 1.55; }
+
+/* ─── Q&A ─── */
+.qa-wrap { display: flex; flex-direction: column; width: 100%; max-width: 920px; }
+.qa-card {
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+}
+.qa-head {
+  display: flex; align-items: center; gap: 14px;
+  padding: 16px 8px; cursor: pointer; transition: background 0.15s;
+  border-radius: 6px;
+}
+.qa-head:hover { background: rgba(255,255,255,0.02); }
+.qa-num {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: rgba(59,130,246,0.15); border: 1px solid rgba(59,130,246,0.35);
+  color: var(--blue-l); font-size: 0.78rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.qa-q { font-size: 0.97rem; font-weight: 600; flex: 1; }
+.qa-chevron { color: var(--muted); font-size: 12px; transition: transform 0.3s; flex-shrink: 0; }
+.qa-body {
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.45s ease;
+  padding: 0 8px;
+}
+.qa-inner { padding-bottom: 20px; font-size: 0.87rem; line-height: 1.7; color: var(--muted); }
+
+.qa-card.open .qa-chevron { transform: rotate(180deg); }
+.qa-card.open .qa-q       { color: var(--blue-l); }
+.qa-card.open .qa-body    { max-height: 700px; }
+
+/* ODS consumer cards */
+.ods-cards { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+/* CDP steps */
+.cdp-step {
+  display: flex; align-items: flex-start; gap: 12px;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px 14px; margin-bottom: 8px;
+}
+.cdp-num {
+  width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+  background: rgba(244,63,94,0.2); border: 1px solid rgba(244,63,94,0.4);
+  color: var(--rose-l); font-size: 0.78rem; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+}
+.cdp-body .cdp-t { font-size: 0.88rem; font-weight: 700; margin-bottom: 2px; }
+.cdp-body .cdp-d { font-size: 0.8rem; color: var(--muted); }
+
+/* highlight box */
+.hbox {
+  border-radius: 8px; padding: 12px 16px;
+  font-size: 0.87rem; line-height: 1.65;
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 800px) {
+  .slide { padding: 40px 28px 76px; }
+  .two-col { grid-template-columns: 1fr; }
+  .g2, .g3, .g4 { grid-template-columns: 1fr; }
+  .pain-grid { grid-template-columns: 1fr; }
+  .layer-row { flex-direction: column; }
+  .ods-cards { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- Progress Bar -->
+<div id="progress-bar"></div>
+
+<!-- Menu Toggle -->
+<button class="menu-toggle" onclick="openMenu()" title="תפריט שקפים">☰</button>
+
+<!-- Menu Overlay -->
+<div class="menu-overlay" id="menuOverlay" onclick="closeMenuOut(event)">
+  <div class="menu-panel">
+    <div class="menu-title">
+      <span>ניווט מהיר</span>
+      <span class="menu-close" onclick="closeMenu()">✕</span>
+    </div>
+    <div id="menuList"></div>
+  </div>
+</div>
+
+<!-- DECK -->
+<div class="deck" id="deck">
+
+<!-- ══════════════════════════════════════════════════════════
+     SLIDE 1 — TITLE
+══════════════════════════════════════════════════════════ -->
+<div class="slide active" id="s1">
+  <div class="s1-title">ארכיטקטורת הדאטה המודרנית</div>
+  <div class="s1-sub">מ-DWH מפוזר ותלוי-ליבה — לתשתית חכמה, מאוחדת ומפעילה</div>
+  <div class="pill-row">
+    <div class="pill" onclick="goTo(4)" style="color:#fbbf24;border-color:rgba(217,119,6,0.5);background:rgba(217,119,6,0.08)">
+      🗂&nbsp; Lakehouse
+    </div>
+    <div class="pill" onclick="goTo(5)" style="color:var(--purple-l);border-color:rgba(139,92,246,0.5);background:rgba(139,92,246,0.08)">
+      👤&nbsp; MDM
+    </div>
+    <div class="pill" onclick="goTo(6)" style="color:var(--green-l);border-color:rgba(16,185,129,0.5);background:rgba(16,185,129,0.08)">
+      ⚡&nbsp; ODS
+    </div>
+    <div class="pill" onclick="goTo(7)" style="color:var(--cyan-l);border-color:rgba(6,182,212,0.5);background:rgba(6,182,212,0.08)">
+      🧩&nbsp; Customer Profile
+    </div>
+    <div class="pill" onclick="goTo(8)" style="color:var(--rose-l);border-color:rgba(244,63,94,0.5);background:rgba(244,63,94,0.08)">
+      🚀&nbsp; CDP
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SLIDE 2 — THE PROBLEM
+══════════════════════════════════════════════════════════ -->
+<div class="slide" id="s2">
+  <div class="slide-header">
+    <div class="tag" style="background:rgba(244,63,94,0.12);color:var(--rose-l);border:1px solid rgba(244,63,94,0.3)">המצב הקיים</div>
+    <div class="slide-title">איפה אנחנו היום?</div>
+    <div class="slide-desc">7 נקודות כאב שמונעות מהארגון לנצל את הנתונים שלו</div>
+  </div>
+
+  <div class="pain-grid" style="max-width:980px">
+    <div class="pain-item">
+      <div class="pain-emoji">🐌</div>
+      <div>
+        <div class="pain-title">ETL כבדים ואיטיים</div>
+        <div class="pain-desc">תהליכי לילה ב-Informatica — כשנופלים, כל הלילה אבוד ואי אפשר להריץ שוב בקלות</div>
+      </div>
+    </div>
+    <div class="pain-item">
+      <div class="pain-emoji">🏚</div>
+      <div>
+        <div class="pain-title">DWH מרובים — אין שפה משותפת</div>
+        <div class="pain-desc">כל עולם מוצרי (אלמנטר, פנסיה, השקעות) מנהל DWH נפרד עם לוגיקות ומודלים שונים</div>
+      </div>
+    </div>
+    <div class="pain-item">
+      <div class="pain-emoji">🔒</div>
+      <div>
+        <div class="pain-title">תלות מלאה במערכות הליבה</div>
+        <div class="pain-desc">קשה להריץ מחדש תהליכים מחשש לפגיעה בלקוחות — הארגון כבול לזמינות הליבה</div>
+      </div>
+    </div>
+    <div class="pain-item">
+      <div class="pain-emoji">⏱</div>
+      <div>
+        <div class="pain-title">נתון עדכני — חלום רחוק</div>
+        <div class="pain-desc">מוקדים, דיגיטל ושירות עובדים עם נתונים מיושנים — ה-Enrichment קורה רק בלילה</div>
+      </div>
+    </div>
+    <div class="pain-item">
+      <div class="pain-emoji">👤</div>
+      <div>
+        <div class="pain-title">אין "לקוח אחד" — כל מערכת מכירה אחד אחר</div>
+        <div class="pain-desc">MDM נפרדים לפי עולמות מוצריים. לקוח בפנסיה ≠ לקוח באלמנטר — אין Golden ID</div>
+      </div>
+    </div>
+    <div class="pain-item">
+      <div class="pain-emoji">⚙</div>
+      <div>
+        <div class="pain-title">לוגיקות עסקיות כבדות בתוך הליבה</div>
+        <div class="pain-desc">חישובים כמו פדיון פנסיה רצים בתוך מערכת הליבה — כל שינוי = סיכון ו-release מלא</div>
+      </div>
+    </div>
+    <div class="pain-item" style="grid-column: 1 / -1; border-right-color: var(--amber);">
+      <div class="pain-emoji">📦</div>
+      <div>
+        <div class="pain-title">אקסלים, קוביות ופרופילים מקומיים לכל צוות</div>
+        <div class="pain-desc">כל אחד בונה לעצמו פרופיל לקוח — אין מקור אמת אחד, הנתונים נסתרים ב"קופסאות שחורות"</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SLIDE 3 — ARCHITECTURE OVERVIEW
+══════════════════════════════════════════════════════════ -->
+<div class="slide" id="s3">
+  <div class="slide-header">
+    <div class="tag" style="background:rgba(59,130,246,0.12);color:var(--blue-l);border:1px solid rgba(59,130,246,0.3)">הפתרון הכולל</div>
+    <div class="slide-title">תפיסת הארכיטקטורה</div>
+    <div class="slide-desc">5 שכבות — כל אחת ממלאת תפקיד מוגדר בלי חפיפה</div>
+  </div>
+
+  <div class="arch-wrap">
+    <!-- Sources -->
+    <div class="arch-row">
+      <div class="arch-box" style="background:rgba(100,116,139,0.1);border-color:rgba(100,116,139,0.3);color:#cbd5e1;font-size:0.75rem;flex:1.2">
+        🏦 פנסיה<div class="arch-sub">מערכת ליבה</div>
+      </div>
+      <div class="arch-box" style="background:rgba(100,116,139,0.1);border-color:rgba(100,116,139,0.3);color:#cbd5e1;font-size:0.75rem;flex:1.2">
+        📋 אלמנטר<div class="arch-sub">מערכת ליבה</div>
+      </div>
+      <div class="arch-box" style="background:rgba(100,116,139,0.1);border-color:rgba(100,116,139,0.3);color:#cbd5e1;font-size:0.75rem;flex:1.2">
+        📈 השקעות<div class="arch-sub">מערכת ליבה</div>
+      </div>
+      <div class="arch-box" style="background:rgba(100,116,139,0.1);border-color:rgba(100,116,139,0.3);color:#cbd5e1;font-size:0.75rem;flex:1.2">
+        ⚖ תביעות & CRM<div class="arch-sub">מקורות נוספים</div>
+      </div>
+    </div>
+
+    <div class="arch-conn">↓ &nbsp; CDC / Ingestion — הזרמת שינויים רציפה, בלי לסמוע את הליבה</div>
+
+    <!-- Lakehouse -->
+    <div class="arch-row">
+      <div class="arch-box" style="background:rgba(217,119,6,0.1);border-color:rgba(217,119,6,0.45);color:#fbbf24;padding:14px">
+        🗂&nbsp; Lakehouse
+        <div class="arch-sub" style="color:#d97706">Bronze → Silver → Gold</div>
+      </div>
+    </div>
+
+    <div class="arch-conn">↓</div>
+
+    <!-- MDM + ODS -->
+    <div class="arch-row" style="gap:20px">
+      <div class="arch-box" style="background:rgba(139,92,246,0.1);border-color:rgba(139,92,246,0.45);color:var(--purple-l)">
+        👤&nbsp; MDM<div class="arch-sub" style="color:#a78bfa">מי הלקוח?</div>
+      </div>
+      <div class="arch-box" style="background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.45);color:var(--green-l)">
+        ⚡&nbsp; ODS<div class="arch-sub" style="color:#34d399">מה המצב עכשיו?</div>
+      </div>
+    </div>
+
+    <div class="arch-conn">↓</div>
+
+    <!-- Customer Profile -->
+    <div class="arch-row">
+      <div class="arch-box" style="background:rgba(6,182,212,0.1);border-color:rgba(6,182,212,0.45);color:var(--cyan-l);padding:14px">
+        🧩&nbsp; Customer Profile
+        <div class="arch-sub" style="color:#22d3ee">מה אנחנו יודעים ומה נכון לעשות מולו?</div>
+      </div>
+    </div>
+
+    <div class="arch-conn">↓</div>
+
+    <!-- CDP -->
+    <div class="arch-row">
+      <div class="arch-box" style="background:rgba(244,63,94,0.1);border-color:rgba(244,63,94,0.45);color:var(--rose-l);padding:14px">
+        🚀&nbsp; CDP — הפעלה
+        <div class="arch-sub" style="color:#fb7185">סגמנטציה · מסעות לקוח · טריגרים · Decisioning</div>
+      </div>
+    </div>
+
+    <div class="arch-conn">↓</div>
+
+    <!-- Consumers -->
+    <div class="arch-row">
+      <div class="arch-box" style="background:rgba(100,116,139,0.07);border-color:rgba(100,116,139,0.2);color:#94a3b8;font-size:0.75rem">📊 BI</div>
+      <div class="arch-box" style="background:rgba(100,116,139,0.07);border-color:rgba(100,116,139,0.2);color:#94a3b8;font-size:0.75rem">🤖 AI</div>
+      <div class="arch-box" style="background:rgba(100,116,139,0.07);border-color:rgba(100,116,139,0.2);color:#94a3b8;font-size:0.75rem">📱 דיגיטל</div>
+      <div class="arch-box" style="background:rgba(100,116,139,0.07);border-color:rgba(100,116,139,0.2);color:#94a3b8;font-size:0.75rem">☎ מוקד</div>
+      <div class="arch-box" style="background:rgba(100,116,139,0.07);border-color:rgba(100,116,139,0.2);color:#94a3b8;font-size:0.75rem">📣 קמפיינים</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SLIDE 4 — LAKEHOUSE
+══════════════════════════════════════════════════════════ -->
+<div class="slide" id="s4">
+  <div class="slide-header">
+    <div class="tag" style="background:rgba(217,119,6,0.12);color:#fbbf24;border:1px solid rgba(217,119,6,0.4)">שכבה 1</div>
+    <div class="slide-title" style="color:#fbbf24">🗂 Lakehouse — מנוע עיבוד הנתונים</div>
+  </div>
+
+  <div class="callout simple" style="max-width:900px;margin-bottom:18px">
+    <div class="cl">💡 בשפה פשוטה</div>
+    <div class="cb">כמו <strong>מחסן מרכזי חכם</strong> שמקבל סחורה מכל המפעלים (מערכות הליבה), מארגן ומעבד אותה — ומספק לכל מי שצריך. כך כל מחלקה בארגון לא צריכה לנסוע ישר למפעל, ולא חוסמת אותו.</div>
+  </div>
+
+  <div class="layer-row">
+    <div class="layer-card" style="background:rgba(217,119,6,0.07);border-color:rgba(217,119,6,0.35)">
+      <div class="lc-icon">🟤</div>
+      <div class="lc-name" style="color:#d97706">Bronze</div>
+      <div class="lc-tag" style="color:#d97706">גלם — כפי שהגיע</div>
+      <ul class="lc-items">
+        <li>נתון מהמקור — ללא שום שינוי</li>
+        <li>שמירת כל ההיסטוריה לתמיד</li>
+        <li>מאפשר ביקורת ועקיבות</li>
+        <li>לא מיועד לצרכנים עסקיים</li>
+      </ul>
+    </div>
+
+    <div class="layer-card" style="background:rgba(148,163,184,0.06);border-color:rgba(148,163,184,0.3)">
+      <div class="lc-icon">⚪</div>
+      <div class="lc-name" style="color:var(--silver-c)">Silver</div>
+      <div class="lc-tag" style="color:var(--silver-c)">מנוקה ומסודר</div>
+      <ul class="lc-items">
+        <li>ניקוי ותקנון שדות</li>
+        <li>פורמטים ומבנים אחידים</li>
+        <li>חיבור בין מקורות שונים</li>
+        <li>ישויות בסיסיות: לקוח, פוליסה</li>
+        <li>עדיין לא מודל עסקי סופי</li>
+      </ul>
+    </div>
+
+    <div class="layer-card" style="background:rgba(245,158,11,0.07);border-color:rgba(245,158,11,0.4)">
+      <div class="lc-icon">🟡</div>
+      <div class="lc-name" style="color:var(--gold-c)">Gold</div>
+      <div class="lc-tag" style="color:var(--gold-c)">מוכן לשימוש עסקי</div>
+      <ul class="lc-items">
+        <li>מודלים עסקיים אחידים לכל הארגון</li>
+        <li>Customer, Policy, Claim מוגדרים</li>
+        <li>מדדים עסקיים מחושבים</li>
+        <li>בסיס ל-BI, AI, Customer Profile</li>
+        <li>מנוהל, מתועד, יציב</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout tech" style="max-width:900px;margin-top:14px">
+    <div class="cl">⚙ הבחנה קריטית</div>
+    <div class="cb"><strong>Gold הוא תשתית — לא פלט.</strong> האגרגציות שכל דוח בונה לעצמו הן Output. Gold הוא Foundation יציב שממנו בונים הכל, ומנוהל על ידי צוות הנדסת נתונים — לא תלוי בצוות ספציפי.</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SLIDE 5 — MDM
+══════════════════════════════════════════════════════════ -->
+<div class="slide" id="s5">
+  <div class="slide-header">
+    <div class="tag" style="background:rgba(139,92,246,0.12);color:var(--purple-l);border:1px solid rgba(139,92,246,0.4)">שכבה 2</div>
+    <div class="slide-title" style="color:var(--purple-l)">👤 MDM — מי הוא הלקוח?</div>
+  </div>
+
+  <div class="two-col">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="callout simple">
+        <div class="cl">💡 בשפה פשוטה</div>
+        <div class="cb">כמו <strong>תעודת זהות מרכזית לכל ישות בארגון</strong>. MDM לא שואל "מה יש ללקוח?" — הוא שואל "מי הוא הלקוח?" ומנהל את הקשרים בינו לבין ישויות אחרות.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title" style="color:var(--purple-l);margin-bottom:10px">✅ מה כן ב-MDM</div>
+        <ul class="check-list">
+          <li><span class="ico">✓</span> מזהים רשמיים — ת"ז, מספר לקוח, מזהי מקור</li>
+          <li><span class="ico">✓</span> Golden ID — מזהה אחד שמייצג את הלקוח בכל הארגון</li>
+          <li><span class="ico">✓</span> קשרים: בעל פוליסה / משלם / מבוטח / נהנה</li>
+          <li><span class="ico">✓</span> פרטי זהות בסיסיים ויציבים</li>
+          <li><span class="ico">✓</span> ניהול כפילויות ואיחוד רשומות</li>
+        </ul>
+      </div>
+
+      <div class="card" style="border-color:rgba(244,63,94,0.2)">
+        <div class="card-title" style="color:var(--rose-l);margin-bottom:10px">❌ מה לא ב-MDM</div>
+        <ul class="check-list">
+          <li><span class="ico" style="color:#fb7185">✗</span> היסטוריה עסקית מלאה</li>
+          <li><span class="ico" style="color:#fb7185">✗</span> פרופיל אקטוארי או חיתובי</li>
+          <li><span class="ico" style="color:#fb7185">✗</span> כל הפוליסות, התביעות, התשלומים</li>
+          <li><span class="ico" style="color:#fb7185">✗</span> Customer 360 מלא</li>
+        </ul>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="callout warn">
+        <div class="cl">⚠ המורכבות החיתובית</div>
+        <div class="cb">
+          בחיתוב, אדם אחד יכול להיות:<br>
+          • <strong>בעל פוליסה</strong> (אבא שקונה לבן)<br>
+          • <strong>משלם</strong> (אבא, לא הבן)<br>
+          • <strong>מבוטח</strong> (הבן, הנהג הראשי)<br><br>
+          לכן המודל הנכון הוא <strong>ישויות + קשרים</strong> — לא "טבלת לקוח אחת".
+        </div>
+      </div>
+
+      <div class="card" style="background:rgba(139,92,246,0.07);border-color:rgba(139,92,246,0.3);flex:1">
+        <div class="card-title" style="color:var(--purple-l);margin-bottom:10px">🎯 שלושת השאלות</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;gap:10px;align-items:center">
+            <div style="width:32px;height:32px;border-radius:50%;background:rgba(139,92,246,0.25);border:1px solid rgba(139,92,246,0.5);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:var(--purple-l);flex-shrink:0">MDM</div>
+            <div style="font-size:0.88rem"><strong>מי?</strong> — "מי הוא הלקוח, מה הקשרים שלו?"</div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <div style="width:32px;height:32px;border-radius:50%;background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.4);display:flex;align-items:center;justify-content:center;font-size:0.68rem;font-weight:700;color:#fbbf24;flex-shrink:0">Gold</div>
+            <div style="font-size:0.88rem"><strong>מה יש לו?</strong> — "מה ההיסטוריה, הפוליסות, הערך?"</div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <div style="width:32px;height:32px;border-radius:50%;background:rgba(16,185,129,0.2);border:1px solid rgba(16,185,129,0.4);display:flex;align-items:center;justify-content:center;font-size:0.68rem;font-weight:700;color:var(--green-l);flex-shrink:0">ODS</div>
+            <div style="font-size:0.88rem"><strong>מה המצב עכשיו?</strong> — "פוליסה פעילה? חוב פתוח?"</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SLIDE 6 — ODS
+══════════════════════════════════════════════════════════ -->
+<div class="slide" id="s6">
+  <div class="slide-header">
+    <div class="tag" style="background:rgba(16,185,129,0.12);color:var(--green-l);border:1px solid rgba(16,185,129,0.4)">שכבה 3</div>
+    <div class="slide-title" style="color:var(--green-l)">⚡ ODS — מה המצב עכשיו?</div>
+  </div>
+
+  <div class="two-col">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="callout simple">
+        <div class="cl">💡 בשפה פשוטה</div>
+        <div class="cb">כמו <strong>לוח מחוונים של מכונית</strong> — לא מספר מה היה, מראה מה קורה עכשיו. מוקד, אפליקציה, סוכן — כולם צריכים תשובה מהירה על המצב הנוכחי של הלקוח.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title" style="color:var(--green-l);margin-bottom:10px">✅ מה כן ב-ODS</div>
+        <ul class="check-list">
+          <li><span class="ico">✓</span> Snapshot עדכני של כל לקוח</li>
+          <li><span class="ico">✓</span> פוליסות פעילות וסטטוסן</li>
+          <li><span class="ico">✓</span> תביעות פתוחות ומה שרלוונטי לשירות</li>
+          <li><span class="ico">✓</span> מצב תשלום ועומדים לפקיעה</li>
+          <li><span class="ico">✓</span> נתונים לתגובה מהירה — Low Latency</li>
+        </ul>
+      </div>
+
+      <div class="card" style="border-color:rgba(244,63,94,0.2)">
+        <div class="card-title" style="color:var(--rose-l);margin-bottom:10px">❌ מה לא ב-ODS</div>
+        <ul class="check-list">
+          <li><span class="ico" style="color:#fb7185">✗</span> היסטוריה מלאה ואנליטיקה</li>
+          <li><span class="ico" style="color:#fb7185">✗</span> חישובים כבדים ומודלי AI</li>
+          <li><span class="ico" style="color:#fb7185">✗</span> מקור האמת הארגוני — זה Gold</li>
+        </ul>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="font-size:0.85rem;font-weight:700;color:var(--green-l);margin-bottom:2px">מי מקבל מה מה-ODS</div>
+      <div class="ods-cards">
+        <div class="card" style="background:rgba(16,185,129,0.07);border-color:rgba(16,185,129,0.25)">
+          <div class="card-icon">☎</div>
+          <div class="card-title" style="color:var(--green-l)">מוקד שירות</div>
+          <div class="card-body">הנציג רואה מיד: פוליסות, תביעה פתוחה, חוב, תאריך חידוש</div>
+        </div>
+        <div class="card" style="background:rgba(16,185,129,0.07);border-color:rgba(16,185,129,0.25)">
+          <div class="card-icon">📱</div>
+          <div class="card-title" style="color:var(--green-l)">אפליקציה / דיגיטל</div>
+          <div class="card-body">הלקוח רואה מצב אמיתי ועדכני — לא נתון מאמש בלילה</div>
+        </div>
+        <div class="card" style="background:rgba(16,185,129,0.07);border-color:rgba(16,185,129,0.25)">
+          <div class="card-icon">🔔</div>
+          <div class="card-title" style="color:var(--green-l)">טריגרים ל-CDP</div>
+          <div class="card-body">פוליסה מתקרבת לפקיעה? ODS מפעיל מסע שיווקי אוטומטי</div>
+        </div>
+      </div>
+
+      <div class="callout tech" style="margin-top:4px">
+        <div class="cl">⚙ משפט מפתח</div>
+        <div class="cb"><strong>Lakehouse חושב — ODS מגיב.</strong><br>ה-Lakehouse מעבד היסטוריה ובונה מודלים; ה-ODS מגיש תשובות מהירות לשאלות תפעוליות.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SLIDE 7 — CUSTOMER PROFILE
+══════════════════════════════════════════════════════════ -->
+<div class="slide" id="s7">
+  <div class="slide-header">
+    <div class="tag" style="background:rgba(6,182,212,0.12);color:var(--cyan-l);border:1px solid rgba(6,182,212,0.4)">שכבה 4</div>
+    <div class="slide-title" style="color:var(--cyan-l)">🧩 Customer Profile — מה אנחנו יודעים?</div>
+  </div>
+
+  <div class="callout simple" style="max-width:960px;margin-bottom:18px">
+    <div class="cl">💡 בשפה פשוטה</div>
+    <div class="cb">כמו <strong>תיק לקוח שלם אצל עורך דין</strong> — לא המגירה שבה שמורים המסמכים (MDM), ולא הטלפון שדרכו מדברים (ODS). זה השולחן שמרכז הכל: זהות + היסטוריה + מצב נוכחי + תחזיות — כדי לדעת מה לעשות.</div>
+  </div>
+
+  <div class="grid g4" style="max-width:960px;gap:12px;margin-bottom:16px">
+    <div class="card" style="background:rgba(139,92,246,0.08);border-color:rgba(139,92,246,0.3)">
+      <div class="card-icon">👤</div>
+      <div class="card-title" style="color:var(--purple-l)">מ-MDM</div>
+      <div class="card-body">מי הלקוח? Golden ID, קשרים, תפקידים בין ישויות</div>
+    </div>
+    <div class="card" style="background:rgba(245,158,11,0.08);border-color:rgba(245,158,11,0.3)">
+      <div class="card-icon">📚</div>
+      <div class="card-title" style="color:#fbbf24">מ-Gold</div>
+      <div class="card-body">היסטוריה עסקית, פוליסות, תביעות, ערך לקוח לאורך זמן</div>
+    </div>
+    <div class="card" style="background:rgba(16,185,129,0.08);border-color:rgba(16,185,129,0.3)">
+      <div class="card-icon">⚡</div>
+      <div class="card-title" style="color:var(--green-l)">מ-ODS</div>
+      <div class="card-body">מצב נוכחי, אינטראקציות אחרונות, סטטוסים תפעוליים</div>
+    </div>
+    <div class="card" style="background:rgba(6,182,212,0.08);border-color:rgba(6,182,212,0.3)">
+      <div class="card-icon">🤖</div>
+      <div class="card-title" style="color:var(--cyan-l)">מ-AI / מודלים</div>
+      <div class="card-body">נטישה, NBO/NBA, סגמנט, רגישות מחיר, סיכון אקטוארי</div>
+    </div>
+  </div>
+
+  <div class="grid g3" style="max-width:960px;gap:12px;margin-bottom:14px">
+    <div class="card">
+      <div class="card-title" style="color:var(--cyan-l)">☎ פרופיל לשירות</div>
+      <div class="card-body">Customer_Service_Profile — מה המוקד צריך לדעת בשניה הראשונה</div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:var(--cyan-l)">📊 פרופיל לחיתוב</div>
+      <div class="card-body">Customer_Underwriting_Profile — סיכונים, היסטוריית תביעות, ציון</div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:var(--cyan-l)">📣 פרופיל לשיווק</div>
+      <div class="card-body">Customer_Marketing_Profile — הצעות, מסעות, ערוצים מועדפים</div>
+    </div>
+  </div>
+
+  <div class="callout tech" style="max-width:960px">
+    <div class="cl">⚙ הבנה קריטית</div>
+    <div class="cb">
+      Customer Profile הוא <strong>שכבת חיבור — לא שכבת אחסון</strong>. הוא לא טבלה אחת ענקית עם מאות עמודות ו-NULL-ים. הוא Views ו-APIs שנבנים על מקור אמת אחד, מותאמים לכל שימוש.
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SLIDE 8 — CDP
+══════════════════════════════════════════════════════════ -->
+<div class="slide" id="s8">
+  <div class="slide-header">
+    <div class="tag" style="background:rgba(244,63,94,0.12);color:var(--rose-l);border:1px solid rgba(244,63,94,0.4)">שכבה 5</div>
+    <div class="slide-title" style="color:var(--rose-l)">🚀 CDP — הפעלת הנתונים</div>
+  </div>
+
+  <div class="two-col">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="callout simple">
+        <div class="cl">💡 בשפה פשוטה</div>
+        <div class="cb">CDP אינו "עוד מאגר נתונים" — הוא הכלי שמחליט <strong>מי מקבל איזו הצעה, דרך איזה ערוץ, מתי</strong>. הוא הופך ידע לפעולה.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title" style="margin-bottom:10px">המצב הקיים</div>
+        <div class="card-body" style="line-height:2">
+          🔵 <strong>Unica</strong> — קמפיינים, סגמנטציה, הזרקת לידים למוקד<br>
+          🔵 <strong>Salesforce Marketing Cloud</strong> — ביצוע מסעות, Email, SMS, Push
+        </div>
+      </div>
+
+      <div class="card" style="border-color:rgba(244,63,94,0.25)">
+        <div class="card-title" style="color:var(--rose-l);margin-bottom:10px">מה חסר כרגע</div>
+        <ul class="check-list">
+          <li><span class="ico" style="color:#fb7185">✗</span> טריגרים בזמן אמת (ממה שקורה עכשיו ב-ODS)</li>
+          <li><span class="ico" style="color:#fb7185">✗</span> שכבת Decisioning — מי מקבל מה ומתי</li>
+          <li><span class="ico" style="color:#fb7185">✗</span> Contact Policy — ניהול עומס פניות ללקוח</li>
+          <li><span class="ico" style="color:#fb7185">✗</span> Audience שנבנה מ-Gold ו-Customer Profile</li>
+        </ul>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:0.85rem;font-weight:700;color:var(--rose-l);margin-bottom:4px">4 שלבי ההתפתחות</div>
+      <div class="cdp-step">
+        <div class="cdp-num">1</div>
+        <div class="cdp-body">
+          <div class="cdp-t">שמור Unica ו-Marketing Cloud — הגדר תפקידים ברורים</div>
+          <div class="cdp-d">הוצא לוגיקות כבדות מהם בהדרגה ל-Lakehouse / Gold</div>
+        </div>
+      </div>
+      <div class="cdp-step">
+        <div class="cdp-num">2</div>
+        <div class="cdp-body">
+          <div class="cdp-t">הקם Customer Profile + Audience Layer מרכזי</div>
+          <div class="cdp-d">סגמנטים ומודלים מנוהלים מחוץ לכלי הקמפיינים</div>
+        </div>
+      </div>
+      <div class="cdp-step">
+        <div class="cdp-num">3</div>
+        <div class="cdp-body">
+          <div class="cdp-t">הוסף Decisioning — מי מקבל מה</div>
+          <div class="cdp-d">מתחיל ב-Rules פשוטים → NBA/NBO מבוסס AI → Contact Policy</div>
+        </div>
+      </div>
+      <div class="cdp-step">
+        <div class="cdp-num">4</div>
+        <div class="cdp-body">
+          <div class="cdp-t">מעבר ל-Event-Driven Activation</div>
+          <div class="cdp-d">טריגרים מ-ODS ומהדיגיטל — מסעות בזמן אמת</div>
+        </div>
+      </div>
+
+      <div class="callout warn" style="margin-top:6px">
+        <div class="cl">⚠ הבנה חשובה</div>
+        <div class="cb">הערך לא נובע מהכלי — הוא נובע מהיכולת לחבר <strong>נתון אמין + החלטה חכמה + ביצוע בערוצים</strong> בצורה עקבית.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SLIDE 9 — ROADMAP
+══════════════════════════════════════════════════════════ -->
+<div class="slide" id="s9">
+  <div class="slide-header">
+    <div class="tag" style="background:rgba(59,130,246,0.12);color:var(--blue-l);border:1px solid rgba(59,130,246,0.4)">Roadmap</div>
+    <div class="slide-title">שלבי העבודה</div>
+    <div class="slide-desc">3 שלבים — מה מקדים את מה, ואיפה אפשר לרוץ במקביל</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;width:100%;max-width:1050px;margin-bottom:14px">
+
+    <!-- Phase 1 -->
+    <div style="border-radius:12px;border:1px solid rgba(244,63,94,0.35);background:rgba(244,63,94,0.05);padding:18px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">
+        <div style="background:rgba(244,63,94,0.2);border:1px solid rgba(244,63,94,0.5);color:var(--rose-l);padding:3px 12px;border-radius:16px;font-size:0.75rem;font-weight:700">0–3 חודשים</div>
+      </div>
+      <div style="font-size:0.95rem;font-weight:800;color:var(--rose-l)">אימפקט מהיר</div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:7px;padding:8px 10px">
+          <div style="color:var(--green-l);font-size:0.78rem;font-weight:700;margin-bottom:2px">⚡ ODS לדיגיטל — MVP</div>
+          <div style="font-size:0.74rem;color:var(--muted)">על טבלאות קיימות. API אחיד. לא נוגע בליבה. ערך מיידי.</div>
+        </div>
+        <div style="background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.2);border-radius:7px;padding:8px 10px">
+          <div style="color:var(--purple-l);font-size:0.78rem;font-weight:700;margin-bottom:2px">📊 פרופיל חיתום + מיפוי C360</div>
+          <div style="font-size:0.74rem;color:var(--muted)">על נתונים קיימים. C360 הוא תכנון — קריטי לשלב 3.</div>
+        </div>
+        <div style="background:rgba(217,119,6,0.08);border:1px solid rgba(217,119,6,0.2);border-radius:7px;padding:8px 10px">
+          <div style="color:#fbbf24;font-size:0.78rem;font-weight:700;margin-bottom:2px">🗂 תשתית Lakehouse + בחירת CDC</div>
+          <div style="font-size:0.74rem;color:var(--muted)">בחירת CDC = האנבלר לכל מה שאחר כך. ללא זה Bronze לא מתחיל.</div>
+        </div>
+      </div>
+      <div style="font-size:0.72rem;color:var(--muted);border-top:1px solid rgba(148,163,184,0.1);padding-top:8px">צוותים: ODS · Underwriting · Platform (התחלה)</div>
+    </div>
+
+    <!-- Phase 2 -->
+    <div style="border-radius:12px;border:1px solid rgba(245,158,11,0.35);background:rgba(245,158,11,0.04);padding:18px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">
+        <div style="background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.5);color:var(--amber);padding:3px 12px;border-radius:16px;font-size:0.75rem;font-weight:700">3–6 חודשים</div>
+      </div>
+      <div style="font-size:0.95rem;font-weight:800;color:var(--amber)">ביסוס</div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div style="background:rgba(217,119,6,0.08);border:1px solid rgba(217,119,6,0.2);border-radius:7px;padding:8px 10px">
+          <div style="color:#fbbf24;font-size:0.78rem;font-weight:700;margin-bottom:2px">🟤⚪ Bronze + Silver — פיילוט CDC</div>
+          <div style="font-size:0.74rem;color:var(--muted)">הזרמה מהמקורות הקריטיים. תלוי ישירות בבחירת CDC מהשלב הקודם.</div>
+        </div>
+        <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:7px;padding:8px 10px">
+          <div style="color:var(--gold-c);font-size:0.78rem;font-weight:700;margin-bottom:2px">🟡 Gold ראשון — Customer / Policy</div>
+          <div style="font-size:0.74rem;color:var(--muted)">מודלים עסקיים ראשונים. מה שיזין Customer Profile ו-ODS v2.</div>
+        </div>
+        <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:7px;padding:8px 10px">
+          <div style="color:var(--green-l);font-size:0.78rem;font-weight:700;margin-bottom:2px">⚡ ODS יציב + פרופילים מתקדמים</div>
+          <div style="font-size:0.74rem;color:var(--muted)">ODS מתבגר. פרופילים עמוקים. סביבות ענן פעילות. Governance בסיסי.</div>
+        </div>
+      </div>
+      <div style="font-size:0.72rem;color:rgba(244,63,94,0.8);border-top:1px solid rgba(148,163,184,0.1);padding-top:8px">⚠ שרשרת סדרתית: Gold → Silver → Bronze → CDC. כל עיכוב מתגלגל קדימה.</div>
+    </div>
+
+    <!-- Phase 3 -->
+    <div style="border-radius:12px;border:1px solid rgba(59,130,246,0.35);background:rgba(59,130,246,0.04);padding:18px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">
+        <div style="background:rgba(59,130,246,0.2);border:1px solid rgba(59,130,246,0.5);color:var(--blue-l);padding:3px 12px;border-radius:16px;font-size:0.75rem;font-weight:700">6–12 חודשים</div>
+      </div>
+      <div style="font-size:0.95rem;font-weight:800;color:var(--blue-l)">סקייל</div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:7px;padding:8px 10px">
+          <div style="color:var(--green-l);font-size:0.78rem;font-weight:700;margin-bottom:2px">⚡ ODS ארגוני — "השדרגה השקטה"</div>
+          <div style="font-size:0.74rem;color:var(--muted)">מתחבר ל-Gold. הצרכנים לא מרגישים שינוי. Near real-time.</div>
+        </div>
+        <div style="background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.2);border-radius:7px;padding:8px 10px">
+          <div style="color:var(--cyan-l);font-size:0.78rem;font-weight:700;margin-bottom:2px">🧩 Customer Profile אחוד</div>
+          <div style="font-size:0.74rem;color:var(--muted)">MDM + Gold + ODS + AI. שיווק, שירות, חיתוב — מבסיס אחד.</div>
+        </div>
+        <div style="background:rgba(244,63,94,0.08);border:1px solid rgba(244,63,94,0.2);border-radius:7px;padding:8px 10px">
+          <div style="color:var(--rose-l);font-size:0.78rem;font-weight:700;margin-bottom:2px">🚀 CDP מחובר לדאטה אמיתי</div>
+          <div style="font-size:0.74rem;color:var(--muted)">סגמנטציה מ-Gold. טריגרים מ-ODS. פחות תלות בליבה.</div>
+        </div>
+      </div>
+      <div style="font-size:0.72rem;color:var(--muted);border-top:1px solid rgba(148,163,184,0.1);padding-top:8px">מחכה ל-Gold+MDM → Customer Profile → CDP</div>
+    </div>
+  </div>
+
+  <!-- Parallel / Sequential summary -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;width:100%;max-width:1050px">
+    <div class="hbox" style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2)">
+      <div style="color:#4ade80;font-weight:700;margin-bottom:5px">✅ ניתן להקביל</div>
+      <div style="font-size:0.83rem;line-height:1.7;color:var(--muted)">
+        ODS MVP + Platform + Underwriting — כולם מתחילים בשלב 0 ביחד.<br>
+        MDM Design יכול להתחיל עם Silver.<br>
+        פרופיל חיתום על נתונים קיימים — לא מחכה לכלום.
+      </div>
+    </div>
+    <div class="hbox" style="background:rgba(244,63,94,0.06);border:1px solid rgba(244,63,94,0.2)">
+      <div style="color:#fb7185;font-weight:700;margin-bottom:5px">⏳ חייב לחכות</div>
+      <div style="font-size:0.83rem;line-height:1.7;color:var(--muted)">
+        Gold → Silver → Bronze → CDC (שרשרת סדרתית).<br>
+        Customer Profile → מחכה ל-Gold + MDM שניהם.<br>
+        CDP אמיתי → מחכה ל-Customer Profile.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SLIDE 10 — Q&A
+══════════════════════════════════════════════════════════ -->
+<div class="slide" id="s10">
+  <div class="slide-header">
+    <div class="tag" style="background:rgba(245,158,11,0.12);color:var(--amber);border:1px solid rgba(245,158,11,0.4)">שאלות ותשובות</div>
+    <div class="slide-title">שאלות מרכזיות</div>
+    <div class="slide-desc">לחצו על כל שאלה לפתיחת התשובה המלאה</div>
+  </div>
+
+  <div class="qa-wrap">
+
+    <!-- Q1 -->
+    <div class="qa-card" onclick="toggleQA(this)">
+      <div class="qa-head">
+        <div class="qa-num">1</div>
+        <div class="qa-q">ענן או מקומי? — יתרונות, חסרונות, והמלצה</div>
+        <div class="qa-chevron">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="qa-inner">
+
+          <div class="hbox" style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.25);margin-bottom:14px">
+            <div style="color:var(--blue-l);font-weight:700;margin-bottom:6px">🎯 השאלה האסטרטגית האמיתית — לא ענן, אלא תלות</div>
+            הדיון "ענן או מקומי?" לרוב מסיח את הדעת מהשאלה הנכונה: <strong>האם ניהול שרשרת הדאטה השוטפת תלויה בזמינות מערכות הליבה?</strong><br><br>
+            במצב הקיים — כן. ETL פונה לליבה. מוקדים פונים לליבה. דיגיטל פונה לליבה. כל תקלה, עומס, או תחזוקה בליבה = שיבוש לכולם.
+          </div>
+
+          <div style="font-size:0.83rem;font-weight:700;color:var(--text);margin-bottom:8px">מה ההפרדה הארכיטקטונית נותנת — בלי קשר לענן:</div>
+          <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:16px">
+            <div class="hbox" style="background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.2)">
+              ✅ <strong>ניתוק התלות:</strong> CDC + Bronze מזרימים נתון ברציפות לשכבה עצמאית. הצרכנים עובדים מול Lakehouse — לא מול הליבה.
+            </div>
+            <div class="hbox" style="background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.2)">
+              ✅ <strong>Business Continuity:</strong> כשהליבה תחת עומס, בתחזוקה, או בתקלה — הצרכנים ממשיכים לצרוך מה-Lakehouse. Bronze שומר שינויים ברציפות גם כשהליבה לא זמינה.
+            </div>
+            <div class="hbox" style="background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.2)">
+              ✅ <strong>גמישות תפעולית:</strong> לוגיקות עסקיות, תהליכים, בדיקות ופיתוחים — כולם רצים מחוץ לליבה. שינוי בלוגיקה לא דורש release בליבה.
+            </div>
+            <div class="hbox" style="background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.2)">
+              ✅ <strong>עצמאות הצרכנים:</strong> BI, מוקד, דיגיטל — כולם צורכים מ-Gold ו-ODS. שינוי בליבה לא שובר אותם.
+            </div>
+          </div>
+
+          <div style="font-size:0.83rem;font-weight:700;color:var(--text);margin-bottom:8px">ורק אז — ענן מול מקומי לצרכי שרשרת הדאטה:</div>
+          <table class="ctable" style="margin-bottom:14px">
+            <tr>
+              <th style="width:28%"></th>
+              <th>On-Prem (מקומי)</th>
+              <th>Cloud / Hybrid (ענן)</th>
+            </tr>
+            <tr>
+              <td class="lbl">CDC ו-Incremental</td>
+              <td>אפשרי — דורש תשתית מקומית מתאימה</td>
+              <td class="good">טבעי — Storage/Compute נפרדים, עלות לפי שימוש</td>
+            </tr>
+            <tr>
+              <td class="lbl">שליטה ואבטחה</td>
+              <td class="good">גבוהה — הכל בתוך הארגון</td>
+              <td>דורש ממשל ענן מוגדר (FinOps, אבטחת מידע)</td>
+            </tr>
+            <tr>
+              <td class="lbl">Legacy קיים</td>
+              <td class="good">קרוב למערכות, קל לשלב</td>
+              <td>דורש Hybrid — גשר מקומי-ענן</td>
+            </tr>
+            <tr>
+              <td class="lbl">סקייל</td>
+              <td class="bad">מוגבל — דורש רכש חומרה</td>
+              <td class="good">גמיש — לפי עומס וצורך</td>
+            </tr>
+            <tr>
+              <td class="lbl">עלויות</td>
+              <td>קבועות (חומרה, תשתית)</td>
+              <td>משתנות — גבוהות אם Pipelines לא מנוהלים נכון</td>
+            </tr>
+          </table>
+
+          <div class="hbox" style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.28)">
+            <div style="color:var(--amber);font-weight:700;margin-bottom:6px">📌 ההמלצה האסטרטגית</div>
+            <strong>קודם כל: הפרד את שרשרת הדאטה מהתלות בליבה</strong> — זה חובה, בכל פלטפורמה שתיבחר.<br><br>
+            לאחר מכן: ענן (או היברידי) <em>מקל</em> על יישום — CDC, Incremental, Compute גמיש עובדים טוב יותר בענן. אך ניתן להתחיל גם On-Prem. הבחירה תיגזר מאסטרטגיית ה-IT הארגונית ומוכנות לניהול ענן — לא מיכולות AI.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="qa-card" onclick="toggleQA(this)">
+      <div class="qa-head">
+        <div class="qa-num">2</div>
+        <div class="qa-q">למה פרופיל הלקוח לא יושב ב-ODS?</div>
+        <div class="qa-chevron">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="qa-inner">
+          <table class="ctable" style="margin-bottom:14px">
+            <tr><th></th><th>ODS</th><th>Customer Profile</th></tr>
+            <tr><td class="lbl">שאלה</td><td>"מה המצב עכשיו?"</td><td>"מה אנחנו יודעים ומה נכון לעשות?"</td></tr>
+            <tr><td class="lbl">תוכן</td><td>Snapshot תפעולי, עדכני</td><td>זהות + היסטוריה + מצב + AI + תחזיות</td></tr>
+            <tr><td class="lbl">אופי</td><td>דינמי ומהיר — Low latency</td><td>מורכב, רב-שכבתי, מחושב</td></tr>
+            <tr><td class="lbl">למי</td><td>מוקד, דיגיטל, שירות בזמן אמת</td><td>שיווק, חיתוב, AI, CDP</td></tr>
+            <tr><td class="lbl">אחריות</td><td>תשתית — לגישה מהירה</td><td>פלט — חיבור כל המקורות</td></tr>
+          </table>
+          אם נשים את פרופיל הלקוח המלא בתוך ה-ODS — נכביד עליו, נפגע בזמני תגובה, ונערבב בין שתי מטרות שונות לחלוטין.<br><br>
+          <strong>ODS הוא תשתית שמגיב בזמן אמת. Customer Profile הוא פלט שמחבר הכל.</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="qa-card" onclick="toggleQA(this)">
+      <div class="qa-head">
+        <div class="qa-num">3</div>
+        <div class="qa-q">למה הלוגיקות העסקיות צריכות להיות מחוץ למערכות הליבה?</div>
+        <div class="qa-chevron">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="qa-inner">
+          <div style="margin-bottom:12px"><strong>המצב הקיים:</strong> חישובים כבדים (פדיון פנסיה, חישוב קצבה, חיתוב) רצים <em>בתוך</em> מערכות הליבה. זה יוצר תלות מסוכנת:</div>
+          <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:14px">
+            <div class="hbox" style="background:rgba(244,63,94,0.07);border:1px solid rgba(244,63,94,0.2)">
+              ❌ קשה להריץ שוב את התהליך אחרי כשל — חשש לפגיעה בלקוחות
+            </div>
+            <div class="hbox" style="background:rgba(244,63,94,0.07);border:1px solid rgba(244,63,94,0.2)">
+              ❌ כל שינוי בלוגיקה עסקית = release מלא בליבה = סיכון, אינטגרציה, זמן
+            </div>
+            <div class="hbox" style="background:rgba(244,63,94,0.07);border:1px solid rgba(244,63,94,0.2)">
+              ❌ ה-Lakehouse לא יכול לפעול עצמאית — הוא תמיד תלוי בזמינות הליבה
+            </div>
+          </div>
+          <div class="hbox" style="background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.25)">
+            <div style="color:var(--green-l);font-weight:700;margin-bottom:6px">✅ הרציונל</div>
+            <strong>הליבה מייצרת ומנהלת נתונים. ה-Lakehouse מעבד ומחשב.</strong><br><br>
+            כשהלוגיקות יוצאות לשכבת הנתונים — כל שינוי בלוגיקה שיווקית, חיתובית או אנליטית לא מצריך release בליבה. הארגון נהיה זריז. הצוותים עצמאיים. ניתן לבדוק ולשנות בלי לסכן את הייצור.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="qa-card" onclick="toggleQA(this)">
+      <div class="qa-head">
+        <div class="qa-num">4</div>
+        <div class="qa-q">מה ה-Roadmap? — שלבי העבודה להתקדמות נכונה</div>
+        <div class="qa-chevron">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="qa-inner">
+          <!-- ROADMAP SUMMARY (full detail on slide 9) -->
+          <div style="text-align:center;padding:12px 0 16px">
+            <div style="font-size:0.88rem;color:var(--muted);margin-bottom:14px">ה-Roadmap המלא מוצג בשקף נפרד עם כל ה-Deliverables, תלויות וציר מקביל.</div>
+            <button onclick="goTo(9);document.querySelectorAll('.qa-card.open').forEach(c=>c.classList.remove('open'))" style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.4);color:var(--blue-l);padding:10px 28px;border-radius:8px;cursor:pointer;font-size:0.92rem;font-weight:700;font-family:inherit;transition:all 0.2s" onmouseover="this.style.background='rgba(59,130,246,0.25)'" onmouseout="this.style.background='rgba(59,130,246,0.15)'">פתח את שקף ה-Roadmap ←</button>
+          </div>
+          <div style="border-top:1px solid var(--border);padding-top:14px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+            <div class="hbox" style="background:rgba(244,63,94,0.06);border:1px solid rgba(244,63,94,0.18)">
+              <div style="color:var(--rose-l);font-weight:700;font-size:0.8rem;margin-bottom:3px">0–3 חודשים</div>
+              <div style="font-size:0.78rem;color:var(--muted)">ODS MVP · פרופיל חיתום · מיפוי C360 · בחירת CDC · תשתית Lakehouse</div>
+            </div>
+            <div class="hbox" style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.18)">
+              <div style="color:var(--amber);font-weight:700;font-size:0.8rem;margin-bottom:3px">3–6 חודשים</div>
+              <div style="font-size:0.78rem;color:var(--muted)">Bronze + Silver · Gold ראשון · ODS יציב · פרופילים מתקדמים</div>
+            </div>
+            <div class="hbox" style="background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.18)">
+              <div style="color:var(--blue-l);font-weight:700;font-size:0.8rem;margin-bottom:3px">6–12 חודשים</div>
+              <div style="font-size:0.78rem;color:var(--muted)">ODS ארגוני · Customer Profile אחוד · CDP אמיתי · פחות תלות</div>
+            </div>
+          </div>
+          <div style="display:none"><!-- padding --></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:6px">
+            <div class="hbox" style="background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.2)">
+              <div style="color:var(--green-l);font-weight:700;font-size:0.82rem;margin-bottom:4px">⚡ ODS לדיגיטל — MVP</div>
+              <div style="font-size:0.79rem;color:var(--muted)">על הטבלאות המאוחדות הקיימות. API אחיד לדיגיטל. לא נוגע בליבה. מספק ערך מיידי ומגדיר את ה-Contract לעתיד.</div>
+            </div>
+            <div class="hbox" style="background:rgba(139,92,246,0.07);border:1px solid rgba(139,92,246,0.2)">
+              <div style="color:var(--purple-l);font-weight:700;font-size:0.82rem;margin-bottom:4px">📊 פרופיל חיתום ראשון + מיפוי C360</div>
+              <div style="font-size:0.79rem;color:var(--muted)">על נתונים קיימים. מגדיר מה זה "פרופיל" בפועל. מיפוי Customer 360 הוא תכנון — לא בניה, אבל קריטי לכל מה שאחר כך.</div>
+            </div>
+            <div class="hbox" style="background:rgba(217,119,6,0.07);border:1px solid rgba(217,119,6,0.2)">
+              <div style="color:#fbbf24;font-weight:700;font-size:0.82rem;margin-bottom:4px">🗂 תשתית Lakehouse + בחירת CDC</div>
+              <div style="font-size:0.79rem;color:var(--muted)">בחירת כלי CDC — זה האנבלר לכל מה שאחר כך. ללא זה, Bronze לא מתחיל. תשתית ענן בסיסית עולה.</div>
+            </div>
+          </div>
+          <div style="font-size:0.78rem;color:var(--muted);margin-bottom:14px;padding-right:2px">צוותים פעילים במקביל: ODS · Underwriting · Platform (התחלה)</div>
+
+          <div style="height:2px;background:linear-gradient(to left,transparent,rgba(148,163,184,0.12),transparent);margin-bottom:14px"></div>
+
+          <!-- PHASE 3-6 -->
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+            <div style="background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.45);color:var(--amber);padding:4px 14px;border-radius:20px;font-size:0.78rem;font-weight:700;white-space:nowrap">3–6 חודשים</div>
+            <div style="font-size:0.85rem;font-weight:700;color:var(--amber)">ביסוס — הנחת התשתית האמיתית</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:6px">
+            <div class="hbox" style="background:rgba(217,119,6,0.07);border:1px solid rgba(217,119,6,0.2)">
+              <div style="color:#fbbf24;font-weight:700;font-size:0.82rem;margin-bottom:4px">🟤⚪ Bronze + Silver — פיילוט CDC</div>
+              <div style="font-size:0.79rem;color:var(--muted)">הזרמה מהמקורות הקריטיים. נתון גלם + ניקוי ראשוני. תלוי ישירות בבחירת CDC מהשלב הקודם — זה קריטי.</div>
+            </div>
+            <div class="hbox" style="background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.2)">
+              <div style="color:var(--gold-c);font-weight:700;font-size:0.82rem;margin-bottom:4px">🟡 Gold ראשון — Customer / Policy</div>
+              <div style="font-size:0.79rem;color:var(--muted)">המודלים העסקיים הראשונים. זה מה שיזין את Customer Profile ואת ODS v2 — "השדרגה השקטה" — בשלב הבא.</div>
+            </div>
+            <div class="hbox" style="background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.2)">
+              <div style="color:var(--green-l);font-weight:700;font-size:0.82rem;margin-bottom:4px">⚡ ODS יציב + פרופילים מתקדמים</div>
+              <div style="font-size:0.79rem;color:var(--muted)">ODS מתבגר ומתרחב. פרופילים עמוקים יותר. סביבות ענן פעילות. Governance בסיסי מוגדר.</div>
+            </div>
+          </div>
+          <div class="hbox" style="background:rgba(244,63,94,0.05);border:1px solid rgba(244,63,94,0.15);margin-bottom:14px;font-size:0.8rem">
+            ⚠ <strong>נקודת תשומת לב:</strong> Gold תלוי ב-Silver שתלוי ב-Bronze שתלוי בבחירת CDC. שרשרת סדרתית — כל עיכוב מתגלגל קדימה. לכן בחירת CDC בשלב 0–3 היא לא אדמינסטרציה — היא אנבלר.
+          </div>
+
+          <div style="height:2px;background:linear-gradient(to left,transparent,rgba(148,163,184,0.12),transparent);margin-bottom:14px"></div>
+
+          <!-- PHASE 6-12 -->
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+            <div style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.45);color:var(--blue-l);padding:4px 14px;border-radius:20px;font-size:0.78rem;font-weight:700;white-space:nowrap">6–12 חודשים</div>
+            <div style="font-size:0.85rem;font-weight:700;color:var(--blue-l)">סקייל — הארכיטקטורה כולה פועלת</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px">
+            <div class="hbox" style="background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.2)">
+              <div style="color:var(--green-l);font-weight:700;font-size:0.82rem;margin-bottom:4px">⚡ ODS ארגוני — "השדרגה השקטה"</div>
+              <div style="font-size:0.79rem;color:var(--muted)">ODS מחובר ל-Gold. הצרכנים לא שינו שום דבר — קיבלו שדרוג בחינם. Near real-time. מוקד מצטרף לדיגיטל.</div>
+            </div>
+            <div class="hbox" style="background:rgba(6,182,212,0.07);border:1px solid rgba(6,182,212,0.2)">
+              <div style="color:var(--cyan-l);font-weight:700;font-size:0.82rem;margin-bottom:4px">🧩 Customer Profile אחוד</div>
+              <div style="font-size:0.79rem;color:var(--muted)">MDM + Gold + ODS + AI. פרופיל לכל שימוש. שיווק, שירות, חיתוב — מבסיס אחד. זה מה שמיפוי C360 בשלב 0 אפשר.</div>
+            </div>
+            <div class="hbox" style="background:rgba(244,63,94,0.07);border:1px solid rgba(244,63,94,0.2)">
+              <div style="color:var(--rose-l);font-weight:700;font-size:0.82rem;margin-bottom:4px">🚀 CDP מחובר לדאטה אמיתי</div>
+              <div style="font-size:0.79rem;color:var(--muted)">סגמנטציה מ-Gold. טריגרים מ-ODS. פחות תלות בליבה — המטרה הגדולה מושגת.</div>
+            </div>
+          </div>
+
+          <div class="hbox" style="background:rgba(59,130,246,0.07);border:1px solid rgba(59,130,246,0.2)">
+            <div style="color:var(--blue-l);font-weight:700;margin-bottom:7px">🔑 מה מקביל, מה חייב לחכות</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:0.83rem">
+              <div>
+                <div style="color:#4ade80;font-weight:600;margin-bottom:4px">ניתן להקביל:</div>
+                ODS MVP רץ בשלב 0 בזמן ש-Platform מקים Lakehouse.<br>
+                פרופיל חיתום ומיפוי C360 — עובדים בשלב 0 על נתונים קיימים.<br>
+                MDM Design יכול להתחיל עם Silver.
+              </div>
+              <div>
+                <div style="color:#fb7185;font-weight:600;margin-bottom:4px">חייב לחכות:</div>
+                Gold → מחכה ל-Silver → מחכה ל-Bronze → מחכה ל-CDC.<br>
+                Customer Profile → מחכה ל-Gold + MDM.<br>
+                CDP אמיתי → מחכה ל-Customer Profile.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="qa-card" onclick="toggleQA(this)">
+      <div class="qa-head">
+        <div class="qa-num">5</div>
+        <div class="qa-q">האם אפשר להקים ODS לפני שהכל מוכן — על בסיס הקיים?</div>
+        <div class="qa-chevron">▼</div>
+      </div>
+      <div class="qa-body">
+        <div class="qa-inner">
+          <div class="hbox" style="background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.25);margin-bottom:14px">
+            <div style="color:var(--cyan-l);font-weight:700;margin-bottom:5px">נקודת המוצא — עדכון מהמציאות</div>
+            כבר קיימות טבלאות מאוחדות שה-ODS יכול לעבוד מולן. כלומר: <strong>ה-ODS לא צריך לגעת בליבה כלל.</strong><br>
+            השאלה הנכונה היא: האם יש ערך להקים ODS <em>עכשיו</em>, כשהוא מתחבר לטבלאות הקיימות במקום ל-Gold?
+          </div>
+
+          <div style="font-size:1rem;font-weight:800;color:var(--green-l);margin-bottom:10px">כן. ויש לכך 4 סיבות טובות:</div>
+
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+            <div class="hbox" style="background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.2)">
+              ✅ <strong>ערך מיידי:</strong> מוקד ודיגיטל מקבלים כבר עכשיו נתון דרך API אחד, מרכזי — לא מכל מערכת בנפרד
+            </div>
+            <div class="hbox" style="background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.2)">
+              ✅ <strong>הגדרת ה-Contract מראש:</strong> ה-APIs, מבנה הנתונים וה-SLAs מוגדרים עכשיו. כשה-Gold מוכן — רק מחברים מחדש את המקור. הצרכנים לא מרגישים שינוי, ולא צריך לשנות שום ממשק.
+            </div>
+            <div class="hbox" style="background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.2)">
+              ✅ <strong>הפחתת עומס על הליבה כבר עכשיו:</strong> מוקד ודיגיטל יפנו ל-ODS — לא לליבה. הלחץ קטן מיד.
+            </div>
+            <div class="hbox" style="background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.2)">
+              ✅ <strong>Adoption מוקדם:</strong> הצוותים לומדים לעבוד עם ה-ODS API. כשה-Gold מגיע — האינטגרציה כבר קיימת. אין "הטמעה שנייה".
+            </div>
+          </div>
+
+          <div class="hbox" style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.28);margin-bottom:10px">
+            <div style="color:var(--amber);font-weight:700;margin-bottom:5px">⚠ המגבלה הידועה</div>
+            הטבלאות הקיימות הן Batch — ה-ODS יורש את ה-Latency שלהן. זה בסדר כנקודת התחלה. עדיין טוב בצורה משמעותית מהמצב שבו כל מערכת פונה לליבה בנפרד.
+          </div>
+
+          <div class="hbox" style="background:rgba(6,182,212,0.07);border:1px solid rgba(6,182,212,0.2)">
+            <div style="color:var(--cyan-l);font-weight:700;margin-bottom:5px">🔗 "השדרגה השקטה" — איך זה מתחבר ל-Roadmap</div>
+            ODS v1 (על הטבלאות הקיימות) רץ עכשיו ומספק ערך. בזמן הזה — מסלול A (Bronze→Silver→Gold) נבנה. כשהGold מוכן: מחברים את ה-ODS למקור החדש. <strong>הצרכנים לא מרגישים כלום. הם קיבלו שדרוג בחינם.</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /qa-wrap -->
+</div>
+
+</div><!-- /deck -->
+
+<!-- NAVIGATION -->
+<div class="nav">
+  <button class="nav-btn" id="btnPrev" onclick="prevSlide()" title="הקודם (←)">◀</button>
+  <div class="nav-counter" id="counter">1 / 9</div>
+  <button class="nav-btn" id="btnNext" onclick="nextSlide()" title="הבא (→)">▶</button>
+</div>
+
+<script>
+const TOTAL = 9;
+let cur = 1;
+let animating = false;
+
+const slideLabels = [
+  'פתיחה',
+  'הבעיות — המצב הקיים',
+  'ארכיטקטורה כוללת',
+  'Lakehouse — שכבות Bronze / Silver / Gold',
+  'MDM — מי הלקוח?',
+  'ODS — מה המצב עכשיו?',
+  'Customer Profile — מה אנחנו יודעים?',
+  'CDP — הפעלת הנתונים',
+  'שאלות ותשובות',
+];
+
+// Build menu
+const menuList = document.getElementById('menuList');
+slideLabels.forEach((lbl, i) => {
+  const n = i + 1;
+  const el = document.createElement('div');
+  el.className = 'menu-item' + (n === cur ? ' current' : '');
+  el.id = 'mi' + n;
+  el.innerHTML = `<div class="menu-num">${n}</div><div class="menu-label">${lbl}</div>`;
+  el.onclick = () => { goTo(n); closeMenu(); };
+  menuList.appendChild(el);
+});
+
+function goTo(n, dir) {
+  if (animating || n === cur) return;
+  animating = true;
+
+  const from = document.getElementById('s' + cur);
+  const to   = document.getElementById('s' + n);
+
+  from.classList.remove('active');
+  from.classList.add('exit');
+
+  setTimeout(() => {
+    from.classList.remove('exit');
+    to.classList.add('active');
+    animating = false;
+  }, 450);
+
+  // update menu highlight
+  const mi = document.getElementById('mi' + cur);
+  if (mi) mi.classList.remove('current');
+  const mi2 = document.getElementById('mi' + n);
+  if (mi2) mi2.classList.add('current');
+
+  cur = n;
+  document.getElementById('counter').textContent = cur + ' / ' + TOTAL;
+  document.getElementById('btnPrev').disabled = cur === 1;
+  document.getElementById('btnNext').disabled = cur === TOTAL;
+  document.getElementById('progress-bar').style.width = (cur / TOTAL * 100) + '%';
+}
+
+function nextSlide() { if (cur < TOTAL) goTo(cur + 1); }
+function prevSlide() { if (cur > 1)    goTo(cur - 1); }
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')                    { e.preventDefault(); prevSlide(); }
+  if (e.key === 'Escape') closeMenu();
+});
+
+// Touch swipe
+let touchX = 0;
+document.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; }, { passive: true });
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - touchX;
+  if (Math.abs(dx) > 50) {
+    if (dx < 0) nextSlide(); else prevSlide();
+  }
+}, { passive: true });
+
+// Menu
+function openMenu()  { document.getElementById('menuOverlay').classList.add('open'); }
+function closeMenu() { document.getElementById('menuOverlay').classList.remove('open'); }
+function closeMenuOut(e) { if (e.target === document.getElementById('menuOverlay')) closeMenu(); }
+
+// Q&A toggle
+function toggleQA(card) {
+  const isOpen = card.classList.contains('open');
+  document.querySelectorAll('.qa-card.open').forEach(c => c.classList.remove('open'));
+  if (!isOpen) card.classList.add('open');
+}
+
+// Init
+document.getElementById('progress-bar').style.width = (1 / TOTAL * 100) + '%';
+document.getElementById('btnPrev').disabled = true;
+</script>
+</body>
+</html>
