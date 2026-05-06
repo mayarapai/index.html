@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Copilot במגדל – עובדים חכם יותר</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy:        #0D1B4B;
+    --blue:        #3A58B0;
+    --blue-mid:    #5A78C8;
+    --blue-light:  #8FA3CC;
+    --blue-pale:   #D0DAEE;
+    --green:       #7DC243;
+    --green-dark:  #5FA032;
+    --white:       #FFFFFF;
+    --off-white:   #F5F7FC;
+    --text:        #0D1B4B;
+    --muted:       #5A6A8A;
+    --border:      #D0DAEE;
+  }
+
+  body {
+    font-family: 'Segoe UI', 'Arial', sans-serif;
+    background: var(--white);
+    color: var(--text);
+    direction: rtl;
+    font-size: 16px;
+  }
+
+  /* NAVIGATION */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--navy);
+    padding: 0 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+  }
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: white;
+    letter-spacing: 0.3px;
+  }
+  .nav-logo .logo-tower {
+    font-size: 1.4rem;
+  }
+  .nav-divider { color: rgba(255,255,255,0.3); margin: 0 6px; }
+  .nav-links {
+    display: flex;
+    gap: 32px;
+    list-style: none;
+  }
+  .nav-links a {
+    color: rgba(255,255,255,0.75);
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+  .nav-links a:hover { color: var(--green); }
+
+  /* HERO */
+  .hero {
+    background: var(--navy);
+    padding: 90px 48px 80px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--green), var(--blue), var(--blue-light));
+  }
+  .hero-tag {
+    display: inline-block;
+    background: rgba(125,194,67,0.15);
+    border: 1px solid rgba(125,194,67,0.4);
+    color: var(--green);
+    padding: 5px 20px;
+    border-radius: 30px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 28px;
+    letter-spacing: 0.5px;
+  }
+  .hero h1 {
+    font-size: clamp(2.2rem, 5vw, 3.6rem);
+    font-weight: 800;
+    color: white;
+    line-height: 1.2;
+    margin-bottom: 20px;
+  }
+  .hero h1 span { color: var(--green); }
+  .hero p {
+    font-size: 1.15rem;
+    color: var(--blue-pale);
+    max-width: 580px;
+    margin: 0 auto 42px;
+    line-height: 1.75;
+  }
+  .hero-cta {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .btn-primary {
+    background: var(--green);
+    color: var(--navy);
+    border: none;
+    padding: 14px 36px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.2s, transform 0.15s;
+    font-family: inherit;
+  }
+  .btn-primary:hover { background: var(--green-dark); transform: translateY(-2px); }
+  .btn-secondary {
+    background: transparent;
+    color: white;
+    border: 1.5px solid rgba(255,255,255,0.4);
+    padding: 14px 36px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  .btn-secondary:hover { border-color: white; background: rgba(255,255,255,0.08); transform: translateY(-2px); }
+
+  /* SECTION WRAPPER */
+  .section-wrap {
+    padding: 72px 48px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .section-wrap.bg-off {
+    max-width: 100%;
+    padding: 0;
+  }
+  .section-wrap.bg-off .inner {
+    background: var(--off-white);
+    padding: 72px 48px;
+  }
+  .section-wrap.bg-off .inner-content {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-header {
+    text-align: center;
+    margin-bottom: 52px;
+  }
+  .section-tag {
+    display: inline-block;
+    background: var(--blue-pale);
+    color: var(--blue);
+    padding: 4px 16px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .section-tag.green {
+    background: rgba(125,194,67,0.12);
+    color: var(--green-dark);
+  }
+  .section-header h2 {
+    font-size: clamp(1.7rem, 3vw, 2.4rem);
+    font-weight: 800;
+    color: var(--navy);
+    margin-bottom: 12px;
+  }
+  .section-header p {
+    color: var(--muted);
+    font-size: 1rem;
+    max-width: 560px;
+    margin: 0 auto;
+    line-height: 1.75;
+  }
+
+  /* VALUE CARDS */
+  .value-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+  }
+  .value-card {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 30px 24px;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  }
+  .value-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(58,88,176,0.12);
+    border-color: var(--blue-mid);
+  }
+  .value-icon {
+    width: 50px; height: 50px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 18px;
+  }
+  .value-card h3 { font-size: 1rem; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+  .value-card p { color: var(--muted); font-size: 0.88rem; line-height: 1.65; }
+
+  /* CAPABILITY */
+  .capability-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 18px;
+  }
+  .cap-card {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 26px;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  }
+  .cap-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(13,27,75,0.1);
+    border-color: var(--blue-mid);
+  }
+  .cap-header {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .cap-app-icon {
+    width: 42px; height: 42px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.35rem;
+    flex-shrink: 0;
+  }
+  .cap-card h3 { font-size: 0.95rem; font-weight: 700; color: var(--navy); }
+  .cap-card ul { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+  .cap-card li {
+    display: flex; align-items: flex-start; gap: 10px;
+    color: var(--muted); font-size: 0.86rem; line-height: 1.55;
+  }
+  .cap-card li::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--green);
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 6px;
+  }
+
+  /* PROMPT WEEK */
+  .prompt-week-wrap {
+    background: var(--navy);
+    padding: 72px 48px;
+  }
+  .prompt-week-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .prompt-week-badge {
+    display: inline-block;
+    background: var(--green);
+    color: var(--navy);
+    padding: 5px 20px;
+    border-radius: 30px;
+    font-size: 0.78rem;
+    font-weight: 800;
+    margin-bottom: 22px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .prompt-week-inner h2 {
+    font-size: 2.1rem; font-weight: 800; color: white; margin-bottom: 12px;
+  }
+  .prompt-week-inner .subtitle {
+    color: var(--blue-pale); margin-bottom: 30px; font-size: 0.98rem;
+    line-height: 1.7; max-width: 580px; margin-left: auto; margin-right: auto;
+  }
+  .prompt-week-tabs {
+    display: flex; justify-content: center; gap: 10px;
+    flex-wrap: wrap; margin-bottom: 28px;
+  }
+  .ptab {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.7);
+    padding: 8px 18px; border-radius: 8px;
+    cursor: pointer; font-size: 0.84rem; font-family: inherit;
+    transition: all 0.2s;
+  }
+  .ptab.active, .ptab:hover {
+    background: var(--green); border-color: var(--green);
+    color: var(--navy); font-weight: 700;
+  }
+  .prompt-box {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    padding: 24px 30px;
+    text-align: right;
+    margin: 0 auto 28px;
+    font-size: 0.9rem;
+    color: var(--blue-pale);
+    line-height: 1.85;
+    direction: rtl;
+  }
+
+  /* GALLERY */
+  .gallery-filters {
+    display: flex; justify-content: center; gap: 10px;
+    flex-wrap: wrap; margin-bottom: 36px;
+  }
+  .filter-btn {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    color: var(--muted);
+    padding: 8px 20px; border-radius: 30px;
+    cursor: pointer; font-size: 0.85rem; font-family: inherit;
+    transition: all 0.2s;
+  }
+  .filter-btn.active, .filter-btn:hover {
+    background: var(--navy); border-color: var(--navy);
+    color: white; font-weight: 600;
+  }
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 18px;
+  }
+  .gallery-card {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 22px;
+    transition: all 0.2s;
+  }
+  .gallery-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(13,27,75,0.1);
+    border-color: var(--blue-mid);
+  }
+  .cat-tag {
+    display: inline-block;
+    font-size: 0.74rem; font-weight: 700;
+    padding: 3px 12px; border-radius: 20px;
+    margin-bottom: 12px;
+  }
+  .gallery-card h3 { font-size: 0.95rem; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+  .gallery-card p { font-size: 0.84rem; color: var(--muted); line-height: 1.6; margin-bottom: 16px; }
+  .deep-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: var(--blue); font-size: 0.82rem; font-weight: 700;
+    text-decoration: none; transition: gap 0.2s;
+  }
+  .deep-link:hover { gap: 10px; color: var(--navy); }
+
+  /* LAB */
+  .lab-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(255px, 1fr));
+    gap: 18px;
+  }
+  .lab-card {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    display: flex; flex-direction: column; gap: 12px;
+    transition: all 0.2s;
+  }
+  .lab-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(13,27,75,0.1);
+    border-color: var(--blue-mid);
+  }
+  .lab-icon {
+    width: 42px; height: 42px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem;
+    background: var(--blue-pale);
+  }
+  .lab-card h3 { font-size: 0.93rem; font-weight: 700; color: var(--navy); }
+  .lab-card p { font-size: 0.84rem; color: var(--muted); line-height: 1.6; flex: 1; }
+  .cta-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--navy); color: white;
+    padding: 9px 16px; border-radius: 8px;
+    font-size: 0.8rem; font-weight: 700;
+    text-decoration: none; transition: all 0.2s;
+    width: fit-content; font-family: inherit;
+  }
+  .cta-link:hover { background: var(--blue); }
+
+  /* WEBINAR */
+  .webinar-wrap {
+    background: linear-gradient(135deg, var(--navy) 60%, #1a3070);
+    padding: 80px 48px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .webinar-wrap::before {
+    content: '';
+    position: absolute; top: 0; right: 0;
+    width: 300px; height: 100%;
+    background: linear-gradient(135deg, transparent, rgba(125,194,67,0.08));
+    pointer-events: none;
+  }
+  .webinar-inner { max-width: 700px; margin: 0 auto; }
+  .webinar-wrap h2 { font-size: 2.1rem; font-weight: 800; color: white; margin-bottom: 16px; }
+  .webinar-wrap p { color: var(--blue-pale); max-width: 520px; margin: 0 auto 32px; font-size: 1rem; line-height: 1.75; }
+  .webinar-details {
+    display: flex; justify-content: center; gap: 32px;
+    flex-wrap: wrap; margin-bottom: 36px;
+  }
+  .webinar-detail {
+    display: flex; align-items: center; gap: 8px;
+    color: rgba(255,255,255,0.6); font-size: 0.9rem;
+  }
+  .webinar-detail strong { color: white; }
+
+  /* CLOSING */
+  .closing-wrap {
+    background: var(--off-white);
+    border-top: 3px solid var(--green);
+    padding: 80px 48px;
+    text-align: center;
+  }
+  .closing-wrap h2 {
+    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+    font-weight: 900; color: var(--navy);
+    line-height: 1.3; margin-bottom: 18px;
+  }
+  .closing-wrap h2 span { color: var(--blue); }
+  .closing-wrap p { color: var(--muted); font-size: 1.05rem; margin-bottom: 38px; max-width: 560px; margin-left: auto; margin-right: auto; }
+  .cta-row { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+  .btn-navy {
+    background: var(--navy); color: white;
+    border: none; padding: 14px 36px; border-radius: 8px;
+    font-size: 0.95rem; font-weight: 700; cursor: pointer;
+    text-decoration: none; display: inline-block;
+    transition: background 0.2s, transform 0.15s; font-family: inherit;
+  }
+  .btn-navy:hover { background: var(--blue); transform: translateY(-2px); }
+
+  /* DIVIDER */
+  .divider { border: none; height: 1px; background: var(--border); margin: 0; }
+
+  /* FOOTER */
+  footer {
+    background: var(--navy); color: rgba(255,255,255,0.4);
+    text-align: center; padding: 24px 48px; font-size: 0.8rem;
+  }
+
+  /* HIDDEN */
+  .gallery-card.hidden { display: none; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <span class="logo-tower">🏰</span>
+    <span>מגדל</span>
+    <span class="nav-divider">|</span>
+    <span style="font-weight:400; opacity:0.85;">Microsoft Copilot</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#value">מה מקבלים?</a></li>
+    <li><a href="#capabilities">יכולות לפי כלי</a></li>
+    <li><a href="#prompt-week">פרומפט השבוע</a></li>
+    <li><a href="#gallery">גלריית פרומפטים</a></li>
+    <li><a href="#lab">Copilot Lab</a></li>
+    <li><a href="#webinar">וובינר</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">Microsoft Copilot | מגדל</div>
+  <h1>עובדים <span>חכם יותר.</span><br>מהיום.</h1>
+  <p>כל מה שצריך כדי לעבוד עם Copilot ביומיום – פרומפטים, כלים, ודרכי התנסות – במקום אחד.</p>
+  <div class="hero-cta">
+    <a href="#lab" class="btn-primary">התחילו עכשיו</a>
+    <a href="#webinar" class="btn-secondary">הרשמה לוובינר</a>
+  </div>
+</div>
+
+<!-- VALUE -->
+<div id="value" class="section-wrap">
+  <div class="section-header">
+    <div class="section-tag">מה יוצא לי מזה?</div>
+    <h2>פחות שגרה. יותר השפעה.</h2>
+    <p>Copilot לא מחליף אתכם. הוא עושה בשבילכם את הדברים שגוזלים זמן – כדי שתוכלו להתמקד במה שחשוב.</p>
+  </div>
+  <div class="value-grid">
+    <div class="value-card">
+      <div class="value-icon" style="background: var(--blue-pale);">⏱</div>
+      <h3>חוסך זמן על משימות שגרתיות</h3>
+      <p>סיכומים, מיילים, הכנה לפגישות – Copilot עושה את זה בשניות.</p>
+    </div>
+    <div class="value-card">
+      <div class="value-icon" style="background: rgba(125,194,67,0.12);">✍</div>
+      <h3>משפר ניסוח ותקשורת</h3>
+      <p>כל מייל, מסמך ומצגת – מנוסחים בצורה ברורה, מקצועית ומדויקת.</p>
+    </div>
+    <div class="value-card">
+      <div class="value-icon" style="background: var(--blue-pale);">📊</div>
+      <h3>עוזר לקבל החלטות מבוססות נתונים</h3>
+      <p>מגמות, חריגים ותובנות מתוך הנתונים שלכם – בלחיצה אחת.</p>
+    </div>
+    <div class="value-card">
+      <div class="value-icon" style="background: rgba(125,194,67,0.12);">🚀</div>
+      <h3>הופך משימות מורכבות לפשוטות</h3>
+      <p>תוכנית עבודה, Storyline למצגת, ניתוח מסמך – בקשו ותקבלו.</p>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- CAPABILITIES -->
+<div class="section-wrap bg-off" id="capabilities">
+  <div class="inner">
+    <div class="inner-content">
+      <div class="section-header">
+        <div class="section-tag">מד היכולות</div>
+        <h2>כמה אתם מנצלים את הפוטנציאל?</h2>
+        <p>Copilot עובד בתוך הכלים שאתם כבר משתמשים בהם כל יום</p>
+      </div>
+      <div class="capability-grid">
+
+        <div class="cap-card">
+          <div class="cap-header">
+            <div class="cap-app-icon" style="background: var(--blue-pale);">🤖</div>
+            <h3>Copilot Chat</h3>
+          </div>
+          <ul>
+            <li>מענה מותאם אישית לכל אתגר ניהולי</li>
+            <li>שאלה נכונה = פתרון מדויק לכל בעיה</li>
+            <li>עיבוד עשרות קבצים במקביל והצלבת מידע</li>
+            <li>יצירת תמונות, פוסטרים וחומרים ויזואליים</li>
+          </ul>
+        </div>
+
+        <div class="cap-card">
+          <div class="cap-header">
+            <div class="cap-app-icon" style="background: rgba(0,114,198,0.1);">📧</div>
+            <h3>Outlook</h3>
+          </div>
+          <ul>
+            <li>ניסוח מיילים מקצועיים וברורים</li>
+            <li>שיפור סגנון כתיבה למיילים חשובים</li>
+            <li>כותרות מושכות שמגדילות את אחוז הפתיחה</li>
+          </ul>
+        </div>
+
+        <div class="cap-card">
+          <div class="cap-header">
+            <div class="cap-app-icon" style="background: rgba(198,64,0,0.08);">📊</div>
+            <h3>PowerPoint</h3>
+          </div>
+          <ul>
+            <li>רעיונות לכותרות ופתיחה חזקה</li>
+            <li>תוכן ונקודות מפתח לכל שקף</li>
+            <li>חידוד מסרים וזיקוק הרעיון המרכזי</li>
+            <li>הכנת שאלות צפויות מהקהל</li>
+          </ul>
+        </div>
+
+        <div class="cap-card">
+          <div class="cap-header">
+            <div class="cap-app-icon" style="background: rgba(0,120,215,0.08);">🌐</div>
+            <h3>Microsoft Edge</h3>
+          </div>
+          <ul>
+            <li>גישה ישירה מהדפדפן בזמן גלישה</li>
+            <li>סיכום וניתוח של אתרים ומסמכים</li>
+            <li>תרגום דפים בשפות זרות</li>
+            <li>עזרה תוך כדי עבודה שוטפת</li>
+          </ul>
+        </div>
+
+        <div class="cap-card">
+          <div class="cap-header">
+            <div class="cap-app-icon" style="background: rgba(43,116,230,0.08);">📝</div>
+            <h3>Word</h3>
+          </div>
+          <ul>
+            <li>ניסוח מסמכים רשמיים בסגנון המתאים</li>
+            <li>עריכה ושיפור טקסטים קיימים</li>
+            <li>תבניות מסמכים מוכנות לשימוש</li>
+            <li>רעיונות לפתיחה ולסיכום</li>
+          </ul>
+        </div>
+
+        <div class="cap-card">
+          <div class="cap-header">
+            <div class="cap-app-icon" style="background: rgba(33,115,70,0.08);">📈</div>
+            <h3>Excel</h3>
+          </div>
+          <ul>
+            <li>זיהוי מגמות ודפוסים חבויים בנתונים</li>
+            <li>עזרה בכתיבת נוסחאות מורכבות</li>
+            <li>הסברים על פונקציות בשפה פשוטה</li>
+            <li>ניתוח נתונים מוכן לקבלת החלטות</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROMPT OF THE WEEK -->
+<div id="prompt-week" class="prompt-week-wrap">
+  <div class="prompt-week-inner">
+    <div class="prompt-week-badge">פרומפט אחד · אימפקט גדול</div>
+    <h2>פרומפט השבוע</h2>
+    <p class="subtitle">בחרו נושא ונסו ישירות – כל פרומפט מוכן להדבקה ב-Copilot</p>
+
+    <div class="prompt-week-tabs">
+      <button class="ptab active" onclick="showPrompt('meeting', this)">סיכום פגישה</button>
+      <button class="ptab" onclick="showPrompt('email', this)">כתיבת מייל</button>
+      <button class="ptab" onclick="showPrompt('plan', this)">תוכנית עבודה</button>
+      <button class="ptab" onclick="showPrompt('data', this)">תובנות מנתונים</button>
+      <button class="ptab" onclick="showPrompt('edit', this)">שיפור טקסט</button>
+    </div>
+
+    <div id="prompt-box" class="prompt-box">
+      "קיבלתי את סיכום הפגישה הבא: [הדבקת סיכום/תמלול].<br>
+      אנא הפק לי:<br>
+      א) סיכום של 3-5 נקודות מפתח<br>
+      ב) רשימת משימות עם שם אחראי וד.ל ליד כל אחת<br>
+      ג) שאלות פתוחות שלא קיבלו מענה"
+    </div>
+
+    <a href="#" class="btn-primary">נסו עכשיו ב-Copilot</a>
+  </div>
+</div>
+
+<!-- GALLERY -->
+<div id="gallery" class="section-wrap">
+  <div class="section-header">
+    <div class="section-tag green">גלריית פרומפטים</div>
+    <h2>בחרו נושא, תקבלו פרומפט</h2>
+    <p>כל הפרומפטים מוכנים לשימוש – בקליק אחד ישירות ל-Copilot</p>
+  </div>
+  <div class="gallery-filters">
+    <button class="filter-btn active" onclick="filterGallery('all', this)">הכל</button>
+    <button class="filter-btn" onclick="filterGallery('כתיבה', this)">כתיבה ותקשורת</button>
+    <button class="filter-btn" onclick="filterGallery('נתונים', this)">ניתוח נתונים</button>
+    <button class="filter-btn" onclick="filterGallery('מצגות', this)">מצגות</button>
+    <button class="filter-btn" onclick="filterGallery('פגישות', this)">פגישות</button>
+    <button class="filter-btn" onclick="filterGallery('אסטרטגיה', this)">אסטרטגיה</button>
+  </div>
+  <div class="gallery-grid">
+
+    <div class="gallery-card" data-cat="כתיבה">
+      <span class="cat-tag" style="background: var(--blue-pale); color: var(--blue);">✍ כתיבה ותקשורת</span>
+      <h3>תרגום מקצועי למייל</h3>
+      <p>תרגם טקסט לאנגלית/עברית תוך שמירה על ניסוח מקצועי ומונחים מתאימים.</p>
+      <a href="#" class="deep-link">נסו עכשיו ←</a>
+    </div>
+
+    <div class="gallery-card" data-cat="כתיבה">
+      <span class="cat-tag" style="background: var(--blue-pale); color: var(--blue);">✍ כתיבה ותקשורת</span>
+      <h3>שדרוג תקשורת כתובה</h3>
+      <p>קבלו שתי גרסאות מייל מוכנות – אחת תמציתית ואחת מפורטת, עם קריאה ברורה לפעולה.</p>
+      <a href="#" class="deep-link">נסו עכשיו ←</a>
+    </div>
+
+    <div class="gallery-card" data-cat="כתיבה">
+      <span class="cat-tag" style="background: var(--blue-pale); color: var(--blue);">✍ כתיבה ותקשורת</span>
+      <h3>השוואת שני מסמכים</h3>
+      <p>מה משותף, מה שונה, איפה הסתירות – וקבלו המלצה ברורה על איזו גרסה לבחור.</p>
+      <a href="#" class="deep-link">נסו עכשיו ←</a>
+    </div>
+
+    <div class="gallery-card" data-cat="נתונים">
+      <span class="cat-tag" style="background: rgba(125,194,67,0.12); color: var(--green-dark);">📊 ניתוח נתונים</span>
+      <h3>הפקת תובנות מאקסל</h3>
+      <p>העלו קובץ נתונים וקבלו סיכום, תובנות מרכזיות, מגמות וחריגים – מוכן להצגה להנהלה.</p>
+      <a href="#" class="deep-link">נסו עכשיו ←</a>
+    </div>
+
+    <div class="gallery-card" data-cat="נתונים">
+      <span class="cat-tag" style="background: rgba(125,194,67,0.12); color: var(--green-dark);">📊 ניתוח נתונים</span>
+      <h3>ניתוח נתונים בשפה אנושית</h3>
+      <p>הדביקו טבלה וקבלו מגמות, חריגים ו-3 תובנות שתוכלו להציג למנהל תוך 2 דקות.</p>
+      <a href="#" class="deep-link">נסו עכשיו ←</a>
+    </div>
+
+    <div class="gallery-card" data-cat="נתונים">
+      <span class="cat-tag" style="background: rgba(125,194,67,0.12); color: var(--green-dark);">📊 ניתוח נתונים</span>
+      <h3>שיחה רב-שלבית על נתונים</h3>
+      <p>ניתוח מעמיק בשיחה – נהלו דיאלוג עם הנתונים שלכם עד שתגיעו לתובנות הנכונות.</p>
+      <a href="#" class="deep-link">נסו עכשיו ←</a>
+    </div>
+
+    <div class="gallery-card" data-cat="מצגות">
+      <span class="cat-tag" style="background: rgba(58,88,176,0.1); color: var(--navy);">📋 מצגות</span>
+      <h3>מסר שיווקי למצגת</h3>
+      <p>הפכו מצגת רגילה למשכנעת – 3 מסרים, מבנה שקפים ומסע שמוביל את הקהל לפעולה.</p>
+      <a href="#" class="deep-link">נסו עכשיו ←</a>
+    </div>
+
+    <div class="gallery-card" data-cat="מצגות">
+      <span class="cat-tag" style="background: rgba(58,88,176,0.1); color: var(--navy);">📋 מצגות</span>
+      <h3>בניית Storyline למצגת</h3>
+      <p>פתיחה רגשית, 4 שלבי גוף, וסיום עם קריאה לפעולה – הסיפור המושלם למצגת שלכם.</p>
+      <a href="#" class="deep-link">נסו עכשיו ←</a>
+    </div>
+
+    <div class="gallery-card" data-cat="פגישות">
+      <span class="cat-tag" style="background: var(--blue-pale); color: var(--blue-mid);">🤝 פגישות</span>
+      <h3>הכנה לפגישה</h3>
+      <p>מה להעלות, אילו שאלות לצפות, ומה להכין מראש – הגיעו לכל פגישה מוכנים.</p>
+      <a href="#" class="deep-link">נסו עכשיו ←</a>
+    </div>
+
+    <div class="gallery-card" data-cat="פגישות">
+      <span class="cat-tag" style="background: var(--blue-pale); color: var(--blue-mid);">🤝 פגישות</span>
+      <h3>סיכום פגישה בלחיצה</h3>
+      <p>נקודות מפתח, רשימת משימות עם אחראים ותאריכים, ושאלות פתוחות – אוטומטית.</p>
+      <a href="#" class="deep-link">נסו עכשיו ←</a>
+    </div>
+
+    <div class="gallery-card" data-cat="אסטרטגיה">
+      <span class="cat-tag" style="background: rgba(13,27,75,0.07); color: var(--navy);">💡 אסטרטגיה</span>
+      <h3>סיעור מוחות ורעיונות</h3>
+      <p>קבלו 5 רעיונות יצירתיים עם הסבר לכל אחד – לכל אתגר עסקי או פרויקט.</p>
+      <a href="#" class="deep-link">נסו עכשיו ←</a>
+    </div>
+
+    <div class="gallery-card" data-cat="אסטרטגיה">
+      <span class="cat-tag" style="background: rgba(13,27,75,0.07); color: var(--navy);">💡 אסטרטגיה</span>
+      <h3>הגדרת מדדי הצלחה (KPIs)</h3>
+      <p>3-5 מדדים מדידים, יעד מספרי, תדירות ומקור נתונים – לכל פרויקט ויעד.</p>
+      <a href="#" class="deep-link">נסו עכשיו ←</a>
+    </div>
+
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- COPILOT LAB -->
+<div id="lab" class="section-wrap bg-off">
+  <div class="inner">
+    <div class="inner-content">
+      <div class="section-header">
+        <div class="section-tag">Copilot Lab</div>
+        <h2>תנסו. תגלו. תשתפרו.</h2>
+        <p>הלוח שלכם להתנסות ותרגול – כל פעולה עם פרומפט מוכן</p>
+      </div>
+      <div class="lab-grid">
+        <div class="lab-card">
+          <div class="lab-icon">📧</div>
+          <h3>סיכום מייל ארוך</h3>
+          <p>סכמו כל מייל ל-3 נקודות עיקריות + הצעת תגובה אם יש בקשת פעולה.</p>
+          <a href="#" class="cta-link">נסו עכשיו ←</a>
+        </div>
+        <div class="lab-card">
+          <div class="lab-icon">✍</div>
+          <h3>יצירת מייל מאפס</h3>
+          <p>כתבו מייל מקצועי ומותאם לנמען, עם פתיחה מושכת וקריאה ברורה לפעולה.</p>
+          <a href="#" class="cta-link">נסו עכשיו ←</a>
+        </div>
+        <div class="lab-card">
+          <div class="lab-icon">💡</div>
+          <h3>תובנות ממסמך</h3>
+          <p>3-5 תובנות מרכזיות, מה מפתיע, מגמות בולטות, ו-2 שאלות לחקירה נוספת.</p>
+          <a href="#" class="cta-link">נסו עכשיו ←</a>
+        </div>
+        <div class="lab-card">
+          <div class="lab-icon">🔍</div>
+          <h3>השוואת מסמכים</h3>
+          <p>טבלה של מה משותף ומה שונה, איפה הסתירות – והמלצה מה לבחור ולמה.</p>
+          <a href="#" class="cta-link">נסו עכשיו ←</a>
+        </div>
+        <div class="lab-card">
+          <div class="lab-icon">📋</div>
+          <h3>סיכום מנהלים ממסמך</h3>
+          <p>חצי עמוד מוכן להצגה: רקע, 3 ממצאים עם מספרים, המלצה וצעד הבא.</p>
+          <a href="#" class="cta-link">נסו עכשיו ←</a>
+        </div>
+        <div class="lab-card">
+          <div class="lab-icon">🔎</div>
+          <h3>חיפוש מידע בטקסט</h3>
+          <p>חלצו מידע ספציפי מתוך מסמך ארוך – מה שחיפשתם, בנקודות קצרות.</p>
+          <a href="#" class="cta-link">נסו עכשיו ←</a>
+        </div>
+        <div class="lab-card">
+          <div class="lab-icon">🧠</div>
+          <h3>ניתוח ביקורתי של מסמך</h3>
+          <p>מה ההחלטות הנדרשות? מה חסר? אילו שאלות הקורא עלול לשאול?</p>
+          <a href="#" class="cta-link">נסו עכשיו ←</a>
+        </div>
+        <div class="lab-card">
+          <div class="lab-icon">🔄</div>
+          <h3>שכתוב טקסט</h3>
+          <p>שנו את הטון לרשמי / ידידותי / תקיף, שפרו מבנה וזרימה – הקול שלכם נשאר.</p>
+          <a href="#" class="cta-link">נסו עכשיו ←</a>
+        </div>
+        <div class="lab-card">
+          <div class="lab-icon">🗂</div>
+          <h3>שיפור וחידוד טקסט</h3>
+          <p>Copilot מחדד בהירות, זרימה ודיוק שפה – ומסביר מה שינה ולמה.</p>
+          <a href="#" class="cta-link">נסו עכשיו ←</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WEBINAR -->
+<div id="webinar" class="webinar-wrap">
+  <div class="webinar-inner">
+    <div style="display:inline-block; background:rgba(125,194,67,0.15); border:1px solid rgba(125,194,67,0.4); color:var(--green); padding:5px 20px; border-radius:30px; font-size:0.78rem; font-weight:700; margin-bottom:22px;">📅 אירוע מיוחד</div>
+    <h2>מאיצים את העתיד עם Copilot</h2>
+    <p>גלו איך להפוך את ה-AI לחלק בלתי נפרד מיום העבודה שלכם. וובינר השקה לכלל הארגון.</p>
+    <div class="webinar-details">
+      <div class="webinar-detail">🕐 <strong>שעה 12:00</strong></div>
+      <div class="webinar-detail">📍 <strong>Zoom | קישור ישלח בהרשמה</strong></div>
+      <div class="webinar-detail">⏱ <strong>45 דקות</strong></div>
+    </div>
+    <a href="#" class="btn-primary">הרשמה לוובינר</a>
+  </div>
+</div>
+
+<!-- CLOSING -->
+<div class="closing-wrap">
+  <h2>זה לא עוד כלי.<br><span>זה שינוי באופן שבו אנחנו עובדים.</span></h2>
+  <p>פחות זמן על הדברים השגרתיים – יותר זמן על החשיבה, ההחלטות וההשפעה.</p>
+  <div class="cta-row">
+    <a href="#lab" class="btn-primary">התחילו עכשיו</a>
+    <a href="#gallery" class="btn-navy">גלריית פרומפטים</a>
+  </div>
+</div>
+
+<footer>
+  Microsoft Copilot | מגדל ביטוח &nbsp;·&nbsp; כל המידע מאובטח בסביבת מיקרוסופט הארגונית
+</footer>
+
+<script>
+const prompts = {
+  meeting: `"קיבלתי את סיכום הפגישה הבא: [הדבקת סיכום/תמלול].<br>
+      אנא הפק לי:<br>
+      א) סיכום של 3-5 נקודות מפתח<br>
+      ב) רשימת משימות עם שם אחראי וד.ל ליד כל אחת<br>
+      ג) שאלות פתוחות שלא קיבלו מענה"`,
+  email: `"אני צריך לכתוב מייל ל[תפקיד הנמען] בנושא [הנושא].<br>
+      המטרה שלי היא [מה אני רוצה להשיג].<br>
+      הטון צריך להיות מקצועי אך נגיש.<br>
+      תציע לי שתי גרסאות:<br>
+      – אחת תמציתית (עד 5 שורות)<br>
+      – אחת מפורטת יותר<br>
+      בסוף כל גרסה, הוסף קריאה ברורה לפעולה."`,
+  plan: `"קיבלתי משימה: [תיאור המשימה]. אני צריך לסיים עד [תאריך].<br>
+      תפרק לי את זה לשלבים ברורים עם אבני דרך,<br>
+      ותציע לי סדר עדיפויות.<br>
+      ציין גם מה כדאי להבהיר מול הממונה לפני שמתחילים."`,
+  data: `"הנה נתונים: [הדבקת טבלה/נתונים].<br>
+      תנתח לי את המגמות העיקריות,<br>
+      ציין אם יש חריגים או דברים מפתיעים,<br>
+      ותן לי 3 תובנות שאני יכול להציג למנהל שלי ב-2 דקות."`,
+  edit: `"הנה טקסט שכתבתי: [הדבקה].<br>
+      תשפר אותו מבחינת: בהירות, זרימה, ודיוק השפה.<br>
+      שמור על הסגנון שלי אבל הפוך אותו למקצועי יותר.<br>
+      הדגש לי מה שינית ולמה, כדי שאלמד לפעם הבאה."`
+};
+
+function showPrompt(key, btn) {
+  document.getElementById('prompt-box').innerHTML = prompts[key];
+  document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function filterGallery(cat, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.gallery-card').forEach(card => {
+    if (cat === 'all' || card.dataset.cat === cat) {
+      card.classList.remove('hidden');
+    } else {
+      card.classList.add('hidden');
+    }
+  });
+}
+</script>
+</body>
+</html>
