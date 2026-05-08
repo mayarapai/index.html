@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>סקר הורים – בית ספר דרור</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #ffffff;
+    color: #1a2a3a;
+    direction: rtl;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  /* ===== HERO ===== */
+  .hero {
+    background: linear-gradient(135deg, #003d82 0%, #0066cc 60%, #3399ff 100%);
+    color: white;
+    padding: 48px 24px 56px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; left: -60px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; right: -40px;
+    width: 280px; height: 280px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+  }
+  .hero-label {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.4);
+    border-radius: 20px;
+    padding: 6px 18px;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-size: clamp(26px, 6vw, 40px);
+    font-weight: 800;
+    margin-bottom: 12px;
+    line-height: 1.25;
+  }
+  .hero p {
+    font-size: clamp(15px, 3.5vw, 18px);
+    opacity: 0.88;
+    max-width: 480px;
+    margin: 0 auto 28px;
+  }
+  .hero-wave {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 36px;
+    background: #fff;
+    clip-path: ellipse(60% 100% at 50% 100%);
+  }
+
+  /* ===== SECTION WRAPPER ===== */
+  .section {
+    padding: 36px 20px 28px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .section-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: #003d82;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title .icon {
+    width: 36px; height: 36px;
+    background: #e8f0fb;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  /* ===== DIVIDER ===== */
+  .divider {
+    height: 8px;
+    background: linear-gradient(90deg, #e8f0fb, #f5f8ff);
+    margin: 0;
+  }
+
+  /* ===== STAT CARDS ===== */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .stat-card {
+    background: #f0f6ff;
+    border-radius: 16px;
+    padding: 20px 16px;
+    text-align: center;
+    border: 1.5px solid #d0e4f7;
+  }
+  .stat-card.highlight {
+    background: linear-gradient(135deg, #003d82, #0066cc);
+    border-color: transparent;
+    color: white;
+  }
+  .stat-number {
+    font-size: 38px;
+    font-weight: 900;
+    color: #0055bb;
+    line-height: 1.1;
+  }
+  .stat-card.highlight .stat-number { color: white; }
+  .stat-label {
+    font-size: 13px;
+    color: #4a6080;
+    margin-top: 6px;
+    font-weight: 500;
+  }
+  .stat-card.highlight .stat-label { color: rgba(255,255,255,0.85); }
+
+  /* ===== MESSAGE BOX ===== */
+  .message-box {
+    background: #f0f6ff;
+    border-right: 4px solid #0066cc;
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 20px;
+    font-size: 15px;
+    color: #1a2a3a;
+    line-height: 1.7;
+  }
+  .message-box strong { color: #003d82; }
+
+  /* ===== SCORE BARS ===== */
+  .score-item {
+    margin-bottom: 18px;
+  }
+  .score-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .score-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a2a3a;
+  }
+  .score-value {
+    font-size: 15px;
+    font-weight: 800;
+    color: #0055bb;
+  }
+  .score-bar-bg {
+    height: 12px;
+    background: #e0ecfa;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .score-bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 1s ease;
+  }
+  .bar-high { background: linear-gradient(90deg, #0066cc, #4da6ff); }
+  .bar-mid  { background: linear-gradient(90deg, #1a85e0, #55aaff); }
+  .bar-low  { background: linear-gradient(90deg, #5599cc, #88bbee); }
+
+  /* ===== CARDS ===== */
+  .cards-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .card {
+    background: #fff;
+    border: 1.5px solid #d0e4f7;
+    border-radius: 16px;
+    padding: 18px 18px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .card-icon {
+    width: 44px; height: 44px;
+    min-width: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+  }
+  .card-icon.blue  { background: #e8f0fb; }
+  .card-icon.green { background: #e6f7ee; }
+  .card-icon.amber { background: #fff4e0; }
+  .card-icon.red   { background: #fdeaea; }
+  .card-body h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #003d82;
+    margin-bottom: 5px;
+  }
+  .card-body p {
+    font-size: 14px;
+    color: #3a4f65;
+    line-height: 1.6;
+  }
+  .card-body .tag {
+    display: inline-block;
+    margin-top: 8px;
+    background: #e8f0fb;
+    color: #0055bb;
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  /* ===== COMPARISON ===== */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .compare-card {
+    border-radius: 14px;
+    padding: 16px 14px;
+    text-align: center;
+  }
+  .compare-card.junior {
+    background: #f0f6ff;
+    border: 1.5px solid #b8d4f0;
+  }
+  .compare-card.senior {
+    background: #e6f2ff;
+    border: 1.5px solid #90c0f0;
+  }
+  .compare-grade {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0055bb;
+    margin-bottom: 12px;
+  }
+  .compare-metric {
+    margin-bottom: 10px;
+  }
+  .compare-metric-label {
+    font-size: 11px;
+    color: #6080a0;
+    margin-bottom: 3px;
+  }
+  .compare-metric-value {
+    font-size: 24px;
+    font-weight: 900;
+    color: #003d82;
+    line-height: 1;
+  }
+
+  /* ===== STRENGTHS ===== */
+  .strength-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: #f0f9f4;
+    border-right: 3px solid #28a865;
+    border-radius: 10px;
+    margin-bottom: 12px;
+  }
+  .strength-item .dot {
+    width: 10px; height: 10px;
+    min-width: 10px;
+    border-radius: 50%;
+    background: #28a865;
+  }
+  .strength-item p { font-size: 14px; color: #1a2a3a; }
+
+  /* ===== CHALLENGES ===== */
+  .challenge-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    background: #fff8f0;
+    border-right: 3px solid #e07a00;
+    border-radius: 10px;
+    margin-bottom: 12px;
+  }
+  .challenge-num {
+    min-width: 26px; height: 26px;
+    background: #e07a00;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+    margin-top: 1px;
+  }
+  .challenge-item p { font-size: 14px; color: #1a2a3a; line-height: 1.6; }
+  .challenge-item strong { color: #994400; }
+
+  /* ===== ACTIONS ===== */
+  .action-item {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 16px 16px;
+    background: #f0f6ff;
+    border-radius: 14px;
+    margin-bottom: 12px;
+    border: 1.5px solid #d0e4f7;
+  }
+  .action-num {
+    min-width: 30px; height: 30px;
+    background: #0066cc;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+    font-weight: 800;
+    margin-top: 2px;
+  }
+  .action-item h3 { font-size: 14px; font-weight: 700; color: #003d82; margin-bottom: 4px; }
+  .action-item p  { font-size: 13px; color: #3a4f65; line-height: 1.6; }
+
+  /* ===== CLOSING ===== */
+  .closing {
+    background: linear-gradient(135deg, #003d82 0%, #0055bb 100%);
+    color: white;
+    padding: 44px 24px;
+    text-align: center;
+    margin-top: 8px;
+  }
+  .closing h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; }
+  .closing p  { font-size: 15px; opacity: 0.9; max-width: 480px; margin: 0 auto; line-height: 1.75; }
+  .closing-sig {
+    margin-top: 28px;
+    font-size: 14px;
+    opacity: 0.75;
+    font-style: italic;
+  }
+
+  /* ===== BIG QUOTE ===== */
+  .big-quote {
+    background: #003d82;
+    color: white;
+    border-radius: 18px;
+    padding: 24px 22px;
+    margin: 8px 0 20px;
+    text-align: center;
+  }
+  .big-quote .number { font-size: 52px; font-weight: 900; line-height: 1; color: #7ec8ff; }
+  .big-quote .desc   { font-size: 14px; opacity: 0.9; margin-top: 6px; line-height: 1.5; }
+
+  /* ===== PILL TAG ===== */
+  .pill {
+    display: inline-block;
+    background: #e8f0fb;
+    color: #003d82;
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    margin: 4px 2px;
+    border: 1px solid #c0d8f0;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 360px) {
+    .stats-grid { grid-template-columns: 1fr; }
+    .compare-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-label">סקר הורים 2025 – תוצאות</div>
+  <h1>שיתפתם אותנו –<br>אנחנו שומעים</h1>
+  <p>סקרנו את הורי בית ספר דרור כדי להבין מה עובד, מה מצריך שיפור, ומה חשוב לכם ביותר</p>
+  <div class="hero-wave"></div>
+</div>
+
+<!-- PARTICIPATION -->
+<div class="section">
+  <div class="section-title">
+    <div class="icon">&#128101;</div>
+    מי השתתף?
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card highlight">
+      <div class="stat-number">266</div>
+      <div class="stat-label">הורים השיבו לסקר</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">94</div>
+      <div class="stat-label">הורים לשכבות ז'–ט'</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">172</div>
+      <div class="stat-label">הורים לחטיבה העליונה</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">3</div>
+      <div class="stat-label">סוגי שאלות – כמות, בחירה ופתוח</div>
+    </div>
+  </div>
+
+  <div class="message-box" style="margin-top:20px;">
+    הסקר הופץ בוואטסאפ והשתתפות בו הייתה <strong>וולונטרית</strong>. הממצאים משקפים את עמדות המשיבים ומאפשרים לזהות <strong>דפוסים ברורים, אזורי חוזקה ומוקדי קושי</strong>.
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- OVERALL PICTURE -->
+<div class="section">
+  <div class="section-title">
+    <div class="icon">&#128200;</div>
+    תמונת מצב כללית
+  </div>
+
+  <div class="message-box">
+    ההורים <strong>אינם מציגים דחייה</strong> של בית הספר, אך גם <strong>לא שביעות רצון מלאה</strong>. קיימת תשתית סבירה של אמון – אך לא תחושה יציבה וחזקה דיה.
+  </div>
+
+  <div class="section-title" style="font-size:16px; margin-bottom:16px;">
+    <div class="icon" style="width:30px;height:30px;font-size:15px;">&#9733;</div>
+    ציונים מרכזיים (מתוך 5)
+  </div>
+
+  <div class="score-item">
+    <div class="score-header">
+      <span class="score-label">המחנכת/ה של ילדכם</span>
+      <span class="score-value">גבוה ביותר</span>
+    </div>
+    <div class="score-bar-bg"><div class="score-bar-fill bar-high" style="width:84%"></div></div>
+  </div>
+
+  <div class="score-item">
+    <div class="score-header">
+      <span class="score-label">הערכה כללית של בית הספר</span>
+      <span class="score-value">3.23 / 5</span>
+    </div>
+    <div class="score-bar-bg"><div class="score-bar-fill bar-high" style="width:64.6%"></div></div>
+  </div>
+
+  <div class="score-item">
+    <div class="score-header">
+      <span class="score-label">תחושת אמון וביטחון</span>
+      <span class="score-value">3.05 / 5</span>
+    </div>
+    <div class="score-bar-bg"><div class="score-bar-fill bar-mid" style="width:61%"></div></div>
+  </div>
+
+  <div class="score-item">
+    <div class="score-header">
+      <span class="score-label">מילוי תפקיד בית הספר בפועל</span>
+      <span class="score-value">2.52 / 5</span>
+    </div>
+    <div class="score-bar-bg"><div class="score-bar-fill bar-low" style="width:50.4%"></div></div>
+  </div>
+
+  <div class="score-item">
+    <div class="score-header">
+      <span class="score-label">התמודדות עם משמעת</span>
+      <span class="score-value">2.51 / 5</span>
+    </div>
+    <div class="score-bar-bg"><div class="score-bar-fill bar-low" style="width:50.2%"></div></div>
+  </div>
+
+</div>
+
+<div class="divider"></div>
+
+<!-- KEY FINDING: EXTERNAL TUTORING -->
+<div class="section">
+  <div class="section-title">
+    <div class="icon">&#128270;</div>
+    ממצא בולט: תגבור חיצוני
+  </div>
+
+  <div class="big-quote">
+    <div class="number">80.5%</div>
+    <div class="desc">מהמשיבים ציינו שילדם נעזר<br>במורה פרטי, קבוצה, או תמיכה חיצונית</div>
+  </div>
+
+  <div class="message-box">
+    ממצא זה אינו מלמד שבית הספר נכשל – אך הוא מצביע על כך שחלק גדול מהמשפחות מרגיש צורך <strong>בשכבת תמיכה נוספת מחוץ לבית הספר</strong>.<br><br>
+    נוסף על כך, הורים שלא נעזרו בתגבור חיצוני הציגו ציון אמון גבוה יותר (<strong>3.37</strong>) לעומת הורים שכן נעזרו (<strong>2.96</strong>).
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- AGE COMPARISON -->
+<div class="section">
+  <div class="section-title">
+    <div class="icon">&#128101;</div>
+    הבדלים בין שכבות גיל
+  </div>
+
+  <div class="compare-grid">
+    <div class="compare-card junior">
+      <div class="compare-grade">שכבות ז'–ט'</div>
+      <div class="compare-metric">
+        <div class="compare-metric-label">תחושת אמון</div>
+        <div class="compare-metric-value">2.89</div>
+      </div>
+      <div class="compare-metric">
+        <div class="compare-metric-label">שביעות רצון מהמידע</div>
+        <div class="compare-metric-value">3.24</div>
+      </div>
+      <div class="compare-metric">
+        <div class="compare-metric-label">הערכת בית הספר</div>
+        <div class="compare-metric-value">2.86</div>
+      </div>
+    </div>
+    <div class="compare-card senior">
+      <div class="compare-grade">חטיבה עליונה</div>
+      <div class="compare-metric">
+        <div class="compare-metric-label">תחושת אמון</div>
+        <div class="compare-metric-value">3.13</div>
+      </div>
+      <div class="compare-metric">
+        <div class="compare-metric-label">שביעות רצון מהמידע</div>
+        <div class="compare-metric-value">3.72</div>
+      </div>
+      <div class="compare-metric">
+        <div class="compare-metric-label">הערכת בית הספר</div>
+        <div class="compare-metric-value">3.20</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="message-box">
+    הורים בחטיבה הצעירה (ז'–ט') מדגישים יותר את הצורך ב<strong>אקלים מוגן, שפה מכבדת וקשר אישי עם הצוות</strong>. הורי החטיבה העליונה מציגים הערכה גבוהה יותר של המקצועיות ורמת המוכנות לבגרויות.
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ROLE OF SCHOOL -->
+<div class="section">
+  <div class="section-title">
+    <div class="icon">&#127891;</div>
+    מה ההורים רוצים מבית הספר?
+  </div>
+
+  <div class="big-quote">
+    <div class="number">220</div>
+    <div class="desc">מתוך 266 הורים בחרו: בית הספר צריך<br><strong>"לאזן בין הישגים לימודיים לטיפוח חברתי וערכי"</strong></div>
+  </div>
+
+  <div class="message-box">
+    ההורים רוצים <strong>הרבה יותר מלימודים בלבד</strong>. בעיניהם, לבית הספר יש תפקיד משולש: לקדם למידה, לבנות אישיות וערכים, ולשמש מרחב חברתי מחנך.
+  </div>
+
+  <div style="margin-top:4px;">
+    <div class="pill">93% – ערכי דמוקרטיה חשובים</div>
+    <div class="pill">95% – חינוך ליוזמה חשוב</div>
+    <div class="pill">52% – זהות ישראלית-יהודית חשובה</div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- COMMUNICATION -->
+<div class="section">
+  <div class="section-title">
+    <div class="icon">&#128172;</div>
+    תקשורת עם ההורים
+  </div>
+
+  <div class="cards-list">
+    <div class="card">
+      <div class="card-icon blue">&#128242;</div>
+      <div class="card-body">
+        <h3>וואטסאפ – הערוץ המועדף</h3>
+        <p>94% מהורים בכל שכבות הגיל מעדיפים לקבל עדכונים דרך וואטסאפ.</p>
+        <div class="tag">94% העדפה</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-icon amber">&#128680;</div>
+      <div class="card-body">
+        <h3>ריבוי ערוצים יוצר בלבול</h3>
+        <p>הורים ביקשו <strong>ערוץ אחד וברור</strong>, עם הפרדה בין מידע דחוף, פדגוגי ושוטף. הבלבול בין הערוצים מייצר עומס ותחושת אי-שליטה.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-icon blue">&#128196;</div>
+      <div class="card-body">
+        <h3>מחסור בסילבוס ולוחות זמנים</h3>
+        <p>הורים ציינו שכאשר ביקשו רשימת נושאים נאמר להם שזה "מייצר עומס על המורים". זה מקשה על ליווי ביתי אפקטיבי.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- STRENGTHS -->
+<div class="section">
+  <div class="section-title">
+    <div class="icon">&#128994;</div>
+    מה עובד טוב?
+  </div>
+
+  <div class="strength-item">
+    <div class="dot"></div>
+    <p><strong>המחנכות והקשר הישיר</strong> – הדמויות המחנכות הן נכס מרכזי. הקשר האישי הוא הבסיס לאמון ההורים בבית הספר</p>
+  </div>
+  <div class="strength-item">
+    <div class="dot"></div>
+    <p><strong>מסגרת ומחויבות</strong> – חלק מההורים מדגישים את הסדר, המסגרת הברורה וצוות חינוכי תומך</p>
+  </div>
+  <div class="strength-item">
+    <div class="dot"></div>
+    <p><strong>בית הספר עדיין משמעותי</strong> – הביקורת נובעת מציפייה גבוהה ומהשקעה רגשית עמוקה, לא מניתוק</p>
+  </div>
+  <div class="strength-item">
+    <div class="dot"></div>
+    <p><strong>חטיבה עליונה</strong> – ציונים גבוהים יותר בשביעות רצון, מקצועיות הוראתית והכנה לבגרויות</p>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- CHALLENGES -->
+<div class="section">
+  <div class="section-title">
+    <div class="icon">&#128997;</div>
+    5 אתגרים מרכזיים
+  </div>
+
+  <div class="challenge-item">
+    <div class="challenge-num">1</div>
+    <p><strong>מענה לשונות בין תלמידים –</strong> הורים מרגישים שתלמידים עם קצב שונה, קשיים, או צרכים מיוחדים לא תמיד מקבלים מענה מותאם</p>
+  </div>
+  <div class="challenge-item">
+    <div class="challenge-num">2</div>
+    <p><strong>התמודדות עם משמעת –</strong> ציון 2.51 מתוך 5. הורים חשים שהגבולות, האכיפה ושפה מכבדת אינם ברמה מספקת</p>
+  </div>
+  <div class="challenge-item">
+    <div class="challenge-num">3</div>
+    <p><strong>פער בין חזון לביצוע –</strong> ציון 2.52 בשאלה "עד כמה בית הספר ממלא תפקידו בפועל" – נמוך מאוד לעומת הציפייה</p>
+  </div>
+  <div class="challenge-item">
+    <div class="challenge-num">4</div>
+    <p><strong>תקשורת לא אחידה –</strong> עודף ערוצים, חוסר בסילבוס ולוחות זמנים, קושי לדעת מה הילד צריך לעשות</p>
+  </div>
+  <div class="challenge-item">
+    <div class="challenge-num">5</div>
+    <p><strong>תלות גבוהה בסיוע חיצוני –</strong> 80.5% מהמשפחות משלמות על תגבור פרטי. זה גם עומס כלכלי וגם אות לפער</p>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ACTIONS -->
+<div class="section">
+  <div class="section-title">
+    <div class="icon">&#128295;</div>
+    מה אנחנו עושים עם זה?
+  </div>
+
+  <div class="message-box">
+    הסקר הזה הוא לא רק לדעת – הוא <strong>בסיס לפעולה</strong>. הנה הכיוונים שאנחנו בוחנים:
+  </div>
+
+  <div class="action-item">
+    <div class="action-num">1</div>
+    <div>
+      <h3>חיזוק הקשר עם הורים בחטיבה הצעירה</h3>
+      <p>נגישות גדולה יותר, ליווי ובהירות ציפיות לשכבות ז'–ט' – שם זה נדרש ביותר</p>
+    </div>
+  </div>
+
+  <div class="action-item">
+    <div class="action-num">2</div>
+    <div>
+      <h3>חידוד מדיניות משמעת ושפה</h3>
+      <p>גיבוש מסרים ערכיים ברורים, אכיפה עקבית ושפה מכבדת שהורים יוכלו לסמוך עליהם</p>
+    </div>
+  </div>
+
+  <div class="action-item">
+    <div class="action-num">3</div>
+    <div>
+      <h3>מיפוי צרכי תגבור לימודי פנימי</h3>
+      <p>בחינת אפשרויות תגבור דיפרנציאלי בתוך בית הספר, כדי להפחית את הצורך בסיוע חיצוני</p>
+    </div>
+  </div>
+
+  <div class="action-item">
+    <div class="action-num">4</div>
+    <div>
+      <h3>מבנה תקשורת פשוט ועקבי</h3>
+      <p>הבחנה ברורה בין מידע דחוף, פדגוגי ושוטף – ערוץ אחד, כללים ברורים, עומס נמוך</p>
+    </div>
+  </div>
+
+  <div class="action-item">
+    <div class="action-num">5</div>
+    <div>
+      <h3>שיח משותף עם הקהילה</h3>
+      <p>הממצאים יוצגו בפני הצוות, הנהגת ההורים וקהילת בית הספר – כי השיתוף עצמו בונה אמון</p>
+    </div>
+  </div>
+</div>
+
+<!-- CLOSING -->
+<div class="closing">
+  <h2>תודה על השיתוף</h2>
+  <p>
+    266 הורים בחרו לתת מזמנם ולשתף את מחשבותיהם. זו אמונה שאנחנו לוקחים ברצינות.<br><br>
+    הביקורת שעלתה בסקר אינה נובעת מניתוק – אלא מרמת ציפייה גבוהה ומאהבה עמוקה לילדינו ולבית הספר שלנו.<br><br>
+    <strong>ביחד נמשיך לשפר.</strong>
+  </p>
+  <div class="closing-sig">בית ספר דרור · 2025</div>
+</div>
+
+</body>
+</html>
