@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enterprise AI & Data Rewiring Strategy</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#ffffff;--bg2:#f8fafc;--bg3:#f1f5f9;--border:#e2e8f0;
+  --text:#0f172a;--muted:#64748b;--light:#94a3b8;
+  --bd:#1e3a8a;--bm:#2563eb;--bl:#3b82f6;--bx:#93c5fd;--bxx:#dbeafe;--bxxx:#eff6ff;
+  --green:#059669;--amber:#d97706;--red:#dc2626;--purple:#7c3aed;--cyan:#0891b2;
+}
+html,body{width:100%;height:100%;font-family:-apple-system,'Segoe UI','Helvetica Neue',Arial,sans-serif;background:var(--bg);color:var(--text);direction:rtl;overflow:hidden;user-select:none}
+#progress-bar{position:fixed;top:0;right:0;left:0;height:3px;background:linear-gradient(to left,var(--bd),var(--bl));z-index:300;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.deck{width:100vw;height:100vh;position:relative;overflow:hidden}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;padding:44px 60px 76px;opacity:0;transform:translateX(-40px);transition:opacity .4s ease,transform .4s ease;pointer-events:none;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:var(--bg3) transparent}
+.slide::-webkit-scrollbar{width:4px}
+.slide::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.slide.active{opacity:1;transform:translateX(0);pointer-events:all}
+.slide.exit{opacity:0;transform:translateX(40px);pointer-events:none}
+
+/* NAV */
+.nav{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;z-index:200;background:white;border:1px solid var(--border);border-radius:50px;padding:5px 14px;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+.nav-btn{width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:transparent;color:var(--bm);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.nav-btn:hover:not(:disabled){background:var(--bxxx);border-color:var(--bl)}
+.nav-btn:disabled{opacity:.3;cursor:not-allowed}
+.nav-counter{font-size:11px;color:var(--muted);min-width:44px;text-align:center}
+
+/* MENU */
+.menu-toggle{position:fixed;top:14px;left:14px;width:34px;height:34px;border-radius:8px;border:1px solid var(--border);background:white;color:var(--muted);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:300;box-shadow:0 1px 6px rgba(0,0,0,.06);transition:all .2s}
+.menu-toggle:hover{color:var(--bm);border-color:var(--bl)}
+.menu-overlay{position:fixed;inset:0;background:rgba(15,23,42,.35);backdrop-filter:blur(4px);z-index:250;display:none;align-items:center;justify-content:center}
+.menu-overlay.open{display:flex}
+.menu-panel{background:white;border:1px solid var(--border);border-radius:14px;padding:22px;min-width:320px;max-width:420px;box-shadow:0 20px 40px rgba(0,0,0,.1);max-height:80vh;overflow-y:auto}
+.menu-title{font-size:.95rem;font-weight:800;margin-bottom:14px;color:var(--bd);display:flex;justify-content:space-between;align-items:center}
+.menu-close{cursor:pointer;color:var(--muted);font-size:17px}
+.menu-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:7px;cursor:pointer;transition:background .15s;margin-bottom:2px}
+.menu-item:hover{background:var(--bxxx)}
+.menu-item.current{background:var(--bxx)}
+.menu-num{width:22px;height:22px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);font-size:9px;font-weight:700;color:var(--muted);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.menu-item.current .menu-num{background:var(--bd);color:white;border-color:var(--bd)}
+.menu-label{font-size:.84rem;color:var(--text)}
+.menu-item.current .menu-label{color:var(--bd);font-weight:600}
+
+/* SHARED */
+.tag{display:inline-flex;align-items:center;padding:3px 12px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;margin-bottom:8px}
+.sh{text-align:center;margin-bottom:20px;width:100%}
+.st{font-size:clamp(1.5rem,2.6vw,2.2rem);font-weight:900;color:var(--bd);line-height:1.15;margin-bottom:5px}
+.sd{font-size:.93rem;color:var(--muted);max-width:700px;margin:0 auto;line-height:1.6}
+.wrap{width:100%;max-width:1000px}
+.grid{display:grid;width:100%}
+.g2{grid-template-columns:1fr 1fr;gap:12px}
+.g3{grid-template-columns:1fr 1fr 1fr;gap:11px}
+.g4{grid-template-columns:repeat(4,1fr);gap:10px}
+.card{background:white;border:1px solid var(--border);border-radius:10px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.ct{font-size:.87rem;font-weight:700;color:var(--text);margin-bottom:5px}
+.cb{font-size:.8rem;color:var(--muted);line-height:1.6}
+.divider{width:100%;height:1px;background:var(--border);margin:10px 0}
+.callout{border-radius:9px;padding:11px 15px;width:100%}
+.callout.info{background:var(--bxxx);border:1px solid var(--bxx)}
+.callout.warn{background:#fffbeb;border:1px solid #fde68a}
+.callout.ok{background:#f0fdf4;border:1px solid #bbf7d0}
+.callout.purple{background:#faf5ff;border:1px solid #e9d5ff}
+.cl{font-size:10px;font-weight:700;letter-spacing:.5px;margin-bottom:3px}
+.callout.info .cl{color:var(--bm)}
+.callout.warn .cl{color:var(--amber)}
+.callout.ok .cl{color:var(--green)}
+.callout.purple .cl{color:var(--purple)}
+.cbt{font-size:.85rem;line-height:1.65;color:var(--text)}
+
+/* TABLE */
+.ctable{width:100%;border-collapse:collapse;font-size:.81rem}
+.ctable th{background:var(--bd);color:white;padding:7px 11px;text-align:right;font-weight:700;font-size:.76rem}
+.ctable th:last-child{border-radius:8px 0 0 0}
+.ctable th:first-child{border-radius:0 8px 0 0}
+.ctable td{padding:7px 11px;border-bottom:1px solid var(--border);vertical-align:top;color:var(--muted);line-height:1.5}
+.ctable tr:last-child td{border-bottom:none}
+.ctable tr:nth-child(even) td{background:var(--bg2)}
+.ctable .lbl{color:var(--text);font-weight:600}
+.ctable .g{color:var(--green);font-weight:600}
+.ctable .r{color:var(--red);font-weight:600}
+.ctable .y{color:var(--amber);font-weight:600}
+
+/* LAKEHOUSE LAYERS */
+.layer-row{display:flex;gap:12px;width:100%;max-width:960px}
+.layer-card{flex:1;border-radius:11px;padding:16px;border:1px solid;display:flex;flex-direction:column;background:white;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.lc-name{font-size:.95rem;font-weight:800;margin-bottom:2px}
+.lc-tag{font-size:.68rem;font-weight:600;letter-spacing:.3px;margin-bottom:9px;opacity:.8}
+.lc-items{list-style:none;display:flex;flex-direction:column;gap:4px}
+.lc-items li{font-size:.78rem;color:var(--muted);display:flex;gap:6px;line-height:1.4}
+.lc-items li::before{content:"→";flex-shrink:0;margin-top:0}
+
+/* TWO COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;width:100%;max-width:1000px;align-items:start}
+
+/* PHASES */
+.phase-row{display:flex;gap:11px;width:100%}
+.phase-box{flex:1;border-radius:11px;border:2px solid var(--border);padding:15px;background:white}
+.phase-num{font-size:.68rem;font-weight:700;letter-spacing:1px;color:var(--bm);margin-bottom:4px;text-transform:uppercase}
+.phase-title{font-size:.88rem;font-weight:800;color:var(--bd);margin-bottom:8px}
+.phase-items{list-style:none;display:flex;flex-direction:column;gap:4px}
+.phase-items li{font-size:.76rem;color:var(--muted);display:flex;gap:5px;align-items:flex-start;line-height:1.4}
+.phase-items li::before{content:"▸";color:var(--bl);flex-shrink:0;margin-top:1px}
+.phase-time{font-size:.68rem;color:white;background:var(--bm);padding:2px 8px;border-radius:20px;display:inline-block;margin-top:9px}
+
+/* ARCH FLOW */
+.flow-row{display:flex;align-items:center;justify-content:center;gap:0;width:100%;margin-bottom:4px}
+.flow-box{border-radius:8px;padding:8px 12px;text-align:center;font-weight:700;font-size:.76rem;border:1px solid;line-height:1.3;flex:1;max-width:150px}
+.flow-sub{font-size:.64rem;font-weight:400;opacity:.8;margin-top:2px}
+.flow-arr{color:var(--light);font-size:.9rem;padding:0 3px;flex-shrink:0}
+.flow-arr-v{text-align:center;color:var(--light);font-size:.85rem;margin:2px 0}
+
+/* CHECKLIST */
+.clist{list-style:none;display:flex;flex-direction:column;gap:6px}
+.clist li{font-size:.82rem;color:var(--muted);display:flex;gap:8px;align-items:flex-start;line-height:1.5}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-size:.65rem;font-weight:700;border:1px solid}
+
+/* SLIDE 1 */
+#s1{justify-content:center;background:linear-gradient(160deg,#eff6ff 0%,#ffffff 60%,#f5f3ff 100%)}
+.s1-title{font-size:clamp(2rem,4vw,3.2rem);font-weight:900;text-align:center;line-height:1.1;margin-bottom:10px;color:var(--bd)}
+.s1-sub{font-size:1.05rem;color:var(--muted);text-align:center;margin-bottom:40px;max-width:620px}
+.pill-row{display:flex;flex-wrap:wrap;gap:9px;justify-content:center}
+.pill{display:flex;align-items:center;gap:7px;padding:8px 18px;border-radius:26px;font-size:.84rem;font-weight:600;border:1px solid;cursor:pointer;transition:transform .15s,box-shadow .15s;background:white}
+.pill:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+
+/* PAIN GRID */
+.pain-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;width:100%;max-width:960px}
+.pain-item{background:white;border:1px solid var(--border);border-right:3px solid var(--red);border-radius:9px;padding:12px 14px;display:flex;align-items:flex-start;gap:10px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.pain-title{font-size:.84rem;font-weight:700;margin-bottom:2px;color:var(--text)}
+.pain-desc{font-size:.76rem;color:var(--muted);line-height:1.5}
+
+/* ARCH DIAGRAM SLIDE */
+.arch-full{display:flex;flex-direction:column;width:100%;max-width:1000px;gap:4px}
+.arch-stripe{border-radius:9px;border:1px solid;padding:9px 14px;display:flex;align-items:center;gap:8px}
+.as-title{font-size:.8rem;font-weight:700;min-width:120px;flex-shrink:0}
+.as-items{display:flex;flex-wrap:wrap;gap:5px}
+.as-chip{font-size:.7rem;padding:2px 8px;border-radius:4px;background:rgba(255,255,255,.7);border:1px solid;font-weight:600}
+
+/* COMPONENT TABLE */
+.comp-table{width:100%;border-collapse:collapse;font-size:.8rem}
+.comp-table th{background:var(--bg2);padding:7px 10px;text-align:right;font-weight:700;font-size:.73rem;color:var(--bd);border-bottom:2px solid var(--bxx)}
+.comp-table td{padding:7px 10px;border-bottom:1px solid var(--border);vertical-align:middle;color:var(--muted);line-height:1.4}
+.comp-table tr:last-child td{border-bottom:none}
+.comp-table .lbl{color:var(--text);font-weight:700;font-size:.82rem}
+.dot-on{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--green)}
+.dot-off{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--border)}
+.dot-partial{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--amber)}
+
+/* SECTION DIVIDER */
+.s-divider{display:flex;align-items:center;gap:10px;width:100%;margin:8px 0}
+.s-divider-line{flex:1;height:1px;background:var(--border)}
+.s-divider-text{font-size:.7rem;font-weight:700;color:var(--light);letter-spacing:.5px;white-space:nowrap}
+
+/* WALKTHROUGH BUTTONS */
+.walk-btn{padding:5px 12px;border-radius:20px;border:1.5px solid var(--border);background:white;font-size:.74rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all .2s;font-family:inherit}
+.walk-btn:hover{border-color:var(--bm);color:var(--bm)}
+.walk-btn.active{background:var(--bd);border-color:var(--bd);color:white}
+.arch-zone{transition:opacity .35s ease,box-shadow .35s ease}
+
+/* CDP LAYERS */
+.cdp-layer:hover{filter:brightness(.97)}
+.cdp-expand{max-height:0;overflow:hidden;transition:max-height .35s ease}
+
+/* ERD */
+.erd-entity{transition:transform .15s,box-shadow .15s}
+.erd-entity:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+</style>
+</head>
+<body>
+<div id="progress-bar"></div>
+<button class="menu-toggle" onclick="openMenu()">☰</button>
+<div class="menu-overlay" id="menuOverlay" onclick="closeMenuOut(event)">
+  <div class="menu-panel">
+    <div class="menu-title"><span>ניווט שקפים</span><span class="menu-close" onclick="closeMenu()">✕</span></div>
+    <div id="menuList"></div>
+  </div>
+</div>
+
+<div class="deck" id="deck">
+
+<!-- ══ SLIDE 1 — COVER ══ -->
+<div class="slide active" id="s1">
+  <div class="s1-title">Enterprise AI &amp; Data Rewiring</div>
+  <div class="s1-sub">ארכיטקטורת יעד לדאטה, AI ותפעול לקוחות — מחזון עד תוכנית יישום</div>
+  <div class="pill-row">
+    <div class="pill" onclick="goTo(3)" style="color:var(--bd);border-color:var(--bxx)">ארכיטקטורה כוללת</div>
+    <div class="pill" onclick="goTo(5)" style="color:#92400e;border-color:#fde68a">Lakehouse</div>
+    <div class="pill" onclick="goTo(6)" style="color:var(--purple);border-color:#e9d5ff">MDM &amp; Identity</div>
+    <div class="pill" onclick="goTo(7)" style="color:var(--green);border-color:#bbf7d0">ODS Serving</div>
+    <div class="pill" onclick="goTo(8)" style="color:var(--cyan);border-color:#a5f3fc">Customer Profile</div>
+    <div class="pill" onclick="goTo(9)" style="color:var(--bm);border-color:var(--bxx)">ML &amp; AI Platform</div>
+    <div class="pill" onclick="goTo(11)" style="color:#be185d;border-color:#fbcfe8">CDP &amp; Activation</div>
+    <div class="pill" onclick="goTo(13)" style="color:#374151;border-color:var(--border)">Roadmap</div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 2 — CURRENT STATE ══ -->
+<div class="slide" id="s2">
+  <div class="sh">
+    <div class="tag" style="background:#fef2f2;color:var(--red);border:1px solid #fecaca">AS-IS — מצב קיים</div>
+    <div class="st">אבחון טכני — איפה כואב</div>
+    <div class="sd">שבעה כשלי ארכיטקטורה שמונעים מהארגון לנצל את הדאטה שלו</div>
+  </div>
+  <div class="pain-grid wrap">
+    <div class="pain-item">
+      <div>
+        <div class="pain-title">Full-Load ETL — אין CDC</div>
+        <div class="pain-desc">Informatica מריץ batch לילי. אין Change Data Capture ארגוני. כשהתהליך נופל — אין recovery נקי ואי אפשר להריץ מחדש ללא סיכון לליבה</div>
+      </div>
+    </div>
+    <div class="pain-item">
+      <div>
+        <div class="pain-title">DWH ספריים — אין Unified Model</div>
+        <div class="pain-desc">כל עולם מוצרי (אלמנטר, פנסיה, השקעות) מנהל DWH נפרד עם schema שונה. אין data model ארגוני אחיד, אין shared entities</div>
+      </div>
+    </div>
+    <div class="pain-item">
+      <div>
+        <div class="pain-title">Core Coupling — תלות מלאה</div>
+        <div class="pain-desc">BI, דיגיטל ושירות מושכים ישירות מהליבה. עומס על ה-core, latency גבוה, סיכון תפעולי. אין הפרדה בין source לבין consumption</div>
+      </div>
+    </div>
+    <div class="pain-item">
+      <div>
+        <div class="pain-title">אין Serving Layer — אין ODS</div>
+        <div class="pain-desc">מוקדים ודיגיטל עובדים עם snapshots מיושנים. אין API-first serving layer, אין low-latency read path. פתרונות נקודתיים לכל מערכת</div>
+      </div>
+    </div>
+    <div class="pain-item">
+      <div>
+        <div class="pain-title">אין Golden Record — MDM מפוזר</div>
+        <div class="pain-desc">MDM-ים נפרדים לפי עולם מוצרי + MDM לסוכנים. אין identity resolution ארגוני, אין Golden Customer ID, duplicate records בלתי מנוהלים</div>
+      </div>
+    </div>
+    <div class="pain-item">
+      <div>
+        <div class="pain-title">Business Logic בתוך הליבה</div>
+        <div class="pain-desc">חישובים כמו פדיון פנסיה רצים ב-core systems. כל שינוי = release cycle מלא + סיכון regression. לא ניתן לנפות לוגיקה ל-data layer</div>
+      </div>
+    </div>
+    <div class="pain-item" style="grid-column:1/-1;border-right-color:var(--amber)">
+      <div>
+        <div class="pain-title">אין Feature Store, אין ML Platform מנוהל, אין AI Foundation</div>
+        <div class="pain-desc">Dataiku On-Prem פועל בצורה מצוינת לאנליטיקה וML, אך אין Feature Store מנוהל, אין MLOps pipeline, ואין חיבור מסודר ל-data products. כל מודל מושך feature-ים בדרך שלו</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 3 — TARGET ARCHITECTURE OVERVIEW ══ -->
+<div class="slide" id="s3">
+  <div class="sh">
+    <div class="tag" style="background:var(--bxxx);color:var(--bm);border:1px solid var(--bxx)">TO-BE — ארכיטקטורת יעד</div>
+    <div class="st">Enterprise Data &amp; AI Platform</div>
+    <div class="sd">ארכיטקטורה מודולרית בשכבות — כל שכבה עם תפקיד ברור, SLA מוגדר, וממשק API</div>
+  </div>
+  <div class="arch-full">
+    <div class="arch-stripe" style="background:#fef2f2;border-color:#fecaca">
+      <div class="as-title" style="color:var(--red)">Core Systems</div>
+      <div class="as-items">
+        <div class="as-chip" style="border-color:#fecaca;color:#991b1b">פוליסות</div>
+        <div class="as-chip" style="border-color:#fecaca;color:#991b1b">תביעות</div>
+        <div class="as-chip" style="border-color:#fecaca;color:#991b1b">גבייה</div>
+        <div class="as-chip" style="border-color:#fecaca;color:#991b1b">פנסיה / השקעות</div>
+        <div class="as-chip" style="border-color:#fecaca;color:#991b1b">CRM</div>
+        <div class="as-chip" style="border-color:#fecaca;color:#991b1b">מסמכים</div>
+        <div class="as-chip" style="border-color:#fecaca;color:#991b1b">דיגיטל</div>
+        <div class="as-chip" style="border-color:#fecaca;color:#991b1b">מקורות חיצוניים</div>
+      </div>
+    </div>
+    <div class="flow-arr-v">↓</div>
+    <div class="arch-stripe" style="background:#fff7ed;border-color:#fed7aa">
+      <div class="as-title" style="color:var(--amber)">Ingestion &amp; CDC Layer</div>
+      <div class="as-items">
+        <div class="as-chip" style="border-color:#fed7aa;color:#92400e">Debezium / CDC</div>
+        <div class="as-chip" style="border-color:#fed7aa;color:#92400e">Kafka / Event Streaming</div>
+        <div class="as-chip" style="border-color:#fed7aa;color:#92400e">REST APIs</div>
+        <div class="as-chip" style="border-color:#fed7aa;color:#92400e">Incremental ETL</div>
+        <div class="as-chip" style="border-color:#fed7aa;color:#92400e">File / Batch Ingestion</div>
+      </div>
+    </div>
+    <div class="flow-arr-v">↓</div>
+    <div class="arch-stripe" style="background:#fffbeb;border-color:#fde68a">
+      <div class="as-title" style="color:#92400e">Data Lakehouse</div>
+      <div class="as-items">
+        <div class="as-chip" style="border-color:#fde68a;color:#92400e">Bronze — Raw Landing</div>
+        <div class="as-chip" style="border-color:#fde68a;color:#92400e">Silver — Cleansed &amp; Conformed</div>
+        <div class="as-chip" style="border-color:#fde68a;color:#92400e">Gold — Unified Business Models</div>
+        <div class="as-chip" style="border-color:#fde68a;color:#92400e">Delta Lake / Iceberg</div>
+        <div class="as-chip" style="border-color:#fde68a;color:#92400e">Databricks / Spark</div>
+      </div>
+    </div>
+    <div class="flow-arr-v">↓</div>
+    <div style="display:flex;gap:8px;width:100%">
+      <div class="arch-stripe" style="flex:1;background:#faf5ff;border-color:#e9d5ff;flex-direction:column;gap:4px">
+        <div class="as-title" style="color:var(--purple)">MDM &amp; Identity</div>
+        <div class="as-items">
+          <div class="as-chip" style="border-color:#e9d5ff;color:var(--purple)">Identity Resolution</div>
+          <div class="as-chip" style="border-color:#e9d5ff;color:var(--purple)">Golden Record</div>
+          <div class="as-chip" style="border-color:#e9d5ff;color:var(--purple)">Entity Graph</div>
+        </div>
+      </div>
+      <div class="arch-stripe" style="flex:1;background:#f0fdf4;border-color:#bbf7d0;flex-direction:column;gap:4px">
+        <div class="as-title" style="color:var(--green)">ODS — Serving Layer</div>
+        <div class="as-items">
+          <div class="as-chip" style="border-color:#bbf7d0;color:var(--green)">Near Real-Time Snapshot</div>
+          <div class="as-chip" style="border-color:#bbf7d0;color:var(--green)">API-First</div>
+          <div class="as-chip" style="border-color:#bbf7d0;color:var(--green)">Low Latency Read</div>
+        </div>
+      </div>
+    </div>
+    <div class="flow-arr-v">↓</div>
+    <div style="display:flex;gap:8px;width:100%">
+      <div class="arch-stripe" style="flex:1.2;background:var(--bxxx);border-color:var(--bxx);flex-direction:column;gap:4px">
+        <div class="as-title" style="color:var(--bd)">Customer Profile / 360</div>
+        <div class="as-items">
+          <div class="as-chip" style="border-color:var(--bxx);color:var(--bm)">Identity + History + State + Scores</div>
+          <div class="as-chip" style="border-color:var(--bxx);color:var(--bm)">Profile-per-use-case API</div>
+        </div>
+      </div>
+      <div class="arch-stripe" style="flex:1;background:#fff0f3;border-color:#fecdd3;flex-direction:column;gap:4px">
+        <div class="as-title" style="color:#be185d">CDP &amp; Activation</div>
+        <div class="as-items">
+          <div class="as-chip" style="border-color:#fecdd3;color:#be185d">Audiences / Journeys</div>
+          <div class="as-chip" style="border-color:#fecdd3;color:#be185d">Decisioning / NBA</div>
+          <div class="as-chip" style="border-color:#fecdd3;color:#be185d">Unica / SFMC</div>
+        </div>
+      </div>
+    </div>
+    <div class="flow-arr-v">↓</div>
+    <div class="arch-stripe" style="background:var(--bg2);border-color:var(--border)">
+      <div class="as-title" style="color:var(--bd)">Consumption Layer</div>
+      <div class="as-items">
+        <div class="as-chip" style="border-color:var(--border);color:var(--muted)">מוקדים</div>
+        <div class="as-chip" style="border-color:var(--border);color:var(--muted)">CRM</div>
+        <div class="as-chip" style="border-color:var(--border);color:var(--muted)">דיגיטל / אפליקציה</div>
+        <div class="as-chip" style="border-color:var(--border);color:var(--muted)">BI / Tableau</div>
+        <div class="as-chip" style="border-color:var(--border);color:var(--muted)">AI Assistants</div>
+        <div class="as-chip" style="border-color:var(--border);color:var(--muted)">חיתום</div>
+        <div class="as-chip" style="border-color:var(--border);color:var(--muted)">תביעות</div>
+      </div>
+    </div>
+  </div>
+  <div style="display:flex;gap:8px;width:100%;max-width:1000px;margin-top:8px">
+    <div class="arch-stripe" style="flex:1;background:#f5f3ff;border-color:#e9d5ff;padding:8px 12px">
+      <div class="as-title" style="color:var(--purple);font-size:.72rem">ML &amp; AI Platform</div>
+      <div class="as-items"><div class="as-chip" style="border-color:#e9d5ff;color:var(--purple)">Feature Store</div><div class="as-chip" style="border-color:#e9d5ff;color:var(--purple)">MLOps</div><div class="as-chip" style="border-color:#e9d5ff;color:var(--purple)">GenAI / LLM</div><div class="as-chip" style="border-color:#e9d5ff;color:var(--purple)">Agentic</div></div>
+    </div>
+    <div class="arch-stripe" style="flex:1;background:#ecfeff;border-color:#a5f3fc;padding:8px 12px">
+      <div class="as-title" style="color:var(--cyan);font-size:.72rem">Vector &amp; RAG Layer</div>
+      <div class="as-items"><div class="as-chip" style="border-color:#a5f3fc;color:var(--cyan)">Embeddings</div><div class="as-chip" style="border-color:#a5f3fc;color:var(--cyan)">Vector Store</div><div class="as-chip" style="border-color:#a5f3fc;color:var(--cyan)">Knowledge Retrieval</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 4 — ARCHITECTURE PRINCIPLES ══ -->
+<div class="slide" id="s4">
+  <div class="sh">
+    <div class="tag" style="background:var(--bxxx);color:var(--bm);border:1px solid var(--bxx)">עקרונות</div>
+    <div class="st">Design Principles של הארכיטקטורה</div>
+    <div class="sd">ששת העקרונות שמנחים כל החלטה ארכיטקטונית בפלטפורמה</div>
+  </div>
+  <div class="grid g3 wrap">
+    <div class="card" style="border-top:3px solid var(--bd)">
+      <div class="ct">Separation of Core &amp; Consumption</div>
+      <div class="cb">מערכות ה-core נשארות מקור תפעולי — לא מקור צריכה. כל BI, AI, דיגיטל ושירות צורכים מ-Lakehouse/ODS בלבד. מסלול: <code style="font-size:.72rem;background:var(--bg3);padding:1px 4px;border-radius:3px">Core → CDC → Bronze → Gold/ODS</code></div>
+    </div>
+    <div class="card" style="border-top:3px solid var(--bm)">
+      <div class="ct">Layered Architecture — Single Responsibility</div>
+      <div class="cb">כל שכבה אחראית על תפקיד אחד: Lakehouse מעבד, MDM מזהה, ODS משרת, Customer Profile מחבר, CDP מפעיל. אין cross-layer leakage של לוגיקה</div>
+    </div>
+    <div class="card" style="border-top:3px solid var(--cyan)">
+      <div class="ct">Event-Driven by Design</div>
+      <div class="cb">מעבר מ-Batch-first ל-Event-first: שינויים בליבה מזרימים events לפלטפורמה. CDC → Kafka → downstream consumers. מפחית latency, מאפשר triggering ו-activation בזמן אמת</div>
+    </div>
+    <div class="card" style="border-top:3px solid var(--amber)">
+      <div class="ct">Data Products — לא טבלאות</div>
+      <div class="cb">כל ישות עסקית = Data Product עם owner, SLA, data quality rules, lineage, ו-API contract. Customer Product, Policy Product, Claim Product — לא flat tables</div>
+    </div>
+    <div class="card" style="border-top:3px solid var(--green)">
+      <div class="ct">Hybrid by Design</div>
+      <div class="cb">לא הכל בענן, לא הכל On-Prem. כל רכיב ממוקם לפי: עלות compute, latency, רגישות דאטה, proximity לליבה. Dataiku On-Prem נשאר לML training. GenAI — ענן מנוהל</div>
+    </div>
+    <div class="card" style="border-top:3px solid var(--purple)">
+      <div class="ct">AI Natively Integrated</div>
+      <div class="cb">AI לא מעקף את ארכיטקטורת הדאטה — הוא נשען עליה. Feature Store מ-Gold, profiles מ-Customer Profile, knowledge מ-Vector Store. אין "shadow data" ל-AI</div>
+    </div>
+  </div>
+  <div class="callout info" style="max-width:1000px;margin-top:12px">
+    <div class="cl">McKinsey Rewiring Framework</div>
+    <div class="cbt">היתרון הארגוני העתידי לא ינבע מהטמעת מודלי AI בלבד, אלא מהיכולת לבנות <strong>פלטפורמות, מודלים תפעוליים ויכולות ארגוניות</strong> שמאפשרים ל-AI לעבוד בסקייל, במהירות ובצורה חוזרת.</div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 5 — DATA LAKEHOUSE ══ -->
+<div class="slide" id="s5">
+  <div class="sh">
+    <div class="tag" style="background:#fffbeb;color:#92400e;border:1px solid #fde68a">Lakehouse</div>
+    <div class="st">Data Lakehouse — Medallion Architecture</div>
+    <div class="sd">שכבת העיבוד, ההיסטוריה והמודלים העסקיים של הארגון</div>
+  </div>
+  <div class="layer-row">
+    <div class="layer-card" style="border-color:#fcd34d">
+      <div class="lc-name" style="color:#92400e">Bronze</div>
+      <div class="lc-tag" style="color:#b45309">Raw Landing — as-is from source</div>
+      <ul class="lc-items">
+        <li>קליטת דאטה גולמי ממקורות — ללא transformation</li>
+        <li>שמירת כל שינוי (CDC events, full loads)</li>
+        <li>Append-only — מאפשר auditability ו-reprocessing</li>
+        <li>Partitioning לפי source ו-ingestion_date</li>
+        <li>אין business logic, אין joins, אין אגרגציות</li>
+        <li>schema-on-read, סוגי קבצים: Parquet / Delta</li>
+      </ul>
+      <div style="margin-top:auto;padding-top:10px">
+        <div class="badge" style="background:#fffbeb;border-color:#fde68a;color:#92400e">Immutable</div>
+        <div class="badge" style="background:#fffbeb;border-color:#fde68a;color:#92400e;margin-right:4px">Append-Only</div>
+      </div>
+    </div>
+    <div class="layer-card" style="border-color:#94a3b8">
+      <div class="lc-name" style="color:var(--muted)">Silver</div>
+      <div class="lc-tag" style="color:var(--light)">Cleansed, Conformed, Deduplicated</div>
+      <ul class="lc-items">
+        <li>ניקוי נתונים: null handling, type casting, dedup</li>
+        <li>תקנון שדות: פורמטים, קוד-ספרים, enums</li>
+        <li>Merge CDC events ל-current + history tables</li>
+        <li>חיבור ראשוני בין sources — foreign key resolution</li>
+        <li>ישויות בסיסיות: customer, policy, claim — טרם unified</li>
+        <li>SCD Type 2 לטבלאות היסטוריות</li>
+      </ul>
+      <div style="margin-top:auto;padding-top:10px">
+        <div class="badge" style="background:var(--bg3);border-color:var(--border);color:var(--muted)">Data Engineering</div>
+        <div class="badge" style="background:var(--bg3);border-color:var(--border);color:var(--muted);margin-right:4px">SCD-2</div>
+      </div>
+    </div>
+    <div class="layer-card" style="border-color:#fbbf24">
+      <div class="lc-name" style="color:#b45309">Gold</div>
+      <div class="lc-tag" style="color:#d97706">Unified Business Models — Source of Truth</div>
+      <ul class="lc-items">
+        <li>Data Products: Customer, Policy, Claim, Agent, Consent</li>
+        <li>מודל ישויות וקשרים — לא flat tables</li>
+        <li>מדדים עסקיים מוסכמים ו-KPIs מחושבים</li>
+        <li>Features מחושבים ל-ML (Feature Store)</li>
+        <li>פיד ל-ODS, Customer Profile, BI, CDP</li>
+        <li>Data quality checks, lineage tracking, ownership</li>
+      </ul>
+      <div style="margin-top:auto;padding-top:10px">
+        <div class="badge" style="background:#fffbeb;border-color:#fde68a;color:#92400e">Business-Owned</div>
+        <div class="badge" style="background:#fffbeb;border-color:#fde68a;color:#92400e;margin-right:4px">SLA-Backed</div>
+      </div>
+    </div>
+  </div>
+  <div class="two-col" style="margin-top:12px">
+    <div class="callout info">
+      <div class="cl">Stack Options</div>
+      <div class="cbt"><strong>Storage:</strong> Azure ADLS / AWS S3 / MinIO (On-Prem)<br><strong>Format:</strong> Delta Lake (preferred) / Apache Iceberg<br><strong>Engine:</strong> Databricks / Apache Spark / dbt for transformations<br><strong>Orchestration:</strong> Apache Airflow / Databricks Workflows</div>
+    </div>
+    <div class="callout warn">
+      <div class="cl">מצב קיים vs יעד</div>
+      <div class="cbt"><strong>קיים:</strong> Informatica full-load batch, DWH-ים מוצריים, אין Bronze<br><strong>יעד:</strong> CDC-first ingestion, Medallion layers, Gold כ-Data Products<br><strong>מעבר:</strong> אפשר להתחיל עם Silver/Gold on top of existing ETL ולמגר CDC בהדרגה</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 6 — MDM & IDENTITY ══ -->
+<div class="slide" id="s6">
+  <div class="sh">
+    <div class="tag" style="background:#faf5ff;color:var(--purple);border:1px solid #e9d5ff">MDM</div>
+    <div class="st">MDM &amp; Identity Resolution Layer</div>
+    <div class="sd">שכבת הזהות הארגונית — מי הישות, מה המזהה הגולדן שלה, ומה הקשרים בינה לבין ישויות אחרות</div>
+  </div>
+  <div class="two-col">
+    <div>
+      <div class="card" style="margin-bottom:10px">
+        <div class="ct" style="color:var(--purple)">מה MDM עושה — ומה לא</div>
+        <table class="ctable" style="margin-top:6px">
+          <tr><th>תפקיד</th><th>כן / לא</th></tr>
+          <tr><td class="lbl">Identity Resolution — איחוד duplicates</td><td class="g">כן</td></tr>
+          <tr><td class="lbl">Golden ID (cross-system unique key)</td><td class="g">כן</td></tr>
+          <tr><td class="lbl">Entity Graph — קשרים ותפקידים</td><td class="g">כן</td></tr>
+          <tr><td class="lbl">Contact master (phone, email, address)</td><td class="g">כן*</td></tr>
+          <tr><td class="lbl">היסטוריה עסקית — פוליסות, תביעות</td><td class="r">לא</td></tr>
+          <tr><td class="lbl">Customer 360 / Profile מלא</td><td class="r">לא</td></tr>
+          <tr><td class="lbl">Scores, segments, AI outputs</td><td class="r">לא</td></tr>
+        </table>
+        <div style="font-size:.7rem;color:var(--muted);margin-top:5px">* בהתאם למדיניות רגולטורית ואבטחת מידע</div>
+      </div>
+      <div class="callout purple">
+        <div class="cl">אתגר ביטוחי ספציפי</div>
+        <div class="cbt">בביטוח אין 1:1 בין אדם לפוליסה. אב = policy holder, בן = insured. MDM חייב לנהל <strong>entity graph</strong> עם role_type לכל קשר: POLICY_HOLDER, INSURED, PAYER, BENEFICIARY, AGENT</div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:10px">
+        <div class="ct" style="color:var(--purple)">מודל ישויות — Entity Graph (simplified)</div>
+        <div style="font-size:.75rem;color:var(--muted);margin-top:8px;line-height:1.8;font-family:monospace;background:var(--bg2);padding:10px;border-radius:6px">
+CUSTOMER(customer_id, id_number, type, status)<br>
+&nbsp;├─ CUSTOMER_IDENTIFIER(type, value, source, is_primary)<br>
+&nbsp;├─ CUSTOMER_CONTACT(type, value, verified, primary)<br>
+&nbsp;└─ CONSENT(type, status, updated_at)<br><br>
+POLICY(policy_id, product_domain, status, premium)<br>
+CLAIM(claim_id, policy_id, type, status, amount)<br>
+AGENT(agent_id, name, type, status)<br><br>
+CUSTOMER_POLICY_REL(customer_id, policy_id, <strong>role_type</strong>, valid_from/to)<br>
+CUSTOMER_CLAIM_REL(customer_id, claim_id, <strong>role_type</strong>, valid_from/to)<br>
+POLICY_AGENT_REL(policy_id, agent_id, <strong>role_type</strong>, valid_from/to)
+        </div>
+      </div>
+      <div class="callout info">
+        <div class="cl">מצב קיים vs יעד MDM</div>
+        <div class="cbt"><strong>קיים:</strong> MDM-ים מוצריים נפרדים, MDM סוכנים בנפרד, אין Golden ID ארגוני<br><strong>יעד:</strong> MDM ארגוני אחד (federated but centrally governed), Golden ID, entity graph מנוהל, feed לכל שכבות הפלטפורמה</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 7 — ODS ══ -->
+<div class="slide" id="s7">
+  <div class="sh">
+    <div class="tag" style="background:#f0fdf4;color:var(--green);border:1px solid #bbf7d0">ODS</div>
+    <div class="st">ODS — Operational Data Store &amp; Serving Layer</div>
+    <div class="sd">שכבת ה-Serving התפעולית — מספקת snapshot עדכני בזמן-קרוב-לאמת לכל מערכות הקצה</div>
+  </div>
+  <div class="two-col">
+    <div>
+      <div class="card" style="margin-bottom:10px;border-top:3px solid var(--green)">
+        <div class="ct">מה נמצא ב-ODS</div>
+        <ul class="clist" style="margin-top:6px">
+          <li><span style="color:var(--green)">✓</span> Current-state snapshot ללקוח, פוליסה, תביעה</li>
+          <li><span style="color:var(--green)">✓</span> פוליסות פעילות וסטטוסים תפעוליים</li>
+          <li><span style="color:var(--green)">✓</span> Open claims ואינדיקציות שירות</li>
+          <li><span style="color:var(--green)">✓</span> פרטי קשר עדכניים (מ-MDM master)</li>
+          <li><span style="color:var(--green)">✓</span> Service flags ו-customer alerts</li>
+          <li><span style="color:var(--red)">✗</span> היסטוריה מלאה — זה ב-Lakehouse</li>
+          <li><span style="color:var(--red)">✗</span> Heavy analytics — זה ב-Gold</li>
+          <li><span style="color:var(--red)">✗</span> ML inference — זה ב-AI Platform</li>
+        </ul>
+      </div>
+      <div class="callout ok">
+        <div class="cl">Guiding Principle</div>
+        <div class="cbt"><strong>"Lakehouse חושב — ODS מגיב"</strong><br>ODS מותאם ל-read path מהיר: עשרות ms latency, high concurrency, API-first. לא למשימות ETL כבדות</div>
+      </div>
+    </div>
+    <div>
+      <table class="ctable" style="margin-bottom:10px">
+        <tr><th>נושא</th><th>Lakehouse / Gold</th><th>ODS</th></tr>
+        <tr><td class="lbl">מטרה</td><td>עיבוד + היסטוריה</td><td>Serving תפעולי</td></tr>
+        <tr><td class="lbl">Update frequency</td><td>Batch / micro-batch</td><td>Near real-time / streaming</td></tr>
+        <tr><td class="lbl">Read latency</td><td>שניות עד דקות</td><td>&lt;100ms (API)</td></tr>
+        <tr><td class="lbl">Consumers</td><td>BI, AI, Analytics</td><td>מוקדים, דיגיטל, CRM</td></tr>
+        <tr><td class="lbl">Data scope</td><td>Full historical</td><td>Current snapshot</td></tr>
+        <tr><td class="lbl">Storage type</td><td>Object store (S3/ADLS)</td><td>Operational DB / Cache</td></tr>
+        <tr><td class="lbl">Tech examples</td><td>Databricks, Spark</td><td>PostgreSQL, Redis, Elasticsearch</td></tr>
+      </table>
+      <div class="card">
+        <div class="ct">ODS Design Principles</div>
+        <ul class="clist" style="margin-top:6px">
+          <li><span style="color:var(--bm)">→</span> API-first exposure — REST / GraphQL</li>
+          <li><span style="color:var(--bm)">→</span> Incremental updates from Gold (Change Feed)</li>
+          <li><span style="color:var(--bm)">→</span> SLA per entity: latency SLA + freshness SLA</li>
+          <li><span style="color:var(--bm)">→</span> Read-write separation — ODS הוא read-only</li>
+          <li><span style="color:var(--bm)">→</span> Cache layer (Redis) לפרופילים שנטענים בתדירות גבוהה</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 8 — CUSTOMER PROFILE ══ -->
+<div class="slide" id="s8">
+  <div class="sh">
+    <div class="tag" style="background:#ecfeff;color:var(--cyan);border:1px solid #a5f3fc">Customer Profile</div>
+    <div class="st">Customer Profile / Customer 360</div>
+    <div class="sd">שכבת החיבור — לא מקור דאטה, אלא composition layer שמאחד זהות, היסטוריה, מצב ותובנות לפעולה עסקית</div>
+  </div>
+  <div class="two-col">
+    <div>
+      <div class="card" style="margin-bottom:10px;border-top:3px solid var(--cyan)">
+        <div class="ct">מה מרכיב את Customer Profile</div>
+        <table class="ctable" style="margin-top:6px">
+          <tr><th>שכבת מקור</th><th>מה היא תורמת</th></tr>
+          <tr><td class="lbl">MDM</td><td>Golden ID, identity, relationships, roles</td></tr>
+          <tr><td class="lbl">Gold (Lakehouse)</td><td>History, policies, claims, value, KPIs</td></tr>
+          <tr><td class="lbl">ODS</td><td>Current state, active policies, open cases</td></tr>
+          <tr><td class="lbl">AI / Models</td><td>Churn score, CLV, NBO, risk score, segments</td></tr>
+          <tr><td class="lbl">Digital / Events</td><td>Behavioral data, app sessions, interactions</td></tr>
+          <tr><td class="lbl">Documents / RAG</td><td>Underwriting docs, claim evidence, correspondence</td></tr>
+        </table>
+      </div>
+      <div class="callout info">
+        <div class="cl">Architecture Pattern</div>
+        <div class="cbt">Customer Profile הוא <strong>Virtual Profile</strong> — לא טבלה אחת גדולה. כל use-case מקבל <strong>profile view</strong> דרך API שמרכיב את הנתונים הרלוונטיים בלבד. No denormalization, no data duplication</div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:10px">
+        <div class="ct">Profile-per-Use-Case — API Design</div>
+        <div style="font-size:.76rem;font-family:monospace;background:var(--bg2);padding:10px;border-radius:6px;margin-top:6px;line-height:1.8;color:var(--muted)">
+GET /profile/service/{customer_id}<br>
+→ identity + active_policies + open_claims<br>
+&nbsp;&nbsp;+ last_interactions + service_flags<br><br>
+GET /profile/underwriting/{customer_id}<br>
+→ identity + policy_history + claim_history<br>
+&nbsp;&nbsp;+ risk_score + behavioral_indicators<br><br>
+GET /profile/marketing/{customer_id}<br>
+→ identity + CLV + churn_score + NBO<br>
+&nbsp;&nbsp;+ segments + consent + channel_preferences<br><br>
+GET /profile/digital/{customer_id}<br>
+→ identity + active_products + alerts<br>
+&nbsp;&nbsp;+ personalization_tokens
+        </div>
+      </div>
+      <div class="callout warn">
+        <div class="cl">למה לא "טבלת לקוח אחת"</div>
+        <div class="cbt">לקוח ביטוחי קשור לעשרות פוליסות, תביעות ותפקידים. טבלה שטוחה = מאות עמודות, thousands of NULLs, קושי לשמור SCD-2, ו-schema fragility. <strong>Entity model + composition API</strong> הוא הפתרון הנכון</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 9 — ML & AI PLATFORM ══ -->
+<div class="slide" id="s9">
+  <div class="sh">
+    <div class="tag" style="background:#faf5ff;color:var(--purple);border:1px solid #e9d5ff">AI Platform</div>
+    <div class="st">ML &amp; AI Platform — Classical + GenAI + Agentic</div>
+    <div class="sd">שלוש שכבות AI שנשענות על אותה תשתית דאטה — Feature Store ← Gold, Knowledge ← Vector Store</div>
+  </div>
+  <div class="grid g3 wrap" style="margin-bottom:12px">
+    <div class="card" style="border-top:3px solid var(--purple)">
+      <div class="ct" style="color:var(--purple)">Classical ML Platform</div>
+      <div class="cb" style="margin-bottom:8px">Pricing, Churn, Fraud, Underwriting, Forecasting</div>
+      <ul class="clist">
+        <li><span style="color:var(--purple)">→</span> <strong>Feature Store</strong> — centralized, versioned, served from Gold</li>
+        <li><span style="color:var(--purple)">→</span> <strong>Training</strong> — Dataiku On-Prem (existing compute)</li>
+        <li><span style="color:var(--purple)">→</span> <strong>MLOps</strong> — experiment tracking, model registry, CI/CD</li>
+        <li><span style="color:var(--purple)">→</span> <strong>Model Governance</strong> — version, lineage, bias monitoring</li>
+        <li><span style="color:var(--purple)">→</span> <strong>Serving</strong> — batch scoring to Gold / real-time inference API</li>
+      </ul>
+    </div>
+    <div class="card" style="border-top:3px solid var(--bm)">
+      <div class="ct" style="color:var(--bm)">GenAI Platform</div>
+      <div class="cb" style="margin-bottom:8px">AI Assistants, Document Intelligence, Customer Service AI, Transcription</div>
+      <ul class="clist">
+        <li><span style="color:var(--bm)">→</span> <strong>LLM Gateway</strong> — single entry point, rate limiting, cost tracking</li>
+        <li><span style="color:var(--bm)">→</span> <strong>Prompt Management</strong> — versioning, A/B, evaluation</li>
+        <li><span style="color:var(--bm)">→</span> <strong>Orchestration</strong> — LangChain / LangGraph for chains &amp; agents</li>
+        <li><span style="color:var(--bm)">→</span> <strong>Guardrails</strong> — output validation, PII filtering, hallucination detection</li>
+        <li><span style="color:var(--bm)">→</span> <strong>Observability</strong> — token usage, latency, quality metrics</li>
+      </ul>
+    </div>
+    <div class="card" style="border-top:3px solid var(--cyan)">
+      <div class="ct" style="color:var(--cyan)">Agentic AI Layer</div>
+      <div class="cb" style="margin-bottom:8px">Multi-step workflows, autonomous task execution, human-in-the-loop</div>
+      <ul class="clist">
+        <li><span style="color:var(--cyan)">→</span> <strong>Agent Framework</strong> — tool-calling, state management</li>
+        <li><span style="color:var(--cyan)">→</span> <strong>Tool Library</strong> — ODS APIs, Customer Profile, Document Retrieval</li>
+        <li><span style="color:var(--cyan)">→</span> <strong>Workflow Engine</strong> — approval gates, escalation paths</li>
+        <li><span style="color:var(--cyan)">→</span> <strong>Audit Trail</strong> — כל פעולת agent נשמרת ומנוטרת</li>
+        <li><span style="color:var(--cyan)">→</span> <strong>Use cases:</strong> Underwriting Copilot, Claims Assist, KB Agent</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout warn" style="max-width:1000px">
+    <div class="cl">Dataiku On-Prem — מיקום בארכיטקטורה</div>
+    <div class="cbt">Dataiku On-Prem מתאים ל-<strong>Classical ML training</strong> (ניצול compute קיים, עלות נמוכה, proximity לדאטה). לא מתאים ל-GenAI / LLM inference (דרישות GPU ו-compute scale). המלצה: הרחבת Dataiku ל-Feature Store + MLOps, ובמקביל הקמת GenAI Platform בענן מנוהל</div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 10 — VECTOR & RAG ══ -->
+<div class="slide" id="s10">
+  <div class="sh">
+    <div class="tag" style="background:#ecfeff;color:var(--cyan);border:1px solid #a5f3fc">Vector &amp; RAG</div>
+    <div class="st">Vector &amp; RAG Layer — Unstructured Knowledge</div>
+    <div class="sd">הפיכת מסמכים, תמלולים ונהלים ארגוניים ל-knowledge base שמודלי AI יכולים לצרוך בצורה מדויקת ומבוקרת</div>
+  </div>
+  <div class="two-col">
+    <div>
+      <div class="card" style="margin-bottom:10px;border-top:3px solid var(--cyan)">
+        <div class="ct">Pipeline — מסמך ל-Vector Store</div>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px">
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:7px;padding:8px 12px;font-size:.78rem">
+            <div style="font-weight:700;color:var(--text);margin-bottom:2px">1. Document Ingestion</div>
+            <div style="color:var(--muted)">PDF, Word, Transcriptions, HTML → normalized text. OCR לסרוקים. PII detection ו-redaction</div>
+          </div>
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:7px;padding:8px 12px;font-size:.78rem">
+            <div style="font-weight:700;color:var(--text);margin-bottom:2px">2. Chunking Strategy</div>
+            <div style="color:var(--muted)">Semantic chunking (לא fixed-size). Overlap בין chunks. Metadata enrichment: document_type, date, domain, source</div>
+          </div>
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:7px;padding:8px 12px;font-size:.78rem">
+            <div style="font-weight:700;color:var(--text);margin-bottom:2px">3. Embedding &amp; Indexing</div>
+            <div style="color:var(--muted)">Embedding model (multilingual — תמיכה בעברית). Vector Store: Pinecone / Weaviate / pgvector. Hybrid search: dense + sparse (BM25)</div>
+          </div>
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:7px;padding:8px 12px;font-size:.78rem">
+            <div style="font-weight:700;color:var(--text);margin-bottom:2px">4. Retrieval &amp; RAG</div>
+            <div style="color:var(--muted)">Query → embedding → top-k retrieval → re-ranking → LLM generation. Context window management. Citation tracking</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:10px">
+        <div class="ct">Use Cases &amp; Domain Segmentation</div>
+        <table class="ctable" style="margin-top:6px">
+          <tr><th>Domain</th><th>מקורות ידע</th><th>Use Case</th></tr>
+          <tr><td class="lbl">Underwriting</td><td>נהלי חיתום, tariff tables, תקנות</td><td>Underwriting Copilot</td></tr>
+          <tr><td class="lbl">Claims</td><td>מסמכי תביעה, פסיקות, נהלים</td><td>Claims AI Assist</td></tr>
+          <tr><td class="lbl">Service</td><td>KB מוקד, FAQs, נהלי שירות</td><td>Agent Assist Bot</td></tr>
+          <tr><td class="lbl">Compliance</td><td>רגולציה, חוזרים, הנחיות</td><td>Compliance Copilot</td></tr>
+          <tr><td class="lbl">Internal</td><td>נהלים ארגוניים, HR, IT</td><td>Internal Knowledge Bot</td></tr>
+        </table>
+      </div>
+      <div class="callout info">
+        <div class="cl">Critical Design Decisions</div>
+        <div class="cbt"><strong>Access Control:</strong> כל document segment מקבל permission labels — לא כל agent רואה הכל<br><strong>Freshness:</strong> re-indexing pipeline לעדכוני מסמכים<br><strong>Evaluation:</strong> RAG quality metrics: faithfulness, relevance, groundedness<br><strong>Hebrew Support:</strong> multilingual embedding model חובה</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 11 — CDP & ACTIVATION ══ -->
+<div class="slide" id="s11">
+  <div class="sh">
+    <div class="tag" style="background:#fff0f3;color:#be185d;border:1px solid #fecdd3">CDP</div>
+    <div class="st">CDP &amp; Customer Activation Layer</div>
+    <div class="sd">הפיכת Customer Profile ו-Data Products לפעולה עסקית — קהלים, מסעות, החלטות, לידים והפעלת ערוצים</div>
+  </div>
+  <div class="two-col">
+    <div>
+      <div class="card" style="margin-bottom:10px;border-top:3px solid #be185d">
+        <div class="ct">ארכיטקטורת שכבות CDP</div>
+        <div style="display:flex;flex-direction:column;gap:5px;margin-top:8px">
+          <div style="background:var(--bxxx);border:1px solid var(--bxx);border-radius:7px;padding:8px 12px;font-size:.78rem">
+            <div style="font-weight:700;color:var(--bd)">1. Customer Profile Layer (input)</div>
+            <div style="color:var(--muted)">MDM + Gold + ODS + AI scores → unified profile per customer</div>
+          </div>
+          <div style="text-align:center;color:var(--light);font-size:.8rem">↓</div>
+          <div style="background:#fff0f3;border:1px solid #fecdd3;border-radius:7px;padding:8px 12px;font-size:.78rem">
+            <div style="font-weight:700;color:#be185d">2. Audience &amp; Segmentation Layer</div>
+            <div style="color:var(--muted)">בניית segments ו-audiences מ-Gold + models. לא ידנית — מוגדרת כ-data product עם SLA</div>
+          </div>
+          <div style="text-align:center;color:var(--light);font-size:.8rem">↓</div>
+          <div style="background:#fefce8;border:1px solid #fef08a;border-radius:7px;padding:8px 12px;font-size:.78rem">
+            <div style="font-weight:700;color:#854d0e">3. Decisioning Layer</div>
+            <div style="color:var(--muted)">Rules engine + NBA/NBO models. מי מקבל הצעה, איזו, באיזה ערוץ. Contact Policy + Frequency Capping</div>
+          </div>
+          <div style="text-align:center;color:var(--light);font-size:.8rem">↓</div>
+          <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:7px;padding:8px 12px;font-size:.78rem">
+            <div style="font-weight:700;color:var(--green)">4. Journey Orchestration &amp; Channel Execution</div>
+            <div style="color:var(--muted)">SFMC לערוצי דיגיטל (Email/SMS/Push/WhatsApp). Unica לניהול קמפיינים. CRM לידים ומשימות</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:10px">
+        <div class="ct">הפערים הנוכחיים</div>
+        <table class="ctable" style="margin-top:6px">
+          <tr><th>יכולת</th><th>קיים</th><th>פער</th></tr>
+          <tr><td class="lbl">Audience / Segmentation</td><td class="y">Unica (ידני)</td><td>חסר: Gold-based, automated</td></tr>
+          <tr><td class="lbl">Real-time Triggering</td><td class="r">לא קיים</td><td>חסר: CDC → event → journey</td></tr>
+          <tr><td class="lbl">Decisioning Layer</td><td class="r">לא קיים</td><td>חסר: rules + NBA/NBO engine</td></tr>
+          <tr><td class="lbl">Contact Policy</td><td class="r">חלקי</td><td>חסר: cross-channel frequency cap</td></tr>
+          <tr><td class="lbl">Journey Execution</td><td class="g">SFMC</td><td>תקין — נשאר</td></tr>
+          <tr><td class="lbl">Unified Profile Input</td><td class="r">לא קיים</td><td>חסר: Customer Profile layer</td></tr>
+        </table>
+      </div>
+      <div class="callout warn">
+        <div class="cl">Salesforce Data Cloud — מתי רלוונטי?</div>
+        <div class="cbt">SFDC Data Cloud יכול לשמש כ-CDP/Activation Layer אם ממשיכים עם SFMC ecosystem. <strong>לא מחליף</strong> Lakehouse, MDM, או ODS. תפקידו: audience management + activation לתוך SFMC journeys. ייבחן בשלב שני לאחר שתשתית Gold ו-Customer Profile יציבה</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 12 — HYBRID ARCHITECTURE ══ -->
+<div class="slide" id="s12">
+  <div class="sh">
+    <div class="tag" style="background:var(--bg3);color:var(--muted);border:1px solid var(--border)">Hybrid</div>
+    <div class="st">Hybrid Architecture — מיקום כל רכיב</div>
+    <div class="sd">לא "all-in cloud" ולא "all On-Prem". כל רכיב ממוקם לפי: compute cost, latency, data sensitivity, proximity to core</div>
+  </div>
+  <table class="ctable wrap" style="margin-bottom:12px">
+    <tr>
+      <th>רכיב</th>
+      <th>On-Prem</th>
+      <th>Hybrid</th>
+      <th>Cloud</th>
+      <th>המלצה &amp; נימוק</th>
+    </tr>
+    <tr>
+      <td class="lbl">Core Systems</td>
+      <td><span class="dot-on"></span></td>
+      <td><span class="dot-off"></span></td>
+      <td><span class="dot-off"></span></td>
+      <td>נשאר On-Prem — legacy, regulatory, proximity</td>
+    </tr>
+    <tr>
+      <td class="lbl">CDC / Ingestion</td>
+      <td><span class="dot-partial"></span></td>
+      <td><span class="dot-on"></span></td>
+      <td><span class="dot-off"></span></td>
+      <td>Debezium On-Prem → Kafka Hybrid / Cloud. CDC agent קרוב לליבה</td>
+    </tr>
+    <tr>
+      <td class="lbl">Data Lakehouse</td>
+      <td><span class="dot-off"></span></td>
+      <td><span class="dot-on"></span></td>
+      <td><span class="dot-on"></span></td>
+      <td>Cloud preferred (S3/ADLS + Databricks). Hybrid אם אבטחת מידע מחייבת</td>
+    </tr>
+    <tr>
+      <td class="lbl">MDM</td>
+      <td><span class="dot-partial"></span></td>
+      <td><span class="dot-on"></span></td>
+      <td><span class="dot-off"></span></td>
+      <td>קרוב לליבה לרזולוציה, אך חייב להיות חלק מ-data platform</td>
+    </tr>
+    <tr>
+      <td class="lbl">ODS / Serving</td>
+      <td><span class="dot-partial"></span></td>
+      <td><span class="dot-on"></span></td>
+      <td><span class="dot-on"></span></td>
+      <td>Cloud מועדף לסקייל ו-API. On-Prem אם כל הצרכנים פנימיים</td>
+    </tr>
+    <tr>
+      <td class="lbl">Classical ML (Dataiku)</td>
+      <td><span class="dot-on"></span></td>
+      <td><span class="dot-off"></span></td>
+      <td><span class="dot-off"></span></td>
+      <td>נשאר On-Prem — existing compute, cost efficiency לtraining</td>
+    </tr>
+    <tr>
+      <td class="lbl">GenAI / LLM</td>
+      <td><span class="dot-off"></span></td>
+      <td><span class="dot-off"></span></td>
+      <td><span class="dot-on"></span></td>
+      <td>ענן מנוהל — דרישות GPU, model updates, scale. Azure OpenAI / AWS Bedrock</td>
+    </tr>
+    <tr>
+      <td class="lbl">Vector Store / RAG</td>
+      <td><span class="dot-partial"></span></td>
+      <td><span class="dot-on"></span></td>
+      <td><span class="dot-on"></span></td>
+      <td>תלוי ברגישות המסמכים. Hybrid עם access control layer</td>
+    </tr>
+    <tr>
+      <td class="lbl">CDP / Activation</td>
+      <td><span class="dot-off"></span></td>
+      <td><span class="dot-partial"></span></td>
+      <td><span class="dot-on"></span></td>
+      <td>SFMC בענן. Decisioning layer — יכול להיות On-Prem / cloud</td>
+    </tr>
+  </table>
+  <div class="callout info" style="max-width:1000px">
+    <div class="cl">FinOps Principles</div>
+    <div class="cbt">הענן יקר רק אם לא מנוהל נכון. <strong>עקרונות:</strong> (1) CDC ו-Incremental Processing במקום Full Load מקטינים compute cost ב-60-80%. (2) Storage/Compute separation — scale independently. (3) ML Training On-Prem → Inference Cloud (best of both). (4) FinOps dashboard + budget alerts per workload</div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 13 — ROADMAP ══ -->
+<div class="slide" id="s13">
+  <div class="sh">
+    <div class="tag" style="background:var(--bxxx);color:var(--bm);border:1px solid var(--bxx)">Roadmap</div>
+    <div class="st">תוכנית יישום — 4 שלבים, 18 חודשים</div>
+    <div class="sd">Build-first approach: כל שלב מספק ערך עסקי עצמאי ומהווה תשתית לשלב הבא</div>
+  </div>
+  <div class="phase-row wrap">
+    <div class="phase-box" style="border-color:var(--bxx)">
+      <div class="phase-num">שלב 1</div>
+      <div class="phase-title">Foundation &amp; Decoupling</div>
+      <ul class="phase-items">
+        <li>CDC Pilot — 2-3 core systems ראשונים</li>
+        <li>Bronze Layer — ingestion infrastructure</li>
+        <li>Silver — cleansing pipelines, dedup</li>
+        <li>MDM Consolidation — Golden ID ראשוני</li>
+        <li>Data Catalog &amp; Lineage tool</li>
+        <li>FinOps baseline ו-cloud landing zone</li>
+      </ul>
+      <div class="phase-time">Q1–Q2 — 6 חודשים</div>
+    </div>
+    <div class="phase-box" style="border-color:#fde68a">
+      <div class="phase-num">שלב 2</div>
+      <div class="phase-title">Gold &amp; Serving MVP</div>
+      <ul class="phase-items">
+        <li>Gold Layer — Customer, Policy, Claim Data Products</li>
+        <li>ODS MVP — serving API למוקדים ולדיגיטל</li>
+        <li>Customer Profile API — service + underwriting views</li>
+        <li>Feature Store ב-Dataiku — integration ל-Gold</li>
+        <li>BI migration מ-DWH-ים ל-Gold</li>
+        <li>MDM Entity Graph — role relationships</li>
+      </ul>
+      <div class="phase-time">Q3–Q4 — 6 חודשים</div>
+    </div>
+    <div class="phase-box" style="border-color:#bbf7d0">
+      <div class="phase-num">שלב 3</div>
+      <div class="phase-title">AI &amp; Activation</div>
+      <ul class="phase-items">
+        <li>GenAI Platform — LLM Gateway + Orchestration</li>
+        <li>Vector Store + RAG — מסמכי שירות וחיתום</li>
+        <li>CDP Enhancement — Decisioning Layer ראשוני</li>
+        <li>Real-time Triggering מ-ODS ל-SFMC</li>
+        <li>MLOps pipeline — model registry, monitoring</li>
+        <li>Customer Profile — marketing view + NBO</li>
+      </ul>
+      <div class="phase-time">Y2 Q1–Q2 — 6 חודשים</div>
+    </div>
+    <div class="phase-box" style="border-color:#e9d5ff">
+      <div class="phase-num">שלב 4</div>
+      <div class="phase-title">Scale &amp; Agentic AI</div>
+      <ul class="phase-items">
+        <li>Agentic Workflows — Underwriting Copilot, Claims AI</li>
+        <li>Full CDC coverage — כל מערכות הליבה</li>
+        <li>NBA / NBO production models</li>
+        <li>Contact Policy engine — cross-channel</li>
+        <li>Data Product marketplace — self-serve analytics</li>
+        <li>Platform governance &amp; data mesh evaluation</li>
+      </ul>
+      <div class="phase-time">Y2 Q3–Q4 — 6 חודשים</div>
+    </div>
+  </div>
+  <div class="callout info" style="max-width:1000px;margin-top:12px">
+    <div class="cl">Delivery Principle</div>
+    <div class="cbt">כל שלב מסתיים עם <strong>production-grade deliverable</strong> — לא POC. שלב 1 = CDC בפרודקשן. שלב 2 = ODS serving ל-N מוקדים. הגישה: <strong>thin vertical slices</strong> על פני horizontal layers בלבד</div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 14 — TEAM & CAPABILITIES ══ -->
+<div class="slide" id="s14">
+  <div class="sh">
+    <div class="tag" style="background:var(--bg3);color:var(--muted);border:1px solid var(--border)">Team</div>
+    <div class="st">צרכי כוח אדם ויכולות</div>
+    <div class="sd">Platform-grade data &amp; AI infrastructure דורש תפקידים שונים מ-traditional data engineering</div>
+  </div>
+  <div class="two-col">
+    <div>
+      <table class="ctable" style="margin-bottom:10px">
+        <tr><th>תפקיד</th><th>אחריות</th><th>פער קיים</th></tr>
+        <tr><td class="lbl">Data Platform Engineer</td><td>Lakehouse, CDC, pipelines, infra</td><td class="r">High</td></tr>
+        <tr><td class="lbl">Data Modeler</td><td>Gold entities, Data Products, ERD</td><td class="y">Medium</td></tr>
+        <tr><td class="lbl">MLOps / AI Engineer</td><td>Feature Store, model serving, MLOps</td><td class="r">High</td></tr>
+        <tr><td class="lbl">GenAI Engineer</td><td>LLM orchestration, RAG, agents</td><td class="r">High</td></tr>
+        <tr><td class="lbl">Data Governance Lead</td><td>Data Products, quality, catalog</td><td class="y">Medium</td></tr>
+        <tr><td class="lbl">API / Serving Engineer</td><td>ODS APIs, Customer Profile APIs</td><td class="y">Medium</td></tr>
+        <tr><td class="lbl">Platform Architect</td><td>End-to-end design, integration</td><td class="r">Critical</td></tr>
+      </table>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:10px;border-top:3px solid var(--bm)">
+        <div class="ct">Build vs Buy vs Partner</div>
+        <table class="ctable" style="margin-top:6px">
+          <tr><th>רכיב</th><th>גישה מומלצת</th></tr>
+          <tr><td class="lbl">Lakehouse Storage</td><td>Buy / Cloud (S3 + Delta)</td></tr>
+          <tr><td class="lbl">Data Integration / CDC</td><td>Buy (Databricks + Debezium)</td></tr>
+          <tr><td class="lbl">MDM</td><td>Buy (Informatica MDM / Reltio)</td></tr>
+          <tr><td class="lbl">ML Platform (Classical)</td><td>Build on Dataiku (existing)</td></tr>
+          <tr><td class="lbl">GenAI / LLM Gateway</td><td>Buy + Build (Azure OpenAI + custom)</td></tr>
+          <tr><td class="lbl">Vector Store</td><td>Buy (Pinecone / pgvector)</td></tr>
+          <tr><td class="lbl">Feature Store</td><td>Build on Databricks / Feast</td></tr>
+          <tr><td class="lbl">ODS / Serving APIs</td><td>Build (custom, owned by platform team)</td></tr>
+        </table>
+      </div>
+      <div class="callout warn">
+        <div class="cl">Team Model Recommendation</div>
+        <div class="cbt"><strong>Platform Team (central):</strong> Lakehouse, CDC, MDM, ODS, Feature Store, GenAI Platform<br><strong>Domain Teams:</strong> Gold Data Products per business domain (insurance products, claims, marketing)<br><strong>External Expertise:</strong> Architecture review + CDC implementation — SI partner לשלב 1</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 15 — ROI & VALUE ══ -->
+<div class="slide" id="s15">
+  <div class="sh">
+    <div class="tag" style="background:#f0fdf4;color:var(--green);border:1px solid #bbf7d0">ROI</div>
+    <div class="st">ערך עסקי ו-ROI</div>
+    <div class="sd">ה-ROI של הפלטפורמה נמדד בשני מישורים — תשתיתי ועסקי</div>
+  </div>
+  <div class="grid g2 wrap" style="margin-bottom:12px">
+    <div>
+      <div style="font-size:.82rem;font-weight:700;color:var(--bd);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">ROI תשתיתי — מדדים</div>
+      <table class="ctable">
+        <tr><th>מדד</th><th>מצב קיים (est.)</th><th>יעד</th></tr>
+        <tr><td class="lbl">ETL failure rate</td><td class="r">~15% per week</td><td class="g">&lt;1%</td></tr>
+        <tr><td class="lbl">Data freshness (avg)</td><td class="r">12-24 שעות</td><td class="g">&lt;15 דקות</td></tr>
+        <tr><td class="lbl">Core DB load from ETL</td><td class="r">גבוה</td><td class="g">↓ 70%</td></tr>
+        <tr><td class="lbl">Report/dashboard duplication</td><td class="r">High (כל צוות)</td><td class="g">Single Gold source</td></tr>
+        <tr><td class="lbl">Time to new data product</td><td class="r">חודשים</td><td class="g">ימים עד שבועות</td></tr>
+        <tr><td class="lbl">Golden ID coverage</td><td class="r">~40% (estimate)</td><td class="g">&gt;95%</td></tr>
+      </table>
+    </div>
+    <div>
+      <div style="font-size:.82rem;font-weight:700;color:var(--bd);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">ROI עסקי — מנופים</div>
+      <ul class="clist">
+        <li><span style="color:var(--green)">↑</span> <strong>שיפור AHT במוקדים</strong> — ODS + unified profile מפחית זמן חיפוש נתונים לנציג</li>
+        <li><span style="color:var(--green)">↑</span> <strong>שיפור conversion ב-journeys</strong> — Decisioning + real-time triggering</li>
+        <li><span style="color:var(--green)">↑</span> <strong>שיפור דיוק חיתום</strong> — Underwriting Profile + ML models על Gold</li>
+        <li><span style="color:var(--green)">↑</span> <strong>הגדלת NBO/NBA</strong> — Customer 360 + scoring + CDP activation</li>
+        <li><span style="color:var(--green)">↑</span> <strong>שיפור Retention</strong> — Churn model + proactive journeys</li>
+        <li><span style="color:var(--green)">↑</span> <strong>Analyst productivity</strong> — self-serve Gold + data catalog</li>
+        <li><span style="color:var(--green)">↑</span> <strong>AI time-to-value</strong> — Feature Store + RAG מקצרים פיתוח מודלים ב-50%+</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout info" style="max-width:1000px">
+    <div class="cl">Investment Framing</div>
+    <div class="cbt">הפלטפורמה היא <strong>Capability Investment</strong>, לא פרויקט IT. כל יוזמת AI, GenAI ו-Digital שתבוא לאחר מכן תבנה על אותה תשתית — ה-ROI מצטבר. ללא הפלטפורמה, כל יוזמה שכזו תדרוש לבנות את ה-data foundation מחדש</div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 16 — SUMMARY ══ -->
+<div class="slide" id="s16">
+  <div class="sh">
+    <div class="tag" style="background:var(--bxxx);color:var(--bd);border:1px solid var(--bxx)">Summary</div>
+    <div class="st">The Platform Play — סיכום ארכיטקטוני</div>
+    <div class="sd">מה אנחנו בונים, למה, ואיך זה משתלב לכדי פלטפורמה שמפעילה את הארגון</div>
+  </div>
+  <div class="grid g3 wrap" style="margin-bottom:12px">
+    <div class="card" style="border-top:3px solid var(--amber)">
+      <div class="ct">Lakehouse</div>
+      <div class="cb">מנוע העיבוד. Bronze → Silver → Gold. מפריד Core מ-Consumption. Single source of truth לכל Data Products</div>
+    </div>
+    <div class="card" style="border-top:3px solid var(--purple)">
+      <div class="ct">MDM &amp; Identity</div>
+      <div class="cb">Golden Record. Entity Graph. Identity Resolution. הבסיס לכל מה שמגיע אחריו — בלי MDM אין Customer 360</div>
+    </div>
+    <div class="card" style="border-top:3px solid var(--green)">
+      <div class="ct">ODS — Serving Layer</div>
+      <div class="cb">מנוע התגובה. API-first, low-latency. מנגיש current-state לכל מערכות הקצה — מוקדים, דיגיטל, CRM</div>
+    </div>
+    <div class="card" style="border-top:3px solid var(--cyan)">
+      <div class="ct">Customer Profile</div>
+      <div class="cb">Composition Layer. לא מקור — מחבר. Profile-per-use-case API. מבוסס MDM + Gold + ODS + AI</div>
+    </div>
+    <div class="card" style="border-top:3px solid var(--bm)">
+      <div class="ct">ML &amp; AI Platform</div>
+      <div class="cb">Classical ML ב-Dataiku On-Prem. GenAI Platform בענן. Feature Store מ-Gold. Vector/RAG לידע לא מובנה. Agentic workflows</div>
+    </div>
+    <div class="card" style="border-top:3px solid #be185d">
+      <div class="ct">CDP &amp; Activation</div>
+      <div class="cb">Audience → Decisioning → Journey. Real-time triggering. Contact Policy. SFMC לביצוע. NBA/NBO models</div>
+    </div>
+  </div>
+  <div class="callout info" style="max-width:1000px;margin-bottom:8px">
+    <div class="cl">The Core Shift</div>
+    <div class="cbt" style="font-size:.9rem"><strong>מ:</strong> Data כ-by-product של מערכות הליבה, ETL כבדים, DWH ספריים, פרופילים מקומיים<br><strong>ל:</strong> Data כ-Strategic Asset, Event-driven platform, Unified Business Models, AI-ready by design</div>
+  </div>
+  <div class="callout ok" style="max-width:1000px">
+    <div class="cl">Key Success Factors</div>
+    <div class="cbt">(1) <strong>Executive sponsorship</strong> — CTO owns the platform, not a specific project. (2) <strong>Platform Team</strong> — dedicated, cross-functional, not embedded in domains. (3) <strong>Data Product mindset</strong> — domains own their data products with SLAs. (4) <strong>Thin vertical slices</strong> — production value at each phase, not a 3-year big-bang</div>
+  </div>
+</div>
+
+
+<!-- ══ SLIDE 17 — FULL PLATFORM ARCHITECTURE WALKTHROUGH ══ -->
+<div class="slide" id="s17">
+  <div class="sh" style="margin-bottom:8px">
+    <div class="tag" style="background:var(--bxxx);color:var(--bm);border:1px solid var(--bxx)">Architecture Walkthrough</div>
+    <div class="st">Enterprise Data & AI Platform — Full Architecture</div>
+    <div class="sd">לחץ על שלב להדגשה והסבר. מ-Core Systems עד Downstream Channels.</div>
+  </div>
+  <div style="display:flex;gap:5px;justify-content:center;margin-bottom:8px;flex-wrap:wrap">
+    <button class="walk-btn active" id="w17-0" onclick="walk17(0)">הכל</button>
+    <button class="walk-btn" id="w17-1" onclick="walk17(1)">① Core Systems</button>
+    <button class="walk-btn" id="w17-2" onclick="walk17(2)">② Ingestion &amp; CDC</button>
+    <button class="walk-btn" id="w17-3" onclick="walk17(3)">③ Data Lakehouse</button>
+    <button class="walk-btn" id="w17-4" onclick="walk17(4)">④ MDM + ODS</button>
+    <button class="walk-btn" id="w17-5" onclick="walk17(5)">⑤ AI + Profile</button>
+    <button class="walk-btn" id="w17-6" onclick="walk17(6)">⑥ CDP + Activation</button>
+  </div>
+  <div style="display:flex;gap:8px;width:100%;max-width:1000px">
+    <!-- Left zone labels -->
+    <div style="display:flex;flex-direction:column;gap:4px;width:86px;flex-shrink:0">
+      <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:7px;padding:6px 7px;font-size:.62rem;font-weight:700;color:#dc2626;line-height:1.4;text-align:center">1. SOURCE &amp; CORE SYSTEMS</div>
+      <div style="flex:0 0 26px"></div>
+      <div style="background:var(--bxxx);border:1px solid var(--bxx);border-radius:7px;padding:6px 7px;font-size:.62rem;font-weight:700;color:var(--bd);line-height:1.4;text-align:center;flex:1;display:flex;align-items:center;justify-content:center">2. ENTERPRISE DATA &amp; AI PLATFORM</div>
+      <div style="flex:0 0 6px"></div>
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:7px;padding:6px 7px;font-size:.62rem;font-weight:700;color:var(--green);line-height:1.4;text-align:center">3. ACTIVATION &amp; CONSUMPTION</div>
+    </div>
+    <!-- Main -->
+    <div style="flex:1;display:flex;flex-direction:column;gap:4px">
+      <div id="z17-1" class="arch-zone" style="border:1.5px solid #fecaca;border-radius:9px;padding:8px 12px;background:#fef9f9">
+        <div style="font-size:.65rem;font-weight:700;color:#dc2626;margin-bottom:5px;letter-spacing:.3px">CORE SYSTEMS — Systems of Record</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px">
+          <span style="background:white;border:1px solid #fecaca;color:#991b1b;font-size:.65rem;padding:3px 8px;border-radius:5px;font-weight:600">📋 Policies</span>
+          <span style="background:white;border:1px solid #fecaca;color:#991b1b;font-size:.65rem;padding:3px 8px;border-radius:5px;font-weight:600">⚠ Claims</span>
+          <span style="background:white;border:1px solid #fecaca;color:#991b1b;font-size:.65rem;padding:3px 8px;border-radius:5px;font-weight:600">💳 Billing</span>
+          <span style="background:white;border:1px solid #fecaca;color:#991b1b;font-size:.65rem;padding:3px 8px;border-radius:5px;font-weight:600">📈 Investments</span>
+          <span style="background:white;border:1px solid #fecaca;color:#991b1b;font-size:.65rem;padding:3px 8px;border-radius:5px;font-weight:600">🏦 Pension</span>
+          <span style="background:white;border:1px solid #fecaca;color:#991b1b;font-size:.65rem;padding:3px 8px;border-radius:5px;font-weight:600">👥 CRM</span>
+          <span style="background:white;border:1px solid #fecaca;color:#991b1b;font-size:.65rem;padding:3px 8px;border-radius:5px;font-weight:600">📱 Digital Channels</span>
+          <span style="background:white;border:1px solid #fecaca;color:#991b1b;font-size:.65rem;padding:3px 8px;border-radius:5px;font-weight:600">📄 Documents &amp; Content</span>
+          <span style="background:white;border:1px solid #fecaca;color:#991b1b;font-size:.65rem;padding:3px 8px;border-radius:5px;font-weight:600">🌐 External Sources</span>
+        </div>
+      </div>
+      <div style="text-align:center;color:var(--light);font-size:.72rem">↓ High Volume · High Velocity · Structured &amp; Unstructured</div>
+      <div id="z17-2" class="arch-zone" style="border:1.5px solid #fed7aa;border-radius:9px;padding:7px 12px;background:#fffdf9">
+        <div style="font-size:.65rem;font-weight:700;color:var(--amber);margin-bottom:5px">INGESTION LAYER — Real-time / Near Real-time</div>
+        <div style="display:flex;gap:5px">
+          <div style="flex:1;background:white;border:1px solid #fed7aa;border-radius:6px;padding:5px;text-align:center;font-size:.68rem;font-weight:700;color:#92400e">CDC<div style="font-weight:400;font-size:.6rem;color:var(--muted);margin-top:1px">Debezium</div></div>
+          <div style="flex:1;background:white;border:1px solid #fed7aa;border-radius:6px;padding:5px;text-align:center;font-size:.68rem;font-weight:700;color:#92400e">Streaming<div style="font-weight:400;font-size:.6rem;color:var(--muted);margin-top:1px">Kafka / Events</div></div>
+          <div style="flex:1;background:white;border:1px solid #fed7aa;border-radius:6px;padding:5px;text-align:center;font-size:.68rem;font-weight:700;color:#92400e">APIs<div style="font-weight:400;font-size:.6rem;color:var(--muted);margin-top:1px">REST / GraphQL</div></div>
+          <div style="flex:1;background:white;border:1px solid #fed7aa;border-radius:6px;padding:5px;text-align:center;font-size:.68rem;font-weight:700;color:#92400e">ETL<div style="font-weight:400;font-size:.6rem;color:var(--muted);margin-top:1px">Incremental</div></div>
+        </div>
+        <div style="font-size:.6rem;color:var(--muted);margin-top:4px;text-align:center">ELT Processing Model: Extract → Load → Transform (Incremental &amp; Replayable)</div>
+      </div>
+      <div style="text-align:center;color:var(--light);font-size:.72rem">↓</div>
+      <div style="display:flex;gap:5px">
+        <div id="z17-3" class="arch-zone" style="flex:2;border:1.5px solid #fde68a;border-radius:9px;padding:7px 12px;background:#fffef5">
+          <div style="font-size:.65rem;font-weight:700;color:#92400e;margin-bottom:5px">DATA LAKEHOUSE — Medallion Architecture</div>
+          <div style="display:flex;gap:4px;align-items:center">
+            <div style="flex:1;border-radius:7px;padding:7px;text-align:center;background:#fef3c7;border:1px solid #fde68a"><div style="font-size:.78rem;font-weight:800;color:#92400e">Bronze</div><div style="font-size:.6rem;color:var(--muted);margin-top:2px">Raw Data<br>As received</div></div>
+            <div style="color:var(--light);font-size:.8rem">→</div>
+            <div style="flex:1;border-radius:7px;padding:7px;text-align:center;background:#f1f5f9;border:1px solid #cbd5e1"><div style="font-size:.78rem;font-weight:800;color:var(--muted)">Silver</div><div style="font-size:.6rem;color:var(--muted);margin-top:2px">Cleansed<br>Conformed</div></div>
+            <div style="color:var(--light);font-size:.8rem">→</div>
+            <div style="flex:1;border-radius:7px;padding:7px;text-align:center;background:#fef9c3;border:1px solid #fde68a"><div style="font-size:.78rem;font-weight:800;color:#78350f">Gold</div><div style="font-size:.6rem;color:var(--muted);margin-top:2px">Business Models<br>&amp; Metrics</div></div>
+          </div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:4px">
+          <div id="z17-4a" class="arch-zone" style="flex:1;border:1.5px solid #e9d5ff;border-radius:9px;padding:7px 10px;background:#fdfbff"><div style="font-size:.65rem;font-weight:700;color:var(--purple)">MDM</div><div style="font-size:.6rem;color:var(--muted);margin-top:2px">Golden Record · Identity &amp; Relationships</div></div>
+          <div id="z17-4b" class="arch-zone" style="flex:1;border:1.5px solid #bbf7d0;border-radius:9px;padding:7px 10px;background:#f9fffe"><div style="font-size:.65rem;font-weight:700;color:var(--green)">ODS</div><div style="font-size:.6rem;color:var(--muted);margin-top:2px">Near real-time operational snapshot</div></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:5px">
+        <div id="z17-5a" class="arch-zone" style="flex:1;border:1.5px solid #e9d5ff;border-radius:9px;padding:6px 10px;background:#fdfbff"><div style="font-size:.64rem;font-weight:700;color:var(--purple)">AI / ML Platform</div><div style="font-size:.59rem;color:var(--muted)">ML Models · Feature Store · MLOps · Model Governance</div></div>
+        <div id="z17-5b" class="arch-zone" style="flex:1;border:1.5px solid #a5f3fc;border-radius:9px;padding:6px 10px;background:#f0feff"><div style="font-size:.64rem;font-weight:700;color:var(--cyan)">Vector &amp; Knowledge Layer</div><div style="font-size:.59rem;color:var(--muted)">Vector Store · Embedding · RAG · Knowledge Graph</div></div>
+        <div id="z17-5c" class="arch-zone" style="flex:1.4;border:1.5px solid var(--bxx);border-radius:9px;padding:6px 10px;background:var(--bxxx)"><div style="font-size:.64rem;font-weight:700;color:var(--bd)">Customer Profile / Customer 360</div><div style="font-size:.59rem;color:var(--bm)">Identity · Current State · History · Transactions · Behaviors &amp; Insights</div></div>
+      </div>
+      <div id="z17-6a" class="arch-zone" style="border:1.5px solid #fecdd3;border-radius:9px;padding:6px 12px;background:#fff8f9"><div style="font-size:.64rem;font-weight:700;color:#be185d">CDP / Customer Activation</div><div style="font-size:.59rem;color:var(--muted)">Audiences · Segments · Journeys · Campaigns · Next Best Action</div></div>
+      <div style="text-align:center;color:var(--light);font-size:.72rem">↓ Activation Flow</div>
+      <div id="z17-6b" class="arch-zone" style="border:1.5px solid var(--border);border-radius:9px;padding:7px 12px;background:var(--bg2)">
+        <div style="font-size:.65rem;font-weight:700;color:var(--bd);margin-bottom:5px">DOWNSTREAM CHANNELS &amp; APPLICATIONS</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px">
+          <span style="background:white;border:1px solid var(--border);color:var(--muted);font-size:.62rem;padding:2px 7px;border-radius:4px;font-weight:600">Contact Centers</span>
+          <span style="background:white;border:1px solid var(--border);color:var(--muted);font-size:.62rem;padding:2px 7px;border-radius:4px;font-weight:600">CRM</span>
+          <span style="background:white;border:1px solid var(--border);color:var(--muted);font-size:.62rem;padding:2px 7px;border-radius:4px;font-weight:600">Digital Experiences</span>
+          <span style="background:white;border:1px solid var(--border);color:var(--muted);font-size:.62rem;padding:2px 7px;border-radius:4px;font-weight:600">Marketing Cloud</span>
+          <span style="background:white;border:1px solid var(--border);color:var(--muted);font-size:.62rem;padding:2px 7px;border-radius:4px;font-weight:600">Unica Campaign</span>
+          <span style="background:white;border:1px solid var(--border);color:var(--muted);font-size:.62rem;padding:2px 7px;border-radius:4px;font-weight:600">BI / Analytics</span>
+          <span style="background:white;border:1px solid var(--border);color:var(--muted);font-size:.62rem;padding:2px 7px;border-radius:4px;font-weight:600">AI Assistants &amp; Copilots</span>
+          <span style="background:white;border:1px solid var(--border);color:var(--muted);font-size:.62rem;padding:2px 7px;border-radius:4px;font-weight:600">Sales Channels</span>
+          <span style="background:white;border:1px solid var(--border);color:var(--muted);font-size:.62rem;padding:2px 7px;border-radius:4px;font-weight:600">Mobile Apps</span>
+        </div>
+      </div>
+    </div>
+    <!-- Right cross-cutting -->
+    <div style="width:106px;flex-shrink:0;display:flex;flex-direction:column;gap:4px">
+      <div style="font-size:.62rem;font-weight:700;color:var(--bd);text-align:center;margin-bottom:2px">CROSS-CUTTING CAPABILITIES</div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:5px 6px;font-size:.6rem;color:var(--muted);text-align:center">🛡 Data Governance<br><span style="color:var(--text);font-weight:600">ממשל נתונים</span></div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:5px 6px;font-size:.6rem;color:var(--muted);text-align:center">🔒 Security &amp; Privacy<br><span style="color:var(--text);font-weight:600">אבטחת מידע</span></div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:5px 6px;font-size:.6rem;color:var(--muted);text-align:center">✅ Data Quality<br><span style="color:var(--text);font-weight:600">איכות נתונים</span></div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:5px 6px;font-size:.6rem;color:var(--muted);text-align:center">🔗 Metadata &amp; Catalog<br><span style="color:var(--text);font-weight:600">קטלוג נתונים</span></div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:5px 6px;font-size:.6rem;color:var(--muted);text-align:center">📊 Monitoring &amp; Obs.<br><span style="color:var(--text);font-weight:600">ניטור ותצפית</span></div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:5px 6px;font-size:.6rem;color:var(--muted);text-align:center">🔗 Data Lineage<br><span style="color:var(--text);font-weight:600">שרשור נתונים</span></div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:5px 6px;font-size:.6rem;color:var(--muted);text-align:center">💰 FinOps<br><span style="color:var(--text);font-weight:600">ניהול עלויות</span></div>
+    </div>
+  </div>
+  <div id="s17-desc" class="callout info" style="max-width:1000px;margin-top:8px;transition:all .3s">
+    <div class="cl">Design Principles</div>
+    <div class="cbt">Decoupled · Real-time First · Reusable · Governed · AI-Ready · Scalable — לחץ על שלב להסבר מפורט</div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 18 — CDP ARCHITECTURE FLOW ══ -->
+<div class="slide" id="s18">
+  <div class="sh" style="margin-bottom:10px">
+    <div class="tag" style="background:#fff0f3;color:#be185d;border:1px solid #fecdd3">CDP Architecture</div>
+    <div class="st">Customer Data Platform — Architecture Flow</div>
+    <div class="sd">מ-Data Foundation עד הפעלת לקוח — שכבות, תפקידים וזרימת המידע. לחץ על שכבה להרחבה</div>
+  </div>
+  <div style="display:flex;gap:12px;width:100%;max-width:1000px">
+    <div style="flex:1;display:flex;flex-direction:column;gap:0">
+      <!-- Data Foundation -->
+      <div style="background:var(--bxxx);border:2px solid var(--bxx);border-radius:10px;padding:9px 12px">
+        <div style="font-size:.68rem;font-weight:700;color:var(--bd);letter-spacing:.5px;text-align:center;margin-bottom:7px">DATA FOUNDATION</div>
+        <div style="display:flex;gap:7px">
+          <div style="flex:1;background:var(--bd);color:white;border-radius:8px;padding:9px 8px;text-align:center">
+            <div style="font-size:.8rem;font-weight:800">Lakehouse / Gold</div>
+            <div style="font-size:.62rem;opacity:.8;margin-top:2px">Customer, Policy, Claims, Scores</div>
+            <ul style="list-style:none;margin-top:5px;display:flex;flex-direction:column;gap:2px;text-align:right">
+              <li style="font-size:.6rem;opacity:.9">✓ היסטוריה מלאה</li>
+              <li style="font-size:.6rem;opacity:.9">✓ מודלים עסקיים</li>
+              <li style="font-size:.6rem;opacity:.9">✓ Scores &amp; Insights</li>
+              <li style="font-size:.6rem;opacity:.9">✓ איכות גבוהה ומהימנה</li>
+            </ul>
+          </div>
+          <div style="flex:1;background:#14532d;color:white;border-radius:8px;padding:9px 8px;text-align:center">
+            <div style="font-size:.8rem;font-weight:800">MDM</div>
+            <div style="font-size:.62rem;opacity:.8;margin-top:2px">זהות וקשרים</div>
+            <ul style="list-style:none;margin-top:5px;display:flex;flex-direction:column;gap:2px;text-align:right">
+              <li style="font-size:.6rem;opacity:.9">✓ זהחידה (Golden Record)</li>
+              <li style="font-size:.6rem;opacity:.9">✓ קשרים בין ישויות</li>
+              <li style="font-size:.6rem;opacity:.9">✓ היררכיות ויחסים</li>
+              <li style="font-size:.6rem;opacity:.9">✓ איכות וממשל נתונים</li>
+            </ul>
+          </div>
+          <div style="flex:1;background:#b45309;color:white;border-radius:8px;padding:9px 8px;text-align:center">
+            <div style="font-size:.8rem;font-weight:800">ODS</div>
+            <div style="font-size:.62rem;opacity:.8;margin-top:2px">מצב עדכני</div>
+            <ul style="list-style:none;margin-top:5px;display:flex;flex-direction:column;gap:2px;text-align:right">
+              <li style="font-size:.6rem;opacity:.9">✓ Snapshot עדכני</li>
+              <li style="font-size:.6rem;opacity:.9">✓ נתונים דינמיים ומהירים</li>
+              <li style="font-size:.6rem;opacity:.9">✓ סטטוסים ותהליכים</li>
+              <li style="font-size:.6rem;opacity:.9">✓ נתוני זמן אמת / קרוב לאמת</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center;color:var(--bm);font-size:.82rem;padding:3px 0">↓</div>
+      <!-- Customer Profile -->
+      <div class="cdp-layer" onclick="expandCDP(this)" style="background:#f5f3ff;border:1.5px solid #c4b5fd;border-radius:10px;padding:9px 13px;cursor:pointer">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="font-size:1.3rem">👤</div>
+          <div style="flex:1">
+            <div style="font-size:.85rem;font-weight:800;color:var(--purple)">Customer Profile Layer</div>
+            <div style="font-size:.68rem;color:var(--muted)">פרופיל לקוח אחוד 360° — זהות | קשרים | מצב עדכני | היסטוריה | התנהגויות | ערך לקוח</div>
+          </div>
+          <div style="color:var(--light);font-size:.8rem">▾</div>
+        </div>
+        <div class="cdp-expand">
+          <div style="padding-top:7px;font-size:.76rem;color:var(--muted);line-height:1.6;border-top:1px solid #e9d5ff;margin-top:7px"><strong style="color:var(--purple)">Composition Pattern:</strong> Virtual Profile — לא טבלה. API מרכיב MDM (זהות) + Gold (היסטוריה) + ODS (מצב נוכחי) + AI Scores. Profile-per-use-case: service_profile | underwriting_profile | marketing_profile | digital_profile</div>
+        </div>
+      </div>
+      <div style="text-align:center;color:var(--purple);font-size:.82rem;padding:3px 0">↓</div>
+      <!-- Audience -->
+      <div class="cdp-layer" onclick="expandCDP(this)" style="background:#ecfeff;border:1.5px solid #67e8f9;border-radius:10px;padding:9px 13px;cursor:pointer">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="font-size:1.3rem">👥</div>
+          <div style="flex:1">
+            <div style="font-size:.85rem;font-weight:800;color:var(--cyan)">Audience &amp; Segmentation Layer</div>
+            <div style="font-size:.68rem;color:var(--muted)">קהלים | סגמנטים | מיקרו-סגמנטים | דינמיים | סטטיים | Predictive</div>
+          </div>
+          <div style="color:var(--light);font-size:.8rem">▾</div>
+        </div>
+        <div class="cdp-expand">
+          <div style="padding-top:7px;font-size:.76rem;color:var(--muted);line-height:1.6;border-top:1px solid #67e8f9;margin-top:7px"><strong style="color:var(--cyan)">כיום:</strong> Unica בונה אוכלוסיות ידנית מ-DWH-ים. <strong>יעד:</strong> Audiences כ-Data Products מ-Gold + ML Scores. Real-time audience update כאשר Customer Profile משתנה. Segment membership tracked ב-CUSTOMER_SEGMENT entity.</div>
+        </div>
+      </div>
+      <div style="text-align:center;color:var(--cyan);font-size:.82rem;padding:3px 0">↓</div>
+      <!-- Decisioning -->
+      <div class="cdp-layer" onclick="expandCDP(this)" style="background:#fefce8;border:1.5px solid #fde047;border-radius:10px;padding:9px 13px;cursor:pointer">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="font-size:1.3rem">🧠</div>
+          <div style="flex:1">
+            <div style="font-size:.85rem;font-weight:800;color:#854d0e">Decisioning Layer</div>
+            <div style="font-size:.68rem;color:var(--muted)">Rules / NBA / NBO / Eligibility — חוקים | התאמות | זכאות | Next Best Action / Offer</div>
+          </div>
+          <div style="color:var(--light);font-size:.8rem">▾</div>
+        </div>
+        <div class="cdp-expand">
+          <div style="padding-top:7px;font-size:.76rem;color:var(--muted);line-height:1.6;border-top:1px solid #fde047;margin-top:7px"><strong style="color:#854d0e">הפער הנוכחי הגדול ביותר.</strong> אין Decisioning Layer מרכזי — כל מערכת מחליטה לבד. יעד: שכבה אחידה שמחליטה מי מקבל הצעה, איזו, מתי ובאיזה ערוץ. Contact Policy + Frequency Capping. NBA מ-ML models על Gold.</div>
+        </div>
+      </div>
+      <div style="text-align:center;color:#d97706;font-size:.82rem;padding:3px 0">↓</div>
+      <!-- Journey -->
+      <div class="cdp-layer" onclick="expandCDP(this)" style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;padding:9px 13px;cursor:pointer">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="font-size:1.3rem">🗺</div>
+          <div style="flex:1">
+            <div style="font-size:.85rem;font-weight:800;color:var(--green)">Journey Orchestration</div>
+            <div style="font-size:.68rem;color:var(--muted)">מסעות | זרימות | טריגרים | תיאום ערוצים | מעקב ובקרה</div>
+          </div>
+          <div style="color:var(--light);font-size:.8rem">▾</div>
+        </div>
+        <div class="cdp-expand">
+          <div style="padding-top:7px;font-size:.76rem;color:var(--muted);line-height:1.6;border-top:1px solid #86efac;margin-top:7px"><strong style="color:var(--green)">Event-driven triggering:</strong> ODS מזרים events → Journey מתחיל. פוליסה מתקרבת לחידוש, תביעה נפתחה, לקוח נכנס לאפליקציה. SFMC מריץ את ה-journey. כל trigger ו-outcome נשמרים ל-INTERACTION entity לניתוח עתידי.</div>
+        </div>
+      </div>
+      <div style="text-align:center;color:var(--green);font-size:.82rem;padding:3px 0">↓</div>
+      <!-- Channels -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:5px">
+        <div style="background:white;border:1.5px solid var(--bl);border-radius:9px;padding:7px;text-align:center">
+          <div style="font-size:.72rem;font-weight:700;color:var(--bm)">Marketing Cloud</div>
+          <div style="font-size:.6rem;color:var(--muted);margin-top:2px">Email / SMS / Push / WhatsApp</div>
+          <div style="font-size:.85rem;margin-top:4px">✉ 💬 📱 🟢</div>
+        </div>
+        <div style="background:white;border:1.5px solid var(--purple);border-radius:9px;padding:7px;text-align:center">
+          <div style="font-size:.72rem;font-weight:700;color:var(--purple)">Unica / Campaign</div>
+          <div style="font-size:.6rem;color:var(--muted);margin-top:2px">אם נשארת</div>
+          <div style="font-size:.85rem;margin-top:4px">🎯 📅 📣 📊</div>
+        </div>
+        <div style="background:white;border:1.5px solid var(--amber);border-radius:9px;padding:7px;text-align:center">
+          <div style="font-size:.72rem;font-weight:700;color:#b45309">CRM / מוקדים</div>
+          <div style="font-size:.6rem;color:var(--muted);margin-top:2px">לידים ומשימות</div>
+          <div style="font-size:.85rem;margin-top:4px">🎧 📋 👤 📈</div>
+        </div>
+        <div style="background:white;border:1.5px solid var(--green);border-radius:9px;padding:7px;text-align:center">
+          <div style="font-size:.72rem;font-weight:700;color:var(--green)">Digital</div>
+          <div style="font-size:.6rem;color:var(--muted);margin-top:2px">Personalization / Offers</div>
+          <div style="font-size:.85rem;margin-top:4px">🖥 📱 ⭐ 🏷</div>
+        </div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:7px;padding:6px 12px;margin-top:7px;font-size:.63rem;color:var(--muted);text-align:center">
+        <strong style="color:var(--bd)">Principles:</strong> Unified Customer 360° | Real-time / Near Real-time | AI-Ready | Privacy by Design | Scalable | Reusable
+      </div>
+    </div>
+    <!-- Governance sidebar -->
+    <div style="width:118px;flex-shrink:0">
+      <div style="font-size:.66rem;font-weight:700;color:var(--bd);text-align:center;margin-bottom:6px;letter-spacing:.3px">GOVERNANCE &amp; ENABLERS</div>
+      <div style="display:flex;flex-direction:column;gap:5px">
+        <div style="background:white;border:1px solid var(--border);border-radius:7px;padding:6px;font-size:.6rem;text-align:center"><div style="font-size:.85rem">🛡</div><div style="font-weight:700;color:var(--text)">Data Governance</div><div style="color:var(--muted)">ממשל נתונים</div></div>
+        <div style="background:white;border:1px solid var(--border);border-radius:7px;padding:6px;font-size:.6rem;text-align:center"><div style="font-size:.85rem">🔒</div><div style="font-weight:700;color:var(--text)">Privacy &amp; Consent</div><div style="color:var(--muted)">פרטיות והסכמות</div></div>
+        <div style="background:white;border:1px solid var(--border);border-radius:7px;padding:6px;font-size:.6rem;text-align:center"><div style="font-size:.85rem">✅</div><div style="font-weight:700;color:var(--text)">Data Quality</div><div style="color:var(--muted)">איכות נתונים</div></div>
+        <div style="background:white;border:1px solid var(--border);border-radius:7px;padding:6px;font-size:.6rem;text-align:center"><div style="font-size:.85rem">🔐</div><div style="font-weight:700;color:var(--text)">Security</div><div style="color:var(--muted)">אבטחת מידע</div></div>
+        <div style="background:white;border:1px solid var(--border);border-radius:7px;padding:6px;font-size:.6rem;text-align:center"><div style="font-size:.85rem">🔗</div><div style="font-weight:700;color:var(--text)">Data Lineage</div><div style="color:var(--muted)">מעקב ושרשור</div></div>
+        <div style="background:white;border:1px solid var(--border);border-radius:7px;padding:6px;font-size:.6rem;text-align:center"><div style="font-size:.85rem">📊</div><div style="font-weight:700;color:var(--text)">Monitoring &amp; Obs.</div><div style="color:var(--muted)">ניטור ותצפית</div></div>
+        <div style="background:white;border:1px solid var(--border);border-radius:7px;padding:6px;font-size:.6rem;text-align:center"><div style="font-size:.85rem">🤖</div><div style="font-weight:700;color:var(--text)">Analytics &amp; AI/ML</div><div style="color:var(--muted)">תובנות ובינה מלאכותית</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 19 — ENTITY DATA MODEL ══ -->
+<div class="slide" id="s19">
+  <div class="sh" style="margin-bottom:8px">
+    <div class="tag" style="background:var(--bxxx);color:var(--bd);border:1px solid var(--bxx)">Entity Data Model</div>
+    <div class="st">Logical Data Model — Entity Relationship</div>
+    <div class="sd">מודל הנתונים הלוגי — ישויות, קשרים ותפקידים. לחץ על ישות לפרטים ולהסבר</div>
+  </div>
+  <!-- Legend -->
+  <div style="display:flex;gap:10px;justify-content:center;margin-bottom:8px;flex-wrap:wrap">
+    <div style="display:flex;align-items:center;gap:4px;font-size:.66rem"><div style="width:11px;height:11px;background:#1d4ed8;border-radius:2px"></div>Identity &amp; Profile</div>
+    <div style="display:flex;align-items:center;gap:4px;font-size:.66rem"><div style="width:11px;height:11px;background:#166534;border-radius:2px"></div>Engagement &amp; Preferences</div>
+    <div style="display:flex;align-items:center;gap:4px;font-size:.66rem"><div style="width:11px;height:11px;background:#6b21a8;border-radius:2px"></div>Policies, Claims &amp; Relationships</div>
+    <div style="display:flex;align-items:center;gap:4px;font-size:.66rem"><div style="width:11px;height:11px;background:#0e7490;border-radius:2px"></div>Analytics &amp; Insights</div>
+    <div style="display:flex;align-items:center;gap:4px;font-size:.66rem"><div style="width:11px;height:11px;background:#9a3412;border-radius:2px"></div>Distribution &amp; Agents</div>
+  </div>
+  <!-- ERD Grid -->
+  <div style="width:100%;max-width:1000px;display:grid;grid-template-columns:1fr 1.35fr 1fr 1fr;gap:6px;align-items:start">
+    <!-- Col 1: Identity -->
+    <div style="display:flex;flex-direction:column;gap:5px">
+      <div style="text-align:center;font-size:.63rem;font-weight:700;color:#1d4ed8;background:#eff6ff;padding:3px;border-radius:4px">IDENTITY &amp; PROFILE</div>
+      <div class="erd-entity" onclick="showERD('ident')" style="border:1px solid #93c5fd;border-radius:8px;overflow:hidden;cursor:pointer">
+        <div style="background:#1d4ed8;color:white;padding:5px 8px;font-size:.7rem;font-weight:700">🔑 CUSTOMER_IDENTIFIER</div>
+        <div style="padding:5px 8px;background:#eff6ff;font-size:.63rem;color:var(--muted);font-family:monospace;line-height:1.7">identifier_id (PK)<br>customer_id (FK)<br>identifier_type<br>identifier_value<br>is_primary · verified_status<br>source_system · updated_at</div>
+      </div>
+      <div class="erd-entity" onclick="showERD('contact')" style="border:1px solid #93c5fd;border-radius:8px;overflow:hidden;cursor:pointer">
+        <div style="background:#1e40af;color:white;padding:5px 8px;font-size:.7rem;font-weight:700">📞 CUSTOMER_CONTACT</div>
+        <div style="padding:5px 8px;background:#eff6ff;font-size:.63rem;color:var(--muted);font-family:monospace;line-height:1.7">contact_id (PK)<br>customer_id (FK)<br>contact_type · contact_value<br>is_primary · opt_in_flag<br>source_system · updated_at</div>
+      </div>
+    </div>
+    <!-- Col 2: CUSTOMER + Analytics -->
+    <div style="display:flex;flex-direction:column;gap:5px">
+      <div style="text-align:center;font-size:.63rem;font-weight:700;color:#1d4ed8;background:#eff6ff;padding:3px;border-radius:4px">CORE ENTITY — Golden Record</div>
+      <div class="erd-entity" onclick="showERD('customer')" style="border:2px solid #1d4ed8;border-radius:8px;overflow:hidden;cursor:pointer;box-shadow:0 2px 8px rgba(29,78,216,.15)">
+        <div style="background:#1e3a8a;color:white;padding:7px 10px;font-size:.78rem;font-weight:800">👤 CUSTOMER</div>
+        <div style="padding:7px 10px;background:#eff6ff;font-size:.63rem;color:var(--muted);font-family:monospace;line-height:1.8"><strong style="color:#1d4ed8">customer_id (PK)</strong><br>first_name · last_name<br>date_of_birth · gender<br>segment_of_one_id<br>created_at · updated_at<br>source_system</div>
+      </div>
+      <div style="text-align:center;font-size:.63rem;font-weight:700;color:#0e7490;background:#ecfeff;padding:3px;border-radius:4px">ANALYTICS &amp; INSIGHTS</div>
+      <div style="display:flex;gap:4px">
+        <div class="erd-entity" onclick="showERD('segment')" style="flex:1;border:1px solid #67e8f9;border-radius:8px;overflow:hidden;cursor:pointer">
+          <div style="background:#0e7490;color:white;padding:4px 6px;font-size:.63rem;font-weight:700">📊 CUSTOMER_SEGMENT</div>
+          <div style="padding:5px 6px;background:#ecfeff;font-size:.6rem;color:var(--muted);font-family:monospace;line-height:1.7">segment_id (PK)<br>customer_id (FK)<br>segment_type<br>segment_value<br>calculated_at<br>model_version</div>
+        </div>
+        <div class="erd-entity" onclick="showERD('score')" style="flex:1;border:1px solid #67e8f9;border-radius:8px;overflow:hidden;cursor:pointer">
+          <div style="background:#155e75;color:white;padding:4px 6px;font-size:.63rem;font-weight:700">⭐ CUSTOMER_SCORE</div>
+          <div style="padding:5px 6px;background:#ecfeff;font-size:.6rem;color:var(--muted);font-family:monospace;line-height:1.7">score_id (PK)<br>customer_id (FK)<br>score_type<br>score_value<br>calculated_at<br>model_version</div>
+        </div>
+      </div>
+    </div>
+    <!-- Col 3: Engagement + Relationship tables -->
+    <div style="display:flex;flex-direction:column;gap:5px">
+      <div style="text-align:center;font-size:.63rem;font-weight:700;color:#166534;background:#f0fdf4;padding:3px;border-radius:4px">ENGAGEMENT</div>
+      <div class="erd-entity" onclick="showERD('consent')" style="border:1px solid #86efac;border-radius:8px;overflow:hidden;cursor:pointer">
+        <div style="background:#166534;color:white;padding:4px 8px;font-size:.68rem;font-weight:700">🛡 CONSENT</div>
+        <div style="padding:5px 8px;background:#f0fdf4;font-size:.62rem;color:var(--muted);font-family:monospace;line-height:1.7">consent_id (PK)<br>customer_id (FK)<br>consent_type · consent_status<br>updated_at · source_system</div>
+      </div>
+      <div class="erd-entity" onclick="showERD('interaction')" style="border:1px solid #86efac;border-radius:8px;overflow:hidden;cursor:pointer">
+        <div style="background:#15803d;color:white;padding:4px 8px;font-size:.68rem;font-weight:700">💬 INTERACTION</div>
+        <div style="padding:5px 8px;background:#f0fdf4;font-size:.62rem;color:var(--muted);font-family:monospace;line-height:1.7">interaction_id (PK)<br>customer_id (FK)<br>channel · interaction_type<br>interaction_time · summary</div>
+      </div>
+      <div style="text-align:center;font-size:.63rem;font-weight:700;color:#6b21a8;background:#faf5ff;padding:3px;border-radius:4px">RELATIONSHIP TABLES</div>
+      <div class="erd-entity" onclick="showERD('pol_rel')" style="border:1px solid #c4b5fd;border-radius:8px;overflow:hidden;cursor:pointer">
+        <div style="background:#6b21a8;color:white;padding:4px 8px;font-size:.63rem;font-weight:700">👥 CUSTOMER_POLICY_REL</div>
+        <div style="padding:5px 8px;background:#faf5ff;font-size:.61rem;color:var(--muted);font-family:monospace;line-height:1.7">rel_id (PK)<br>customer_id (FK) · policy_id (FK)<br><strong style="color:#6b21a8">role_type</strong><br>valid_from / valid_to</div>
+      </div>
+      <div class="erd-entity" onclick="showERD('claim_rel')" style="border:1px solid #c4b5fd;border-radius:8px;overflow:hidden;cursor:pointer">
+        <div style="background:#7e22ce;color:white;padding:4px 8px;font-size:.63rem;font-weight:700">👥 CUSTOMER_CLAIM_REL</div>
+        <div style="padding:5px 8px;background:#faf5ff;font-size:.61rem;color:var(--muted);font-family:monospace;line-height:1.7">rel_id (PK)<br>customer_id (FK) · claim_id (FK)<br><strong style="color:#7e22ce">role_type</strong><br>valid_from / valid_to</div>
+      </div>
+    </div>
+    <!-- Col 4: Policy/Claim/Agent -->
+    <div style="display:flex;flex-direction:column;gap:5px">
+      <div style="text-align:center;font-size:.63rem;font-weight:700;color:#6b21a8;background:#faf5ff;padding:3px;border-radius:4px">POLICIES &amp; CLAIMS</div>
+      <div class="erd-entity" onclick="showERD('policy')" style="border:1px solid #c4b5fd;border-radius:8px;overflow:hidden;cursor:pointer">
+        <div style="background:#6b21a8;color:white;padding:4px 8px;font-size:.68rem;font-weight:700">📋 POLICY</div>
+        <div style="padding:5px 8px;background:#faf5ff;font-size:.62rem;color:var(--muted);font-family:monospace;line-height:1.7">policy_id (PK)<br>policy_number · policy_type<br>product_line · issue_date<br>status · source_system</div>
+      </div>
+      <div class="erd-entity" onclick="showERD('claim')" style="border:1px solid #c4b5fd;border-radius:8px;overflow:hidden;cursor:pointer">
+        <div style="background:#581c87;color:white;padding:4px 8px;font-size:.68rem;font-weight:700">⚠ CLAIM</div>
+        <div style="padding:5px 8px;background:#faf5ff;font-size:.62rem;color:var(--muted);font-family:monospace;line-height:1.7">claim_id (PK)<br>claim_number · claim_type<br>claim_date · status<br>source_system</div>
+      </div>
+      <div style="text-align:center;font-size:.63rem;font-weight:700;color:#9a3412;background:#fff7ed;padding:3px;border-radius:4px">DISTRIBUTION &amp; AGENTS</div>
+      <div class="erd-entity" onclick="showERD('agent')" style="border:1px solid #fdba74;border-radius:8px;overflow:hidden;cursor:pointer">
+        <div style="background:#9a3412;color:white;padding:4px 8px;font-size:.68rem;font-weight:700">🤝 AGENT</div>
+        <div style="padding:5px 8px;background:#fff7ed;font-size:.62rem;color:var(--muted);font-family:monospace;line-height:1.7">agent_id (PK)<br>agent_name · agent_type<br>status</div>
+      </div>
+      <div class="erd-entity" onclick="showERD('agent_rel')" style="border:1px solid #fdba74;border-radius:8px;overflow:hidden;cursor:pointer">
+        <div style="background:#c2410c;color:white;padding:4px 8px;font-size:.63rem;font-weight:700">🤝 POLICY_AGENT_REL</div>
+        <div style="padding:5px 8px;background:#fff7ed;font-size:.61rem;color:var(--muted);font-family:monospace;line-height:1.7">rel_id (PK)<br>policy_id (FK) · agent_id (FK)<br><strong style="color:#c2410c">role_type</strong><br>valid_from / valid_to</div>
+      </div>
+    </div>
+  </div>
+  <!-- ERD detail panel -->
+  <div id="erd-detail" style="display:none;width:100%;max-width:1000px;margin-top:8px">
+    <div id="erd-detail-content" class="callout info"></div>
+  </div>
+  <!-- Key principles bar -->
+  <div style="width:100%;max-width:1000px;margin-top:8px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:6px 12px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+    <span style="font-size:.63rem;color:var(--muted)"><strong style="color:var(--bd)">🔑 Surrogate Keys (PK)</strong></span>
+    <span style="font-size:.63rem;color:var(--muted)"><strong style="color:var(--bd)">🔗 Referential Integrity (FK)</strong></span>
+    <span style="font-size:.63rem;color:var(--muted)"><strong style="color:var(--bd)">📅 Effective Dating</strong> (valid_from / valid_to)</span>
+    <span style="font-size:.63rem;color:var(--muted)"><strong style="color:var(--bd)">📊 Audit &amp; Lineage</strong> (source_system)</span>
+    <span style="font-size:.63rem;color:var(--muted)"><strong style="color:var(--bd)">🛡 Privacy &amp; Consent</strong></span>
+  </div>
+</div>
+
+</div><!-- /deck -->
+
+<!-- Navigation -->
+<div class="nav">
+  <button class="nav-btn" id="prevBtn" onclick="prev()">&#8250;</button>
+  <span class="nav-counter" id="navCounter">1 / 16</span>
+  <button class="nav-btn" id="nextBtn" onclick="next()">&#8249;</button>
+</div>
+
+<script>
+// Reorder slides before initializing
+(function() {
+  const s5  = document.getElementById('s5');
+  const s11 = document.getElementById('s11');
+  const s17 = document.getElementById('s17');
+  const s18 = document.getElementById('s18');
+  if (s5  && s17) s5.after(s17);
+  if (s11 && s18) s11.after(s18);
+})();
+
+const slides = document.querySelectorAll('.slide');
+const TOTAL = slides.length;
+let cur = 0;
+
+const titles = [
+  'Cover — Enterprise AI & Data Rewiring',
+  'AS-IS — אבחון טכני',
+  'TO-BE — ארכיטקטורת יעד כוללת',
+  'Design Principles',
+  'Data Lakehouse — Medallion Architecture',
+  'Architecture Walkthrough — Full Platform',
+  'MDM & Identity Resolution',
+  'ODS — Operational Serving Layer',
+  'Customer Profile / Customer 360',
+  'ML & AI Platform',
+  'Vector & RAG Layer',
+  'CDP & Customer Activation',
+  'CDP Architecture Flow',
+  'Hybrid Architecture Decision Matrix',
+  'Roadmap — 4 שלבים',
+  'Team & Capabilities',
+  'ROI & Business Value',
+  'Summary — The Platform Play',
+  'Architecture Walkthrough — Full Platform',
+  'CDP Architecture Flow',
+  'Entity Data Model — ERD'
+];
+
+function update() {
+  slides.forEach((s, i) => {
+    s.classList.remove('active','exit');
+    if (i === cur) s.classList.add('active');
+    else if (i < cur) s.classList.add('exit');
+  });
+  document.getElementById('navCounter').textContent = (cur+1) + ' / ' + TOTAL;
+  document.getElementById('prevBtn').disabled = cur === 0;
+  document.getElementById('nextBtn').disabled = cur === TOTAL - 1;
+  const pct = ((cur+1)/TOTAL*100).toFixed(1);
+  document.getElementById('progress-bar').style.width = pct + '%';
+  buildMenu();
+}
+
+function next() { if (cur < TOTAL-1) { cur++; update(); } }
+function prev() { if (cur > 0) { cur--; update(); } }
+function goTo(n) { cur = n-1; update(); closeMenu(); }
+
+function buildMenu() {
+  const el = document.getElementById('menuList');
+  el.innerHTML = titles.map((t,i) =>
+    `<div class="menu-item${i===cur?' current':''}" onclick="goTo(${i+1})">
+       <div class="menu-num">${i+1}</div>
+       <div class="menu-label">${t}</div>
+     </div>`
+  ).join('');
+}
+
+function openMenu()  { document.getElementById('menuOverlay').classList.add('open'); buildMenu(); }
+function closeMenu() { document.getElementById('menuOverlay').classList.remove('open'); }
+function closeMenuOut(e) { if (e.target === document.getElementById('menuOverlay')) closeMenu(); }
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') next();
+  if (e.key === 'ArrowRight' || e.key === 'ArrowUp') prev();
+  if (e.key === 'Escape') closeMenu();
+});
+
+/* ── SLIDE 17: Architecture Walkthrough ── */
+const walk17Descs = {
+  0: '<div class="cl">Design Principles</div><div class="cbt">Decoupled · Real-time First · Reusable · Governed · AI-Ready · Scalable — לחץ על שלב להסבר מפורט</div>',
+  1: '<div class="cl">① Core Systems — Systems of Record</div><div class="cbt"><strong>מה:</strong> מערכות הליבה הן מקורות הדאטה התפעוליים: פוליסות, תביעות, גבייה, CRM, דיגיטל, מסמכים.<br><strong>Data Characteristics:</strong> High volume, high velocity, structured + unstructured.<br><strong>עיקרון:</strong> מערכות אלו הן <em>Systems of Record</em>, לא Systems of Consumption. אין לשאול אותן ישירות לצרכי BI/AI/Digital — זה מה שגורם לתקלות ETL ולתלות הנוכחית.</div>',
+  2: '<div class="cl">② Ingestion Layer — CDC, Streaming, API, ETL</div><div class="cbt"><strong>CDC (Debezium):</strong> מזהה שינויים ב-DB ברמת row ומזרים events ל-Kafka. Row-level change capture, לא Full Load.<br><strong>ELT Model:</strong> Extract → Load to Bronze → Transform in-place. טעינה ראשונה ל-Bronze ואז עיבוד — לא ETL כבד שמבצע הכל לפני הטעינה.<br><strong>יתרון:</strong> Replayable pipelines — אפשר להריץ transformation מחדש מ-Bronze ללא משיכה חדשה מהליבה.</div>',
+  3: '<div class="cl">③ Data Lakehouse — Bronze → Silver → Gold (Medallion)</div><div class="cbt"><strong>Bronze:</strong> Raw landing as-is. Immutable, append-only, שמירת כל event.<br><strong>Silver:</strong> Cleansed & conformed. Dedup, type casting, join sources, SCD Type-2 history tables.<br><strong>Gold:</strong> Unified Business Models — Data Products עם owner, SLA, quality rules. Customer / Policy / Claim / Agent כ-entities.<br><strong>Tech:</strong> Databricks + Delta Lake. Incremental processing, ACID transactions, time-travel.</div>',
+  4: '<div class="cl">④ MDM & ODS — Identity Resolution + Operational Serving</div><div class="cbt"><strong>MDM:</strong> Golden Record לכל לקוח/ישות. Identity Resolution + deduplication + entity graph עם role_type לכל קשר. מייצר Golden Customer ID שמשמש את כל שכבות הפלטפורמה.<br><strong>ODS:</strong> Near real-time operational snapshot. API-first, &lt;100ms read latency. מנגיש current-state למוקדים, דיגיטל, CRM — ללא עומס על הליבה. עדכון incremental מ-Gold + CDC events.</div>',
+  5: '<div class="cl">⑤ AI/ML Platform + Vector/Knowledge Layer + Customer Profile</div><div class="cbt"><strong>AI/ML Platform:</strong> Feature Store ← Gold (centralized, versioned). Dataiku On-Prem לtraining (עלות נמוכה). MLOps pipeline, Model Registry, Governance. Serving: batch scoring ל-Gold / real-time inference API.<br><strong>Vector/RAG:</strong> מסמכים → Chunking → Embedding (multilingual) → Vector Store → Hybrid retrieval → LLM generation.<br><strong>Customer Profile:</strong> Composition layer. MDM + Gold + ODS + AI Scores → Profile-per-use-case API.</div>',
+  6: '<div class="cl">⑥ CDP + Customer Activation + Downstream Channels</div><div class="cbt"><strong>CDP Flow:</strong> Customer Profile → Audience Segmentation → Decisioning (Rules/NBA/NBO) → Journey Orchestration → Channel Execution.<br><strong>Channels:</strong> Contact Centers (ODS APIs, &lt;100ms), CRM (leads + tasks), Digital (personalization), SFMC (Email/SMS/Push/WhatsApp journeys), BI/Analytics (Gold), AI Assistants (RAG + Profile APIs).<br><strong>Key principle:</strong> כל ערוץ מקבל דאטה מאותה תשתית. אין data silos לכל ערוץ.</div>'
+};
+
+function walk17(step) {
+  const allZones = ['z17-1','z17-2','z17-3','z17-4a','z17-4b','z17-5a','z17-5b','z17-5c','z17-6a','z17-6b'];
+  const stepZones = { 0:allZones, 1:['z17-1'], 2:['z17-2'], 3:['z17-3'], 4:['z17-4a','z17-4b'], 5:['z17-5a','z17-5b','z17-5c'], 6:['z17-6a','z17-6b'] };
+  const active = stepZones[step];
+  allZones.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (step === 0 || active.includes(id)) {
+      el.style.opacity = '1';
+      el.style.boxShadow = step !== 0 ? '0 0 0 2px #2563eb, 0 4px 14px rgba(37,99,235,.2)' : 'none';
+    } else {
+      el.style.opacity = '0.18';
+      el.style.boxShadow = 'none';
+    }
+  });
+  for (let i = 0; i <= 6; i++) {
+    const btn = document.getElementById('w17-' + i);
+    if (btn) btn.classList.toggle('active', i === step);
+  }
+  document.getElementById('s17-desc').innerHTML = walk17Descs[step];
+}
+
+/* ── SLIDE 18: CDP Layer Expand ── */
+function expandCDP(el) {
+  const body = el.querySelector('.cdp-expand');
+  if (!body) return;
+  const isOpen = body.style.maxHeight && body.style.maxHeight !== '0px';
+  document.querySelectorAll('.cdp-expand').forEach(b => { b.style.maxHeight = '0px'; });
+  if (!isOpen) body.style.maxHeight = '200px';
+}
+
+/* ── SLIDE 19: ERD Entity Details ── */
+const erdDetails = {
+  customer: '<div class="cl">CUSTOMER — Golden Record (Central Entity)</div><div class="cbt"><strong>תפקיד:</strong> הישות המרכזית. מייצגת אדם/ישות ייחודי לאחר Identity Resolution. כל הישויות האחרות מתחברות דרכה.<br><strong>segment_of_one_id:</strong> Golden ID כלל-מוצרי שמאפשר חיבור בין כל מערכות הפלטפורמה.<br><strong>source_system:</strong> מאפשר lineage ו-audit trail מלא. <strong>updated_at:</strong> trigger לעדכוני ODS ו-Customer Profile downstream.</div>',
+  ident: '<div class="cl">CUSTOMER_IDENTIFIER — Cross-System ID Management</div><div class="cbt"><strong>תפקיד:</strong> ניהול כל המזהים של לקוח מכל מערכות המקור. לקוח אחד יכול להיות מזוהה ב-5 מערכות שונות ב-IDs שונים.<br><strong>identifier_type:</strong> NATIONAL_ID, PASSPORT, INTERNAL_CRM_ID, POLICY_HOLDER_ID, SALESFORCE_ID, etc.<br><strong>is_primary:</strong> המזהה הרשמי לתקשורת בין-מערכתית. <strong>verified_status:</strong> KYC compliance.</div>',
+  contact: '<div class="cl">CUSTOMER_CONTACT — Verified Contact Master</div><div class="cbt"><strong>תפקיד:</strong> ניהול נקודות קשר מאומתות. מאפשר Contact Policy ו-Privacy by Design.<br><strong>contact_type:</strong> EMAIL, MOBILE, HOME_PHONE, ADDRESS.<br><strong>opt_in_flag:</strong> הסכמה לפי ערוץ — קריטי לרגולציה ול-CDP Contact Policy. <strong>is_primary:</strong> ערוץ ברירת מחדל לתקשורת.</div>',
+  consent: '<div class="cl">CONSENT — Privacy & Regulatory Compliance</div><div class="cbt"><strong>תפקיד:</strong> ניהול הסכמות רגולטוריות ושיווקיות. GDPR / Privacy compliance.<br><strong>consent_type:</strong> MARKETING_EMAIL, MARKETING_SMS, DATA_ANALYTICS, THIRD_PARTY_SHARING, GREEN_MAILING.<br><strong>updated_at:</strong> Audit trail מלא לכל שינוי הסכמה. Feed ישיר ל-CDP Contact Policy engine.</div>',
+  interaction: '<div class="cl">INTERACTION — Omnichannel Engagement History</div><div class="cbt"><strong>תפקיד:</strong> תיעוד כל נקודות המגע עם הלקוח. Input ל-Customer Profile ול-NBA models.<br><strong>channel:</strong> CALL_CENTER, APP, WEB, EMAIL, SMS, BRANCH, AGENT.<br><strong>interaction_type:</strong> INQUIRY, COMPLAINT, PURCHASE, RENEWAL, CLAIM_REPORT.<br><strong>summary:</strong> טקסט / structured output מ-AI Transcription + NLP.</div>',
+  policy: '<div class="cl">POLICY — Insurance Policy Entity</div><div class="cbt"><strong>תפקיד:</strong> ייצוג פוליסה ביטוחית. מחוברת ללקוחות דרך CUSTOMER_POLICY_RELATIONSHIP — לא FK ישיר! זה קריטי כי לקוח ≠ policy holder בהכרח.<br><strong>product_line:</strong> PROPERTY, HEALTH, PENSION, INVESTMENT, LIFE.<br><strong>Input ל-Underwriting Profile:</strong> policy_history + premium + status flow.</div>',
+  claim: '<div class="cl">CLAIM — Insurance Claim Entity</div><div class="cbt"><strong>תפקיד:</strong> ייצוג תביעה ביטוחית. מחוברת לפוליסה (1:N) וללקוחות דרך CUSTOMER_CLAIM_RELATIONSHIP.<br><strong>claim_type:</strong> PROPERTY_DAMAGE, MEDICAL, THEFT, LIABILITY, etc.<br><strong>status flow:</strong> REPORTED → UNDER_INVESTIGATION → APPROVED/REJECTED → PAID/CLOSED.<br><strong>Input ל-Fraud Detection model:</strong> claim patterns + timing + amounts.</div>',
+  segment: '<div class="cl">CUSTOMER_SEGMENT — ML-Driven Segmentation</div><div class="cbt"><strong>תפקיד:</strong> שמירת segment membership עם versioning. כל run של מודל segmentation מייצר record חדש — מאפשר time-travel ו-A/B comparison.<br><strong>segment_type:</strong> VALUE_SEGMENT, CHURN_RISK, LIFECYCLE_STAGE, PRODUCT_PROPENSITY.<br><strong>model_version:</strong> tracking של drift בין גרסאות מודל.</div>',
+  score: '<div class="cl">CUSTOMER_SCORE — Predictive ML Outputs</div><div class="cbt"><strong>תפקיד:</strong> שמירת תוצאות מודלי ML עם timestamp ו-model version. Input ל-CDP Decisioning layer.<br><strong>score_type:</strong> CHURN_PROPENSITY, CLV, CROSS_SELL_SCORE, FRAUD_RISK, UNDERWRITING_RISK, PRICE_SENSITIVITY.<br><strong>score_value:</strong> 0-1 normalized. <strong>freshness SLA:</strong> calculated_at &lt; 24h לscores תפעוליים.</div>',
+  pol_rel: '<div class="cl">CUSTOMER_POLICY_RELATIONSHIP — Role-based Relationships</div><div class="cbt"><strong>תפקיד:</strong> מפרק את הקשר הרב-ערכי בין לקוח לפוליסה לפי תפקיד.<br><strong>role_type values:</strong> POLICY_HOLDER, INSURED, PAYER, BENEFICIARY, AUTHORIZED_USER, CONTACT_PERSON.<br><strong>דוגמה:</strong> אב (POLICY_HOLDER) + בן (INSURED) = שני records עם role_type שונה לאותה פוליסה.<br><strong>valid_from/to:</strong> Effective Dating — שמירת היסטוריה של שינויי תפקיד.</div>',
+  claim_rel: '<div class="cl">CUSTOMER_CLAIM_RELATIONSHIP — Claim Role Mapping</div><div class="cbt"><strong>תפקיד:</strong> מפרק קשר בין לקוח לתביעה לפי תפקיד.<br><strong>role_type values:</strong> CLAIMANT, POLICY_HOLDER, THIRD_PARTY, WITNESS, INJURED_PARTY.<br><strong>חשיבות אנליטית:</strong> מאפשר ניתוח claim patterns לפי role — אינדיקטור חיתומי וסיכון מרמה (fraud pattern: repeated THIRD_PARTY בתביעות שונות).</div>',
+  agent: '<div class="cl">AGENT — Distribution Agent Entity</div><div class="cbt"><strong>תפקיד:</strong> ישות סוכן/מפיץ נפרדת לחלוטין מ-CUSTOMER. MDM נפרד לסוכנים (existing system).<br><strong>agent_type:</strong> TIED_AGENT, INDEPENDENT_BROKER, BANCASSURANCE, DIRECT, DIGITAL_CHANNEL.<br><strong>KPIs:</strong> policy count, premium volume, retention rate, claims ratio — מחושבים מ-POLICY_AGENT_REL + POLICY + CLAIM.</div>',
+  agent_rel: '<div class="cl">POLICY_AGENT_RELATIONSHIP — Agent-Policy Mapping</div><div class="cbt"><strong>תפקיד:</strong> מפרק קשר בין סוכן לפוליסה לפי תפקיד. מאפשר commission calculation, performance tracking ו-servicing attribution.<br><strong>role_type values:</strong> SELLING_AGENT, SERVICING_AGENT, REFERRAL_AGENT, MANAGING_BROKER.<br><strong>valid_from/to:</strong> tracking של העברות סוכנות ושינויי אחריות.</div>'
+};
+
+function showERD(key) {
+  const panel = document.getElementById('erd-detail');
+  const content = document.getElementById('erd-detail-content');
+  if (!erdDetails[key] || !panel || !content) return;
+  content.innerHTML = erdDetails[key];
+  panel.style.display = 'block';
+  setTimeout(() => panel.scrollIntoView({behavior:'smooth', block:'nearest'}), 50);
+}
+
+update();
+</script>
+</body>
+</html>
