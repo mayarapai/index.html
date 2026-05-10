@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>משבר מערך ההסעות — קריית החינוך "דרור"</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #0d1b2a;
+    color: #1a1a2e;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .slide {
+    display: none;
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0; left: 0;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 48px 64px;
+    animation: fadeIn 0.4s ease;
+  }
+
+  .slide.active { display: flex; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===== SLIDE BACKGROUNDS ===== */
+  .slide-cover    { background: linear-gradient(135deg, #0d1b2a 0%, #1a3050 100%); color: #fff; }
+  .slide-white    { background: #ffffff; }
+  .slide-light    { background: #f7f9fc; }
+  .slide-danger   { background: linear-gradient(135deg, #1a0a0a 0%, #2d1010 100%); color: #fff; }
+
+  /* ===== NAVIGATION ===== */
+  .nav {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    z-index: 100;
+  }
+
+  .nav button {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: #fff;
+    padding: 8px 22px;
+    border-radius: 24px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-family: inherit;
+  }
+  .nav button:hover { background: rgba(255,255,255,0.3); }
+
+  .slide-counter {
+    color: rgba(255,255,255,0.6);
+    font-size: 13px;
+    min-width: 60px;
+    text-align: center;
+  }
+
+  /* ===== DOTS ===== */
+  .dots {
+    position: fixed;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 100;
+  }
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .dot.active { background: #e63946; }
+
+  /* ===== TYPOGRAPHY ===== */
+  .slide-title {
+    font-size: 42px;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  .slide-subtitle {
+    font-size: 20px;
+    font-weight: 400;
+    opacity: 0.75;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+
+  .section-header {
+    font-size: 30px;
+    font-weight: 800;
+    color: #0d1b2a;
+    border-bottom: 4px solid #e63946;
+    padding-bottom: 12px;
+    margin-bottom: 32px;
+    width: 100%;
+  }
+
+  .section-header.white {
+    color: #fff;
+    border-color: #e63946;
+  }
+
+  /* ===== COVER SLIDE ===== */
+  .cover-badge {
+    background: #e63946;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 6px 18px;
+    border-radius: 20px;
+    margin-bottom: 32px;
+    letter-spacing: 0.5px;
+  }
+
+  .cover-title {
+    font-size: 52px;
+    font-weight: 900;
+    color: #fff;
+    text-align: center;
+    line-height: 1.15;
+    margin-bottom: 20px;
+  }
+
+  .cover-title span { color: #e63946; }
+
+  .cover-meta {
+    color: rgba(255,255,255,0.6);
+    font-size: 16px;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+
+  .cover-presenter {
+    margin-top: 40px;
+    padding: 16px 32px;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 12px;
+    color: rgba(255,255,255,0.8);
+    font-size: 15px;
+    text-align: center;
+  }
+
+  /* ===== STAT CARDS ===== */
+  .stats-row {
+    display: flex;
+    gap: 24px;
+    width: 100%;
+    margin-bottom: 32px;
+  }
+
+  .stat-card {
+    flex: 1;
+    background: #fff;
+    border-radius: 16px;
+    padding: 32px 24px;
+    text-align: center;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    border-top: 5px solid #e63946;
+  }
+
+  .stat-number {
+    font-size: 60px;
+    font-weight: 900;
+    color: #e63946;
+    line-height: 1;
+    margin-bottom: 10px;
+  }
+
+  .stat-label {
+    font-size: 16px;
+    color: #444;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  .conclusion-box {
+    background: #fff3f3;
+    border-right: 5px solid #e63946;
+    border-radius: 12px;
+    padding: 20px 24px;
+    width: 100%;
+    font-size: 17px;
+    color: #1a1a2e;
+    line-height: 1.6;
+  }
+
+  .conclusion-box strong { color: #e63946; }
+
+  /* ===== TABLE ===== */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+
+  thead tr { background: #0d1b2a; color: #fff; }
+  thead th { padding: 14px 18px; font-weight: 700; font-size: 14px; }
+  tbody tr:nth-child(odd)  { background: #fff; }
+  tbody tr:nth-child(even) { background: #f7f9fc; }
+  tbody td { padding: 14px 18px; color: #1a1a2e; vertical-align: top; line-height: 1.45; }
+
+  .badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .badge-critical  { background: #fdecea; color: #c62828; border: 1px solid #c62828; }
+  .badge-high      { background: #fff3e0; color: #e65100; border: 1px solid #e65100; }
+  .badge-medium    { background: #fff8e1; color: #f9a825; border: 1px solid #f9a825; }
+
+  /* ===== ISSUES ===== */
+  .issues-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+    margin-bottom: 24px;
+  }
+
+  .issue-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 22px 24px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+    border-right: 4px solid #e63946;
+  }
+
+  .issue-card h3 {
+    font-size: 18px;
+    font-weight: 800;
+    color: #0d1b2a;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .issue-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: #fdecea;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  .issue-card p { font-size: 14px; color: #555; line-height: 1.5; }
+
+  .quote-card {
+    background: #f7f9fc;
+    border-radius: 12px;
+    padding: 16px 20px;
+    font-size: 14px;
+    color: #333;
+    font-style: italic;
+    border-right: 3px solid #aaa;
+    width: 100%;
+    margin-bottom: 12px;
+    line-height: 1.6;
+  }
+
+  .quote-source { font-style: normal; font-size: 12px; color: #888; margin-top: 6px; }
+
+  /* ===== LEGAL ===== */
+  .legal-items {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin-bottom: 24px;
+  }
+
+  .legal-item {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-right: 4px solid #e63946;
+    border-radius: 12px;
+    padding: 18px 22px;
+    color: #fff;
+  }
+
+  .legal-item h3 {
+    font-size: 17px;
+    font-weight: 700;
+    color: #e63946;
+    margin-bottom: 6px;
+  }
+
+  .legal-item p { font-size: 14px; color: rgba(255,255,255,0.8); line-height: 1.5; }
+
+  /* ===== ZERO HOUR ===== */
+  .zero-hero {
+    background: #fff;
+    border-radius: 20px;
+    padding: 36px 48px;
+    text-align: center;
+    box-shadow: 0 4px 32px rgba(0,0,0,0.1);
+    margin-bottom: 28px;
+    width: 100%;
+  }
+
+  .zero-number {
+    font-size: 100px;
+    font-weight: 900;
+    color: #e63946;
+    line-height: 1;
+  }
+
+  .zero-label { font-size: 20px; color: #555; margin-top: 8px; font-weight: 600; }
+
+  .timeline {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    width: 100%;
+    margin-bottom: 24px;
+  }
+
+  .tl-item {
+    flex: 1;
+    text-align: center;
+    padding: 16px 12px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+
+  .tl-item .tl-time { font-size: 24px; font-weight: 900; color: #0d1b2a; }
+  .tl-item .tl-label { font-size: 12px; color: #777; margin-top: 4px; }
+  .tl-item.danger-item { background: #fdecea; }
+  .tl-item.danger-item .tl-time { color: #c62828; }
+
+  .tl-arrow {
+    font-size: 22px;
+    color: #999;
+    padding: 0 8px;
+    flex-shrink: 0;
+  }
+
+  /* ===== DEMANDS ===== */
+  .demands-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .demand-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px 20px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+
+  .demand-num {
+    width: 36px; height: 36px;
+    background: #e63946;
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .demand-text h3 { font-size: 16px; font-weight: 700; color: #0d1b2a; margin-bottom: 4px; }
+  .demand-text p  { font-size: 13px; color: #666; line-height: 1.4; }
+
+  /* ===== CLOSING ===== */
+  .closing-box {
+    background: rgba(230, 57, 70, 0.1);
+    border: 2px solid #e63946;
+    border-radius: 20px;
+    padding: 40px 48px;
+    text-align: center;
+    max-width: 700px;
+    margin-bottom: 32px;
+  }
+
+  .closing-box h2 {
+    font-size: 32px;
+    font-weight: 900;
+    color: #fff;
+    margin-bottom: 16px;
+    line-height: 1.3;
+  }
+
+  .closing-box p { font-size: 18px; color: rgba(255,255,255,0.8); line-height: 1.6; }
+
+  .closing-tagline {
+    font-size: 22px;
+    font-weight: 900;
+    color: #e63946;
+    text-align: center;
+    margin-top: 8px;
+  }
+
+  /* ===== FOOTER ===== */
+  .slide-footer {
+    position: absolute;
+    bottom: 16px;
+    right: 64px;
+    font-size: 12px;
+    color: rgba(0,0,0,0.3);
+  }
+
+  .slide-footer.light { color: rgba(255,255,255,0.25); }
+
+  /* ===== PROGRESS BAR ===== */
+  .progress-bar {
+    position: fixed;
+    top: 0; right: 0;
+    height: 4px;
+    background: #e63946;
+    transition: width 0.4s ease;
+    z-index: 200;
+  }
+
+  .bar-container {
+    width: 100%;
+    background: #e8e8e8;
+    border-radius: 4px;
+    height: 10px;
+    margin-top: 6px;
+  }
+
+  .bar-fill {
+    height: 10px;
+    background: #e63946;
+    border-radius: 4px;
+    transition: width 0.6s ease;
+  }
+
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    gap: 20px;
+    margin-top: 20px;
+  }
+
+  .info-box {
+    flex: 1;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    padding: 16px 18px;
+    text-align: center;
+  }
+
+  .info-box .num { font-size: 36px; font-weight: 900; color: #e63946; }
+  .info-box .lbl { font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 4px; }
+
+  /* ===== EDIT MODE ===== */
+  .edit-btn {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: rgba(255,255,255,0.7);
+    padding: 8px 18px;
+    border-radius: 24px;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+  .edit-btn.active {
+    background: #e63946;
+    border-color: #e63946;
+    color: #fff;
+  }
+
+  body.editing [contenteditable] {
+    outline: 2px dashed rgba(230, 57, 70, 0.5);
+    border-radius: 4px;
+    cursor: text;
+    min-width: 20px;
+    display: inline-block;
+  }
+  body.editing [contenteditable]:hover {
+    outline-color: #e63946;
+    background: rgba(230, 57, 70, 0.06);
+  }
+  body.editing [contenteditable]:focus {
+    outline: 2px solid #e63946;
+    background: rgba(230, 57, 70, 0.08);
+  }
+
+  .edit-banner {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    background: #e63946;
+    color: #fff;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 5px;
+    z-index: 300;
+  }
+  body.editing .edit-banner { display: block; }
+
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar" style="width:12.5%"></div>
+
+<div class="dots" id="dotsContainer"></div>
+
+<!-- ==================== SLIDE 1: COVER ==================== -->
+<div class="slide slide-cover active" id="slide1">
+  <div class="cover-badge">ועדת הסעות — הנהגת ההורים | מאי 2026</div>
+  <div class="cover-title">
+    משבר מערך ההסעות<br>
+    בקריית החינוך <span>"דרור"</span>
+  </div>
+  <div class="cover-meta">ממצאים חמורים מהשטח — דוח לפני מועצת לב השרון</div>
+  <div class="cover-presenter">
+    מוגש להנהלת המועצה האזורית לב השרון<br>
+    על ידי ועדת ההסעות של הנהגת ההורים
+  </div>
+
+  <div class="info-row" style="margin-top: 48px; max-width: 650px;">
+    <div class="info-box">
+      <div class="num">131</div>
+      <div class="lbl">הורים השיבו לסקר</div>
+    </div>
+    <div class="info-box">
+      <div class="num">18</div>
+      <div class="lbl">יישובים מיוצגים</div>
+    </div>
+    <div class="info-box">
+      <div class="num">87%</div>
+      <div class="lbl">חוסר שביעות רצון עמוק</div>
+    </div>
+  </div>
+
+  <div class="slide-footer light">דוח הסעות דרור | הנהגת ההורים</div>
+</div>
+
+<!-- ==================== SLIDE 2: DATA ==================== -->
+<div class="slide slide-light" id="slide2">
+  <div class="section-header">הנתונים מדברים — קול ההורים מהשטח</div>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-number">72%</div>
+      <div class="stat-label">מהורים מדווחים על<br><strong>תקלות בטיחות קבועות</strong></div>
+      <div class="bar-container" style="margin-top:16px">
+        <div class="bar-fill" style="width:72%"></div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">87%</div>
+      <div class="stat-label">חוסר שביעות רצון עמוק<br><strong>(ציון 1–2 מתוך 5)</strong></div>
+      <div class="bar-container" style="margin-top:16px">
+        <div class="bar-fill" style="width:87%"></div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">131</div>
+      <div class="stat-label">משיבים מ-18 יישובים<br><strong>בשבוע אחד בלבד</strong></div>
+      <div class="bar-container" style="margin-top:16px">
+        <div class="bar-fill" style="width:100%; background:#0d1b2a"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="conclusion-box">
+    <strong>מסקנה מרכזית:</strong> אין מדובר בתקלה נקודתית. 131 הורים מ-18 יישובים מציירים תמונה אחידה — מערך הסעות שלם פוגע ביומיום בבטיחות ורווחת התלמידים. <strong>זהו כשל מערכתי הדורש פתרון מועצתי מיידי.</strong>
+  </div>
+
+  <div class="slide-footer">דוח הסעות דרור | הנהגת ההורים</div>
+</div>
+
+<!-- ==================== SLIDE 3: HOTSPOTS ==================== -->
+<div class="slide slide-white" id="slide3">
+  <div class="section-header">מיפוי מוקדי המשבר — איפה הבעיות הכי חריפות?</div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="text-align:right">יישוב</th>
+        <th style="text-align:center">כמות הורים</th>
+        <th style="text-align:center">רמת חומרה</th>
+        <th style="text-align:right">מהות הבעיה המרכזית</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>צור משה</strong></td>
+        <td style="text-align:center;font-weight:700;font-size:18px">28</td>
+        <td style="text-align:center"><span class="badge badge-critical">קריטי</span></td>
+        <td>ביטוח חריג בלתי תקף — איסוף מוקדם ב-06:30 ללא כל הסדר בטיחות</td>
+      </tr>
+      <tr>
+        <td><strong>שער אפרים</strong></td>
+        <td style="text-align:center;font-weight:700;font-size:18px">31</td>
+        <td style="text-align:center"><span class="badge badge-critical">קריטי</span></td>
+        <td>עישון ו-Vapes באוטובוס, נהיגה מסוכנת, אלימות פיזית, ללא איסוף מוקדם</td>
+      </tr>
+      <tr>
+        <td><strong>עין ורד / גאולים</strong></td>
+        <td style="text-align:center;font-weight:700;font-size:18px">20</td>
+        <td style="text-align:center"><span class="badge badge-high">גבוהה</span></td>
+        <td>המתנה ארוכה בחצר בית-הספר ללא פיקוח — חוסר סנכרון עם שעת האפס</td>
+      </tr>
+      <tr>
+        <td><strong>כפר הס / משמרת / עין שריד</strong></td>
+        <td style="text-align:center;font-weight:700;font-size:18px">17</td>
+        <td style="text-align:center"><span class="badge badge-medium">בינוני-גבוהה</span></td>
+        <td>מסלולים לא יעילים — תלמידים עומדים במשך כל הנסיעה, ללא מקומות ישיבה</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="conclusion-box" style="margin-top:24px">
+    <strong>חשוב לציין:</strong> מדובר בממצאים שתועדו על ידי ההורים עצמם — לא בתלונות אנונימיות. שמות, תאריכים ופרטים מלאים נמצאים ברשות הוועדה.
+  </div>
+
+  <div class="slide-footer">דוח הסעות דרור | הנהגת ההורים</div>
+</div>
+
+<!-- ==================== SLIDE 4: SAFETY ISSUES ==================== -->
+<div class="slide slide-light" id="slide4">
+  <div class="section-header">מה קורה בפועל? שלוש בעיות שאי אפשר להתעלם מהן</div>
+
+  <div class="issues-grid">
+    <div class="issue-card">
+      <h3><div class="issue-icon">🚌</div> נסיעה עומדים — כל יום</h3>
+      <p>תלמידים נוסעים בעמידה בנתיבים בין-עירוניים במהירות גבוהה. בנסיעה עצמה, אין כרית אוויר, אין חגורה, אין הגנה.</p>
+    </div>
+    <div class="issue-card">
+      <h3><div class="issue-icon">🚬</div> עישון וסיגריות אלקטרוניות</h3>
+      <p>תלמידים מעשנים בתוך האוטובוס — כולל Vapes. הנהגים אינם מתערבים. ילדים צעירים נחשפים לעשן בכל נסיעה.</p>
+    </div>
+    <div class="issue-card">
+      <h3><div class="issue-icon">👊</div> אלימות פיזית חוזרת</h3>
+      <p>דיווחים על "קרבות" ובריונות על מושבים חזרה. ילדים קטנים מאבדים מקומות לטובת גדולים. אין פיקוח.</p>
+    </div>
+    <div class="issue-card">
+      <h3><div class="issue-icon">👦</div> ילד נשאר לבד בתחנה</h3>
+      <p>תלמיד בית-ספר תיכון (חטיבה) נשאר לבד בתחנה כי נדחק החוצה. המתין לאוטובוס הבא — לבדו, בחוץ.</p>
+    </div>
+  </div>
+
+  <div class="quote-card">
+    "הילד שלי (חטיבה) נשאר בתחנה כי תלמידי תיכון הניחו שהוא פשוט ידחוף אותם החוצה. הוא היה לבד שם, חיכה לאוטובוס הבא."
+    <div class="quote-source">— הורה מצור משה</div>
+  </div>
+
+  <div class="slide-footer">דוח הסעות דרור | הנהגת ההורים</div>
+</div>
+
+<!-- ==================== SLIDE 5: LEGAL ==================== -->
+<div class="slide slide-danger" id="slide5">
+  <div class="section-header white">חשיפה משפטית — הכתובת על הקיר</div>
+
+  <div class="legal-items">
+    <div class="legal-item">
+      <h3>ביטוח — חשיפה של מיליוני שקלים</h3>
+      <p>תלמידים עומדים בנסיעה בין-עירונית מהווה עבירה על החוק. במקרה תאונה (חס וחלילה), ביטוח הנסיעה בטל — והמועצה חשופה לתביעות מיליוניות מכיסה.</p>
+    </div>
+    <div class="legal-item">
+      <h3>חובת הזהירות — אי-אכיפה = הפרה</h3>
+      <p>המועצה הראתה לאחרונה שהיא יודעת להבטיח שהילד יגיע הביתה בשלום. אי-אכיפת איסור עישון ואלימות מהווה הפרה מפורשת של חובה זו.</p>
+    </div>
+    <div class="legal-item">
+      <h3>לקחי עבר — "לא ידענו" לא מספיק</h3>
+      <p>תקריות בטיחות במועצות אחרות הובילו לתביעות אישיות נגד בעלי תפקידים. המועצה קיבלה דוח זה — "לא ידענו" לא יתקבל יותר כטענת הגנה.</p>
+    </div>
+  </div>
+
+  <div style="background: rgba(230,57,70,0.2); border: 2px solid #e63946; border-radius: 12px; padding: 16px 24px; text-align: center; width: 100%;">
+    <span style="font-size:18px; font-weight:800; color:#fff;">הכוח לפעול — ולמנוע — נמצא בידי המועצה. כל יום של אי-פעולה הוא סיכון נוסף.</span>
+  </div>
+
+  <div class="slide-footer light">דוח הסעות דרור | הנהגת ההורים</div>
+</div>
+
+<!-- ==================== SLIDE 6: ZERO HOUR ==================== -->
+<div class="slide slide-white" id="slide6">
+  <div class="section-header">הנדסת זמן כושלת: "שעת האפס"</div>
+
+  <div class="zero-hero">
+    <div class="zero-number">32 דקות</div>
+    <div class="zero-label">זמן המתנה ממוצע של תלמידים בחצר בית-הספר — ללא פיקוח</div>
+  </div>
+
+  <div class="timeline">
+    <div class="tl-item danger-item">
+      <div class="tl-time">06:30</div>
+      <div class="tl-label">איסוף מהיישוב<br>(צור משה ואחרים)</div>
+    </div>
+    <div class="tl-arrow">←</div>
+    <div class="tl-item">
+      <div class="tl-time">07:00</div>
+      <div class="tl-label">הגעה לבית-הספר</div>
+    </div>
+    <div class="tl-arrow">←</div>
+    <div class="tl-item">
+      <div class="tl-time">07:30</div>
+      <div class="tl-label">פתיחת הכיתות</div>
+    </div>
+    <div class="tl-arrow">←</div>
+    <div class="tl-item danger-item">
+      <div class="tl-time">30+ דקות</div>
+      <div class="tl-label">תלמידים לבד בחצר<br>ללא כל פיקוח</div>
+    </div>
+  </div>
+
+  <div class="conclusion-box">
+    <strong>התוצאה המיידית:</strong> 130+ תלמידים שוהים בחצר כל בוקר ללא פיקוח — זהו הרקע הישיר לתקריות האלימות, לעישון ולנפילות שמדווחות. <strong>זהו כשל ניהולי שניתן לתיקון מיידי.</strong>
+  </div>
+
+  <div class="slide-footer">דוח הסעות דרור | הנהגת ההורים</div>
+</div>
+
+<!-- ==================== SLIDE 7: DEMANDS ==================== -->
+<div class="slide slide-light" id="slide7">
+  <div class="section-header">מה אנחנו דורשים — 5 צעדים ליישום מיידי</div>
+
+  <div class="demands-list">
+    <div class="demand-item">
+      <div class="demand-num">1</div>
+      <div class="demand-text">
+        <h3>תגבור אוטובוסים — צהריים</h3>
+        <p>הוספת 2 אוטובוסים ייעודיים לצור משה ושער אפרים בשעות 14:15–14:30 — תלמידים לא יעזבו הביתה ב"מכרה"</p>
+      </div>
+    </div>
+    <div class="demand-item">
+      <div class="demand-num">2</div>
+      <div class="demand-text">
+        <h3>סדרני שטח (Ground Marshals) — החל מהשבוע</h3>
+        <p>צוות נלווים/מלוויות בנקודות האיסוף האסטרטגיות ובחצר בית-הספר — למנוע אלימות ולאכוף סדר</p>
+      </div>
+    </div>
+    <div class="demand-item">
+      <div class="demand-num">3</div>
+      <div class="demand-text">
+        <h3>סנכרון זמנים — איסוף ב-06:50 לא לפני</h3>
+        <p>ביטול האיסוף ב-06:30 — הגעה לבית-הספר 20 דקות לפני פתיחה בלבד, עם פיקוח מובטח</p>
+      </div>
+    </div>
+    <div class="demand-item">
+      <div class="demand-num">4</div>
+      <div class="demand-text">
+        <h3>מצלמות ואפליקציית ניטור להורים</h3>
+        <p>התקנת מצלמות בטיחות באוטובוסים וחיבור לאפליקציה עם עדכון מיקום בזמן אמת להורים</p>
+      </div>
+    </div>
+    <div class="demand-item">
+      <div class="demand-num">5</div>
+      <div class="demand-text">
+        <h3>לוח זמנים לדיווח חזרה אל ההורים</h3>
+        <p>עדכון רשמי מהמועצה תוך 14 יום — אנחנו מצפים לשמוע מה הוחלט ומה מיושם</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-footer">דוח הסעות דרור | הנהגת ההורים</div>
+</div>
+
+<!-- ==================== SLIDE 8: FIELD DATA + QUOTES ==================== -->
+<div class="slide slide-light" id="slide8">
+  <div class="section-header">הבעיות המרכזיות — לפי דיווח ישיר של 131 הורים</div>
+
+  <div style="width:100%; display:flex; flex-direction:column; gap:12px; margin-bottom:24px;">
+
+    <div style="display:flex; align-items:center; gap:16px;">
+      <div style="width:180px; text-align:right; font-size:14px; font-weight:600; color:#0d1b2a; flex-shrink:0;">איסוף מוקדם מדי</div>
+      <div style="flex:1; background:#e8e8e8; border-radius:6px; height:28px; position:relative;">
+        <div style="width:62%; background:#e63946; border-radius:6px; height:100%;"></div>
+        <span style="position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:13px; font-weight:700; color:#fff;">80 הורים — 62%</span>
+      </div>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:16px;">
+      <div style="width:180px; text-align:right; font-size:14px; font-weight:600; color:#0d1b2a; flex-shrink:0;">עומס בהסעות</div>
+      <div style="flex:1; background:#e8e8e8; border-radius:6px; height:28px; position:relative;">
+        <div style="width:52%; background:#e63946; border-radius:6px; height:100%;"></div>
+        <span style="position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:13px; font-weight:700; color:#fff;">68 הורים — 52%</span>
+      </div>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:16px;">
+      <div style="width:180px; text-align:right; font-size:14px; font-weight:600; color:#0d1b2a; flex-shrink:0;">המתנה ארוכה בחזרה</div>
+      <div style="flex:1; background:#e8e8e8; border-radius:6px; height:28px; position:relative;">
+        <div style="width:47%; background:#c0392b; border-radius:6px; height:100%;"></div>
+        <span style="position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:13px; font-weight:700; color:#fff;">61 הורים — 47%</span>
+      </div>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:16px;">
+      <div style="width:180px; text-align:right; font-size:14px; font-weight:600; color:#0d1b2a; flex-shrink:0;">אלימות ומשמעת</div>
+      <div style="flex:1; background:#e8e8e8; border-radius:6px; height:28px; position:relative;">
+        <div style="width:33%; background:#e67e22; border-radius:6px; height:100%;"></div>
+        <span style="position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:13px; font-weight:700; color:#fff;">43 הורים — 33%</span>
+      </div>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:16px;">
+      <div style="width:180px; text-align:right; font-size:14px; font-weight:600; color:#0d1b2a; flex-shrink:0;">התנהלות נהגים</div>
+      <div style="flex:1; background:#e8e8e8; border-radius:6px; height:28px; position:relative;">
+        <div style="width:16%; background:#e67e22; border-radius:6px; height:100%;"></div>
+        <span style="position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:13px; font-weight:700; color:#333;">21 הורים — 16%</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; width:100%;">
+    <div class="quote-card">
+      "אני יודע שתכנון מערך הסעות לא פשוט ויקר, אבל <strong>הילדים שלנו משלמים על החיסכון בכסף.</strong>"
+      <div class="quote-source">— הורה מצור משה, ציון שביעות רצון: 2/5</div>
+    </div>
+    <div class="quote-card">
+      "<strong>ילדים מפחדים להתלונן</strong> ויש אירועים שמסוכנים מאוד. צריך אפשרות תלונה אנונימית מקוונת."
+      <div class="quote-source">— הורה משער אפרים, ציון שביעות רצון: 1/5</div>
+    </div>
+    <div class="quote-card">
+      "יש נהגים בעייתיים שממש רבים עם ילדים — <strong>כדאי לבדוק את הרקע שלהם, עבירות תנועה ולמה הועברו מעבודתם הקודמת.</strong>"
+      <div class="quote-source">— הורה משער אפרים, ציון שביעות רצון: 1/5</div>
+    </div>
+    <div class="quote-card">
+      "הילדים מגיעים לביה״ס <strong>45 דקות לפני תחילת היום.</strong> הם ישנים פחות, מגיעים עייפים ולא מרוכזים."
+      <div class="quote-source">— הורה משער אפרים, ציון שביעות רצון: 2/5</div>
+    </div>
+  </div>
+
+  <div class="slide-footer">דוח הסעות דרור | הנהגת ההורים</div>
+</div>
+
+<!-- ==================== SLIDE 9: CLOSING ==================== -->
+<div class="slide slide-cover" id="slide9">
+  <div class="closing-box">
+    <h2>הנתונים על השולחן.<br>האחריות — בידיכם.</h2>
+    <p>
+      אנחנו מצפים מהמועצה לפעול <strong>לפני תום שנת הלימודים הנוכחית</strong> — כדי להבטיח שילדינו יתחילו את שנת הלימודים הבאה בבטחה.
+    </p>
+  </div>
+
+  <div class="closing-tagline">בטיחות הילדים אינה נתונה למשא ומתן.</div>
+
+  <div style="margin-top:40px; display:flex; gap:40px; color:rgba(255,255,255,0.5); font-size:14px; text-align:center;">
+    <div>
+      <div style="font-size:28px; font-weight:900; color:#fff;">131</div>
+      <div>הורים שחתמו</div>
+    </div>
+    <div>
+      <div style="font-size:28px; font-weight:900; color:#fff;">18</div>
+      <div>יישובים</div>
+    </div>
+    <div>
+      <div style="font-size:28px; font-weight:900; color:#e63946;">5</div>
+      <div>דרישות ברורות</div>
+    </div>
+    <div>
+      <div style="font-size:28px; font-weight:900; color:#e63946;">14</div>
+      <div>ימים למענה</div>
+    </div>
+  </div>
+
+  <div class="slide-footer light">דוח הסעות דרור | הנהגת ההורים | מאי 2026</div>
+</div>
+
+<!-- ===== EDIT BANNER ===== -->
+<div class="edit-banner">מצב עריכה פעיל — לחץ על כל טקסט לעריכה. לחץ "סיום עריכה" כשתסיים.</div>
+
+<!-- ===== NAVIGATION ===== -->
+<div class="nav">
+  <button onclick="changeSlide(-1)">→ הקודם</button>
+  <span class="slide-counter" id="slideCounter">1 / 8</span>
+  <button onclick="changeSlide(1)">הבא ←</button>
+  <button class="edit-btn" id="editBtn" onclick="toggleEdit()">עריכה</button>
+</div>
+
+<script>
+  const totalSlides = 9;
+  let current = 1;
+
+  // Build dots
+  const dotsEl = document.getElementById('dotsContainer');
+  for (let i = 1; i <= totalSlides; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 1 ? ' active' : '');
+    d.onclick = () => goTo(i);
+    dotsEl.appendChild(d);
+  }
+
+  function goTo(n) {
+    document.getElementById('slide' + current).classList.remove('active');
+    document.querySelectorAll('.dot')[current - 1].classList.remove('active');
+    current = Math.max(1, Math.min(totalSlides, n));
+    document.getElementById('slide' + current).classList.add('active');
+    document.querySelectorAll('.dot')[current - 1].classList.add('active');
+    document.getElementById('slideCounter').textContent = current + ' / ' + totalSlides;
+    document.getElementById('progressBar').style.width = (current / totalSlides * 100) + '%';
+  }
+
+  function changeSlide(dir) { goTo(current + dir); }
+
+  document.addEventListener('keydown', e => {
+    if (isEditing) return; // don't navigate while typing
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') changeSlide(1);
+    if (e.key === 'ArrowRight' || e.key === 'ArrowUp') changeSlide(-1);
+  });
+
+  // ===== EDIT MODE =====
+  let isEditing = false;
+  const EDITABLE_SELECTORS = [
+    'h1','h2','h3','p','td','th','li','span:not(.badge)',
+    '.cover-badge','.cover-title','.cover-meta','.cover-presenter',
+    '.section-header','.stat-number','.stat-label','.conclusion-box',
+    '.zero-number','.zero-label','.tl-time','.tl-label',
+    '.closing-tagline','.slide-footer','.info-box .num','.info-box .lbl',
+    '.quote-card','.legal-item h3','.legal-item p',
+    '.demand-text h3','.demand-text p','.issue-card h3','.issue-card p'
+  ].join(',');
+
+  function toggleEdit() {
+    isEditing = !isEditing;
+    const btn = document.getElementById('editBtn');
+    const body = document.body;
+
+    if (isEditing) {
+      body.classList.add('editing');
+      btn.textContent = 'סיום עריכה';
+      btn.classList.add('active');
+      document.querySelectorAll(EDITABLE_SELECTORS).forEach(el => {
+        el.setAttribute('contenteditable', 'true');
+        el.setAttribute('spellcheck', 'false');
+      });
+    } else {
+      body.classList.remove('editing');
+      btn.textContent = 'עריכה';
+      btn.classList.remove('active');
+      document.querySelectorAll('[contenteditable]').forEach(el => {
+        el.removeAttribute('contenteditable');
+      });
+    }
+  }
+</script>
+</body>
+</html>
