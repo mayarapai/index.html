@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+<meta charset="UTF-8">
+<title>APEX — תכנית עבודה | מגדל</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #1a1a2e; font-size: 13px; }
+
+.header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%); color: white; padding: 28px 36px 24px; }
+.header h1 { font-size: 26px; font-weight: 700; }
+.header .sub { font-size: 13px; color: #a0b4cc; margin-top: 6px; }
+.badges { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+.badge { padding: 4px 14px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+.badge-red { background: #e53e3e; color: white; }
+.badge-orange { background: #dd6b20; color: white; }
+.badge-green { background: #2f855a; color: white; }
+.badge-blue { background: #2b6cb0; color: white; }
+
+.section { background: white; margin: 16px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden; }
+.section-title { background: #1a1a2e; color: white; padding: 12px 20px; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+.section-body { padding: 20px; }
+
+/* FLOW DIAGRAM */
+.flow-wrap { display: flex; align-items: stretch; gap: 0; overflow-x: auto; padding: 10px 0; }
+.flow-step { display: flex; flex-direction: column; align-items: center; min-width: 130px; }
+.flow-box { border-radius: 10px; padding: 12px 10px; text-align: center; width: 120px; font-size: 12px; font-weight: 600; line-height: 1.4; position: relative; }
+.flow-box .flow-sub { font-size: 10px; font-weight: 400; opacity: 0.8; margin-top: 4px; }
+.flow-arrow { display: flex; align-items: center; padding: 0 4px; color: #a0aec0; font-size: 20px; align-self: center; }
+.flow-entry { background: #ebf8ff; border: 2px solid #63b3ed; color: #2b6cb0; }
+.flow-router { background: #fefcbf; border: 2px solid #f6e05e; color: #744210; }
+.flow-swiss { background: #faf5ff; border: 2px solid #b794f4; color: #553c9a; }
+.flow-decision { background: #fff5f5; border: 2px solid #fc8181; color: #742a2a; }
+.flow-prod { background: #f0fff4; border: 2px solid #68d391; color: #276749; }
+.flow-underwriter { background: #fffaf0; border: 2px solid #f6ad55; color: #744210; }
+.flow-branch { display: flex; flex-direction: column; gap: 8px; }
+.flow-badge { font-size: 9px; margin-top: 4px; padding: 1px 6px; border-radius: 10px; display: inline-block; }
+.fb-r0 { background: #bee3f8; color: #2b6cb0; }
+.fb-r1 { background: #c6f6d5; color: #276749; }
+
+/* RELEASE COMPARISON */
+.release-compare { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border: 1.5px solid #e2e8f0; border-radius: 10px; overflow: hidden; }
+.rel-col { padding: 0; }
+.rel-header { padding: 14px 16px; font-weight: 700; font-size: 13px; }
+.rel-r0 .rel-header { background: #ebf8ff; color: #2b6cb0; border-bottom: 2px solid #bee3f8; }
+.rel-r1 .rel-header { background: #f0fff4; color: #276749; border-bottom: 2px solid #c6f6d5; border-right: 1px solid #e2e8f0; border-left: 1px solid #e2e8f0; }
+.rel-r2 .rel-header { background: #faf5ff; color: #553c9a; border-bottom: 2px solid #e9d8fd; }
+.rel-body { padding: 14px 16px; }
+.rel-r1 .rel-body { border-right: 1px solid #e2e8f0; border-left: 1px solid #e2e8f0; }
+.rel-item { display: flex; gap: 8px; margin-bottom: 10px; align-items: flex-start; font-size: 12px; line-height: 1.5; }
+.rel-item-title { font-weight: 700; }
+.rel-item-desc { font-size: 11px; color: #718096; }
+.dot-r0 { width: 8px; height: 8px; border-radius: 50%; background: #3182ce; flex-shrink: 0; margin-top: 5px; }
+.dot-r1 { width: 8px; height: 8px; border-radius: 50%; background: #38a169; flex-shrink: 0; margin-top: 5px; }
+.dot-r2 { width: 8px; height: 8px; border-radius: 50%; background: #805ad5; flex-shrink: 0; margin-top: 5px; }
+.rel-date { font-size: 11px; font-weight: 400; opacity: 0.7; }
+
+/* GANTT */
+.gantt-wrap { overflow-x: auto; }
+.gantt-table { width: 100%; border-collapse: collapse; min-width: 920px; }
+.gantt-table th { background: #1a1a2e; color: white; padding: 7px 4px; font-size: 11px; text-align: center; white-space: nowrap; border: 1px solid #2d3748; }
+.gantt-table th.row-header { text-align: right; padding: 8px 12px; width: 230px; }
+.gantt-table td { border: 1px solid #e2e8f0; padding: 0; height: 30px; }
+.gantt-table td.row-label { padding: 5px 12px; font-size: 12px; font-weight: 600; color: #2d3748; background: #f8fafc; white-space: nowrap; }
+.gantt-table td.group-label { padding: 5px 12px; font-size: 11px; font-weight: 700; color: #718096; background: #edf2f7; text-transform: uppercase; letter-spacing: 0.5px; }
+.month-header { background: #2d3748 !important; font-size: 11px; font-weight: 700; }
+.week-num { font-size: 9px; color: #a0aec0; display: block; }
+
+/* bar colors */
+.b-arch { background: #3182ce; }
+.b-cyber { background: #e53e3e; }
+.b-hire { background: #dd6b20; }
+.b-hire2 { background: #c05621; }
+.b-swiss { background: #805ad5; }
+.b-swiss2 { background: #553c9a; }
+.b-router { background: #d69e2e; }
+.b-router2 { background: #b7791f; }
+.b-bpr { background: #0bc5ea; }
+.b-docha { background: #319795; }
+.b-profile-spec { background: #9f7aea; }
+.b-profile-dev { background: #6b46c1; }
+.b-copilot { background: #38a169; }
+.b-agents2 { background: #276749; }
+.b-rules { background: #f6ad55; }
+.b-stp { background: #553c9a; }
+.b-uat { background: #b7791f; }
+.dim { opacity: 0.35; }
+
+/* milestone markers */
+.ms1 { background: #3182ce !important; }
+.ms2 { background: #38a169 !important; }
+.ms3 { background: #805ad5 !important; }
+.ms-cell { text-align: center; vertical-align: middle; font-size: 9px; font-weight: 800; color: white; }
+
+/* DEPS */
+.deps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.dep-card { border-radius: 8px; padding: 14px; border-right: 4px solid; }
+.dep-critical { background: #fff5f5; border-color: #e53e3e; }
+.dep-high { background: #fffaf0; border-color: #dd6b20; }
+.dep-owner { font-size: 10px; font-weight: 700; text-transform: uppercase; color: #718096; margin-bottom: 5px; }
+.dep-title { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+.dep-desc { font-size: 11px; color: #4a5568; line-height: 1.5; }
+.dep-deadline { font-size: 11px; font-weight: 700; margin-top: 8px; padding: 2px 8px; border-radius: 4px; display: inline-block; }
+.dep-critical .dep-deadline { background: #fed7d7; color: #c53030; }
+.dep-high .dep-deadline { background: #feebc8; color: #c05621; }
+
+/* HIRING */
+.hiring-table { width: 100%; border-collapse: collapse; }
+.hiring-table th { background: #2d3748; color: white; padding: 10px 14px; text-align: right; font-size: 12px; }
+.hiring-table td { padding: 9px 14px; border-bottom: 1px solid #e2e8f0; font-size: 12px; vertical-align: top; }
+.hiring-table tr:nth-child(even) td { background: #f7fafc; }
+.p-crit { background: #fed7d7; color: #c53030; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; white-space: nowrap; }
+.p-high { background: #feebc8; color: #c05621; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; white-space: nowrap; }
+.blocks-tag { background: #fed7d7; color: #742a2a; padding: 1px 6px; border-radius: 4px; font-size: 10px; margin: 2px; display: inline-block; }
+
+/* DECISIONS */
+.decisions-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.decision-card { border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 14px; }
+.dec-num { font-size: 22px; font-weight: 900; color: #e2e8f0; line-height: 1; }
+.dec-title { font-size: 13px; font-weight: 700; margin: 4px 0; }
+.dec-desc { font-size: 11px; color: #718096; line-height: 1.5; }
+.dec-owner { font-size: 11px; font-weight: 600; color: #3182ce; margin-top: 8px; }
+.dec-by { font-size: 10px; background: #ebf8ff; color: #2b6cb0; padding: 2px 8px; border-radius: 4px; margin-top: 4px; display: inline-block; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 12px; padding: 14px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #4a5568; }
+.legend-box { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <h1>APEX — תכנית עבודה | חיתום בריאות מגדל</h1>
+  <div class="sub">תהליך חיתום דרך סוכן | ביטוח בריאות | תכנית Phased Release | גרסה לדיון עם מנמ"ר</div>
+  <div class="badges">
+    <span class="badge badge-red">יעד מנהל: 3 חודשים לריליס ראשון</span>
+    <span class="badge badge-orange">פלאו סמי-אוטומטי: 6 חודשים</span>
+    <span class="badge badge-green">STP ראשוני: 7 חודשים</span>
+    <span class="badge badge-blue">יעד 70% STP: 10-12 חודשים</span>
+  </div>
+</div>
+
+<!-- FLOW -->
+<div class="section">
+  <div class="section-title"><span class="icon">➡️</span> הפלאו החיתומי — מקצה לקצה</div>
+  <div class="section-body">
+    <div style="font-size:11px; color:#718096; margin-bottom:14px;">כל הפקה עוברת פלאו אחד רציף. שני הרכיבים המרכזיים — הרמזור ומנוע Swiss Re — קיימים משלב ראשון (רזים) ומורחבים בשלב שני.</div>
+    <div class="flow-wrap">
+      <div class="flow-step">
+        <div class="flow-box flow-entry">
+          בקשת הפקה<br>דרך סוכן
+          <div class="flow-sub">טופס הצהרת בריאות</div>
+        </div>
+      </div>
+      <div class="flow-arrow">←</div>
+      <div class="flow-step">
+        <div class="flow-box flow-router">
+          רמזור<br>(ניתוב)
+          <div class="flow-sub">האם בכלל נדרש חיתום?</div>
+          <span class="flow-badge fb-r0">R0: לוגיקה בסיסית</span><br>
+          <span class="flow-badge fb-r1">R1: חכם יותר, יותר כללים</span>
+        </div>
+      </div>
+      <div class="flow-arrow">←</div>
+      <div class="flow-step">
+        <div class="flow-branch">
+          <div class="flow-box flow-prod" style="width:120px; font-size:11px;">
+            ירוק — ישר להפקה
+            <div class="flow-sub">אין צורך בחתם</div>
+          </div>
+          <div class="flow-box flow-swiss" style="margin-top:4px;">
+            מנוע Swiss Re
+            <div class="flow-sub">R0: הזנה ידנית + תרגום אוטו' + המלצה</div>
+            <div class="flow-sub">R1: הזנה אוטומטית מפרופיל</div>
+            <span class="flow-badge fb-r0">R0: כלי תמיכה לחתם</span><br>
+            <span class="flow-badge fb-r1">R1: מחליט לבד בקייסים פשוטים</span>
+          </div>
+        </div>
+      </div>
+      <div class="flow-arrow">←</div>
+      <div class="flow-step">
+        <div class="flow-branch">
+          <div class="flow-box flow-prod" style="width:120px; font-size:11px;">
+            אוטומטי — הפקה
+            <div class="flow-sub">R1: קייסים פשוטים</div>
+          </div>
+          <div class="flow-box flow-underwriter" style="margin-top:4px;">
+            לחתם — Workbench
+            <div class="flow-sub">תיק מסודר, המלצת Swiss Re, פרופיל רפואי</div>
+          </div>
+        </div>
+      </div>
+      <div class="flow-arrow">←</div>
+      <div class="flow-step">
+        <div class="flow-box flow-prod">
+          הפקת פוליסה
+          <div class="flow-sub">+ תיעוד + Audit</div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:14px; padding:10px 14px; background:#fffbeb; border-radius:8px; border-right:3px solid #f6ad55; font-size:12px; color:#744210;">
+      <strong>מה משתנה בין R0 ל-R1:</strong> ב-R0 — החתם מכניס נתונים ידנית, Swiss Re נותן המלצה. ב-R1 — הנתונים מגיעים אוטומטית מהפרופיל החיתומי, וחלק מהקייסים נסגרים בלי שהחתם רואה אותם בכלל.
+    </div>
+  </div>
+</div>
+
+<!-- SYSTEM ARCHITECTURE REMOVED -->
+<div style="display:none;">
+  <div>
+    <div style="font-size:12px; color:#4a5568; margin-bottom:16px; line-height:1.6;">
+      מערכת APEX תמומש בארכיטקטורה היברידית: <strong>Azure AI Foundry</strong> ישמש כשכבת AI וחילוץ מסמכים, <strong>Power Platform / Copilot Studio</strong> ישמשו כשכבת workflow ו-human-in-the-loop, ו-<strong>Orchestration</strong> מורכב יתבצע בשירות ייעודי או ב-Azure AI Foundry Agent Service.
+    </div>
+    <div id="arch-diagram" style="position:relative; width:100%; max-width:1020px; margin:0 auto; direction:ltr; font-family:'Segoe UI',Arial,sans-serif;">
+
+    <!-- ═══ LAYER 0: CHANNELS ═══ -->
+    <div style="display:flex; gap:12px; justify-content:center; margin-bottom:0;">
+      <div class="arch-node node-channel" style="width:190px;">
+        <div class="node-tag">כניסה</div>
+        <div class="node-title">Agent Portal</div>
+        <div class="node-sub">סוכן מגיש הצהרת בריאות</div>
+      </div>
+      <div class="arch-node node-channel" style="width:190px;">
+        <div class="node-tag">כניסה</div>
+        <div class="node-title">Digital Journey</div>
+        <div class="node-sub">מסע לקוח אונליין</div>
+      </div>
+      <div class="arch-node node-channel" style="width:190px;">
+        <div class="node-tag">ארכיב</div>
+        <div class="node-title">הצהרות קיימות</div>
+        <div class="node-sub">מסמכים ישנים מ-DOCHA</div>
+      </div>
+    </div>
+
+    <!-- arrow down -->
+    <div style="text-align:center; line-height:1; color:#3182ce; font-size:22px; margin:2px 0;">↓</div>
+
+    <!-- ═══ LAYER 1: ORCHESTRATOR ═══ -->
+    <div style="display:flex; justify-content:center; margin-bottom:0;">
+      <div class="arch-node node-orch" style="width:640px; position:relative;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div class="node-tag" style="color:#92400e;">Supervisor Agent — מוח המערכת</div>
+            <div class="node-title" style="font-size:16px;">APEX Orchestrator</div>
+            <div class="node-sub" style="color:#78350f;">מקבל כל בקשה → מחליט מה קורה → מפעיל סוכנים → מחזיר תשובה ל-BPR</div>
+          </div>
+          <div style="width:44px;height:44px;border-radius:50%;border:3px solid #f59e0b;flex-shrink:0;margin-left:16px;animation:spin-slow 4s linear infinite;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- arrows down to agent groups -->
+    <div style="display:flex; justify-content:space-between; padding:0 60px; color:#718096; font-size:18px; line-height:1; margin:2px 0;">
+      <span style="color:#319795;">↓</span>
+      <span style="color:#319795;">↓</span>
+      <span style="color:#805ad5;">↓</span>
+      <span style="color:#dd6b20;">↓</span>
+    </div>
+
+    <!-- ═══ LAYER 2: AGENTS ═══ -->
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:8px; margin-bottom:0;">
+
+      <!-- Group A: קבלה ועיבוד ראשוני -->
+      <div class="agent-group" style="border-color:#319795;">
+        <div class="group-title" style="color:#234e52; background:#e6fffa;">קבלה ועיבוד</div>
+        <div class="arch-node node-agent-teal">
+          <div class="node-num">1</div>
+          <div class="node-title">Intake Agent</div>
+          <div class="node-sub">קבלה, סיווג, פתיחת פלאו</div>
+          <div class="node-comm">→ Orchestrator</div>
+        </div>
+        <div class="arch-node node-agent-teal" style="margin-top:6px;">
+          <div class="node-num">2</div>
+          <div class="node-title">Health Declaration Agent</div>
+          <div class="node-sub">ולידציה, השוואה לקודמות</div>
+          <div class="node-comm">⇄ DOCHA</div>
+        </div>
+        <div class="arch-node node-agent-teal" style="margin-top:6px;">
+          <div class="node-num">3</div>
+          <div class="node-title">Document Extraction Agent</div>
+          <div class="node-sub">חילוץ ישויות מ-PDF</div>
+          <div class="node-comm">⇄ DOCHA → Profile DB</div>
+        </div>
+      </div>
+
+      <!-- Group B: ניתוח רפואי -->
+      <div class="agent-group" style="border-color:#6b46c1;">
+        <div class="group-title" style="color:#44337a; background:#faf5ff;">ניתוח רפואי</div>
+        <div class="arch-node node-agent-purple">
+          <div class="node-num">4</div>
+          <div class="node-title">Medical Profile Agent</div>
+          <div class="node-sub">בניית פרופיל חיתומי מלא</div>
+          <div class="node-comm">⇄ Customer Profile DB</div>
+        </div>
+        <div class="arch-node node-agent-purple" style="margin-top:6px;">
+          <div class="node-num">5</div>
+          <div class="node-title">Contradiction Detection Agent</div>
+          <div class="node-sub">גילוי סתירות בין הצהרות</div>
+          <div class="node-comm">⇄ Profile DB, DOCHA</div>
+        </div>
+        <div class="arch-node node-agent-purple" style="margin-top:6px;">
+          <div class="node-num">6</div>
+          <div class="node-title">Underwriting Decision Agent</div>
+          <div class="node-sub">מפעיל Swiss Re + Rules</div>
+          <div class="node-comm">→ Swiss Re → Rules Engine</div>
+        </div>
+      </div>
+
+      <!-- Group C: תהליך חסרים -->
+      <div class="agent-group" style="border-color:#dd6b20;">
+        <div class="group-title" style="color:#7b341e; background:#fff7ed;">ניהול חסרים</div>
+        <div class="arch-node node-agent-orange">
+          <div class="node-num">7</div>
+          <div class="node-title">Missing Documents Agent</div>
+          <div class="node-sub">זיהוי חסרים, שליחת בקשות</div>
+          <div class="node-comm">→ Notifications → BPR</div>
+        </div>
+        <div style="margin-top:6px; padding:8px; border:1px dashed #dd6b20; border-radius:6px; font-size:10px; color:#c05621; line-height:1.5; background:white;">
+          <strong>Power Platform flow:</strong><br>
+          Reminder → לסוכן/לקוח<br>
+          מסמך חדש → DOCHA לחילוץ<br>
+          עדכון BPR → המשך פלאו
+        </div>
+      </div>
+
+      <!-- Group D: תמיכה בחתם + ביקורת -->
+      <div class="agent-group" style="border-color:#2b6cb0;">
+        <div class="group-title" style="color:#1a365d; background:#ebf8ff;">תמיכה וביקורת</div>
+        <div class="arch-node node-agent-blue">
+          <div class="node-num">8</div>
+          <div class="node-title">Underwriter Copilot Agent</div>
+          <div class="node-sub">תמצות קייס, המלצה מוכנה</div>
+          <div class="node-comm">→ Workbench → BPR</div>
+        </div>
+        <div class="arch-node node-agent-blue" style="margin-top:6px;">
+          <div class="node-num">9</div>
+          <div class="node-title">Audit & Explainability Agent</div>
+          <div class="node-sub">תיעוד כל החלטה + הסבר</div>
+          <div class="node-comm">← כל הסוכנים → Profile DB</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- arrows -->
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:8px; color:#718096; font-size:14px; text-align:center; margin:2px 0; padding:0 8px;">
+      <span style="color:#319795;">↓</span>
+      <span style="color:#6b46c1;">↓</span>
+      <span style="color:#dd6b20;">↓</span>
+      <span style="color:#2b6cb0;">↓</span>
+    </div>
+
+    <!-- ═══ LAYER 3: INTELLIGENCE + DATA ═══ -->
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:8px; margin-bottom:0;">
+
+      <div class="arch-node node-sys-teal">
+        <div class="node-tag" style="color:#234e52;">AI חילוץ מסמכים</div>
+        <div class="node-title">DOCHA / Azure AI Foundry</div>
+        <div class="node-sub">OCR · חילוץ · סיכום רפואי · Document Intelligence</div>
+      </div>
+
+      <div class="arch-node node-sys-purple">
+        <div class="node-tag" style="color:#44337a;">מנוע חיתום</div>
+        <div class="node-title">Swiss Re API</div>
+        <div class="node-sub">R0: תרגום + המלצה<br>R1: החלטה אוטומטית</div>
+      </div>
+
+      <div class="arch-node node-sys-purple">
+        <div class="node-tag" style="color:#44337a;">לוגיקה עסקית</div>
+        <div class="node-title">Business Rules Engine</div>
+        <div class="node-sub">כללי STP · ניתוב · מגדל על Swiss Re</div>
+      </div>
+
+      <div class="arch-node node-sys-blue">
+        <div class="node-tag" style="color:#1a365d;">נתוני לקוח</div>
+        <div class="node-title">Customer Profile DB</div>
+        <div class="node-sub">היסטוריה רפואית · הצהרות · ממצאים · Timeline</div>
+      </div>
+
+    </div>
+
+    <!-- arrows -->
+    <div style="text-align:center; line-height:1; color:#718096; font-size:20px; margin:3px 0;">↓ ↓ ↓</div>
+
+    <!-- ═══ LAYER 4: CORE SYSTEMS + OUTPUT ═══ -->
+    <div style="display:grid; grid-template-columns:2fr 1fr 1fr; gap:8px;">
+
+      <div class="arch-node node-core">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div>
+            <div class="node-tag" style="color:#742a2a;">ליבה תפעולית</div>
+            <div class="node-title" style="font-size:14px;">BPR — Core System</div>
+            <div class="node-sub">פתיחת קיתות · עדכון סטטוס · הפקת פוליסה · Audit Trail</div>
+            <div style="font-size:10px; margin-top:4px; color:#c53030;"><strong>לא משתנה.</strong> APEX כותב אליו דרך APIs בלבד</div>
+          </div>
+          <div style="font-size:28px; flex-shrink:0;">🏦</div>
+        </div>
+      </div>
+
+      <div class="arch-node node-output-green">
+        <div class="node-tag" style="color:#276749;">Workflow — Power Platform</div>
+        <div class="node-title">Workbench חתם</div>
+        <div class="node-sub">תיק מלא · המלצת Swiss Re · כפתור אישור/דחייה</div>
+        <div style="font-size:10px; margin-top:4px;"><strong>human-in-the-loop</strong></div>
+      </div>
+
+      <div class="arch-node node-output-green">
+        <div class="node-tag" style="color:#276749;">תקשורת</div>
+        <div class="node-title">Notifications</div>
+        <div class="node-sub">SMS · Email · WhatsApp לסוכן/לקוח</div>
+        <div style="font-size:10px; margin-top:4px;">חסרים · עדכונים · אישורים</div>
+      </div>
+
+    </div>
+
+    <!-- LEGEND -->
+    <div style="margin-top:14px; padding:10px 14px; background:#f8fafc; border-radius:8px; display:flex; flex-wrap:wrap; gap:14px; direction:rtl;">
+      <div style="font-size:11px; font-weight:700; color:#4a5568; align-self:center;">מקרא:</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:11px;"><div style="width:12px;height:12px;border-radius:3px;background:#ebf8ff;border:2px solid #3182ce;"></div>ערוץ כניסה</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:11px;"><div style="width:12px;height:12px;border-radius:3px;background:#fffbeb;border:2px solid #f59e0b;"></div>Orchestrator</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:11px;"><div style="width:12px;height:12px;border-radius:3px;background:#e6fffa;border:2px solid #319795;"></div>סוכן — קבלה</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:11px;"><div style="width:12px;height:12px;border-radius:3px;background:#faf5ff;border:2px solid #6b46c1;"></div>סוכן — ניתוח</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:11px;"><div style="width:12px;height:12px;border-radius:3px;background:#fff7ed;border:2px solid #dd6b20;"></div>סוכן — חסרים</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:11px;"><div style="width:12px;height:12px;border-radius:3px;background:#ebf8ff;border:2px solid #2b6cb0;"></div>סוכן — ביקורת</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:11px;"><div style="width:12px;height:12px;border-radius:3px;background:#e6fffa;border:2px solid #234e52;"></div>מערכת AI</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:11px;"><div style="width:12px;height:12px;border-radius:3px;background:#fff5f5;border:2px solid #c53030;"></div>BPR ליבה</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:#718096;">⇄ תקשורת דו-כיוונית &nbsp; → חד-כיווני</div>
+    </div>
+
+    </div>
+
+    <div style="display:none;">
+
+      <!-- removed old SVG -->
+      <svg style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none;" viewBox="0 0 820 560" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#a0aec0"/>
+          </marker>
+          <marker id="arrow-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#3182ce"/>
+          </marker>
+          <marker id="arrow-teal" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#319795"/>
+          </marker>
+          <marker id="arrow-purple" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#805ad5"/>
+          </marker>
+          <marker id="arrow-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#38a169"/>
+          </marker>
+        </defs>
+
+        <!-- Agent → Orchestrator -->
+        <line x1="410" y1="78" x2="410" y2="142" stroke="#3182ce" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrow-blue)">
+          <animate attributeName="stroke-dashoffset" from="0" to="-16" dur="0.8s" repeatCount="indefinite"/>
+        </line>
+
+        <!-- Orchestrator → Azure AI Foundry (left) -->
+        <line x1="310" y1="192" x2="210" y2="265" stroke="#319795" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrow-teal)">
+          <animate attributeName="stroke-dashoffset" from="0" to="-16" dur="0.8s" repeatCount="indefinite"/>
+        </line>
+        <!-- Azure AI Foundry → Orchestrator (return) -->
+        <line x1="225" y1="265" x2="320" y2="195" stroke="#319795" stroke-width="1.5" stroke-dasharray="3,4" opacity="0.5" marker-end="url(#arrow-teal)">
+          <animate attributeName="stroke-dashoffset" from="-16" to="0" dur="0.8s" repeatCount="indefinite"/>
+        </line>
+
+        <!-- Orchestrator → Power Platform (right) -->
+        <line x1="510" y1="192" x2="610" y2="265" stroke="#805ad5" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrow-purple)">
+          <animate attributeName="stroke-dashoffset" from="0" to="-16" dur="0.8s" repeatCount="indefinite"/>
+        </line>
+
+        <!-- Orchestrator → Swiss Re -->
+        <line x1="370" y1="210" x2="280" y2="360" stroke="#805ad5" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrow-purple)">
+          <animate attributeName="stroke-dashoffset" from="0" to="-16" dur="0.8s" repeatCount="indefinite"/>
+        </line>
+
+        <!-- Azure AI → Swiss Re -->
+        <line x1="215" y1="360" x2="240" y2="362" stroke="#319795" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.6" marker-end="url(#arrow-teal)">
+          <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="0.9s" repeatCount="indefinite"/>
+        </line>
+
+        <!-- Swiss Re → BPR -->
+        <line x1="330" y1="410" x2="390" y2="435" stroke="#805ad5" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrow-purple)">
+          <animate attributeName="stroke-dashoffset" from="0" to="-16" dur="0.8s" repeatCount="indefinite"/>
+        </line>
+
+        <!-- Power Platform → Workbench -->
+        <line x1="635" y1="360" x2="635" y2="428" stroke="#805ad5" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrow-purple)">
+          <animate attributeName="stroke-dashoffset" from="0" to="-16" dur="0.8s" repeatCount="indefinite"/>
+        </line>
+
+        <!-- BPR → Production -->
+        <line x1="410" y1="482" x2="300" y2="520" stroke="#38a169" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrow-green)">
+          <animate attributeName="stroke-dashoffset" from="0" to="-16" dur="0.8s" repeatCount="indefinite"/>
+        </line>
+
+        <!-- BPR → Orchestrator (feedback) -->
+        <path d="M 490 460 Q 560 400 510 215" stroke="#a0aec0" stroke-width="1.5" fill="none" stroke-dasharray="4,4" opacity="0.4" marker-end="url(#arrow)">
+          <animate attributeName="stroke-dashoffset" from="-16" to="0" dur="1.2s" repeatCount="indefinite"/>
+        </path>
+
+        <!-- Animated traveling dot: Agent → Orchestrator -->
+        <circle r="5" fill="#3182ce" opacity="0.9">
+          <animateMotion dur="12s" repeatCount="indefinite" begin="0s">
+            <mpath href="#path-main"/>
+          </animateMotion>
+        </circle>
+        <path id="path-main" d="M 410,60 L 410,145 L 195,270 L 245,365 L 395,440 L 300,525" fill="none" opacity="0"/>
+
+        <!-- Second dot: Orchestrator → Power Platform → Workbench -->
+        <circle r="5" fill="#805ad5" opacity="0.9">
+          <animateMotion dur="12s" repeatCount="indefinite" begin="4s">
+            <mpath href="#path-power"/>
+          </animateMotion>
+        </circle>
+        <path id="path-power" d="M 410,145 L 615,270 L 635,365 L 635,430" fill="none" opacity="0"/>
+      </svg>
+
+      <!-- AGENT INPUT -->
+      <div style="position:absolute; top:10px; left:310px; width:200px;" class="anim-box anim-entry">
+        <div style="font-size:11px; font-weight:700; color:#2b6cb0; margin-bottom:3px;">כניסה</div>
+        <div style="font-size:13px; font-weight:800; color:#1a1a2e;">סוכן / Agent Portal</div>
+        <div style="font-size:10px; color:#718096; margin-top:2px;">הצהרת בריאות + בקשת הפקה</div>
+      </div>
+
+      <!-- ORCHESTRATOR (CENTER) -->
+      <div style="position:absolute; top:140px; left:195px; width:430px;" class="anim-box anim-orch">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-size:10px; font-weight:700; color:#744210; margin-bottom:2px; letter-spacing:0.5px; text-transform:uppercase;">מוח המערכת</div>
+            <div style="font-size:14px; font-weight:800; color:#1a1a2e;">APEX Orchestrator</div>
+            <div style="font-size:11px; color:#744210; margin-top:3px;">מנהל את הפלאו: מה קורה קודם, מי מופעל, מתי הולכים ל-BPR ומתי לחתם</div>
+          </div>
+          <div class="pulse-ring"></div>
+        </div>
+      </div>
+
+      <!-- AZURE AI FOUNDRY / DOCHA -->
+      <div style="position:absolute; top:265px; left:40px; width:220px;" class="anim-box anim-azure">
+        <div style="font-size:10px; font-weight:700; color:#234e52; margin-bottom:2px; text-transform:uppercase; letter-spacing:0.5px;">AI + מסמכים</div>
+        <div style="font-size:13px; font-weight:800; color:#1a1a2e;">Azure AI Foundry / DOCHA</div>
+        <div style="font-size:10px; color:#2c7a7b; margin-top:4px; line-height:1.6;">
+          OCR וחילוץ הצהרות<br>
+          סיכום רפואי אוטומטי<br>
+          בדיקת מסמכים<br>
+          <span style="background:#c6f6d5; border-radius:3px; padding:0 4px; color:#276749; font-size:9px;">Azure AI Foundry Agent Service</span>
+        </div>
+      </div>
+
+      <!-- POWER PLATFORM -->
+      <div style="position:absolute; top:265px; left:510px; width:245px;" class="anim-box anim-power">
+        <div style="font-size:10px; font-weight:700; color:#553c9a; margin-bottom:2px; text-transform:uppercase; letter-spacing:0.5px;">Workflow עסקי</div>
+        <div style="font-size:13px; font-weight:800; color:#1a1a2e;">Power Platform / Copilot Studio</div>
+        <div style="font-size:10px; color:#6b46c1; margin-top:4px; line-height:1.6;">
+          ניהול חוסרים + Reminders<br>
+          Approvals וניתוב לחתם<br>
+          Workbench לחתם<br>
+          אינטראקציה עם סוכן/לקוח
+        </div>
+      </div>
+
+      <!-- SWISS RE -->
+      <div style="position:absolute; top:358px; left:180px; width:190px;" class="anim-box anim-swiss">
+        <div style="font-size:10px; font-weight:700; color:#553c9a; margin-bottom:2px; text-transform:uppercase; letter-spacing:0.5px;">מנוע חיתום</div>
+        <div style="font-size:13px; font-weight:800; color:#1a1a2e;">Swiss Re API</div>
+        <div style="font-size:10px; color:#718096; margin-top:3px; line-height:1.5;">
+          R0: תרגום + המלצה<br>
+          R1: החלטה אוטומטית
+        </div>
+      </div>
+
+      <!-- BPR -->
+      <div style="position:absolute; top:430px; left:300px; width:220px;" class="anim-box anim-bpr">
+        <div style="font-size:10px; font-weight:700; color:#742a2a; margin-bottom:2px; text-transform:uppercase; letter-spacing:0.5px;">ליבה תפעולית</div>
+        <div style="font-size:13px; font-weight:800; color:#1a1a2e;">BPR</div>
+        <div style="font-size:10px; color:#c53030; margin-top:3px;">פתיחת קיתות · סטטוס · הפקה · טרנזקציות</div>
+      </div>
+
+      <!-- WORKBENCH -->
+      <div style="position:absolute; top:430px; left:540px; width:200px;" class="anim-box anim-workbench">
+        <div style="font-size:10px; font-weight:700; color:#276749; margin-bottom:2px; text-transform:uppercase; letter-spacing:0.5px;">חתם / Underwriter</div>
+        <div style="font-size:13px; font-weight:800; color:#1a1a2e;">Workbench</div>
+        <div style="font-size:10px; color:#38a169; margin-top:3px;">תיק מסודר · המלצת Swiss Re · החלטה + תיעוד</div>
+      </div>
+
+      <!-- PRODUCTION OUTPUT -->
+      <div style="position:absolute; top:516px; left:170px; width:200px; text-align:center;" class="anim-box anim-output">
+        <div style="font-size:13px; font-weight:800; color:#276749;">הפקת פוליסה</div>
+        <div style="font-size:10px; color:#38a169; margin-top:2px;">STP / לאחר אישור חתם</div>
+      </div>
+
+    </div>
+
+    <!-- LEGEND -->
+    <div style="display:flex; flex-wrap:wrap; gap:16px; margin-top:16px; padding:12px 16px; background:#f8fafc; border-radius:8px; direction:rtl;">
+      <div style="display:flex; align-items:center; gap:6px; font-size:11px;"><div style="width:30px; height:3px; background:#319795; border-radius:2px;"></div>זרימת מידע AI</div>
+      <div style="display:flex; align-items:center; gap:6px; font-size:11px;"><div style="width:30px; height:3px; background:#805ad5; border-radius:2px;"></div>זרימת החלטות / workflow</div>
+      <div style="display:flex; align-items:center; gap:6px; font-size:11px;"><div style="width:30px; height:3px; background:#3182ce; border-radius:2px;"></div>כניסת בקשה</div>
+      <div style="display:flex; align-items:center; gap:6px; font-size:11px;"><div style="width:30px; height:3px; background:#38a169; border-radius:2px;"></div>פלט / הפקה</div>
+      <div style="display:flex; align-items:center; gap:6px; font-size:11px; margin-right:auto;"><div style="width:8px; height:8px; border-radius:50%; background:#3182ce;"></div>קייס נוסע במערכת (אנימציה)</div>
+    </div>
+  </div>
+</div>
+
+<style>
+/* ── Architecture Diagram ── */
+.arch-node { border-radius:8px; padding:10px 12px; border:2px solid; direction:rtl; transition:box-shadow 0.2s; }
+.arch-node:hover { box-shadow:0 4px 16px rgba(0,0,0,0.15); }
+.node-tag  { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; margin-bottom:3px; opacity:0.75; }
+.node-title{ font-size:12px; font-weight:800; color:#1a1a2e; margin-bottom:2px; line-height:1.3; }
+.node-sub  { font-size:10px; color:#4a5568; line-height:1.4; }
+.node-num  { float:left; width:18px; height:18px; border-radius:50%; background:#1a1a2e; color:white; font-size:10px; font-weight:700; text-align:center; line-height:18px; margin-left:6px; flex-shrink:0; }
+.node-comm { font-size:9px; margin-top:5px; color:#718096; font-family:monospace; background:#f7fafc; border-radius:3px; padding:1px 4px; display:inline-block; }
+
+.node-channel  { background:#ebf8ff; border-color:#63b3ed; }
+.node-orch     { background:linear-gradient(135deg,#fffbeb,#fef3c7); border-color:#f59e0b; border-width:3px; }
+.node-agent-teal   { background:#e6fffa; border-color:#81e6d9; }
+.node-agent-purple { background:#faf5ff; border-color:#b794f4; }
+.node-agent-orange { background:#fff7ed; border-color:#fbd38d; }
+.node-agent-blue   { background:#ebf8ff; border-color:#90cdf4; }
+.node-sys-teal  { background:#e6fffa; border-color:#4fd1c5; }
+.node-sys-purple{ background:#faf5ff; border-color:#b794f4; }
+.node-sys-blue  { background:#ebf8ff; border-color:#63b3ed; }
+.node-core      { background:linear-gradient(135deg,#fff5f5,#fed7d7); border-color:#fc8181; border-width:2px; }
+.node-output-green { background:#f0fff4; border-color:#68d391; }
+
+.agent-group { border:2px solid; border-radius:10px; padding:8px; }
+.group-title { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; padding:3px 8px; border-radius:4px; margin-bottom:6px; text-align:center; }
+
+@keyframes spin-slow { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
+</style>
+
+<!-- RELEASE CONTENTS -->
+<div class="section">
+  <div class="section-title"><span class="icon">📦</span> תכולת ריליסים — רזה vs מורחב</div>
+  <div class="section-body">
+    <div class="release-compare">
+      <div class="rel-col rel-r0">
+        <div class="rel-header">Release 0 — רזה <span class="rel-date">| חודש 3, שבוע 13</span></div>
+        <div class="rel-body">
+          <div class="rel-item">
+            <div class="dot-r0"></div>
+            <div>
+              <div class="rel-item-title">רמזור בסיסי</div>
+              <div class="rel-item-desc">לוגיקה פשוטה: "נדרש חיתום?" כן/לא. מבוסס כללים קבועים ראשוניים.</div>
+            </div>
+          </div>
+          <div class="rel-item">
+            <div class="dot-r0"></div>
+            <div>
+              <div class="rel-item-title">Swiss Re — נתמך</div>
+              <div class="rel-item-desc">החתם מכניס נתונים → תרגום אוטומטי → המלצה. כלי עזר, לא מחליף.</div>
+            </div>
+          </div>
+          <div class="rel-item">
+            <div class="dot-r0"></div>
+            <div>
+              <div class="rel-item-title">Copilot לחתם</div>
+              <div class="rel-item-desc">תמצות קייס, מסמכים רלוונטיים — החתם עובד 4x מהר יותר.</div>
+            </div>
+          </div>
+          <div style="margin-top:8px; padding:8px; background:#ebf8ff; border-radius:6px; font-size:11px; color:#2b6cb0;">
+            <strong>ציפייה עסקית:</strong> 80% פחות קריאת מסמכים. עדיין ידני — החתם מחליט.
+          </div>
+        </div>
+      </div>
+      <div class="rel-col rel-r1">
+        <div class="rel-header">Release 1 — מורחב <span class="rel-date">| חודש 6, שבוע 26</span></div>
+        <div class="rel-body">
+          <div class="rel-item">
+            <div class="dot-r1"></div>
+            <div>
+              <div class="rel-item-title">רמזור חכם</div>
+              <div class="rel-item-desc">כללים מורחבים, לומד מנתוני פרופיל. מנתב נכון יותר, פחות "שגיאות ניתוב".</div>
+            </div>
+          </div>
+          <div class="rel-item">
+            <div class="dot-r1"></div>
+            <div>
+              <div class="rel-item-title">Swiss Re — אוטומטי</div>
+              <div class="rel-item-desc">נתונים מוזנים מהפרופיל. קייסים פשוטים → החלטה מאחורי הקלעים ללא חתם.</div>
+            </div>
+          </div>
+          <div class="rel-item">
+            <div class="dot-r1"></div>
+            <div>
+              <div class="rel-item-title">פרופיל לקוח חיתומי</div>
+              <div class="rel-item-desc">נבנה מחודש 2, מוכן לשימוש. כולל היסטוריה רפואית, הצהרות קודמות.</div>
+            </div>
+          </div>
+          <div class="rel-item">
+            <div class="dot-r1"></div>
+            <div>
+              <div class="rel-item-title">גילוי סתירות + ניהול חסרים</div>
+              <div class="rel-item-desc">זיהוי אוטומטי + SMS/מייל ללקוח. פחות איטרציות.</div>
+            </div>
+          </div>
+          <div style="margin-top:8px; padding:8px; background:#f0fff4; border-radius:6px; font-size:11px; color:#276749;">
+            <strong>ציפייה עסקית:</strong> 20-30% STP ראשוני. חלק מהפוליסות לא מגיעות לחתם בכלל.
+          </div>
+        </div>
+      </div>
+      <div class="rel-col rel-r2">
+        <div class="rel-header">Release 2 — Scale <span class="rel-date">| חודש 7, שבוע 30</span></div>
+        <div class="rel-body">
+          <div class="rel-item">
+            <div class="dot-r2"></div>
+            <div>
+              <div class="rel-item-title">אינטגרציה BPR + DOCHA</div>
+              <div class="rel-item-desc">חיבור מלא ל-BPR APIs (סטטוס, קיתות, הפקה) ו-DOCHA — לאחר מיפוי לוגיקות ב-R0.</div>
+            </div>
+          </div>
+          <div class="rel-item">
+            <div class="dot-r2"></div>
+            <div>
+              <div class="rel-item-title">Rule Engine מלא</div>
+              <div class="rel-item-desc">קסע שולט בלוגיקת STP ללא תלות בפיתוח. ממשק UI לניהול כללים.</div>
+            </div>
+          </div>
+          <div class="rel-item">
+            <div class="dot-r2"></div>
+            <div>
+              <div class="rel-item-title">Monitoring + Governance</div>
+              <div class="rel-item-desc">מעקב על כל החלטה אוטומטית, דשבורד QA, דוחות לרגולציה.</div>
+            </div>
+          </div>
+          <div class="rel-item">
+            <div class="dot-r2"></div>
+            <div>
+              <div class="rel-item-title">הרחבת מוצרים</div>
+              <div class="rel-item-desc">ריסק משכנתא + מוצרים נוספים — על גבי אותה תשתית.</div>
+            </div>
+          </div>
+          <div style="margin-top:8px; padding:8px; background:#faf5ff; border-radius:6px; font-size:11px; color:#553c9a;">
+            <strong>ציפייה עסקית:</strong> 30%+ STP. בסיס לצמיחה ל-70% ב-12 חודשים.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GANTT -->
+<div class="section">
+  <div class="section-title"><span class="icon">📊</span> גאנט — 30 שבועות (עם מיקבול פרופיל לקוח)</div>
+  <div class="gantt-wrap">
+    <table class="gantt-table">
+      <thead>
+        <tr>
+          <th class="row-header">תחום עבודה</th>
+          <th class="month-header" colspan="4">חודש 1<span class="week-num">שבועות 1-4</span></th>
+          <th class="month-header" colspan="4">חודש 2<span class="week-num">שבועות 5-8</span></th>
+          <th class="month-header" colspan="5">חודש 3<span class="week-num">שבועות 9-13</span></th>
+          <th class="month-header" colspan="4">חודש 4<span class="week-num">שבועות 14-17</span></th>
+          <th class="month-header" colspan="4">חודש 5<span class="week-num">שבועות 18-21</span></th>
+          <th class="month-header" colspan="5">חודש 6<span class="week-num">שבועות 22-26</span></th>
+          <th class="month-header" colspan="4">חודש 7<span class="week-num">שבועות 27-30</span></th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <!-- FOUNDATION -->
+        <tr><td class="group-label" colspan="31">תשתית ובסיס</td></tr>
+        <tr>
+          <td class="row-label">החלטות: פלטפורמה + ארכיטקטורה</td>
+          <td class="b-arch" colspan="2"></td><td colspan="28"></td>
+        </tr>
+        <tr>
+          <td class="row-label">הקמת סביבת Dev/Test</td>
+          <td colspan="1"></td><td class="b-arch" colspan="3"></td><td colspan="26"></td>
+        </tr>
+        <tr>
+          <td class="row-label">Cyber Baseline + אישור (במקביל לרכש)</td>
+          <td class="b-cyber" colspan="5"></td><td class="b-cyber dim" colspan="3"></td><td colspan="22"></td>
+        </tr>
+        <tr>
+          <td class="row-label">API Gateway</td>
+          <td colspan="3"></td><td class="b-arch" colspan="4"></td><td colspan="23"></td>
+        </tr>
+
+        <!-- HIRING -->
+        <tr><td class="group-label" colspan="31">גיוס (קריטי לשלב 2)</td></tr>
+        <tr>
+          <td class="row-label" style="color:#dd6b20; font-weight:800;">פרסום מודעות + ראיונות</td>
+          <td class="b-hire" colspan="6"></td><td colspan="24"></td>
+        </tr>
+        <tr>
+          <td class="row-label" style="color:#dd6b20;">אנשים מתחילים + Onboarding</td>
+          <td colspan="7"></td><td class="b-hire2" colspan="3"></td><td colspan="20"></td>
+        </tr>
+
+        <!-- PROCUREMENT -->
+        <tr><td class="group-label" colspan="31">רכש ואינטגרציות</td></tr>
+        <tr>
+          <td class="row-label" style="color:#805ad5;">רכש Swiss Re API</td>
+          <td class="b-swiss" colspan="4"></td><td colspan="26"></td>
+        </tr>
+        <tr>
+          <td class="row-label" style="color:#d69e2e; font-weight:700;">מיפוי לוגיקות BPR + הקפאת פיתוח חדש ב-BPR</td>
+          <td class="b-router" colspan="6"></td><td colspan="24"></td>
+        </tr>
+        <tr>
+          <td class="row-label">אינטגרציה למערכת אחזור מסמכים</td>
+          <td class="b-docha" colspan="3"></td><td class="b-docha dim" colspan="4"></td><td colspan="23"></td>
+        </tr>
+        <tr>
+          <td class="row-label" style="color:#718096;">אינטגרציה BPR (ריליס 2)</td>
+          <td colspan="13"></td><td class="b-bpr dim" colspan="3"></td><td class="b-bpr" colspan="6"></td><td colspan="8"></td>
+        </tr>
+        <tr>
+          <td class="row-label" style="color:#718096;">אינטגרציה DOCHA (ריליס 2)</td>
+          <td colspan="13"></td><td class="b-docha dim" colspan="3"></td><td class="b-docha" colspan="6"></td><td colspan="8"></td>
+        </tr>
+
+        <!-- ROUTER + SWISS RE -->
+        <tr><td class="group-label" colspan="31">רמזור + Swiss Re (ליבת הפלאו)</td></tr>
+        <tr>
+          <td class="row-label" style="color:#b7791f; font-weight:700;">רמזור — גרסה רזה (R0)</td>
+          <td colspan="3"></td><td class="b-router" colspan="7"></td><td class="b-router dim" colspan="3"></td><td colspan="17"></td>
+        </tr>
+        <tr>
+          <td class="row-label" style="color:#b7791f; font-weight:700;">רמזור — מורחב + Rule Engine (R1)</td>
+          <td colspan="13"></td><td class="b-router2" colspan="9"></td><td class="b-router2 dim" colspan="4"></td><td colspan="4"></td>
+        </tr>
+        <tr>
+          <td class="row-label" style="color:#553c9a; font-weight:700;">Swiss Re — הזנה ידנית + תרגום (R0)</td>
+          <td colspan="4"></td><td class="b-swiss" colspan="8"></td><td class="b-swiss dim" colspan="1"></td><td colspan="17"></td>
+        </tr>
+        <tr>
+          <td class="row-label" style="color:#553c9a; font-weight:700;">Swiss Re — אוטומטי, STP (R1)</td>
+          <td colspan="13"></td><td class="b-swiss2" colspan="10"></td><td class="b-swiss2 dim" colspan="3"></td><td colspan="4"></td>
+        </tr>
+
+        <!-- COPILOT -->
+        <tr><td class="group-label" colspan="31">Agents — שלב 1 (R0)</td></tr>
+        <tr>
+          <td class="row-label" style="color:#38a169;">Copilot לחתם</td>
+          <td colspan="4"></td><td class="b-copilot" colspan="6"></td><td class="b-copilot dim" colspan="3"></td><td colspan="17"></td>
+        </tr>
+        <tr>
+          <td class="row-label" style="color:#38a169;">Health Declaration Agent</td>
+          <td colspan="5"></td><td class="b-copilot" colspan="7"></td><td class="b-copilot dim" colspan="1"></td><td colspan="17"></td>
+        </tr>
+
+        <!-- PROFILE (PARALLEL) -->
+        <tr><td class="group-label" colspan="31">פרופיל לקוח חיתומי — מסלול מקביל</td></tr>
+        <tr>
+          <td class="row-label" style="color:#6b46c1; font-weight:700;">איפיון פרופיל לקוח</td>
+          <td class="b-profile-spec" colspan="4"></td><td colspan="26"></td>
+        </tr>
+        <tr>
+          <td class="row-label" style="color:#6b46c1; font-weight:700;">פיתוח Customer Profile DB</td>
+          <td colspan="4"></td><td class="b-profile-dev" colspan="8"></td><td class="b-profile-dev dim" colspan="4"></td><td colspan="14"></td>
+        </tr>
+        <tr>
+          <td class="row-label" style="color:#6b46c1;">Document Extraction Agent</td>
+          <td colspan="5"></td><td class="b-profile-dev" colspan="7"></td><td class="b-profile-dev dim" colspan="3"></td><td colspan="15"></td>
+        </tr>
+
+        <!-- AGENTS PHASE 2 -->
+        <tr><td class="group-label" colspan="31">Agents — שלב 2 (R1)</td></tr>
+        <tr>
+          <td class="row-label" style="color:#276749;">Medical Profile Agent</td>
+          <td colspan="9"></td><td class="b-agents2" colspan="8"></td><td class="b-agents2 dim" colspan="3"></td><td colspan="10"></td>
+        </tr>
+        <tr>
+          <td class="row-label" style="color:#276749;">Contradiction Detection Agent</td>
+          <td colspan="11"></td><td class="b-agents2" colspan="7"></td><td class="b-agents2 dim" colspan="3"></td><td colspan="9"></td>
+        </tr>
+        <tr>
+          <td class="row-label" style="color:#276749;">Missing Documents Agent</td>
+          <td colspan="13"></td><td class="b-agents2" colspan="7"></td><td class="b-agents2 dim" colspan="2"></td><td colspan="8"></td>
+        </tr>
+        <tr>
+          <td class="row-label" style="color:#276749;">Underwriting Decision Agent</td>
+          <td colspan="15"></td><td class="b-agents2" colspan="8"></td><td class="b-agents2 dim" colspan="2"></td><td colspan="5"></td>
+        </tr>
+
+        <!-- STP + PROD -->
+        <tr><td class="group-label" colspan="31">STP + ייצור</td></tr>
+        <tr>
+          <td class="row-label" style="color:#553c9a;">STP Automation + Monitoring</td>
+          <td colspan="20"></td><td class="b-stp" colspan="7"></td><td class="b-stp dim" colspan="3"></td>
+        </tr>
+        <tr>
+          <td class="row-label" style="color:#b7791f;">UAT + Production Rollout</td>
+          <td colspan="11"></td><td class="b-uat" colspan="2"></td>
+          <td colspan="8"></td><td class="b-uat" colspan="3"></td>
+          <td colspan="2"></td><td class="b-uat" colspan="4"></td>
+        </tr>
+        <tr>
+          <td class="row-label" style="color:#e53e3e; font-weight:800;">אבני דרך</td>
+          <td colspan="12"></td>
+          <td class="ms1 ms-cell">M1</td>
+          <td colspan="12"></td>
+          <td class="ms2 ms-cell">M2</td>
+          <td colspan="3"></td>
+          <td class="ms3 ms-cell">M3</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-box" style="background:#3182ce;"></div>תשתית</div>
+    <div class="legend-item"><div class="legend-box" style="background:#e53e3e;"></div>Cyber</div>
+    <div class="legend-item"><div class="legend-box" style="background:#dd6b20;"></div>גיוס</div>
+    <div class="legend-item"><div class="legend-box" style="background:#805ad5;"></div>Swiss Re (R0)</div>
+    <div class="legend-item"><div class="legend-box" style="background:#553c9a;"></div>Swiss Re (R1)</div>
+    <div class="legend-item"><div class="legend-box" style="background:#d69e2e;"></div>רמזור (R0)</div>
+    <div class="legend-item"><div class="legend-box" style="background:#b7791f;"></div>רמזור (R1)</div>
+    <div class="legend-item"><div class="legend-box" style="background:#0bc5ea;"></div>BPR</div>
+    <div class="legend-item"><div class="legend-box" style="background:#319795;"></div>DOCHA</div>
+    <div class="legend-item"><div class="legend-box" style="background:#6b46c1;"></div>פרופיל לקוח (מקביל)</div>
+    <div class="legend-item"><div class="legend-box" style="background:#38a169;"></div>Agents R0</div>
+    <div class="legend-item"><div class="legend-box" style="background:#276749;"></div>Agents R1</div>
+    <div style="margin-right:auto; font-size:11px; color:#718096;">שקיפות נמוכה = בדיקות / עבודה מתמשכת</div>
+  </div>
+</div>
+
+<!-- DEPENDENCIES -->
+<div class="section">
+  <div class="section-title"><span class="icon">⚠️</span> תלויות קריטיות — לפי סדר עדיפות</div>
+  <div class="section-body">
+    <div style="margin-bottom:14px; padding:12px 16px; background:#fff5f5; border-radius:8px; border-right:3px solid #e53e3e; font-size:12px; color:#742a2a; line-height:1.6;">
+      <strong>חשוב להבין את שרשרת התלויות:</strong> לפני שאפשר לגייס — צריך אישור לגייס. לפני שאפשר לפתח — צריך שחרור אבטחת מידע לבניית סוכנים. לפני שהצוותים יקצו זמן — צריך החלטת ניהול מחייבת.
+    </div>
+    <div class="deps-grid">
+
+      <div class="dep-card dep-critical">
+        <div class="dep-owner">HR + הנהלה בכירה</div>
+        <div class="dep-title">אישור לגייס — התלות הראשונה בשרשרת</div>
+        <div class="dep-desc">לפני שמפרסמים — צריך אישור תקן, תקציב, ו-head count. תהליך האישור בארגון מתעכב בדרך כלל. כל שבוע של עיכוב כאן = שבוע של עיכוב בריליס 2. זו התלות שמתחילה הכי מוקדם ונמשכת הכי ארוך.</div>
+        <div class="dep-deadline">אישור תקן: שבוע 1 — לפני כל דבר אחר</div>
+      </div>
+
+      <div class="dep-card dep-critical">
+        <div class="dep-owner">אבטחת מידע / Cyber</div>
+        <div class="dep-title">שחרור הגבלות לבניית סוכני AI בארגון</div>
+        <div class="dep-desc">תנאי קיומי לפרויקט: קבלת אישור מאבטחת מידע לשימוש ב-LLM ו-AI Agents בסביבה הארגונית — כולל מדיניות על שליחת מידע לשירותי ענן, אחסון נתוני לקוח, ומגבלות על מודלי AI. ללא אישור זה — לא ניתן לבנות את מנוע ה-AI כלל.</div>
+        <div class="dep-deadline">אישור מדיניות: שבוע 2</div>
+      </div>
+
+      <div class="dep-card dep-critical">
+        <div class="dep-owner">CIO / מנמ"ר + צוותי SOA, אינטגרציות, תשתיות</div>
+        <div class="dep-title">הקצאת משאבים ותעדוף מול צוותים משותפים</div>
+        <div class="dep-desc">APEX תלוי בזמן מוקצב מ-4 צוותים שמשרתים פרויקטים רבים: SOA (חיבורי API), אינטגרציות (BPR, DOCHA), תשתיות (סביבות, Dev/Test), ו-Cyber. בלי החלטת ניהול מחייבת — כל אחד מהם יגיד "כשיהיה זמן", ו-APEX ייתקע.</div>
+        <div class="dep-deadline">החלטת תעדוף: שבוע 2</div>
+      </div>
+
+      <div class="dep-card dep-critical">
+        <div class="dep-owner">רכש / מנהלת הפרויקט</div>
+        <div class="dep-title">רכש Swiss Re API</div>
+        <div class="dep-desc">ליבת הפלאו. אינטגרציה לא מתחילה ללא חוזה חתום. תהליך רכש = 4-8 שבועות. חייבים לפתוח תהליך מקביל לשאר העבודה.</div>
+        <div class="dep-deadline">פתיחת תהליך רכש: שבוע 1</div>
+      </div>
+
+      <div class="dep-card dep-high">
+        <div class="dep-owner">BPR / צוות ליבה</div>
+        <div class="dep-title">התחייבות מחייבת ל-APIs של BPR</div>
+        <div class="dep-desc">צוות BPR צריך להתחייב לפתוח APIs לסטטוס, פתיחת קיתות, הפקה — בלו"ז ספציפי, לא "כשיהיה זמן". זו נגזרת ישירה מהחלטת התעדוף.</div>
+        <div class="dep-deadline">התחייבות רשמית: שבוע 3</div>
+      </div>
+
+      <div class="dep-card dep-high">
+        <div class="dep-owner">חיתום (פנימי)</div>
+        <div class="dep-title">SME חיתומי עם שעות מוקצות</div>
+        <div class="dep-desc">חתם בכיר שמאשר לוגיקת הרמזור, כללי STP, תוצאות Swiss Re. בלי בעלות עסקית מוגדרת — Business Rules לא נכתבים ולא מאושרים.</div>
+        <div class="dep-deadline">הקצאה: שבוע 1</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- HIRING -->
+<div class="section">
+  <div class="section-title"><span class="icon">👥</span> גיוס דחוף — תפקידים נדרשים</div>
+  <div class="section-body">
+    <table class="hiring-table">
+      <thead>
+        <tr>
+          <th>תפקיד</th>
+          <th>מה הוא עושה</th>
+          <th>מה נחסם בלעדיו</th>
+          <th>נדרש מתי</th>
+          <th>עדיפות</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>GenAI Engineer #1</strong><br><span style="font-size:11px;color:#718096;">Orchestration &amp; Agents | Azure AI Foundry, LangChain/Semantic Kernel</span></td>
+          <td>בניית ה-Orchestrator, ניהול ה-Agent runtime, הגדרת פלאו בין הסוכנים, חיבור ל-DOCHA.</td>
+          <td><span class="blocks-tag">APEX Orchestrator</span><span class="blocks-tag">ריליס 1 כולו</span></td>
+          <td><strong>שבוע 8</strong></td>
+          <td><span class="p-crit">קריטי</span></td>
+        </tr>
+        <tr>
+          <td><strong>GenAI Engineer #2</strong><br><span style="font-size:11px;color:#718096;">Medical AI | NLP, חילוץ מסמכים, RAG</span></td>
+          <td>חילוץ נתונים מהצהרות בריאות (ישנות וחדשות), פרופיל רפואי חיתומי, גילוי סתירות.</td>
+          <td><span class="blocks-tag">Medical Profile Agent</span><span class="blocks-tag">Contradiction Detection</span><span class="blocks-tag">Phase 2</span></td>
+          <td><strong>שבוע 10</strong></td>
+          <td><span class="p-crit">קריטי</span></td>
+        </tr>
+        <tr>
+          <td><strong>GenAI Engineer #3</strong><br><span style="font-size:11px;color:#718096;">Decision AI | Swiss Re, Rule Engine, STP logic</span></td>
+          <td>אינטגרציית Swiss Re API, לוגיקת ניתוב חכמה, מנוע ה-STP, הגדרת כללי החלטה.</td>
+          <td><span class="blocks-tag">Swiss Re R1</span><span class="blocks-tag">רמזור חכם</span><span class="blocks-tag">STP</span></td>
+          <td><strong>שבוע 10</strong></td>
+          <td><span class="p-crit">קריטי</span></td>
+        </tr>
+        <tr>
+          <td><strong>FS Engineer</strong><br><span style="font-size:11px;color:#718096;">Full Stack | Power Platform, React/Node, APIs</span></td>
+          <td>בניית Workbench לחתם ב-Power Platform/Copilot Studio, ממשקי סוכן, חיבורי API, Swiss Re R0 (הזנה ידנית).</td>
+          <td><span class="blocks-tag">Workbench חתם</span><span class="blocks-tag">Swiss Re R0</span><span class="blocks-tag">ריליס 1</span></td>
+          <td><strong>שבוע 6</strong></td>
+          <td><span class="p-crit">קריטי</span></td>
+        </tr>
+        <tr>
+          <td><strong>E2E QA Engineer</strong><br><span style="font-size:11px;color:#718096;">בדיקות קצה לקצה, API automation, AI testing</span></td>
+          <td>בדיקות פלאו מלא מסוכן עד הפקה, regression על לוגיקת Agents, ולידציית תוצאות Swiss Re ומנוע STP.</td>
+          <td><span class="blocks-tag">ריליס מבוקר</span><span class="blocks-tag">בדיקת AI Decisions</span><span class="blocks-tag">הגנה לפני Prod</span></td>
+          <td><strong>שבוע 10</strong></td>
+          <td><span class="p-crit">קריטי</span></td>
+        </tr>
+        <tr>
+          <td><strong>מנהל מוצר</strong><br><span style="font-size:11px;color:#718096;">רקע בחיתום / מוצר ביטוח בריאות</span></td>
+          <td>הגדרת דרישות מוצר, תרגום עולם הביטוח לתכולת ריליסים, הגדרת כללי הרמזור, STP scenarios, ולידציית לוגיקת Swiss Re. ניהול Backlog וממשק בין צוות הטכנולוגי לבעלי עניין עסקיים.</td>
+          <td><span class="blocks-tag">Product Backlog</span><span class="blocks-tag">STP scenarios</span><span class="blocks-tag">UAT</span></td>
+          <td><strong>שבוע 3</strong></td>
+          <td><span class="p-high">גבוהה</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="margin-top:12px; padding:10px 14px; background:#fff5f5; border-radius:8px; border-right:3px solid #e53e3e; font-size:12px; color:#742a2a;">
+      <strong>כל שבוע איחור בפרסום מודעות = שבוע איחור בריליס 2.</strong> גיוס בישראל לוקח 8-12 שבועות מקצה לקצה.
+    </div>
+  </div>
+</div>
+
+<!-- DECISIONS -->
+<div class="section">
+  <div class="section-title"><span class="icon">✋</span> החלטות הנהלה — נדרשות בשבוע 1-2</div>
+  <div class="section-body">
+    <div class="decisions-grid">
+      <div class="decision-card">
+        <div class="dec-num">01</div>
+        <div class="dec-title">אישור ארכיטקטורת De-coupling</div>
+        <div class="dec-desc">שכבת APEX יושבת מעל BPR — לא מחליפה אותה. זה המפתח לכל הפרויקט.</div>
+        <div class="dec-owner">מנמ"ר + CIO</div>
+        <div class="dec-by">עד שבוע 2</div>
+      </div>
+      <div class="decision-card">
+        <div class="dec-num">02</div>
+        <div class="dec-title">בחירת פלטפורמת Agents</div>
+        <div class="dec-desc">DOCHA כבר על Azure — זה מטה לכיוון Azure AI Foundry. חייבים להחליט לפני שמתחילים לבנות.</div>
+        <div class="dec-owner">CIO + Architecture</div>
+        <div class="dec-by">עד שבוע 2</div>
+      </div>
+      <div class="decision-card">
+        <div class="dec-num">03</div>
+        <div class="dec-title">פתיחת רכש Swiss Re</div>
+        <div class="dec-desc">ליבת הפלאו. רכש לוקח 4-8 שבועות — להתחיל עכשיו.</div>
+        <div class="dec-owner">רכש + מנהלת פרויקט</div>
+        <div class="dec-by">עד שבוע 1</div>
+      </div>
+      <div class="decision-card">
+        <div class="dec-num">04</div>
+        <div class="dec-title">הקצאת Capacity מ-BPR</div>
+        <div class="dec-desc">התחייבות מחייבת של צוות הליבה לפתוח APIs לפי לו"ז — לא "בהזדמנות הראשונה".</div>
+        <div class="dec-owner">CIO + BPR Lead</div>
+        <div class="dec-by">עד שבוע 3</div>
+      </div>
+      <div class="decision-card">
+        <div class="dec-num">05</div>
+        <div class="dec-title">אישור תקציב גיוס</div>
+        <div class="dec-desc">5 תפקידים חדשים. כל עיכוב בתקציב = עיכוב בפרסום = עיכוב בריליס 2.</div>
+        <div class="dec-owner">HR + מנהלת פרויקט</div>
+        <div class="dec-by">עד שבוע 1</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GOVERNANCE -->
+<div class="section">
+  <div class="section-title"><span class="icon">🔄</span> מודל ניהול</div>
+  <div class="section-body">
+    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px;">
+      <div style="border:1.5px solid #bee3f8; border-radius:8px; padding:14px; background:#ebf8ff;">
+        <div style="font-size:12px; font-weight:700; color:#2b6cb0; margin-bottom:8px;">Steering Committee — פעם בשבועיים</div>
+        <div style="font-size:11px; color:#2d3748; line-height:1.7;">מנמ"ר · Data&AI · חיתום · BPR · Cyber · ארכיטקטורה · רכש<br><strong>אחריות:</strong> Scope, אישור Releases, פתרון חסמים</div>
+      </div>
+      <div style="border:1.5px solid #c6f6d5; border-radius:8px; padding:14px; background:#f0fff4;">
+        <div style="font-size:12px; font-weight:700; color:#276749; margin-bottom:8px;">War Room — פעמיים בשבוע</div>
+        <div style="font-size:11px; color:#2d3748; line-height:1.7;">PM · PO · Architect · AI Lead · Data · Integration · BPR · Cyber<br><strong>אחריות:</strong> גאנט, בלוקרים, מוכנות לריליס</div>
+      </div>
+      <div style="border:1.5px solid #e9d8fd; border-radius:8px; padding:14px; background:#faf5ff;">
+        <div style="font-size:12px; font-weight:700; color:#553c9a; margin-bottom:8px;">Agent Governance — שבועי</div>
+        <div style="font-size:11px; color:#2d3748; line-height:1.7;">חיתום · AI · Data · Risk/Compliance · Cyber<br><strong>אחריות:</strong> אישור Rules, רמות אוטומציה, מעקב טעויות</div>
+      </div>
+    </div>
+    <div style="margin-top:12px; padding:10px 14px; background:#f8fafc; border-radius:8px; font-size:12px; color:#4a5568; border-right:3px solid #a0aec0;">
+      <strong>רמות אוטומציה:</strong>&nbsp;
+      חודש 3: עזרה לחתם בלבד →&nbsp;
+      חודש 6: המלצה + אישור אדם (קייסים פשוטים: אוטומטי) →&nbsp;
+      חודש 7+: STP מורחב →&nbsp;
+      70% STP: לא לפני 12 חודשים
+    </div>
+  </div>
+</div>
+
+<div style="text-align:center; padding:16px; color:#a0aec0; font-size:11px;">
+  APEX Project Plan · מגדל ביטוח · גרסה לדיון — מאי 2026 · נבנה עם Claude Code
+</div>
+</body>
+</html>
