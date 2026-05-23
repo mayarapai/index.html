@@ -763,12 +763,12 @@
             <div class="l">קוב החודש</div>
         </div>
         <div class="hnum">
-            <div class="n teal" id="totWorkers">—</div>
-            <div class="l">פועלים היום</div>
-        </div>
-        <div class="hnum">
             <div class="n green" id="totCount">0</div>
             <div class="l">יציקות</div>
+        </div>
+        <div class="hnum">
+            <div class="n teal" id="totWorkers">—</div>
+            <div class="l">🇨🇳 היום</div>
         </div>
     </div>
 </div>
@@ -1527,25 +1527,11 @@ function renderMonthly() {
         <div class="month-card" onclick="toggleM('${m}')">
             <div class="month-row">
                 <span class="month-name">📅 ${name}</span>
-                <span class="month-total">${fmt(d.total)} קוב</span>
+                <span class="month-total">${fmt(d.total)} קוב · ${d.items.length} יציקות</span>
             </div>
+            ${d.workers > 0 ? `<div style="padding:6px 6px 2px;font-size:18px;color:#1abc9c">🇨🇳 ${d.workers} פועלים סינים · ${d.workerDays} ימים · ממוצע ${avg}/יום</div>` : ''}
             <div class="month-body" id="mb-${m}">
                 ${locHtml}
-                <div class="month-stats">
-                    <div class="mstat">
-                        <div class="mn" style="color:#1abc9c">${d.workers}</div>
-                        <div class="ml">סה״כ פועלים סינים</div>
-                    </div>
-                    <div class="mstat">
-                        <div class="mn" style="color:var(--blue)">${d.workerDays}</div>
-                        <div class="ml">ימי עבודה</div>
-                    </div>
-                    <div class="mstat">
-                        <div class="mn" style="color:var(--orange)">${avg}</div>
-                        <div class="ml">ממוצע ליום</div>
-                    </div>
-                </div>
-                <div style="color:var(--muted);font-size:17px;padding:8px 6px 0">${d.items.length} יציקות בטון</div>
             </div>
         </div>`;
     }).join('');
@@ -1626,6 +1612,7 @@ function renderLog() {
                 <div class="day-section">
                     ${workersHtml}${staffHtml}${equipHtml}${notesHtml}
                     <div class="entry-actions">
+                        <button class="edit-btn" onclick="editDailyLog('${date}')">✏️ ערוך</button>
                         <button class="del-btn" onclick="deleteDailyLog('${date}')">🗑️ מחק יומן יום</button>
                     </div>
                 </div>`;
@@ -1643,6 +1630,13 @@ function renderLog() {
             </div>
         </div>`;
     }).join('');
+}
+
+/* ══ Edit daily log ══════════════════════════════════════════ */
+function editDailyLog(date) {
+    showScreen('daily');
+    document.getElementById('daily_date').value = date;
+    loadDailyForDate();
 }
 
 /* ══ Edit concrete modal ══════════════════════════════════════ */
