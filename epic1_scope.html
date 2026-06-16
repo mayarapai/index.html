@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>אפיק 1 — לקוח לא-מזוהה | גמל להשקעה מגדל</title>
+<style>
+  :root {
+    --navy: #1a2744;
+    --blue: #2563eb;
+    --blue-light: #eff6ff;
+    --green: #16a34a;
+    --green-light: #f0fdf4;
+    --red: #dc2626;
+    --red-light: #fef2f2;
+    --amber: #d97706;
+    --amber-light: #fffbeb;
+    --gray: #6b7280;
+    --gray-light: #f9fafb;
+    --border: #e5e7eb;
+    --radius: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f3f4f6;
+    color: #111827;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, var(--navy) 0%, #2d4a8c 100%);
+    color: white;
+    padding: 48px 40px 36px;
+  }
+  .hero-tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.15);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 13px;
+    margin-bottom: 16px;
+    letter-spacing: 0.5px;
+  }
+  .hero h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+  .hero p { opacity: 0.8; font-size: 15px; max-width: 640px; }
+  .hero-meta {
+    margin-top: 24px;
+    display: flex;
+    gap: 24px;
+    font-size: 13px;
+    opacity: 0.7;
+  }
+
+  /* LAYOUT */
+  .container { max-width: 960px; margin: 0 auto; padding: 32px 24px 64px; }
+
+  /* SECTION */
+  .section { margin-bottom: 40px; }
+  .section-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 3px solid var(--blue);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* SCOPE GRID */
+  .scope-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .scope-card {
+    border-radius: var(--radius);
+    padding: 20px;
+    border: 1px solid var(--border);
+  }
+  .scope-card.included { background: var(--green-light); border-color: #bbf7d0; }
+  .scope-card.excluded { background: var(--red-light); border-color: #fecaca; }
+  .scope-card h3 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .scope-card.included h3 { color: var(--green); }
+  .scope-card.excluded h3 { color: var(--red); }
+  .scope-card ul { list-style: none; }
+  .scope-card li {
+    padding: 5px 0;
+    font-size: 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+  }
+  .scope-card li:last-child { border-bottom: none; }
+  .scope-card li .epic-tag {
+    font-size: 11px;
+    background: #fee2e2;
+    color: #991b1b;
+    border-radius: 4px;
+    padding: 1px 6px;
+    white-space: nowrap;
+    margin-top: 2px;
+    margin-right: auto;
+  }
+
+  /* FLOW */
+  .flow {
+    background: white;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .flow-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+  .flow-step:last-child { border-bottom: none; }
+  .step-num {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--blue);
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .step-num.optional { background: var(--amber); }
+  .step-num.end { background: var(--green); }
+  .step-body { flex: 1; }
+  .step-title { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+  .step-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .chip {
+    font-size: 12px;
+    padding: 2px 10px;
+    border-radius: 12px;
+    background: var(--blue-light);
+    color: var(--blue);
+    font-weight: 500;
+  }
+  .chip.warn { background: var(--amber-light); color: var(--amber); }
+  .chip.out { background: #f3f4f6; color: var(--gray); text-decoration: line-through; }
+
+  /* BRANCHES */
+  .branch {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .branch-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    background: var(--gray-light);
+  }
+  .branch-label {
+    font-weight: 600;
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .branch-label.yes { background: #dcfce7; color: #15803d; }
+  .branch-label.no { background: #fef9c3; color: #a16207; }
+
+  /* TABLES */
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  thead th {
+    background: var(--navy);
+    color: white;
+    padding: 10px 12px;
+    text-align: right;
+    font-weight: 600;
+  }
+  tbody td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tbody tr:nth-child(even) td { background: var(--gray-light); }
+  tbody tr:hover td { background: var(--blue-light); }
+  .id-cell {
+    font-family: monospace;
+    font-size: 12px;
+    color: var(--gray);
+    white-space: nowrap;
+  }
+  .us-card {
+    background: white;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .us-card .us-header {
+    background: var(--navy);
+    color: white;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .us-header .stage-icon { font-size: 16px; }
+
+  /* Q ITEMS */
+  .q-list { display: flex; flex-direction: column; gap: 10px; }
+  .q-item {
+    background: white;
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    border-right: 4px solid;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .q-item.critical { border-color: var(--red); }
+  .q-item.important { border-color: var(--amber); }
+  .q-num {
+    font-size: 12px;
+    font-weight: 700;
+    font-family: monospace;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .q-item.critical .q-num { color: var(--red); }
+  .q-item.important .q-num { color: var(--amber); }
+  .q-text { font-size: 14px; flex: 1; }
+  .q-meta {
+    font-size: 12px;
+    color: var(--gray);
+    margin-top: 4px;
+  }
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    padding: 1px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+    margin-right: 4px;
+  }
+  .badge.critical { background: var(--red-light); color: var(--red); }
+  .badge.important { background: var(--amber-light); color: var(--amber); }
+
+  /* EXCEPTION TABLE */
+  .ex-table { background: white; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); }
+
+  /* SUMMARY BAR */
+  .summary-bar {
+    background: var(--navy);
+    color: white;
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    display: flex;
+    gap: 32px;
+    align-items: center;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+  .summary-stat { text-align: center; }
+  .summary-stat .num { font-size: 28px; font-weight: 700; }
+  .summary-stat .label { font-size: 12px; opacity: 0.7; }
+
+  @media (max-width: 640px) {
+    .scope-grid { grid-template-columns: 1fr; }
+    .hero { padding: 32px 20px 24px; }
+    .container { padding: 20px 16px 48px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">אפיק 1 מתוך 3</div>
+  <h1>הצטרפות לקוח לא-מזוהה</h1>
+  <p>בניית תהליך ההצטרפות לגמל להשקעה עבור לקוח שאינו מוכר למערכות מגדל — הזנה ידנית מלאה, ללא שליפת נתונים.</p>
+  <div class="hero-meta">
+    <span>גרסה 1.0</span>
+    <span>יוני 2026</span>
+    <span>סטטוס: טיוטה</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- SUMMARY -->
+  <div class="summary-bar">
+    <div class="summary-stat"><div class="num">16</div><div class="label">User Stories</div></div>
+    <div class="summary-stat"><div class="num">5</div><div class="label">שלבים</div></div>
+    <div class="summary-stat"><div class="num">8 🔴</div><div class="label">שאלות קריטיות</div></div>
+    <div class="summary-stat"><div class="num">2 🟡</div><div class="label">שאלות חשובות</div></div>
+    <div class="summary-stat"><div class="num">אפיק 2 + 3</div><div class="label">מה נדחה</div></div>
+  </div>
+
+  <!-- SCOPE -->
+  <div class="section">
+    <div class="section-title">📋 גבולות תחולה</div>
+    <div class="scope-grid">
+      <div class="scope-card included">
+        <h3>✅ כלול באפיק 1</h3>
+        <ul>
+          <li>הזנת ת"ז + טלפון + OTP ידני</li>
+          <li>פרטים אישיים ידניים מלאים</li>
+          <li>הגדרת סכום (חד-פעמי / חודשי / גם-וגם)</li>
+          <li>בחירת עד 6 מסלולים (סה"כ 100%)</li>
+          <li>שאלון KYC (אם מצטבר ≥ 70,001 ₪)</li>
+          <li>הזנת פרטי בנק ידנית</li>
+          <li>העברה בנקאית ידנית / טופס הרשאה</li>
+          <li>צילום ת"ז → Docah (OCR + תיוק)</li>
+          <li>שידור עורפי — Glikson → נוגה</li>
+          <li>מסלול קטין</li>
+          <li>שמירת טיוטה + ליד ל-Salesforce</li>
+        </ul>
+      </div>
+      <div class="scope-card excluded">
+        <h3>❌ לא כלול — נדחה</h3>
+        <ul>
+          <li>אימות אוטומטי מול משרד הפנים <span class="epic-tag">אפיק 3</span></li>
+          <li>הקמת הרשאה לחיוב אוטומטית <span class="epic-tag">אפיק 3</span></li>
+          <li>שליפת נתוני לקוח מ-MDM <span class="epic-tag">אפיק 2</span></li>
+          <li>זיהוי לקוח מגדל קיים <span class="epic-tag">אפיק 2</span></li>
+          <li>חישוב תקרה לפי הפקדות קודמות <span class="epic-tag">אפיק 2</span></li>
+          <li>ניתוב לקופה קיימת <span class="epic-tag">אפיק 2</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- FLOW -->
+  <div class="section">
+    <div class="section-title">🗺️ מבנה התהליך</div>
+    <div class="flow">
+
+      <div class="flow-step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">זיהוי ופרטים אישיים</div>
+          <div>הזנת ת"ז + טלפון, אימות OTP, בחירת "עבורי / קטין", מילוי פרטים ידני מלא, הצהרות חובה, הקמת לקוח ב-CHAT2000 + MDM</div>
+          <div class="step-details">
+            <span class="chip">OTP · 6 ספרות · 5 דקות</span>
+            <span class="chip">CHAT2000 + MDM</span>
+            <span class="chip warn">FATCA → עצירה</span>
+            <span class="chip out">משרד הפנים — אפיק 3</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">סכום ומסלולים</div>
+          <div>הגדרת תדירות + סכום (תקרה: 83,641 ₪), בדיקת RAM ברקע, בחירת עד 6 מסלולים שמסתכמים ל-100%</div>
+          <div class="step-details">
+            <span class="chip">חד-פעמי / חודשי / גם-וגם</span>
+            <span class="chip">עד 6 מסלולים</span>
+            <span class="chip warn">RAM ברקע</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="step-num optional">3</div>
+        <div class="step-body">
+          <div class="step-title">KYC <span style="font-weight:400; font-size:13px; color:#d97706;">— רק אם מצטבר ≥ 70,001 ₪</span></div>
+          <div>שאלון זהות, תושבות, עיסוק (PEP), מקור כספים. מקור "אדום" → מסלול AML.</div>
+          <div class="branch">
+            <div class="branch-row"><span class="branch-label yes">פחות מ-70K</span> מדלג לשלב 4</div>
+            <div class="branch-row"><span class="branch-label no">70K ומעלה</span> שאלון KYC חובה</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <div class="step-title">פרטי בנק ותשלום</div>
+          <div>הזנת פרטי בנק ידנית. ניתוב לפי בנק:</div>
+          <div class="branch">
+            <div class="branch-row"><span class="branch-label yes">5 בנקים גדולים</span> הו"ק + חתימה גרפית</div>
+            <div class="branch-row"><span class="branch-label no">בנק אחר</span> העברה בנקאית ידנית + טופס הרשאה</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <div class="step-title">מסמכים</div>
+          <div>צילום ת"ז (קדמי + אחורי) → Docah: OCR + תיוק ב-IMAGE Archive. העלאת טופס הרשאה אם רלוונטי.</div>
+          <div class="step-details">
+            <span class="chip">Docah · OCR · תיוק</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="step-num end">✓</div>
+        <div class="step-body">
+          <div class="step-title">שידור ומסך סיום</div>
+          <div>Glikson → XML → סיגל → נוגה (יומי 17:00). RAM: לא חשוד → מספר עמית + מסך הצלחה. חשוד → תור עבודה + מסך ביניים.</div>
+          <div class="branch">
+            <div class="branch-row"><span class="branch-label yes">RAM: לא חשוד</span> מספר עמית + מסך הצלחה</div>
+            <div class="branch-row"><span class="branch-label no">RAM: חשוד</span> תור עבודה + מסך ביניים</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- USER STORIES -->
+  <div class="section">
+    <div class="section-title">📖 User Stories</div>
+
+    <div class="us-card">
+      <div class="us-header"><span class="stage-icon">🔐</span> שלב 1 — זיהוי ופרטים אישיים</div>
+      <table>
+        <thead><tr><th>ID</th><th>User Story</th><th>הערות</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="id-cell">US-01</td>
+            <td>כלקוח לא-מזוהה, אני מזין ת"ז + טלפון ומקבל OTP, כדי שהמערכת תאמת שזה אני</td>
+            <td>ולידציית ספרת ביקורת, גיל ≥ 18</td>
+          </tr>
+          <tr>
+            <td class="id-cell">US-02</td>
+            <td>כלקוח, אני מזין קוד OTP תוך 5 דקות, עד 3 ניסיונות, כדי לאמת את מספר הטלפון שלי</td>
+            <td>נעילה 10 דקות אחרי 3 כשלונות</td>
+          </tr>
+          <tr>
+            <td class="id-cell">US-03</td>
+            <td>כלקוח, אני בוחר "עבורי" או "עבור קטין", כדי לציין לטובת מי נפתח החשבון</td>
+            <td>קטין → US-10</td>
+          </tr>
+          <tr>
+            <td class="id-cell">US-04</td>
+            <td>כלקוח, אני ממלא ידנית שם / DOB / כתובת / מייל / עיסוק / מקור כספים</td>
+            <td>כל השדות ידניים — אין שליפה חיצונית</td>
+          </tr>
+          <tr>
+            <td class="id-cell">US-05</td>
+            <td>כלקוח, אני מאשר הצהרות חובה: תנאים, פרטיות, FATCA</td>
+            <td>FATCA חיובי → עצירה + נציג</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="us-card">
+      <div class="us-header"><span class="stage-icon">💰</span> שלב 2 — סכום ומסלולים</div>
+      <table>
+        <thead><tr><th>ID</th><th>User Story</th><th>הערות</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="id-cell">US-06</td>
+            <td>כלקוח, אני בוחר תדירות (חד-פעמי / חודשי / גם-וגם) ומזין סכום</td>
+            <td>תקרה: 83,641 ₪ לשנה</td>
+          </tr>
+          <tr>
+            <td class="id-cell">US-07</td>
+            <td>כלקוח, אני רואה כמה נותר לי מהתקרה השנתית לפני הזנת הסכום</td>
+            <td>לקוח חדש: יתרה מלאה = 83,641 ₪</td>
+          </tr>
+          <tr>
+            <td class="id-cell">US-08</td>
+            <td>כלקוח, אני בוחר עד 6 מסלולים שאחוזיהם מסתכמים בדיוק ל-100%</td>
+            <td>ולידציה: סה"כ ≠ 100% → שגיאה</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="us-card">
+      <div class="us-header"><span class="stage-icon">🔍</span> שלב 3 — KYC (מותנה)</div>
+      <table>
+        <thead><tr><th>ID</th><th>User Story</th><th>הערות</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="id-cell">US-09</td>
+            <td>כלקוח שמצטבר ≥ 70,001 ₪, אני ממלא שאלון KYC כדי לעמוד בדרישות הרגולציה</td>
+            <td>RAM רץ ברקע כבר בשלב 2</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="us-card">
+      <div class="us-header"><span class="stage-icon">👶</span> מסלול קטין</div>
+      <table>
+        <thead><tr><th>ID</th><th>User Story</th><th>הערות</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="id-cell">US-10</td>
+            <td>כהורה, אני פותח חשבון גמל להשקעה בשם ילדי הקטין, תוך שאני מזין את פרטיו ופרטיי</td>
+            <td>פרטי ילד + הורה + הצהרה משפטית 🔴 Q7</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="us-card">
+      <div class="us-header"><span class="stage-icon">🏦</span> שלב 4 — בנק ותשלום</div>
+      <table>
+        <thead><tr><th>ID</th><th>User Story</th><th>הערות</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="id-cell">US-11</td>
+            <td>כלקוח בבנק מהגדולים, אני חותם חתימה גרפית להקמת הוראת קבע</td>
+            <td>5 בנקים גדולים בלבד 🟡 Q4</td>
+          </tr>
+          <tr>
+            <td class="id-cell">US-12</td>
+            <td>כלקוח בבנק אחר, אני מבצע העברה בנקאית ידנית ו/או מעלה טופס הרשאה</td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="us-card">
+      <div class="us-header"><span class="stage-icon">📄</span> שלב 5 — מסמכים</div>
+      <table>
+        <thead><tr><th>ID</th><th>User Story</th><th>הערות</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="id-cell">US-13</td>
+            <td>כלקוח, אני מצלם / מעלה ת"ז קדמי + אחורי לאימות זהותי</td>
+            <td>Docah: OCR + תיוק IMAGE 🔴 Q5</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="us-card">
+      <div class="us-header"><span class="stage-icon">🏁</span> נטישה וסיום</div>
+      <table>
+        <thead><tr><th>ID</th><th>User Story</th><th>הערות</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="id-cell">US-14</td>
+            <td>כלקוח שנטש אחרי שלב 1, אני יכול לחזור תוך 48 שעות ולהמשיך מאיפה שעצרתי</td>
+            <td>לפני שלב 1 — לא נשמר 🔴 Q8</td>
+          </tr>
+          <tr>
+            <td class="id-cell">US-15</td>
+            <td>כלקוח שעבר בהצלחה, אני רואה מסך הצלחה עם מספר חשבון ומספר עמית</td>
+            <td>רק אם RAM = לא חשוד</td>
+          </tr>
+          <tr>
+            <td class="id-cell">US-16</td>
+            <td>כלקוח ש-RAM סימן כ"חשוד", אני רואה מסך ביניים ומחכה לאישור</td>
+            <td>ללא מספר עמית — תור עבודה</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- EXCEPTIONS -->
+  <div class="section">
+    <div class="section-title">⚠️ מקרי חריגה עיקריים</div>
+    <div class="ex-table">
+      <table>
+        <thead><tr><th>מצב</th><th>שלב</th><th>טיפול</th></tr></thead>
+        <tbody>
+          <tr><td>FATCA חיובי</td><td>1</td><td>STOP + הפנייה לנציג שירות</td></tr>
+          <tr><td>גיל &lt; 18</td><td>1</td><td>חסימה + הסבר</td></tr>
+          <tr><td>OTP ×3 כשלונות</td><td>1</td><td>נעילה 10 דקות</td></tr>
+          <tr><td>חריגה מ-83,641 ₪</td><td>2</td><td>חישוב יתרה + אפשרויות בחירה</td></tr>
+          <tr><td>מסלולים לא מסתכמים ל-100%</td><td>2</td><td>שגיאה על שדה האחוז</td></tr>
+          <tr><td>PEP חיובי</td><td>3</td><td>🔴 Q3 — EDD או חסימה?</td></tr>
+          <tr><td>מקור כספים "אדום"</td><td>3</td><td>מסלול AML → תור עבודה</td></tr>
+          <tr><td>Docah לא מגיב</td><td>5</td><td>retry ×3 → בדיקה ידנית 3-5 ימים</td></tr>
+          <tr><td>RAM חשוד</td><td>סיום</td><td>תור עבודה + מסך ביניים</td></tr>
+          <tr><td>Session timeout 30 דקות</td><td>כל שלב</td><td>ליד ל-Salesforce + הצעת המשך</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- OPEN QUESTIONS -->
+  <div class="section">
+    <div class="section-title">❓ שאלות פתוחות</div>
+    <div class="q-list">
+      <div class="q-item critical">
+        <div class="q-num">Q1</div>
+        <div class="q-text">
+          הקמת לקוח ב-CHAT2000 + MDM — סינכרוני (לקוח מחכה) או אסינכרוני (ממשיך ברקע)?
+          <div class="q-meta"><span class="badge critical">🔴 קריטי</span> שלב 1 | בעלים: ארכיטקטורה</div>
+        </div>
+      </div>
+      <div class="q-item critical">
+        <div class="q-num">Q2</div>
+        <div class="q-text">
+          חריגת הפקדה חודשית — הורד סכום אוטומטית / עצור אחרי X חודשים / בחירת לקוח?
+          <div class="q-meta"><span class="badge critical">🔴 קריטי</span> שלב 2 | בעלים: מוצר</div>
+        </div>
+      </div>
+      <div class="q-item critical">
+        <div class="q-num">Q3</div>
+        <div class="q-text">
+          PEP חיובי — חסימה גורפת, או מסלול EDD (המשך עם אישור ידני)?
+          <div class="q-meta"><span class="badge critical">🔴 קריטי</span> שלב 3 | בעלים: ציות + רגולציה</div>
+        </div>
+      </div>
+      <div class="q-item important">
+        <div class="q-num">Q4</div>
+        <div class="q-text">
+          5 הבנקים הגדולים — רשימה מדויקת + האם כוללת בנקי בנות?
+          <div class="q-meta"><span class="badge important">🟡 חשוב</span> שלב 4 | בעלים: תפעול</div>
+        </div>
+      </div>
+      <div class="q-item critical">
+        <div class="q-num">Q5</div>
+        <div class="q-text">
+          Docah — מה ה-SLA (זמן תגובה מקסימלי)? סינכרוני או אסינכרוני?
+          <div class="q-meta"><span class="badge critical">🔴 קריטי</span> שלב 5 | בעלים: Backend + Docah</div>
+        </div>
+      </div>
+      <div class="q-item critical">
+        <div class="q-num">Q6</div>
+        <div class="q-text">
+          שירות חתימה גרפית — מי מספק? איפה שמור? כמה זמן?
+          <div class="q-meta"><span class="badge critical">🔴 קריטי</span> שלב 4/5 | בעלים: ארכיטקטורה + משפטי</div>
+        </div>
+      </div>
+      <div class="q-item critical">
+        <div class="q-num">Q7</div>
+        <div class="q-text">
+          מסלול קטין — אילו הצהרות נוספות נדרשות? האם נדרש אישור אפוטרופסות?
+          <div class="q-meta"><span class="badge critical">🔴 קריטי</span> שלב 1 | בעלים: רגולציה + מוצר</div>
+        </div>
+      </div>
+      <div class="q-item critical">
+        <div class="q-num">Q8</div>
+        <div class="q-text">
+          נטישה לפני סוף שלב 1 — האם מתריעים לפני יציאה? האם ליד נוצר ב-Salesforce?
+          <div class="q-meta"><span class="badge critical">🔴 קריטי</span> שלב 1 | בעלים: מוצר + CRM</div>
+        </div>
+      </div>
+      <div class="q-item important">
+        <div class="q-num">Q9</div>
+        <div class="q-text">
+          מקור כספים — בחירה אחת בלבד, או ניתן לבחור מרובה?
+          <div class="q-meta"><span class="badge important">🟡 חשוב</span> שלב 1/3 | בעלים: ציות</div>
+        </div>
+      </div>
+      <div class="q-item critical">
+        <div class="q-num">Q10</div>
+        <div class="q-text">
+          נתוני תשואות ל-גרף מסלולים — מ-ODS / API ייעודי / קובץ סטטי?
+          <div class="q-meta"><span class="badge critical">🔴 קריטי</span> שלב 2 | בעלים: Backend + דאטה</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center; color:#9ca3af; font-size:13px; margin-top:32px; padding-top:24px; border-top:1px solid var(--border);">
+    גמל להשקעה — מגדל | אפיק 1 מתוך 3 | גרסה 1.0 — יוני 2026
+  </div>
+
+</div>
+</body>
+</html>
