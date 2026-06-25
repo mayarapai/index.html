@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>הגשר שלנו</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+<div id="root"><p style="font-family:sans-serif;padding:40px;direction:rtl;font-size:18px">⏳ טוען...</p></div>
+
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/recharts@2.12.7/umd/Recharts.js"></script>
+
+<script>
+"use strict";
+const e = React.createElement;
+const {useState, useEffect, useMemo} = React;
+const {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  BarChart, Bar, Legend, ReferenceLine, Area, AreaChart, ComposedChart
+} = Recharts;
+
+// ---- קבועים ----
+const TAX2026 = {
+  cgtFlat: 0.25,
+  over60Ceiling: 193800,
+  over60Bands: [
+    {upTo:84120,rate:0.10},{upTo:120720,rate:0.14},
+    {upTo:193800,rate:0.20},{upTo:Infinity,rate:0.25}
+  ]
+};
+
+const ils = new Intl.NumberFormat("he-IL",{style:"currency",currency:"ILS",maximumFractionDigits:0});
+const fmt = n => isFinite(n) ? ils.format(Math.round(n)) : "—";
+const fmtK = n => isFinite(n) ? "₪"+Math.round(n).toLocaleString("he-IL") : "—";
+const pct = n => isFinite(n) ? (n*100).toFixed(1)+"%" : "—";
+const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
+
+function cgtOnGain(gain,age,oi){
+  if(gain<=0) return 0;
+  if(age<60) return gain*TAX2026.cgtFlat;
+  let hi=oi+gain,tax=0,prev=0;
+  for(const b of TAX2026.over60Bands){
+    const seg=Math.max(0,Math.min(hi,b.upTo)-Math.max(oi,prev));
+    if(seg>0) tax+=seg*b.rate;
+    prev=b.upTo;
+    if(b.upTo>=hi) break;
+  }
+  return tax;
+}
+
+// ---- ברירות מחדל ----
+const PERSON = over => ({
+  name:"בן/בת זוג",currentAge:55,retirementAge:55,
+  portfolio:1000000,portfolioTaxOnSale:0,
+  studyFund:250000,studyFundLiquidAge:60,
+  rsuVestedGross:0,rsuUnvestedExpected:0,rsuTaxRate:25,
+  pensionNetMonthly:7000,pensionStartAge:67,
+  allowanceMonthly:1838,allowanceStartAge:70,
+  severance:0,...over
+});
+
+const DEFAULTS = {
+  targetMonthly:50000,passiveMonthly:20000,passiveIndexed:true,inflation:3,
+  cash:0,safetyBuffer:15,stressMarketDrop:25,stressPassiveFactor:60,
+  planStartYears:1,planningAge:95,expReturn:5,cashReturn:2,
+  cashBucketMonths:18,refillCadence:12,
+  rsuSpreadYears:4,rsuPreferAfter60:true,
+  extraItems:[
+    {id:1,label:"שכירות נדל\"ן (נטו/חודש)",amount:20000},
+    {id:2,label:"החזר השקעת נדל\"ן (צפי)",amount:595000},
+    {id:3,label:"תיק השקעות נוסף",amount:0},
+  ],
+  people:[
+    PERSON({name:"ניר",currentAge:0,retirementAge:0,
+      studyFund:853376,studyFundLiquidAge:60,
+      portfolio:1423171,portfolioTaxOnSale:0,
+      rsuVestedGross:0,rsuUnvestedExpected:0,rsuTaxRate:25,
+      pensionNetMonthly:28861,pensionStartAge:67,
+      allowanceMonthly:1838,allowanceStartAge:70,severance:1158874}),
+    PERSON({name:"מאיה",currentAge:0,retirementAge:0,
+      studyFund:808705,studyFundLiquidAge:60,
+      portfolio:459489,portfolioTaxOnSale:0,
+      rsuVestedGross:0,rsuUnvestedExpected:0,rsuTaxRate:0,
+      pensionNetMonthly:28861,pensionStartAge:67,
+      allowanceMonthly:1838,allowanceStartAge:70,severance:782089}),
+  ]
+};
+
+// ---- חישוב ----
+function compute(H){
+  const infl=(H.inflation||0)/100,buf=(H.safetyBuffer||0)/100;
+  const ret=(H.expReturn||0)/100,cr=(H.cashReturn||0)/100;
+  const P=H.people,NOW=2026;
+  const totVestedNet=P.reduce((s,p)=>s+(p.rsuVestedGross||0)*(1-(p.rsuTaxRate||0)/100),0);
+  const totPort=P.reduce((s,p)=>s+(p.portfolio||0),0);
+  const totStudy=P.reduce((s,p)=>s+(p.studyFund||0),0);
+  const liquidNet=(H.cash||0)+totPort+totVestedNet;
+  const monthlyGap=(H.targetMonthly||0)-(H.passiveMonthly||0);
+  const annualGap=monthlyGap*12;
+  const tStart=Math.max(0,H.planStartYears||0);
+  const horizon=clamp(Math.max(...P.map(p=>(H.planningAge||95)-(p.currentAge||0))),1,50);
+  let firstLayerT=horizon;
+  P.forEach(p=>{
+    const pT=(p.pensionStartAge||200)-(p.currentAge||0);
+    const aT=(p.allowanceStartAge||200)-(p.currentAge||0);
+    firstLayerT=Math.min(firstLayerT,Math.max(pT,tStart),Math.max(aT,tStart));
+  });
+  const bridgeYears=Math.max(0,Math.round(firstLayerT-tStart));
+  let cashBal=H.cash||0;
+  const ports=P.map(p=>({bal:p.portfolio||0,tf:(p.portfolio||0)>0?(p.portfolioTaxOnSale||0)/(p.portfolio||1):0}));
+  const studies=P.map(p=>({bal:p.studyFund||0,liq:p.studyFundLiquidAge||60}));
+  const rows=[];let depAge=null,bridgeReq=0;
+  for(let t=tStart;t<=horizon;t++){
+    const ages=P.map(p=>(p.currentAge||0)+t);
+    ports.forEach(x=>x.bal*=1+ret);cashBal*=1+cr;
+    const exp=(H.targetMonthly||0)*12*Math.pow(1+infl,t);
+    const pas=(H.passiveMonthly||0)*12*(H.passiveIndexed?Math.pow(1+infl,t):1);
+    const pens=P.map((p,k)=>ages[k]>=(p.pensionStartAge||200)?(p.pensionNetMonthly||0)*12:0);
+    const alls=P.map((p,k)=>ages[k]>=(p.allowanceStartAge||200)?(p.allowanceMonthly||0)*12:0);
+    const pensT=pens.reduce((s,x)=>s+x,0),allT=alls.reduce((s,x)=>s+x,0);
+    const gap=Math.max(0,exp-pas-pensT-allT);
+    if(t<tStart+bridgeYears)bridgeReq+=gap;
+    let need=gap,fc=0,fs=0,fp=0,tax=0;
+    const c=Math.min(cashBal,need);cashBal-=c;need-=c;fc=c;
+    studies.forEach((s,k)=>{if(need<=0.5||s.bal<=0)return;if(ages[k]>=s.liq){const d=Math.min(s.bal,need);s.bal-=d;need-=d;fs+=d;}});
+    for(let pass=0;pass<2&&need>0.5;pass++){
+      const tb=ports.reduce((s,x)=>s+x.bal,0);if(!tb)break;
+      ports.forEach((x,k)=>{
+        if(need<=0.5||x.bal<=0)return;
+        const gross=Math.min(x.bal,need/(1-x.tf));
+        const tx=gross*x.tf;const net=gross-tx;
+        x.bal-=gross;fp+=net;tax+=tx;need-=net;
+      });
+    }
+    const portEnd=ports.reduce((s,x)=>s+x.bal,0);
+    if(need>0.5&&depAge===null)depAge=Math.min(...ages);
+    rows.push({t,year:NOW+t,ageLabel:ages.join(" / "),minAge:Math.min(...ages),
+      expenses:exp,passive:pas,pension:pensT,allowance:allT,gap,
+      fromCash:fc,fromStudy:fs,fromPort:fp,tax,portEnd,
+      shortfall:need>0.5?need:0,phase:allT>0?"ד":pensT>0?"ב/ג":"א"});
+  }
+  const bridgeBuf=bridgeReq*(1+buf);
+  const ratio=bridgeBuf>0?liquidNet/bridgeBuf:(liquidNet>0?99:0);
+  const surplus=liquidNet-bridgeBuf;
+  const status=bridgeYears===0?"decision":ratio>=1.25?"green":ratio>=1?"amber":"red";
+  const wRate=liquidNet>0?annualGap/liquidNet:0;
+  const passCov=(H.targetMonthly||0)>0?(H.passiveMonthly||0)/(H.targetMonthly||0):0;
+  const rsuConc=liquidNet>0?totVestedNet/liquidNet:0;
+  const cashMo=monthlyGap>0?(H.cash||0)/monthlyGap:Infinity;
+  let reqS=0;
+  for(let t=tStart;t<tStart+bridgeYears;t++){
+    const ex=(H.targetMonthly||0)*12*Math.pow(1+infl,t);
+    const pa=(H.passiveMonthly||0)*(H.stressPassiveFactor||100)/100*12*(H.passiveIndexed?Math.pow(1+infl,t):1);
+    reqS+=Math.max(0,ex-pa);
+  }
+  reqS*=1+buf;
+  const avS=(H.cash||0)+totPort*(1-(H.stressMarketDrop||0)/100)+totVestedNet*(1-(H.stressMarketDrop||0)/100);
+  const stressR=reqS>0?avS/reqS:(avS>0?99:0);
+  const resilient=stressR>=1;
+  const draw=monthlyGap;
+  const bucketT=draw*(H.cashBucketMonths||0);
+  let bucket=Math.min(H.cash||0,bucketT||(H.cash||0));
+  const cashFlow=[];let refTax=0;
+  for(let m=1;m<=24;m++){
+    bucket-=draw;let refill=0;
+    if((H.refillCadence||12)>0&&m%(H.refillCadence||12)===0){
+      refill=Math.max(0,bucketT-bucket);bucket+=refill;
+      refTax+=refill*(totPort>0?P.reduce((s,p)=>s+(p.portfolioTaxOnSale||0),0)/totPort:0)*0.25;
+    }
+    cashFlow.push({m,bucket:Math.round(bucket),refill:Math.round(refill)});
+  }
+  const rsuPlans=P.filter(p=>(p.rsuVestedGross||0)>0).map(p=>{
+    const n=Math.max(1,H.rsuSpreadYears||1);
+    const st=H.rsuPreferAfter60?Math.max(tStart,60-(p.currentAge||0)):tStart;
+    const tr=(p.rsuVestedGross||0)/n,gp=0.7,oi=(H.passiveMonthly||0)/P.length*12;
+    const sched=[];
+    for(let k=0;k<n;k++){const tt=st+k,age=(p.currentAge||0)+tt;const tax=cgtOnGain(tr*gp,age,oi);sched.push({year:NOW+tt,age,amount:tr,tax,rate:tax/(tr*gp)});}
+    const lT=cgtOnGain((p.rsuVestedGross||0)*gp,(p.currentAge||0)+tStart,oi);
+    const spT=sched.reduce((s,x)=>s+x.tax,0);
+    return{name:p.name,sched,lumpTax:lT,spreadTax:spT,saving:lT-spT};
+  });
+  const A=[];
+  if(bridgeYears>0&&ratio<1)A.push({level:"red",t:"חסר הון לגשר",x:`חסרים כ־${fmt(-surplus)} למימון הגשר (כולל כרית ${H.safetyBuffer}%).`});
+  if(cashMo<12)A.push({level:"red",t:"כרית נזילות לא מספקת",x:`${isFinite(cashMo)?cashMo.toFixed(0):"∞"} חודשי פער במזומן. לא לפרוש לפני 12–24 חודשים.`});
+  else if(cashMo<24)A.push({level:"amber",t:"כרית נזילות בינונית",x:`${cashMo.toFixed(0)} חודשי פער. כדאי לכוון ל-24+.`});
+  if(rsuConc>0.25)A.push({level:"red",t:"ריכוזיות RSU גבוהה",x:`RSU = ${pct(rsuConc)} מההון הנזיל.`});
+  else if(rsuConc>0.10)A.push({level:"amber",t:"בדיקת מימוש RSU מדורג",x:`RSU = ${pct(rsuConc)} מההון הנזיל.`});
+  if(depAge!==null)A.push({level:"red",t:"התיק עלול להיגמר",x:`ההון מסתיים סביב גיל ${depAge}.`});
+  if(bridgeYears>0&&!resilient)A.push({level:"red",t:"לא שורד תרחיש לחץ",x:`יחס ${pct(stressR)} בתרחיש לחץ.`});
+  if(wRate>0.05)A.push({level:"amber",t:"שיעור משיכה גבוה",x:`${pct(wRate)} מהנכסים בשנה.`});
+  P.forEach(p=>{if((p.currentAge||0)<60)A.push({level:"info",t:`הטבת מס 60+ — ${p.name}`,x:`מגיל 60 מדרגות מס מופחתות 10/14/20% עד תקרת ₪193,800.`});});
+  if(P.some(p=>(p.rsuVestedGross||0)>0))A.push({level:"info",t:"יועץ מס לפני מימוש RSU",x:"לאמת מסלול 102 עם רו\"ח."});
+  if(P.some(p=>(p.severance||0)>0))A.push({level:"info",t:"פיצויים — בדיקת רו\"ח",x:"לא נכלל בחישוב הגשר."});
+  A.push({level:"info",t:"קיבוע זכויות",x:"החלטה כמעט בלתי הפיכה — עם יועץ פרישה."});
+  if(bridgeYears>0&&ratio>=1.25&&resilient&&depAge===null&&cashMo>=12)
+    A.unshift({level:"good",t:"הגשר אפשרי",x:`הנכסים מכסים ${pct(ratio)} מהגשר.`});
+  return{liquidNet,totPort,totStudy,totVestedNet,monthlyGap,annualGap,bridgeYears,bridgeReq,bridgeBuf,ratio,surplus,status,wRate,passCov,rsuConc,cashMo,stressR,resilient,rows,depAge,cashFlow,refTax,draw,bucketT,rsuPlans,alerts:A};
+}
+
+// ---- CSS ----
+const CSS = `
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Assistant',sans-serif;background:#f3f6f4;color:#15302b;direction:rtl;min-height:100vh}
+:root{--ink:#15302b;--paper:#f3f6f4;--card:#fff;--line:#e3e8e4;--muted:#5e6f69;--brass:#b0852f;--green:#2e7d5b;--amber:#bd8814;--red:#bf473b;--green-bg:#e6f1ec;--amber-bg:#f7eed8;--red-bg:#f7e4e1;--blue:#3f6a86;--blue-bg:#e8eef2}
+.hero{background:#15302b;color:#f6f4ec;padding:24px 20px 28px;border-radius:0 0 24px 24px}
+.kicker{font-size:12px;letter-spacing:.12em;color:#e8d8b4;text-transform:uppercase;font-weight:700;margin-bottom:4px}
+.hero h1{font-size:28px;font-weight:900;margin-bottom:6px}
+.hero p{color:#c8d2cd;font-size:14px}
+.stats{display:flex;flex-wrap:wrap;gap:16px;margin-top:18px}
+.stat .n{font-size:22px;font-weight:800}.stat .c{font-size:11px;color:#aebbb5}
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px 60px}
+.tabs{display:flex;gap:5px;margin:20px 0 16px;background:#fff;padding:5px;border-radius:12px;border:1px solid var(--line);flex-wrap:wrap}
+.tab{flex:1;min-width:90px;border:0;background:transparent;font-family:inherit;font-size:14px;font-weight:700;color:var(--muted);padding:10px 6px;border-radius:8px;cursor:pointer}
+.tab.active{background:var(--ink);color:#f6f4ec}
+.grid{display:grid;gap:14px}
+@media(min-width:700px){.c2{grid-template-columns:1fr 1fr}.c3{grid-template-columns:1fr 1fr 1fr}}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}
+.card h3{font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--brass);font-weight:800;margin-bottom:12px}
+.metric{border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:3px}
+.metric .ml{font-size:12px;color:var(--muted);font-weight:600}
+.metric .mv{font-size:22px;font-weight:800}
+.metric .mn{font-size:11px;color:var(--muted)}
+.sg{border-color:#b8d8c8;background:var(--green-bg)}.sg .mv{color:var(--green)}
+.sa{border-color:#ecd9a6;background:var(--amber-bg)}.sa .mv{color:var(--amber)}
+.sr{border-color:#eec3bd;background:var(--red-bg)}.sr .mv{color:var(--red)}
+.alert{display:flex;gap:10px;padding:12px;border-radius:10px;border:1px solid;margin-bottom:8px}
+.alert .at{font-weight:800;font-size:14px;margin-bottom:2px}
+.alert .ax{font-size:13px;color:#3f4d48}
+.al-red{background:var(--red-bg);border-color:#eec3bd}
+.al-amber{background:var(--amber-bg);border-color:#ecd9a6}
+.al-info{background:#eaf0ee;border-color:#cfdcd6}
+.al-good{background:var(--green-bg);border-color:#b8d8c8}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:13px;font-weight:600;margin-bottom:4px}
+.field .hint{font-size:11px;color:var(--muted);margin-top:3px}
+.inp{display:flex;align-items:center;border:1px solid var(--line);border-radius:9px;background:#fcfdfc;overflow:hidden}
+.inp:focus-within{border-color:var(--brass);box-shadow:0 0 0 3px rgba(176,133,47,.15)}
+.inp input{flex:1;border:0;background:transparent;font-family:inherit;font-size:15px;font-weight:700;color:var(--ink);padding:9px 11px;width:100%;text-align:right}
+.inp input:focus{outline:none}
+.suf{padding:0 10px;color:var(--muted);font-size:13px;font-weight:600;border-inline-start:1px solid var(--line);align-self:stretch;display:flex;align-items:center;background:var(--paper)}
+.tgl{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid var(--line);border-radius:9px;padding:8px 11px;background:#fcfdfc}
+.tg-btn{position:relative;width:44px;height:24px;border-radius:20px;border:0;cursor:pointer;background:#cdd6d1;transition:.15s;flex-shrink:0}
+.tg-btn.on{background:var(--green)}
+.tg-btn span{position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.15s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.tg-btn.on span{right:22px}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{font-size:11px;color:var(--muted);text-align:right;padding:7px;border-bottom:2px solid var(--line);font-weight:700;white-space:nowrap}
+.tbl td{padding:7px;border-bottom:1px solid var(--line);font-weight:600;white-space:nowrap}
+.tbl .hl td{background:var(--amber-bg)}
+.tbl .dead td{background:var(--red-bg)}
+.scrollx{overflow-x:auto}
+.btn{font-family:inherit;font-weight:700;font-size:14px;border-radius:10px;padding:10px 16px;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink)}
+.btn-danger{color:var(--red);border-color:#eec3bd}
+.btn-add{background:var(--paper);border:1px dashed var(--line)}
+.foot{font-size:11px;color:var(--muted);margin-top:8px;line-height:1.6}
+.pill{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--blue-bg);color:var(--blue)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.bridge-svg{margin-top:16px;background:#11271f;border-radius:14px;padding:6px 8px 2px;width:100%}
+.status-dot{width:12px;height:12px;border-radius:50%;display:inline-block;margin-left:8px}
+`;
+
+// ---- UI Components ----
+function Money({label,hint,value,onChange}){
+  return e('div',{className:'field'},
+    e('label',null,label),
+    e('div',{className:'inp'},
+      e('input',{type:'number',inputMode:'numeric',value,onChange:ev=>onChange(ev.target.value===''?0:Number(ev.target.value))}),
+      e('span',{className:'suf'},'₪')
+    ),
+    e('div',{className:'hint'},hint||fmt(value))
+  );
+}
+function Num({label,hint,value,onChange,suffix}){
+  return e('div',{className:'field'},
+    e('label',null,label),
+    e('div',{className:'inp'},
+      e('input',{type:'number',inputMode:'numeric',value,onChange:ev=>onChange(ev.target.value===''?0:Number(ev.target.value))}),
+      suffix&&e('span',{className:'suf'},suffix)
+    ),
+    hint&&e('div',{className:'hint'},hint)
+  );
+}
+function Txt({label,value,onChange}){
+  return e('div',{className:'field'},
+    e('label',null,label),
+    e('div',{className:'inp'},e('input',{type:'text',value,onChange:ev=>onChange(ev.target.value)}))
+  );
+}
+function Toggle({label,value,onChange}){
+  return e('div',{className:'field'},
+    e('div',{className:'tgl'},
+      e('span',{style:{fontWeight:600,fontSize:13}},label),
+      e('button',{className:'tg-btn'+(value?' on':''),onClick:()=>onChange(!value)},e('span'))
+    )
+  );
+}
+function Metric({label,value,s,note}){
+  return e('div',{className:'metric '+s},
+    e('span',{className:'ml'},label),
+    e('span',{className:'mv'},value),
+    note&&e('span',{className:'mn'},note)
+  );
+}
+function sOf(v,g,a){return v>=g?'sg':v>=a?'sa':'sr';}
+
+function BridgeSVG({d}){
+  const deckY=100,x0=70,x1=560;
+  const fx=x0+(x1-x0)*clamp(d.ratio,0,1);
+  const pillars=[x0,x0+(x1-x0)/3,x0+2*(x1-x0)/3,x1];
+  return e('svg',{viewBox:'0 0 680 170',className:'bridge-svg'},
+    e('line',{x1:30,y1:140,x2:650,y2:140,stroke:'#27463b',strokeWidth:2}),
+    ...pillars.map((px,k)=>e('line',{key:k,x1:px,y1:deckY+8,x2:px,y2:140,stroke:'#3a5a4d',strokeWidth:6,strokeLinecap:'round'})),
+    e('rect',{x:x0-22,y:deckY-6,width:22,height:64,rx:4,fill:'#27463b'}),
+    e('rect',{x:x1,y:deckY-6,width:22,height:64,rx:4,fill:'#27463b'}),
+    e('rect',{x:x0,y:deckY,width:x1-x0,height:12,rx:6,fill:'#27463b'}),
+    e('rect',{x:x0,y:deckY,width:Math.max(0,fx-x0),height:12,rx:6,fill:'#cdb06a'}),
+    e('path',{d:`M ${x0} ${deckY} Q ${(x0+x1)/2} ${deckY+50} ${x1} ${deckY}`,fill:'none',stroke:'#3a5a4d',strokeWidth:2,opacity:0.6}),
+    e('text',{x:(x0+x1)/2,y:82,fill:'#f0ead8',fontSize:17,textAnchor:'middle',fontWeight:700,fontFamily:'Assistant'},'גשר של '+d.bridgeYears+' שנים'),
+    e('text',{x:(x0+x1)/2,y:38,fill:'#aebbb5',fontSize:12,textAnchor:'middle',fontFamily:'Assistant'},'ממומן '+pct(d.ratio)+' מהיעד'),
+    e('text',{x:x0-11,y:160,fill:'#aebbb5',fontSize:11,textAnchor:'middle'},'תחילת פרישה'),
+    e('text',{x:x1+11,y:160,fill:'#e8d8b4',fontSize:11,textAnchor:'middle',fontWeight:700},'שכבת הכנסה')
+  );
+}
+
+const ST={
+  green:{lbl:'סטטוס הגשר',val:'אפשר לפרוש',color:'#2e7d5b'},
+  amber:{lbl:'סטטוס הגשר',val:'אפשר עם התאמות',color:'#bd8814'},
+  red:{lbl:'סטטוס הגשר',val:'עוד לא מומלץ',color:'#bf473b'},
+  decision:{lbl:'אין שלב גשר',val:'מסך החלטת קצבאות',color:'#b0852f'},
+};
+
+// ---- App ----
+function App(){
+  const [H,setH]=useState(DEFAULTS);
+  const [tab,setTab]=useState('dash');
+  const [snaps,setSnaps]=useState([]);
+  const setHK=k=>v=>setH(p=>({...p,[k]:v}));
+  const setP=(idx,k)=>v=>setH(p=>({...p,people:p.people.map((pp,i)=>i===idx?{...pp,[k]:v}:pp)}));
+  const d=useMemo(()=>compute(H),[H]);
+
+  useEffect(()=>{
+    try{const s=localStorage.getItem('rbp3');if(s)setH(p=>({...DEFAULTS,...JSON.parse(s)}));}catch(e){}
+    try{const s=localStorage.getItem('rbp3snaps');if(s)setSnaps(JSON.parse(s));}catch(e){}
+  },[]);
+  useEffect(()=>{try{localStorage.setItem('rbp3',JSON.stringify(H));}catch(e){};},[H]);
+
+  const saveSnap=()=>{
+    const sn={id:Date.now(),date:new Date().toLocaleDateString('he-IL'),ratio:d.ratio,available:d.liquidNet,required:d.bridgeBuf,status:d.status,depleted:d.depAge};
+    const next=[...snaps,sn].slice(-40);setSnaps(next);
+    try{localStorage.setItem('rbp3snaps',JSON.stringify(next));}catch(e){}
+  };
+  const delSnap=id=>{const next=snaps.filter(s=>s.id!==id);setSnaps(next);try{localStorage.setItem('rbp3snaps',JSON.stringify(next));}catch(e){};};
+
+  const st=ST[d.status];
+  const tabs=[['dash','לוח בקרה'],['inputs','הנתונים שלי'],['monthly','תזרים חודשי'],['after60','אחרי 60 + מס'],['rsu','RSU'],['track','מעקב']];
+  const alertIcon=l=>l==='red'?'⛔':l==='amber'?'⚠️':l==='good'?'✅':'ℹ️';
+
+  return e('div',null,
+    e('style',null,CSS),
+    // Hero
+    e('header',{className:'hero'},
+      e('div',{className:'wrap',style:{padding:0}},
+        e('p',{className:'kicker'},'מתכנן פרישה מוקדמת · תא משפחתי · קופה משותפת'),
+        e('h1',null,'הגשר שלנו'),
+        e('p',null,'פרישה מוקדמת אינה שאלה של מספר אחד — אלא של תזרים, סדר משיכות, מס וסיכון לאורך כל החיים.'),
+        e('div',{className:'stats'},
+          e('div',{className:'stat'},
+            e('span',{className:'status-dot',style:{background:st.color}}),
+            e('span',{style:{fontWeight:800,fontSize:18}},st.val)
+          ),
+          e('div',{className:'stat'},e('div',{className:'n'},(d.surplus>=0?'+':'')+fmtK(d.surplus)),e('div',{className:'c'},d.surplus>=0?'עודף ביטחון':'חסר לגשר')),
+          e('div',{className:'stat'},e('div',{className:'n'},pct(d.ratio)),e('div',{className:'c'},'יחס גשר')),
+          e('div',{className:'stat'},e('div',{className:'n'},d.depAge?'גיל '+d.depAge:'מחזיק'),e('div',{className:'c'},d.depAge?'התיק נגמר':'מספיק עד '+H.planningAge))
+        ),
+        e(BridgeSVG,{d})
+      )
+    ),
+    // Main
+    e('main',{className:'wrap'},
+      // Tabs
+      e('div',{className:'tabs'},tabs.map(([id,lbl])=>e('button',{key:id,className:'tab'+(tab===id?' active':''),onClick:()=>setTab(id)},lbl))),
+
+      // Dashboard
+      tab==='dash'&&e('div',{className:'grid'},
+        e('div',{className:'card'},
+          e('h3',null,`סטטוס הגשר · ${d.bridgeYears} שנים`),
+          e('div',{className:'grid c3'},
+            e(Metric,{label:'פער חודשי',value:fmt(d.monthlyGap),s:'sg',note:`${fmt(H.targetMonthly)} − ${fmt(H.passiveMonthly)}`}),
+            e(Metric,{label:'גשר נדרש (כולל כרית)',value:fmt(d.bridgeBuf),s:'sg',note:`בסיס ${fmt(d.bridgeReq)} + ${H.safetyBuffer}%`}),
+            e(Metric,{label:'נכסים נזילים',value:fmt(d.liquidNet),s:'sg',note:'מזומן + תיקים + RSU נטו'})
+          ),
+          e('p',{className:'foot'},`קרן השתלמות (${fmt(d.totStudy)}) ופיצויים — לא בבסיס הגשר.`)
+        ),
+        e('div',{className:'card'},
+          e('h3',null,'מדדי סיכון'),
+          e('div',{className:'grid c3'},
+            e(Metric,{label:'יחס גשר',value:pct(d.ratio),s:sOf(d.ratio,1.25,1),note:'ירוק 125%+ · צהוב 100% · אדום מתחת'}),
+            e(Metric,{label:'כרית נזילות',value:isFinite(d.cashMo)?d.cashMo.toFixed(0)+' ח\'':'∞',s:sOf(d.cashMo,24,12),note:'ירוק 24+ · צהוב 12–24'}),
+            e(Metric,{label:'ריכוזיות RSU',value:pct(d.rsuConc),s:d.rsuConc<0.1?'sg':d.rsuConc<=0.25?'sa':'sr',note:'ירוק <10% · אדום 25%+'}),
+            e(Metric,{label:'שיעור משיכה',value:pct(d.wRate),s:d.wRate<=0.03?'sg':d.wRate<=0.05?'sa':'sr',note:'מהנכסים בשנה'}),
+            e(Metric,{label:'כיסוי פסיבי',value:pct(d.passCov),s:d.passCov>=0.6?'sg':d.passCov>=0.4?'sa':'sr',note:'מההוצאה'}),
+            e(Metric,{label:'עמידות לחץ',value:pct(d.stressR),s:d.resilient?'sg':sOf(d.stressR,1,0.8),note:`שוק ${H.stressMarketDrop}% · פסיבי ${H.stressPassiveFactor}%`})
+          )
+        ),
+        e('div',{className:'card'},
+          e('h3',null,'התרעות'),
+          ...d.alerts.map((a,k)=>e('div',{key:k,className:'alert al-'+a.level},
+            e('span',{style:{fontSize:18}},alertIcon(a.level)),
+            e('div',null,e('div',{className:'at'},a.t),e('div',{className:'ax'},a.x))
+          ))
+        )
+      ),
+
+      // Inputs
+      tab==='inputs'&&e('div',{className:'grid'},
+        e('div',{className:'card'},
+          e('h3',null,'משק בית · קופה משותפת'),
+          e('div',{className:'grid c2'},
+            e(Money,{label:'הוצאה חודשית (נטו)',value:H.targetMonthly,onChange:setHK('targetMonthly')}),
+            e(Money,{label:'מזומן / קרן כספית',value:H.cash,onChange:setHK('cash')}),
+            e(Money,{label:'הכנסה פסיבית חודשית (נטו)',value:H.passiveMonthly,onChange:setHK('passiveMonthly')}),
+            e(Num,{label:'אינפלציה',value:H.inflation,onChange:setHK('inflation'),suffix:'%'}),
+            e(Num,{label:'תשואה שנתית צפויה',value:H.expReturn,onChange:setHK('expReturn'),suffix:'%'}),
+            e(Num,{label:'כרית ביטחון',value:H.safetyBuffer,onChange:setHK('safetyBuffer'),suffix:'%'}),
+            e(Num,{label:'שנים עד פרישה',value:H.planStartYears,onChange:setHK('planStartYears'),suffix:'שנים'}),
+            e(Num,{label:'תוחלת תכנון',value:H.planningAge,onChange:setHK('planningAge'),suffix:'גיל'})
+          ),
+          e(Toggle,{label:'הכנסה פסיבית צמודה למדד',value:H.passiveIndexed,onChange:setHK('passiveIndexed')}),
+          e('div',{className:'grid c2',style:{marginTop:8}},
+            e(Num,{label:'תרחיש לחץ — ירידת שוק',value:H.stressMarketDrop,onChange:setHK('stressMarketDrop'),suffix:'%'}),
+            e(Num,{label:'תרחיש לחץ — הכנסה פסיבית',value:H.stressPassiveFactor,onChange:setHK('stressPassiveFactor'),suffix:'%'})
+          )
+        ),
+        ...H.people.map((p,idx)=>e('div',{className:'card',key:idx},
+          e('h3',null,`${p.name||'מבוגר '+(idx+1)} `,e('span',{className:'pill'},'נכסים פר-אדם')),
+          e('div',{className:'grid c2'},
+            e(Txt,{label:'שם',value:p.name,onChange:setP(idx,'name')}),
+            e(Num,{label:'גיל נוכחי',value:p.currentAge,onChange:setP(idx,'currentAge'),suffix:'שנים'}),
+            e(Num,{label:'גיל פרישה',value:p.retirementAge,onChange:setP(idx,'retirementAge'),suffix:'שנים'}),
+            e(Money,{label:'תיק השקעות (שווי)',value:p.portfolio,onChange:setP(idx,'portfolio')}),
+            e(Money,{label:'מס משוער אם תמכרי הכל היום',value:p.portfolioTaxOnSale,onChange:setP(idx,'portfolioTaxOnSale'),hint:'מהדוח השנתי — חבות מס במימוש מלא'}),
+            e(Money,{label:'קרן השתלמות',value:p.studyFund,onChange:setP(idx,'studyFund')}),
+            e(Num,{label:'גיל נזילות קרן השתלמות',value:p.studyFundLiquidAge,onChange:setP(idx,'studyFundLiquidAge'),suffix:'גיל'}),
+            e(Money,{label:'RSU שהבשיל (ברוטו)',value:p.rsuVestedGross,onChange:setP(idx,'rsuVestedGross')}),
+            e(Money,{label:'RSU שטרם הבשיל (צפוי)',value:p.rsuUnvestedExpected,onChange:setP(idx,'rsuUnvestedExpected')}),
+            e(Num,{label:'מס RSU',value:p.rsuTaxRate,onChange:setP(idx,'rsuTaxRate'),suffix:'%'}),
+            e(Money,{label:'קצבת פנסיה (נטו/חודש)',value:p.pensionNetMonthly,onChange:setP(idx,'pensionNetMonthly')}),
+            e(Num,{label:'גיל תחילת פנסיה',value:p.pensionStartAge,onChange:setP(idx,'pensionStartAge'),suffix:'גיל'}),
+            e(Money,{label:'קצבת זקנה (חודש)',value:p.allowanceMonthly,onChange:setP(idx,'allowanceMonthly')}),
+            e(Num,{label:'גיל תחילת קצבת זקנה',value:p.allowanceStartAge,onChange:setP(idx,'allowanceStartAge'),suffix:'גיל'}),
+            e(Money,{label:'פיצויים (דורש יועץ)',value:p.severance,onChange:setP(idx,'severance')})
+          )
+        )),
+        e('div',{className:'card'},
+          e('h3',null,'הכנסות ונכסים נוספים ',e('span',{className:'pill'},'שדה חופשי')),
+          e('p',{style:{fontSize:12,color:'var(--muted)',marginBottom:12}},'הוסיפי כל נכס או הכנסה נוספת — נדל"ן, תיק נוסף, החזר הלוואה וכו\'.'),
+          ...(H.extraItems||[]).map((item,k)=>e('div',{key:item.id,style:{display:'grid',gridTemplateColumns:'1fr 120px auto',gap:8,marginBottom:8,alignItems:'end'}},
+            e('div',{className:'field',style:{margin:0}},
+              e('label',null,'תיאור'),
+              e('div',{className:'inp'},e('input',{type:'text',value:item.label,onChange:ev=>setH(p=>({...p,extraItems:p.extraItems.map((x,i)=>i===k?{...x,label:ev.target.value}:x)}))}))
+            ),
+            e('div',{className:'field',style:{margin:0}},
+              e('label',null,'סכום'),
+              e('div',{className:'inp'},
+                e('input',{type:'number',value:item.amount,onChange:ev=>setH(p=>({...p,extraItems:p.extraItems.map((x,i)=>i===k?{...x,amount:Number(ev.target.value)||0}:x)}))}),
+                e('span',{className:'suf'},'₪')
+              )
+            ),
+            e('button',{className:'btn btn-danger',style:{padding:'8px 12px'},onClick:()=>setH(p=>({...p,extraItems:p.extraItems.filter((_,i)=>i!==k)}))}),'×')
+          ),
+          e('button',{className:'btn btn-add',style:{marginTop:4},onClick:()=>setH(p=>({...p,extraItems:[...(p.extraItems||[]),{id:Date.now(),label:'',amount:0}]}))},
+            '+ הוסיפי שורה')
+        ),
+        e('div',{className:'card'},
+          e('div',{className:'row'},
+            e('button',{className:'btn btn-danger',onClick:()=>setH(DEFAULTS)},'אפסי לערכי ברירת מחדל'),
+            e('span',{style:{fontSize:12,color:'var(--muted)'}},'הנתונים נשמרים אוטומטית.')
+          )
+        )
+      ),
+
+      // Monthly
+      tab==='monthly'&&e('div',{className:'grid'},
+        e('div',{className:'card'},
+          e('h3',null,'משכורת עצמית · ניהול חודשי'),
+          e('p',{style:{fontSize:13,color:'#3f4d48',marginBottom:12}},`דלי המזומן משלם את הפער החודשי (${fmt(d.draw)}), ואחת לתקופה ממלאים אותו ממכירת תיק מתוכננת.`),
+          e('div',{className:'grid c3'},
+            e(Num,{label:'יעד דלי מזומן',value:H.cashBucketMonths,onChange:setHK('cashBucketMonths'),suffix:'חודשי פער'}),
+            e(Num,{label:'תדירות מילוי',value:H.refillCadence,onChange:setHK('refillCadence'),suffix:'חודשים'}),
+            e(Metric,{label:'גובה דלי היעד',value:fmt(d.bucketT),s:'sg',note:`${H.cashBucketMonths} × פער חודשי`})
+          )
+        ),
+        e('div',{className:'card'},
+          e('h3',null,'סימולציית 24 חודשים'),
+          e('div',{style:{width:'100%',height:220}},
+            e(ResponsiveContainer,null,
+              e(AreaChart,{data:d.cashFlow,margin:{top:6,right:6,left:4,bottom:0}},
+                e('defs',null,e('linearGradient',{id:'g1',x1:'0',y1:'0',x2:'0',y2:'1'},
+                  e('stop',{offset:'0%',stopColor:'#b0852f',stopOpacity:0.4}),
+                  e('stop',{offset:'100%',stopColor:'#b0852f',stopOpacity:0.04})
+                )),
+                e(CartesianGrid,{strokeDasharray:'3 3',stroke:'#eef2f0',vertical:false}),
+                e(XAxis,{dataKey:'m',tick:{fontSize:11},tickFormatter:m=>"ח'"+m}),
+                e(YAxis,{tickFormatter:v=>(v/1000).toFixed(0)+'k',tick:{fontSize:11},width:38}),
+                e(Tooltip,{formatter:v=>fmt(v),labelFormatter:m=>'חודש '+m}),
+                e(ReferenceLine,{y:d.draw,stroke:'#bf473b',strokeDasharray:'4 4'}),
+                e(Area,{type:'stepAfter',dataKey:'bucket',name:'יתרת דלי',stroke:'#b0852f',strokeWidth:2,fill:'url(#g1)'})
+              )
+            )
+          ),
+          e('p',{className:'foot'},`אומדן מס שנתי על מכירות מילוי: ${fmt(d.refTax)}`)
+        )
+      ),
+
+      // After 60
+      tab==='after60'&&e('div',{className:'grid'},
+        e('div',{className:'card'},
+          e('h3',null,"תחזית שנתית · שלבים א'–ד'"),
+          e('div',{style:{width:'100%',height:250,marginBottom:12}},
+            e(ResponsiveContainer,null,
+              e(ComposedChart,{data:d.rows,margin:{top:6,right:6,left:4,bottom:0}},
+                e(CartesianGrid,{strokeDasharray:'3 3',stroke:'#eef2f0',vertical:false}),
+                e(XAxis,{dataKey:'minAge',tickFormatter:a=>'גיל '+a,tick:{fontSize:11}}),
+                e(YAxis,{tickFormatter:v=>(v/1000000).toFixed(1)+'M',tick:{fontSize:11},width:40}),
+                e(Tooltip,{formatter:v=>fmt(v),labelFormatter:a=>'גיל '+a}),
+                e(Legend,{wrapperStyle:{fontSize:11}}),
+                e(Bar,{dataKey:'passive',name:'פסיבי',stackId:'i',fill:'#cdb06a'}),
+                e(Bar,{dataKey:'pension',name:'פנסיה',stackId:'i',fill:'#3f6a86'}),
+                e(Bar,{dataKey:'allowance',name:'קצבת זקנה',stackId:'i',fill:'#7a9cb0'}),
+                e(Bar,{dataKey:'fromPort',name:'משיכה מתיק',stackId:'i',fill:'#1d3f38'}),
+                e(Line,{type:'monotone',dataKey:'portEnd',name:'יתרת תיק',stroke:'#bf473b',strokeWidth:2,dot:false})
+              )
+            )
+          ),
+          e('div',{className:'scrollx'},
+            e('table',{className:'tbl'},
+              e('thead',null,e('tr',null,
+                ...'שנה,גילאים,שלב,הוצאות,פסיבי,פנסיה,זקנה,פער,מתיק,מס,יתרה'.split(',').map(h=>e('th',{key:h},h))
+              )),
+              e('tbody',null,...d.rows.map(r=>e('tr',{key:r.t,className:r.shortfall?'dead':r.allowance>0?'hl':''},
+                e('td',null,r.year),e('td',null,r.ageLabel),e('td',null,r.phase),
+                e('td',null,fmt(r.expenses)),e('td',null,fmt(r.passive)),
+                e('td',null,fmt(r.pension)),e('td',null,fmt(r.allowance)),
+                e('td',null,fmt(r.gap)),e('td',null,fmt(r.fromPort)),
+                e('td',null,fmt(r.tax)),e('td',null,r.shortfall?'נגמר':fmt(r.portEnd))
+              )))
+            )
+          ),
+          e('p',{className:'foot'},'המס הוא אומדן. פנסיה מוזנת כנטו. אינו תחליף לייעוץ מס.')
+        )
+      ),
+
+      // RSU
+      tab==='rsu'&&e('div',{className:'grid'},
+        e('div',{className:'card'},
+          e('h3',null,'הגדרות מימוש RSU'),
+          e('div',{className:'grid c2'},
+            e(Num,{label:'פריסה על פני',value:H.rsuSpreadYears,onChange:setHK('rsuSpreadYears'),suffix:'שנים'}),
+            e(Toggle,{label:'עדיפות לשנים אחרי גיל 60',value:H.rsuPreferAfter60,onChange:setHK('rsuPreferAfter60')})
+          )
+        ),
+        d.rsuPlans.length===0
+          ?e('div',{className:'card'},e('p',{style:{textAlign:'center',color:'var(--muted)',padding:'20px'}},'אין RSU שהבשיל. הוסיפי ערך בלשונית הנתונים.'))
+          :d.rsuPlans.map((plan,k)=>e('div',{className:'card',key:k},
+            e('h3',null,plan.name+' · לוח מוצע'),
+            e('div',{className:'grid c3',style:{marginBottom:10}},
+              e(Metric,{label:'מס במכירה חד-פעמית',value:fmt(plan.lumpTax),s:'sr',note:'אומדן'}),
+              e(Metric,{label:'מס בפריסה',value:fmt(plan.spreadTax),s:'sg',note:'אומדן'}),
+              e(Metric,{label:'חיסכון פוטנציאלי',value:fmt(plan.saving),s:plan.saving>0?'sg':'sa',note:'הפרש'})
+            ),
+            e('div',{className:'scrollx'},
+              e('table',{className:'tbl'},
+                e('thead',null,e('tr',null,...['שנה','גיל','מימוש','מס','שיעור'].map(h=>e('th',{key:h},h)))),
+                e('tbody',null,...plan.sched.map((s,j)=>e('tr',{key:j,className:s.age>=60?'hl':''},
+                  e('td',null,s.year),e('td',null,s.age),e('td',null,fmt(s.amount)),e('td',null,fmt(s.tax)),e('td',null,pct(s.rate))
+                )))
+              )
+            ),
+            e('p',{className:'foot'},'שורות מודגשות = גיל 60+. לאמת עם רו"ח לפני מכירה.')
+          ))
+      ),
+
+      // Track
+      tab==='track'&&e('div',{className:'grid'},
+        e('div',{className:'card'},
+          e('h3',null,'שמירת תמונת מצב'),
+          e('div',{className:'row'},
+            e('button',{className:'btn',style:{background:'#15302b',color:'#fff',border:'none'},onClick:saveSnap},'שמרי תמונת מצב · '+pct(d.ratio)),
+            e('span',{style:{fontSize:12,color:'var(--muted)'}},snaps.length+' שמורות')
+          )
+        ),
+        snaps.length>0&&e('div',{className:'card'},
+          e('h3',null,'יחס הגשר לאורך זמן'),
+          e('div',{style:{width:'100%',height:200}},
+            e(ResponsiveContainer,null,
+              e(LineChart,{data:snaps.map(s=>({...s,p:Math.round(s.ratio*100)})),margin:{top:6,right:8,left:4,bottom:0}},
+                e(CartesianGrid,{strokeDasharray:'3 3',stroke:'#eef2f0',vertical:false}),
+                e(XAxis,{dataKey:'date',tick:{fontSize:10}}),
+                e(YAxis,{tickFormatter:v=>v+'%',tick:{fontSize:11},width:38}),
+                e(Tooltip,{formatter:v=>v+'%'}),
+                e(ReferenceLine,{y:100,stroke:'#bd8814',strokeDasharray:'4 4'}),
+                e(ReferenceLine,{y:125,stroke:'#2e7d5b',strokeDasharray:'4 4'}),
+                e(Line,{type:'monotone',dataKey:'p',stroke:'#15302b',strokeWidth:2,dot:{r:4,fill:'#b0852f'}})
+              )
+            )
+          )
+        ),
+        e('div',{className:'card'},
+          e('h3',null,'היסטוריה'),
+          snaps.length===0
+            ?e('p',{style:{textAlign:'center',color:'var(--muted)',padding:'16px'}},'עדיין אין תמונות מצב.')
+            :e('div',{className:'scrollx'},
+              e('table',{className:'tbl'},
+                e('thead',null,e('tr',null,...['תאריך','יחס','זמין','נדרש','עד גיל',''].map(h=>e('th',{key:h},h)))),
+                e('tbody',null,...[...snaps].reverse().map(s=>e('tr',{key:s.id},
+                  e('td',null,s.date),
+                  e('td',null,pct(s.ratio)),
+                  e('td',null,fmt(s.available)),
+                  e('td',null,fmt(s.required)),
+                  e('td',null,s.depleted?'גיל '+s.depleted:'מחזיק'),
+                  e('td',null,e('button',{className:'btn btn-danger',style:{padding:'4px 10px',fontSize:12},onClick:()=>delSnap(s.id)},'מחקי'))
+                )))
+              )
+            )
+        )
+      ),
+
+      e('p',{style:{fontFamily:'serif',fontSize:15,color:'#1d3f38',padding:'12px 14px',margin:'0 0 12px',background:'#fff',borderRadius:'0 12px 12px 0',borderInlineStart:'3px solid #b0852f'}},
+        `הכלל המרכזי: גשר של ~${d.bridgeYears} שנים, ואז כניסה מדורגת של פנסיה וקצבת זקנה.`),
+      e('p',{style:{fontSize:11,color:'var(--muted)',marginTop:8}},
+        'כלי לחישוב ומעקב בלבד. אומדני המס מבוססים על קבועי 2026 ואינם תחליף לייעוץ מס, פנסיה או השקעות.')
+    )
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(App));
+</script>
+</body>
+</html>
