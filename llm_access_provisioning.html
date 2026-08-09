@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>נוהל הקמת הרשאות — פלטפורמת LLM ארגונית</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.7;
+      color: #1a1a2e;
+      background: #f4f6fb;
+      direction: rtl;
+    }
+    .page { max-width: 1060px; margin: 0 auto; padding: 32px 24px 80px; }
+
+    /* Header */
+    header {
+      background: #1a1a2e;
+      color: #fff;
+      padding: 32px 40px 26px;
+      border-radius: 12px;
+      margin-bottom: 28px;
+    }
+    header h1 { font-size: 24px; margin-bottom: 6px; }
+    header p { color: #a8b0c8; font-size: 13px; }
+    header .meta { display: flex; gap: 28px; margin-top: 14px; flex-wrap: wrap; }
+    header .meta span { color: #c8d0e8; font-size: 12px; }
+    header .meta strong { color: #fff; }
+
+    /* TOC */
+    .toc {
+      background: #fff;
+      border: 1px solid #e2e8f4;
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+    }
+    .toc h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: #6b7a99; margin-bottom: 10px; }
+    .toc ul { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
+    .toc ul li a {
+      display: inline-block;
+      padding: 4px 12px;
+      background: #f0f3fa;
+      border-radius: 20px;
+      color: #3355cc;
+      text-decoration: none;
+      font-size: 12px;
+      border: 1px solid #d8e0f4;
+    }
+    .toc ul li a:hover { background: #dde5f8; }
+
+    /* Info banner */
+    .info-banner {
+      background: #f0f4ff;
+      border: 1px solid #b8c8f4;
+      border-radius: 10px;
+      padding: 13px 18px;
+      margin-bottom: 24px;
+      font-size: 13px;
+      color: #2a3a7a;
+    }
+    .info-banner strong { color: #1a2a6a; }
+
+    /* Section card */
+    .section {
+      background: #fff;
+      border: 1px solid #e2e8f4;
+      border-radius: 10px;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+    .section-header {
+      background: linear-gradient(135deg, #1a1a2e 0%, #2d3561 100%);
+      color: #fff;
+      padding: 14px 22px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-num {
+      background: rgba(255,255,255,0.15);
+      border-radius: 6px;
+      padding: 2px 9px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .section-header h2 { font-size: 15px; font-weight: 600; }
+    .section-body { padding: 20px 22px; }
+
+    /* Definitions grid */
+    .def-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    @media (max-width: 750px) { .def-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 480px) { .def-grid { grid-template-columns: 1fr; } }
+    .def-card {
+      background: #f8f9fd;
+      border: 1px solid #e2e8f4;
+      border-radius: 8px;
+      padding: 13px 15px;
+    }
+    .def-card .def-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #3355cc;
+      margin-bottom: 6px;
+    }
+    .def-card p { font-size: 12px; color: #3a4060; line-height: 1.6; }
+
+    /* Roles table */
+    .roles-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    .roles-table th {
+      background: #f0f4ff;
+      color: #3355cc;
+      font-weight: 700;
+      padding: 8px 12px;
+      text-align: right;
+      border: 1px solid #d8e0f4;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .roles-table td {
+      padding: 8px 12px;
+      border: 1px solid #e8ecf4;
+      color: #3a4060;
+      vertical-align: top;
+    }
+    .roles-table tr:nth-child(even) td { background: #f8f9fd; }
+    .role-badge {
+      display: inline-block;
+      background: #e8edfa;
+      color: #3355cc;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 10px;
+      border: 1px solid #c8d4f4;
+      white-space: nowrap;
+    }
+    .check { color: #2a6b2a; font-weight: 700; }
+    .cross { color: #999; }
+
+    /* Scenario */
+    .scenario {
+      margin-bottom: 28px;
+    }
+    .scenario:last-child { margin-bottom: 0; }
+    .scenario-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .scenario-num {
+      background: #1a1a2e;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .scenario-title h3 { font-size: 14px; font-weight: 700; color: #1a1a2e; }
+    .scenario-desc { font-size: 12px; color: #6b7a99; margin-right: 36px; margin-bottom: 14px; }
+
+    /* Step flow */
+    .steps { position: relative; padding-right: 18px; }
+    .steps::before {
+      content: '';
+      position: absolute;
+      right: 10px;
+      top: 20px;
+      bottom: 20px;
+      width: 2px;
+      background: #dde5f8;
+    }
+    .step {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 10px;
+      position: relative;
+      align-items: flex-start;
+    }
+    .step-dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #3355cc;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+      z-index: 1;
+    }
+    .step-dot.gray { background: #a0a8c0; }
+    .step-dot.green { background: #2a6b2a; }
+    .step-card {
+      background: #f8f9fd;
+      border: 1px solid #e2e8f4;
+      border-radius: 8px;
+      padding: 10px 14px;
+      flex: 1;
+    }
+    .step-card .step-who {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #3355cc;
+      margin-bottom: 3px;
+    }
+    .step-card .step-what { font-size: 13px; color: #2a3050; }
+    .step-card .step-note {
+      font-size: 11px;
+      color: #6b7a99;
+      margin-top: 4px;
+      font-style: italic;
+    }
+    .step-card.highlight {
+      background: #f0f4ff;
+      border-color: #b8c8f4;
+    }
+    .step-card.warning {
+      background: #fffbf0;
+      border-color: #ffe082;
+    }
+    .step-card.success {
+      background: #f0f8f0;
+      border-color: #a8d8a8;
+    }
+
+    /* Decision box */
+    .decision {
+      display: flex;
+      gap: 12px;
+      margin: 10px 0 10px 0;
+      margin-right: 34px;
+    }
+    .decision-branch {
+      flex: 1;
+      border: 1px dashed #c8d4f4;
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: #f8f9fd;
+    }
+    .decision-branch .branch-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 5px;
+    }
+    .branch-yes .branch-label { color: #2a6b2a; }
+    .branch-no .branch-label { color: #b03030; }
+    .decision-branch p { font-size: 12px; color: #3a4060; }
+
+    /* Note box */
+    .note {
+      background: #fffbf0;
+      border: 1px solid #ffe082;
+      border-radius: 6px;
+      padding: 9px 13px;
+      margin-top: 10px;
+      font-size: 12px;
+      color: #5a4a00;
+    }
+    .note strong { color: #8a6a00; }
+
+    /* Provisioning table */
+    .prov-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .prov-table th {
+      background: #1a1a2e;
+      color: #fff;
+      font-weight: 700;
+      padding: 9px 11px;
+      text-align: right;
+      border: 1px solid #2d3561;
+      font-size: 11px;
+    }
+    .prov-table td {
+      padding: 8px 11px;
+      border: 1px solid #e8ecf4;
+      color: #3a4060;
+      vertical-align: top;
+    }
+    .prov-table tr:nth-child(even) td { background: #f8f9fd; }
+    .prov-table .required { color: #b03030; font-weight: 700; }
+    .prov-table .optional { color: #6b7a99; }
+
+    /* Summary table */
+    .summary-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    .summary-table th {
+      background: #f0f4ff;
+      color: #3355cc;
+      font-weight: 700;
+      padding: 8px 12px;
+      text-align: right;
+      border: 1px solid #d8e0f4;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+    .summary-table td {
+      padding: 8px 12px;
+      border: 1px solid #e8ecf4;
+      color: #3a4060;
+      vertical-align: middle;
+    }
+    .summary-table tr:nth-child(even) td { background: #f8f9fd; }
+
+    hr.scenario-divider { border: none; border-top: 1px dashed #d8e0f4; margin: 20px 0; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <h1>נוהל הקמת הרשאות — פלטפורמת LLM ארגונית</h1>
+    <p>תהליך פתיחה, שינוי והסרת גישה לכלי Claude / GPT דרך ה-LLM Gateway הארגוני</p>
+    <div class="meta">
+      <span><strong>גרסה:</strong> 0.1 Draft</span>
+      <span><strong>קהל יעד:</strong> מנהלי חטיבות, מנהלי הקצאה, צוות פלטפורמה</span>
+      <span><strong>מסמך משלים:</strong> Spec פלטפורמת LLM ארגונית</span>
+    </div>
+  </header>
+
+  <div class="toc">
+    <h2>תוכן עניינים</h2>
+    <ul>
+      <li><a href="#defs">הגדרות מרכזיות</a></li>
+      <li><a href="#roles">תפקידים ואחריות</a></li>
+      <li><a href="#flows">תרחישים ותהליכים</a></li>
+      <li><a href="#s1">תרחיש 1 — פתיחת משתמש חדש</a></li>
+      <li><a href="#s2">תרחיש 2 — מעבר בין חטיבות</a></li>
+      <li><a href="#s3">תרחיש 3 — הגדלת מכסה / Budget Override</a></li>
+      <li><a href="#s4">תרחיש 4 — עזיבת עובד / הסרת גישה</a></li>
+      <li><a href="#provtable">טבלת Provisioning</a></li>
+    </ul>
+  </div>
+
+  <div class="info-banner">
+    <strong>הפרדת אחריות עיקרית —</strong>
+    צוות ההרשאות מיישם בקשות ומשייך Identity, Role, Model Profile ו-Usage Profile.
+    <strong>צוות ההרשאות אינו קובע את גובה התקציב</strong> — זו סמכות Budget Owner / Allocation Manager בלבד.
+  </div>
+
+  <!-- Section 1: Definitions -->
+  <div class="section" id="defs">
+    <div class="section-header">
+      <span class="section-num">1</span>
+      <h2>הגדרות מרכזיות</h2>
+    </div>
+    <div class="section-body">
+      <div class="def-grid">
+        <div class="def-card">
+          <div class="def-title">Organizational Unit</div>
+          <p>חטיבה (ובטכנולוגיה — גם תחום). קובע <strong>מאיזה Pool תנוכה העלות</strong>. כל עובד שייך לחטיבה ראשית אחת.</p>
+        </div>
+        <div class="def-card">
+          <div class="def-title">Role</div>
+          <p>מגדיר <strong>מה המשתמש יכול לראות ולנהל</strong> במערכת. אינו קובע מודלים או תקציב.</p>
+        </div>
+        <div class="def-card">
+          <div class="def-title">Model Profile</div>
+          <p>קובע <strong>לאילו מודלים ויכולות</strong> המשתמש רשאי לגשת (Standard / Advanced / Developer / Restricted).</p>
+        </div>
+        <div class="def-card">
+          <div class="def-title">Usage Profile</div>
+          <p>קובע את <strong>הקצאת ברירת המחדל החודשית</strong> (Basic / Standard / Power / Custom). ניתן לשינוי על ידי גורם תקציבי.</p>
+        </div>
+        <div class="def-card">
+          <div class="def-title">Budget Override</div>
+          <p>חריגה / הגדלה מעבר לברירת המחדל של Usage Profile, <strong>עבור עובד ספציפי</strong>. מבוצע רק על ידי Budget Owner / Allocation Manager, בתוך ה-Pool החטיבתי.</p>
+        </div>
+        <div class="def-card">
+          <div class="def-title">Provisioning</div>
+          <p>הפעולה הטכנית של שיוך Identity + Role + Profiles. מבוצעת על ידי <strong>צוות הפלטפורמה</strong> לאחר אישור מנהל מורשה.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 2: Roles -->
+  <div class="section" id="roles">
+    <div class="section-header">
+      <span class="section-num">2</span>
+      <h2>תפקידים ואחריות בתהליך</h2>
+    </div>
+    <div class="section-body">
+      <table class="roles-table">
+        <thead>
+          <tr>
+            <th>תפקיד</th>
+            <th>מה הוא עושה בנוהל זה</th>
+            <th>יכול לאשר פתיחה</th>
+            <th>יכול לקבוע תקציב</th>
+            <th>מיישם טכנית</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="role-badge">Central Admin</span></td>
+            <td>ניהול כלל ההיררכיה, העברת תקציב בין חטיבות, אישור חריגים ארגוניים</td>
+            <td class="check">כן — כלל הארגון</td>
+            <td class="check">כן — ארגון + חטיבות</td>
+            <td class="check">כן</td>
+          </tr>
+          <tr>
+            <td><span class="role-badge">Division Budget Owner</span></td>
+            <td>אישור פתיחת משתמשים בחטיבה, הקצאת Budget ברמת עובד, האצלה ל-Allocation Managers</td>
+            <td class="check">כן — בחטיבה שלו</td>
+            <td class="check">כן — בתוך ה-Pool שלו</td>
+            <td class="cross">לא</td>
+          </tr>
+          <tr>
+            <td><span class="role-badge">Domain Budget Manager</span></td>
+            <td>אישור פתיחת משתמשים בתחום (טכנולוגיה), הקצאת תקציב בתחום</td>
+            <td class="check">כן — בתחום שלו</td>
+            <td class="check">כן — בגבולות ה-Allocation</td>
+            <td class="cross">לא</td>
+          </tr>
+          <tr>
+            <td><span class="role-badge">Allocation Manager</span></td>
+            <td>ניהול שוטף של קבוצת משתמשים, שיוך Profiles, עריכת הקצאות בגבולות שהוגדרו</td>
+            <td class="check">כן — בקבוצה שלו</td>
+            <td class="check">כן — בגבולות שהוגדרו</td>
+            <td class="cross">לא</td>
+          </tr>
+          <tr>
+            <td><span class="role-badge">צוות פלטפורמה</span></td>
+            <td>ביצוע טכני של הבקשה: שיוך Identity, Role, Profiles במערכת. <strong>אינו קובע תקציב</strong></td>
+            <td class="cross">לא</td>
+            <td class="cross">לא</td>
+            <td class="check">כן</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Section 3: Flows -->
+  <div class="section" id="flows">
+    <div class="section-header">
+      <span class="section-num">3</span>
+      <h2>תרחישים ותהליכים</h2>
+    </div>
+    <div class="section-body">
+
+      <!-- Scenario 1 -->
+      <div class="scenario" id="s1">
+        <div class="scenario-title">
+          <div class="scenario-num">1</div>
+          <h3>פתיחת משתמש חדש</h3>
+        </div>
+        <div class="scenario-desc">עובד חדש בארגון, או עובד קיים שנכנס לקבוצת המשתמשים המורשים של Claude.</div>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-dot">1</div>
+            <div class="step-card">
+              <div class="step-who">Division Budget Owner / Allocation Manager</div>
+              <div class="step-what">מזהה צורך בפתיחת גישה לעובד ומאשר את הבקשה.</div>
+              <div class="step-note">הגורם המאשר חייב להיות מורשה לאוכלוסייה שאליה שייך העובד.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-dot">2</div>
+            <div class="step-card highlight">
+              <div class="step-who">Division Budget Owner / Allocation Manager — החלטות נדרשות</div>
+              <div class="step-what">מגדיר 4 פרמטרים לבקשה:</div>
+              <div class="step-note">
+                א. <strong>Organizational Unit</strong> — חטיבה + תחום (בטכנולוגיה)<br>
+                ב. <strong>Role</strong> — End User / Allocation Manager / אחר<br>
+                ג. <strong>Model Profile</strong> — Standard / Advanced / Developer / Restricted<br>
+                ד. <strong>Usage Profile</strong> — Basic / Standard / Power / Custom
+              </div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-dot">3</div>
+            <div class="step-card warning">
+              <div class="step-who">Division Budget Owner / Allocation Manager — אופציונלי</div>
+              <div class="step-what">Budget Override — אם נדרשת הקצאה שונה מברירת מחדל ה-Usage Profile.</div>
+              <div class="step-note">Override מבוצע רק בגבולות ה-Pool החטיבתי. מתועד ב-Audit Log.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-dot">4</div>
+            <div class="step-card">
+              <div class="step-who">צוות פלטפורמה</div>
+              <div class="step-what">מקבל את הבקשה עם כל הפרמטרים ומיישם: שיוך Identity, Role, Model Profile, Usage Profile.</div>
+              <div class="step-note">צוות הפלטפורמה אינו קובע ואינו משנה תקציב — מיישם בלבד.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-dot green">5</div>
+            <div class="step-card success">
+              <div class="step-who">מערכת — אוטומטי</div>
+              <div class="step-what">הגישה פעילה. צריכת המשתמש נרשמת ומצטברת לחטיבה ול-Budget הרלוונטי.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="scenario-divider">
+
+      <!-- Scenario 2 -->
+      <div class="scenario" id="s2">
+        <div class="scenario-title">
+          <div class="scenario-num">2</div>
+          <h3>מעבר עובד בין חטיבות</h3>
+        </div>
+        <div class="scenario-desc">עובד עובר יחידה ארגונית — השיוך, העלות וההרשאות צריכים לעבור בהתאם.</div>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-dot">1</div>
+            <div class="step-card">
+              <div class="step-who">Division Budget Owner (חטיבה החדשה) / HR / מנהל ישיר</div>
+              <div class="step-what">מגיש בקשת שינוי שיוך: שם עובד, חטיבה ישנה, חטיבה חדשה, תחום חדש (אם רלוונטי).</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-dot">2</div>
+            <div class="step-card highlight">
+              <div class="step-who">Division Budget Owner (חטיבה החדשה) — החלטה נדרשת</div>
+              <div class="step-what">מגדיר Role, Model Profile ו-Usage Profile בחטיבה החדשה — לא בהכרח זהים לחטיבה הישנה.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-dot">3</div>
+            <div class="step-card">
+              <div class="step-who">צוות פלטפורמה</div>
+              <div class="step-what">מעדכן את שיוך הישות הארגונית, ה-Role וה-Profiles. הצריכה העתידית נרשמת לחטיבה החדשה.</div>
+              <div class="step-note">שינוי השיוך נרשם ב-Audit Log עם תאריך השינוי.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-dot green">4</div>
+            <div class="step-card success">
+              <div class="step-who">מערכת — אוטומטי</div>
+              <div class="step-what">מהתאריך הקובע — הצריכה נרשמת לחטיבה החדשה. היסטוריית החטיבה הישנה נשמרת לצורכי דיווח.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="note">
+          <strong>מקרה מיוחד — מימון צולב בין חטיבות:</strong>
+          אם חטיבה א׳ רוצה לממן עובד בחטיבה ב׳ (לדוגמה, תפעול מממנת עבודת פיתוח בטכנולוגיה) —
+          Central Admin מסיט תקציב מחטיבה א׳ לחטיבה ב׳, ואז Division Budget Owner של חטיבה ב׳ מקצה לעובד הרלוונטי מה-Pool שלו.
+          <strong>העובד עצמו לא עובר חטיבה</strong> — רק התקציב מוסט.
+        </div>
+      </div>
+
+      <hr class="scenario-divider">
+
+      <!-- Scenario 3 -->
+      <div class="scenario" id="s3">
+        <div class="scenario-title">
+          <div class="scenario-num">3</div>
+          <h3>הגדלת מכסה / Budget Override</h3>
+        </div>
+        <div class="scenario-desc">עובד מגיע לגבול הקצאתו ומבקש הגדלה, או מנהל מזהה צורך מראש.</div>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-dot">1</div>
+            <div class="step-card">
+              <div class="step-who">End User / מנהל ישיר</div>
+              <div class="step-what">מגיש בקשת הגדלת מכסה ל-Allocation Manager / Division Budget Owner של החטיבה.</div>
+              <div class="step-note">ניתן לבקש גם יזום על ידי מנהל, ללא בקשת העובד.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-dot">2</div>
+            <div class="step-card highlight">
+              <div class="step-who">Division Budget Owner / Allocation Manager — בדיקה ואישור</div>
+              <div class="step-what">בודק: האם יש יתרה ב-Pool החטיבתי? אם כן — יכול לאשר ישירות.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="decision">
+          <div class="decision-branch branch-yes">
+            <div class="branch-label">יש יתרה ב-Pool</div>
+            <p>Division Budget Owner / Allocation Manager מאשר את ה-Override ישירות מה-Pool שלו. לא נדרש אישור Central Admin.</p>
+          </div>
+          <div class="decision-branch branch-no">
+            <div class="branch-label">אין יתרה ב-Pool</div>
+            <p>בקשת הגדלת תקציב חטיבתי מועלית ל-Central Admin. Central Admin מחליט על הגדלה קבועה / חד-פעמית.</p>
+          </div>
+        </div>
+
+        <div class="steps" style="margin-top:10px;">
+          <div class="step">
+            <div class="step-dot">3</div>
+            <div class="step-card">
+              <div class="step-who">צוות פלטפורמה</div>
+              <div class="step-what">מיישם את ה-Override בפרופיל המשתמש לפי ההחלטה המאושרת.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-dot green">4</div>
+            <div class="step-card success">
+              <div class="step-who">מערכת — אוטומטי</div>
+              <div class="step-what">ה-Override נרשם ב-Audit Log: מי אישר, סכום, תאריך, נימוק.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="note">
+          <strong>Override לעובד ≠ שינוי ה-Usage Profile הארגוני</strong> — ה-Override הוא פרטני לעובד בלבד ואינו משפיע על ברירת המחדל לשאר המשתמשים עם אותו פרופיל.
+        </div>
+      </div>
+
+      <hr class="scenario-divider">
+
+      <!-- Scenario 4 -->
+      <div class="scenario" id="s4">
+        <div class="scenario-title">
+          <div class="scenario-num">4</div>
+          <h3>עזיבת עובד / הסרת גישה</h3>
+        </div>
+        <div class="scenario-desc">עובד עוזב את הארגון או מסיים תפקיד שדורש גישה לפלטפורמה.</div>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-dot">1</div>
+            <div class="step-card">
+              <div class="step-who">HR / מנהל ישיר / Division Budget Owner</div>
+              <div class="step-what">מגיש בקשת הסרת גישה עם שם העובד ותאריך תחילת תוקף.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-dot">2</div>
+            <div class="step-card">
+              <div class="step-who">צוות פלטפורמה</div>
+              <div class="step-what">מנתק את שיוך ה-Identity ומשבית את הגישה. מתעד ב-Audit Log.</div>
+              <div class="step-note">נתוני ההיסטוריה והצריכה של העובד נשמרים — לא נמחקים.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-dot green">3</div>
+            <div class="step-card success">
+              <div class="step-who">מערכת — אוטומטי</div>
+              <div class="step-what">יתרת ה-Budget שהוקצתה לעובד חוזרת ל-Pool החטיבתי — זמינה להקצאה חדשה.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="note">
+          <strong>תזכורת:</strong> עובד ב-Offboarding שהיה בעל Role ניהולי (Allocation Manager וכדומה) — יש לוודא גם הסרת ה-Role הניהולי בנפרד לפני השבתת הגישה, כדי שהאצלת הסמכויות שלו תתעדכן.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Section 4: Provisioning Table -->
+  <div class="section" id="provtable">
+    <div class="section-header">
+      <span class="section-num">4</span>
+      <h2>טבלת Provisioning — Source of Truth לבקשות פתיחה ושינוי</h2>
+    </div>
+    <div class="section-body">
+      <p style="font-size:13px; color:#3a4060; margin-bottom:16px;">
+        הטבלה משמשת לניהול בקשות פתיחה ושינוי. לאחר אישור ומילוי כל השדות — היא מועברת לצוות הפלטפורמה לביצוע.
+        <strong>שדות מסומנים בכוכבית (*) הם חובה.</strong>
+      </p>
+      <table class="prov-table">
+        <thead>
+          <tr>
+            <th>שם משתמש *</th>
+            <th>חטיבה *</th>
+            <th>תחום</th>
+            <th>Role *</th>
+            <th>Model Profile *</th>
+            <th>Usage Profile *</th>
+            <th>Budget Override</th>
+            <th>מאשר תקציבי *</th>
+            <th>סוג בקשה</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="optional">לדוגמה: ישראל ישראלי</td>
+            <td class="optional">תפעול</td>
+            <td class="optional">—</td>
+            <td class="optional">End User</td>
+            <td class="optional">Standard</td>
+            <td class="optional">Standard Usage</td>
+            <td class="optional">—</td>
+            <td class="optional">הילה בקשי</td>
+            <td class="optional">פתיחה</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div style="margin-top:16px; display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <div style="background:#f8f9fd; border:1px solid #e2e8f4; border-radius:8px; padding:13px 15px;">
+          <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#3355cc; margin-bottom:8px;">אפשרויות Role</div>
+          <ul style="list-style:none; font-size:12px; color:#3a4060;">
+            <li style="padding:3px 0; border-bottom:1px dashed #edf0f8;">End User</li>
+            <li style="padding:3px 0; border-bottom:1px dashed #edf0f8;">Allocation Manager</li>
+            <li style="padding:3px 0; border-bottom:1px dashed #edf0f8;">Domain Budget Manager</li>
+            <li style="padding:3px 0; border-bottom:1px dashed #edf0f8;">Division Budget Owner</li>
+            <li style="padding:3px 0;">Central Admin</li>
+          </ul>
+        </div>
+        <div style="background:#f8f9fd; border:1px solid #e2e8f4; border-radius:8px; padding:13px 15px;">
+          <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#3355cc; margin-bottom:8px;">אפשרויות Model Profile</div>
+          <ul style="list-style:none; font-size:12px; color:#3a4060;">
+            <li style="padding:3px 0; border-bottom:1px dashed #edf0f8;">Standard — גישה למודלים בסיסיים</li>
+            <li style="padding:3px 0; border-bottom:1px dashed #edf0f8;">Advanced — גישה למודלים מתקדמים</li>
+            <li style="padding:3px 0; border-bottom:1px dashed #edf0f8;">Developer — כלי קוד ו-Agents</li>
+            <li style="padding:3px 0;">Restricted — גישה מצומצמת</li>
+          </ul>
+        </div>
+      </div>
+
+      <div style="margin-top:12px; background:#f8f9fd; border:1px solid #e2e8f4; border-radius:8px; padding:13px 15px;">
+        <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#3355cc; margin-bottom:8px;">אפשרויות Usage Profile</div>
+        <table class="summary-table">
+          <thead>
+            <tr>
+              <th>פרופיל</th>
+              <th>מתאים ל</th>
+              <th>הקצאה חודשית</th>
+              <th>מי יכול להקצות</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Basic</strong></td>
+              <td>שימוש מינימלי / ניסיוני</td>
+              <td>להשלמה</td>
+              <td>Allocation Manager</td>
+            </tr>
+            <tr>
+              <td><strong>Standard Usage</strong></td>
+              <td>משתמש שוטף</td>
+              <td>להשלמה</td>
+              <td>Allocation Manager</td>
+            </tr>
+            <tr>
+              <td><strong>Power</strong></td>
+              <td>שימוש אינטנסיבי</td>
+              <td>להשלמה</td>
+              <td>Budget Owner</td>
+            </tr>
+            <tr>
+              <td><strong>Custom</strong></td>
+              <td>חריג לפי צורך עסקי</td>
+              <td>לפי החלטה</td>
+              <td>Budget Owner בהתאם לסמכות</td>
+            </tr>
+          </tbody>
+        </table>
+        <p style="font-size:11px; color:#6b7a99; margin-top:8px;">* ערכי ה-Baseline הכספיים לכל פרופיל יועברו בטבלה נפרדת.</p>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
