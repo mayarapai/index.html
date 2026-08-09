@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spec — פלטפורמת LLM ארגונית</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.7;
+      color: #1a1a2e;
+      background: #f4f6fb;
+      direction: rtl;
+    }
+    .page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 24px 80px;
+    }
+    header {
+      background: #1a1a2e;
+      color: #fff;
+      padding: 36px 40px 28px;
+      border-radius: 12px;
+      margin-bottom: 32px;
+    }
+    header h1 { font-size: 26px; margin-bottom: 8px; }
+    header p { color: #a8b0c8; font-size: 13px; }
+    header .meta { display: flex; gap: 32px; margin-top: 16px; flex-wrap: wrap; }
+    header .meta span { color: #c8d0e8; font-size: 12px; }
+    header .meta strong { color: #fff; }
+
+    /* Navigation */
+    .toc {
+      background: #fff;
+      border: 1px solid #e2e8f4;
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin-bottom: 28px;
+    }
+    .toc h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: #6b7a99; margin-bottom: 12px; }
+    .toc ul { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
+    .toc ul li a {
+      display: inline-block;
+      padding: 5px 12px;
+      background: #f0f3fa;
+      border-radius: 20px;
+      color: #3355cc;
+      text-decoration: none;
+      font-size: 12px;
+      border: 1px solid #d8e0f4;
+      transition: background 0.15s;
+    }
+    .toc ul li a:hover { background: #dde5f8; }
+
+    /* Section */
+    .section {
+      background: #fff;
+      border: 1px solid #e2e8f4;
+      border-radius: 10px;
+      margin-bottom: 28px;
+      overflow: hidden;
+    }
+    .section-header {
+      background: linear-gradient(135deg, #1a1a2e 0%, #2d3561 100%);
+      color: #fff;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .section-header .epic-id {
+      background: rgba(255,255,255,0.15);
+      border-radius: 6px;
+      padding: 2px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+    }
+    .section-header h2 { font-size: 16px; font-weight: 600; }
+    .section-body { padding: 20px 24px; }
+
+    /* Story card */
+    .story {
+      border: 1px solid #e8ecf4;
+      border-radius: 8px;
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+    .story:last-child { margin-bottom: 0; }
+    .story-header {
+      padding: 10px 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: #f8f9fd;
+      border-bottom: 1px solid #e8ecf4;
+    }
+    .story-id {
+      background: #e8edfa;
+      color: #3355cc;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+      margin-top: 2px;
+    }
+    .story-title { font-size: 13px; font-weight: 600; color: #1a1a2e; }
+    .story-body { padding: 14px 16px; }
+    .story-statement {
+      background: #f0f4ff;
+      border-right: 3px solid #3355cc;
+      padding: 10px 14px;
+      border-radius: 0 6px 6px 0;
+      font-size: 13px;
+      color: #2a3050;
+      margin-bottom: 12px;
+      font-style: italic;
+    }
+
+    .ac-list { list-style: none; }
+    .ac-list li {
+      padding: 5px 0 5px 0;
+      font-size: 13px;
+      color: #3a4060;
+      border-bottom: 1px dashed #edf0f8;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .ac-list li:last-child { border-bottom: none; }
+    .ac-list li::before {
+      content: '';
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #3355cc;
+      margin-top: 7px;
+      flex-shrink: 0;
+    }
+
+    .ac-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #6b7a99;
+      margin-bottom: 8px;
+    }
+
+    /* Priority / size badges */
+    .badges { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+    .badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .badge-mvp { background: #fff0e0; color: #b05000; border: 1px solid #ffd099; }
+    .badge-phase2 { background: #e8f4e8; color: #2a6b2a; border: 1px solid #a8d8a8; }
+    .badge-high { background: #fde8e8; color: #b03030; border: 1px solid #f4b0b0; }
+    .badge-med { background: #fff8e0; color: #7a5a00; border: 1px solid #ffd97a; }
+    .badge-low { background: #f0f0f0; color: #555; border: 1px solid #ccc; }
+
+    /* Notes */
+    .note {
+      background: #fffbf0;
+      border: 1px solid #ffe082;
+      border-radius: 6px;
+      padding: 10px 14px;
+      margin-top: 10px;
+      font-size: 12px;
+      color: #5a4a00;
+    }
+    .note strong { color: #8a6a00; }
+
+    /* Open Questions */
+    .oq-section {
+      background: #fff8e8;
+      border: 1px solid #ffd97a;
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin-bottom: 28px;
+    }
+    .oq-section h2 { font-size: 15px; color: #7a5a00; margin-bottom: 14px; }
+    .oq-list { list-style: none; counter-reset: oq; }
+    .oq-list li {
+      counter-increment: oq;
+      padding: 8px 0;
+      border-bottom: 1px dashed #ffd97a;
+      font-size: 13px;
+      color: #4a3800;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .oq-list li:last-child { border-bottom: none; }
+    .oq-list li::before {
+      content: counter(oq);
+      background: #ffd97a;
+      color: #7a5a00;
+      font-weight: 700;
+      font-size: 11px;
+      min-width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* DOD */
+    .dod-section {
+      background: #e8f4e8;
+      border: 1px solid #a8d8a8;
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin-bottom: 28px;
+    }
+    .dod-section h2 { font-size: 15px; color: #1a4a1a; margin-bottom: 14px; }
+    .dod-list { list-style: none; }
+    .dod-list li {
+      padding: 7px 0;
+      border-bottom: 1px dashed #a8d8a8;
+      font-size: 13px;
+      color: #1a3a1a;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .dod-list li:last-child { border-bottom: none; }
+    .dod-list li::before {
+      content: '✓';
+      color: #2a6b2a;
+      font-weight: 700;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    /* Scope note */
+    .scope-banner {
+      background: #f0f4ff;
+      border: 1px solid #b8c8f4;
+      border-radius: 10px;
+      padding: 14px 20px;
+      margin-bottom: 28px;
+      font-size: 13px;
+      color: #2a3a7a;
+    }
+    .scope-banner strong { color: #1a2a6a; }
+
+    h3.sub { font-size: 13px; font-weight: 700; color: #6b7a99; margin: 16px 0 8px; text-transform: uppercase; letter-spacing: 0.06em; }
+
+    /* Background section */
+    .bg-section {
+      background: #fff;
+      border: 1px solid #e2e8f4;
+      border-radius: 10px;
+      margin-bottom: 28px;
+      overflow: hidden;
+    }
+    .bg-section-header {
+      background: linear-gradient(135deg, #1e3a5f 0%, #2e5a8f 100%);
+      color: #fff;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .bg-section-header .bg-tag {
+      background: rgba(255,255,255,0.18);
+      border-radius: 6px;
+      padding: 2px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+    }
+    .bg-section-header h2 { font-size: 16px; font-weight: 600; }
+    .bg-section-body { padding: 24px 24px; }
+    .bg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+    @media (max-width: 700px) { .bg-grid { grid-template-columns: 1fr; } }
+    .bg-card {
+      background: #f8f9fd;
+      border: 1px solid #e2e8f4;
+      border-radius: 8px;
+      padding: 16px 18px;
+    }
+    .bg-card h3 {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #3355cc;
+      margin-bottom: 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #e2e8f4;
+    }
+    .bg-card ul { list-style: none; }
+    .bg-card ul li {
+      font-size: 13px;
+      color: #3a4060;
+      padding: 4px 0;
+      border-bottom: 1px dashed #edf0f8;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+    .bg-card ul li:last-child { border-bottom: none; }
+    .bg-card ul li::before {
+      content: '';
+      display: inline-block;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #3355cc;
+      margin-top: 8px;
+      flex-shrink: 0;
+    }
+    /* Stakeholders table */
+    .stakeholders-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .stakeholders-table th {
+      background: #f0f4ff;
+      color: #3355cc;
+      font-weight: 700;
+      padding: 8px 12px;
+      text-align: right;
+      border: 1px solid #d8e0f4;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .stakeholders-table td {
+      padding: 8px 12px;
+      border: 1px solid #e8ecf4;
+      color: #3a4060;
+      vertical-align: top;
+    }
+    .stakeholders-table tr:nth-child(even) td { background: #f8f9fd; }
+    .role-badge {
+      display: inline-block;
+      background: #e8edfa;
+      color: #3355cc;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 10px;
+      border: 1px solid #c8d4f4;
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <h1>Spec — פלטפורמת LLM ארגונית</h1>
+    <p>LiteLLM / LLM Gateway — מודל תפעולי היררכי לניהול משתמשים, תקציבים וטוקנים</p>
+    <div class="meta">
+      <span><strong>גרסה:</strong> 0.1 Draft</span>
+      <span><strong>בסיס:</strong> LLM Operating Model & Access Governance</span>
+      <span><strong>קהל יעד:</strong> צוות פלטפורמה</span>
+      <span><strong>תהליך ההרשאות:</strong> מסמך נפרד — אינו בסקופ</span>
+    </div>
+  </header>
+
+  <div class="scope-banner">
+    <strong>הגדרת סקופ —</strong> המסמך מכסה את <strong>בניית הפלטפורמה</strong>: היררכיה, ניהול תקציב, תפקידים, פרופילים, דשבורד, התראות, אודיט והיסטוריה.
+    תהליך פתיחת המשתמשים וניהול ההרשאות האופרטיבי (Provisioning) מוגדר כתהליך נפרד ואינו חלק מ-Spec זה.
+  </div>
+
+  <div class="toc">
+    <h2>תוכן עניינים</h2>
+    <ul>
+      <li><a href="#background">רקע, מטרות ועקרונות</a></li>
+      <li><a href="#e1">E1 — היררכיה ארגונית</a></li>
+      <li><a href="#e2">E2 — ניהול תקציב</a></li>
+      <li><a href="#e3">E3 — תפקידים והרשאות (RBAC)</a></li>
+      <li><a href="#e4">E4 — פרופילי מודלים ושימוש</a></li>
+      <li><a href="#e5">E5 — דשבורד ודיווח</a></li>
+      <li><a href="#e6">E6 — התראות</a></li>
+      <li><a href="#e7">E7 — שיוך ואודיט</a></li>
+      <li><a href="#e8">E8 — Rate Limits</a></li>
+      <li><a href="#e9">E9 — היסטוריה ו-Forecast</a></li>
+      <li><a href="#oq">שאלות פתוחות</a></li>
+      <li><a href="#dod">DOD — הגדרת סיום</a></li>
+    </ul>
+  </div>
+
+  <!-- Background -->
+  <div class="bg-section" id="background">
+    <div class="bg-section-header">
+      <span class="bg-tag">רקע</span>
+      <h2>רקע, מטרות ועקרונות</h2>
+    </div>
+    <div class="bg-section-body">
+
+      <div class="bg-grid">
+        <div class="bg-card">
+          <h3>רקע</h3>
+          <ul>
+            <li>הארגון עובר לפריסה רחבה של כלי Claude / GPT — כ-120 עובדים בשלב ראשון, עם תכנון להרחבה.</li>
+            <li>הפלטפורמה תנוהל דרך LiteLLM / LLM Gateway ארגוני מרכזי — מופע אחד לכל הארגון.</li>
+            <li>הצורך: שליטה בעלויות, הפרדה חטיבתית, בקרה ושקיפות — מבלי לפגוע בחווית המשתמש.</li>
+          </ul>
+        </div>
+        <div class="bg-card">
+          <h3>מטרות</h3>
+          <ul>
+            <li>שליטה מרכזית בעלויות — מניעת חריגות ושקיפות תקציבית מלאה.</li>
+            <li>ניהול מבוזר — כל חטיבה מנהלת את עצמה בגבולות שהוגדרו לה.</li>
+            <li>שיוך מלא (Chargeback) — כל שימוש מיוחס לעובד, יחידה ומודל.</li>
+            <li>גמישות תפעולית — תגובה מהירה לצרכים עסקיים משתנים.</li>
+            <li>פשטות — פרופילים סטנדרטיים, פחות ניהול ידני לכל משתמש בנפרד.</li>
+          </ul>
+        </div>
+        <div class="bg-card">
+          <h3>עקרונות ארכיטקטורה</h3>
+          <ul>
+            <li><strong>Gateway מרכזי אחד</strong> — לא מופע פיזי נפרד לכל חטיבה.</li>
+            <li><strong>Budget כספי = מקור האמת</strong> — Tokens הם מדד שימוש בלבד.</li>
+            <li><strong>Monthly Reset ללא צבירה</strong> — כל חודש מתחיל מחדש.</li>
+            <li><strong>Least Privilege</strong> — כל מנהל רואה ומנהל רק את הסמכות שלו.</li>
+            <li><strong>Pool חטיבתי</strong> — הקצאות לתחומים הן Soft Limit כברירת מחדל.</li>
+            <li><strong>הפרדה בין מנגנונים</strong> — Budget / Tokens / Rate Limits — שלושה מנגנונים נפרדים.</li>
+          </ul>
+        </div>
+        <div class="bg-card">
+          <h3>הנחות יסוד</h3>
+          <ul>
+            <li>כל עובד משויך לחטיבה ראשית אחת — מקור שיוך העלות.</li>
+            <li>העברת תקציב בין חטיבות — על ידי Central Admin בלבד.</li>
+            <li>Division Budget Owner אינו יכול להגדיל תקציב מעבר למה שאושר לו.</li>
+            <li>תהליך פתיחת משתמשים (Provisioning) מוגדר בתהליך נפרד.</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3 style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:#3355cc; margin-bottom:12px; padding-bottom:6px; border-bottom:1px solid #e2e8f4;">בעלי תפקיד — Stakeholders</h3>
+      <table class="stakeholders-table">
+        <thead>
+          <tr>
+            <th>תפקיד במערכת</th>
+            <th>שם / יחידה</th>
+            <th>אחריות עיקרית</th>
+            <th>רמת גישה</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="role-badge">Central Admin</span></td>
+            <td>נאור (CTO) + צוות פלטפורמה</td>
+            <td>ניהול מרכזי, ארכיטקטורה, מדיניות, תקציב ארגוני כולל</td>
+            <td>כלל הארגון — גישה מלאה</td>
+          </tr>
+          <tr>
+            <td><span class="role-badge">Central Budget Owner</span></td>
+            <td>להשלמה</td>
+            <td>אחריות תקציבית ארגונית; מאשר הגדלות Budget</td>
+            <td>כלל הארגון — צפייה + הקצאה</td>
+          </tr>
+          <tr>
+            <td><span class="role-badge">Division Budget Owner</span></td>
+            <td>מנהל/ת כל חטיבה (ראו טבלת חטיבות)</td>
+            <td>ניהול תקציב חטיבתי, האצלה למנהלי הקצאה</td>
+            <td>חטיבה שלו בלבד</td>
+          </tr>
+          <tr>
+            <td><span class="role-badge">Domain Budget Manager</span></td>
+            <td>מנהלי תחומים בחטיבה הטכנולוגית</td>
+            <td>ניהול הקצאה בתחום; ניהול משתמשים בתחום</td>
+            <td>תחום שלו בלבד</td>
+          </tr>
+          <tr>
+            <td><span class="role-badge">Allocation Manager</span></td>
+            <td>גורם מורשה מטעם מנהל החטיבה</td>
+            <td>שיוך Profiles, עריכת הקצאות ברמת משתמש</td>
+            <td>קבוצת המשתמשים שהוגדרה לו</td>
+          </tr>
+          <tr>
+            <td><span class="role-badge">End User</span></td>
+            <td>עובד/ת בארגון</td>
+            <td>שימוש בשירות לפי מכסה ופרופיל שהוגדרו</td>
+            <td>עצמו/ה בלבד</td>
+          </tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+
+  <!-- E1 -->
+  <div class="section" id="e1">
+    <div class="section-header">
+      <span class="epic-id">E1</span>
+      <h2>היררכיה ארגונית</h2>
+    </div>
+    <div class="section-body">
+
+      <div class="story">
+        <div class="story-header">
+          <span class="story-id">E1-01</span>
+          <div>
+            <div class="story-title">הגדרת ארגון מרכזי</div>
+            <div class="badges"><span class="badge badge-mvp">MVP</span></div>
+          </div>
+        </div>
+        <div class="story-body">
+          <div class="story-statement">כ-Central Admin, אני רוצה ליצור ישות ארגון מרכזית אחת עם תקציב כולל, כדי שכל הצריכה הארגונית תרכז תחתיה ותהיה תמונה אחת מלמעלה.</div>
+          <div class="ac-label">קריטריוני קבלה</div>
+          <ul class="ac-list">
+            <li>ניתן להגדיר שם ארגון, מטבע ותקציב חודשי כולל.</li>
+            <li>כל חטיבה קשורה לאותו ארגון.</li>
+            <li>הצריכה של כל החטיבות מצטברת אוטומטית לתקציב הארגוני.</li>
+            <li>לא ניתן לעבור את תקציב הארגון ללא אישור Central Admin.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="story">
+        <div class="story-header">
+          <span class="story-id">E1-02</span>
+          <div>
+            <div class="story-title">הגדרת חטיבות כישויות לוגיות</div>
+            <div class="badges"><span class="badge badge-mvp">MVP</span></div>
+          </div>
+        </div>
+        <div class="story-body">
+          <div class="story-statement">כ-Central Admin, אני רוצה להגדיר חטיבות כיחידות ניהול עצמאיות תחת הארגון, כדי שלכל חטיבה יהיו תקציב, הרשאות ודוחות משלה.</div>
+          <div class="ac-label">קריטריוני קבלה</div>
+          <ul class="ac-list">
+            <li>ניתן ליצור חטיבה עם שם, Budget Owner ותקציב חודשי.</li>
+            <li>כל חטיבה היא הפרדה לוגית — לא מופע פיזי נפרד.</li>
+            <li>מנהל חטיבה רואה ומנהל רק את החטיבה שלו.</li>
+            <li>סה"כ הקצאות לחטיבות לא יעלה על תקציב הארגון.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="story">
+        <div class="story-header">
+          <span class="story-id">E1-03</span>
+          <div>
+            <div class="story-title">תחומים בחטיבה הטכנולוגית</div>
+            <div class="badges"><span class="badge badge-mvp">MVP</span></div>
+          </div>
+        </div>
+        <div class="story-body">
+          <div class="story-statement">כ-Central Admin, אני רוצה להגדיר שכבת תחומים (Domains) בתוך החטיבה הטכנולוגית, כדי שכל מנהל תחום ינהל את ההקצאה שלו בתוך התקציב החטיבתי הכולל.</div>
+          <div class="ac-label">קריטריוני קבלה</div>
+          <ul class="ac-list">
+            <li>ניתן להוסיף תחומים תחת חטיבה (לא רק תחת הטכנולוגית — אבל MVP מתחיל משם).</li>
+            <li>לכל תחום: שם, מנהל תחום, Allocation מתוך ה-Pool החטיבתי.</li>
+            <li>צריכת תחום מצטברת לתקציב החטיבה — לא נוצר תקציב מקביל.</li>
+            <li>מנהל תחום רואה ומנהל רק את התחום שלו.</li>
+          </ul>
+          <div class="note"><strong>הערה:</strong> בשלב MVP — תחומים מוגדרים בחטיבה הטכנולוגית בלבד. יתר החטיבות פועלות ישירות Organization → Division → User.</div>
+        </div>
+      </div>
+
+      <div class="story">
+        <div class="story-header">
+          <span class="story-id">E1-04</span>
+          <div>
+            <div class="story-title">משתמש עם שיוך לחטיבה / תחום</div>
+            <div class="badges"><span class="badge badge-mvp">MVP</span></div>
+          </div>
+        </div>
+        <div class="story-body">
+          <div class="story-statement">כ-Allocation Manager, אני רוצה לשייך משתמש לחטיבה ולתחום (כשרלוונטי), כדי שכל צריכה שלו תיוחס נכון ליחידה הארגונית.</div>
+          <div class="ac-label">קריטריוני קבלה</div>
+          <ul class="ac-list">
+            <li>כל משתמש משויך לחטיבה; שיוך לתחום הוא אופציונלי.</li>
+            <li>לא ניתן ליצור משתמש ללא שיוך חטיבתי.</li>
+            <li>שינוי שיוך חטיבה/תחום נרשם ב-Audit Log.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="story">
+        <div class="story-header">
+          <span class="story-id">E1-05</span>
+          <div>
+            <div class="story-title">העברת תקציב בין חטיבות על ידי Central Admin</div>
+            <div class="badges"><span class="badge badge-mvp">MVP</span></div>
+          </div>
+        </div>
+        <div class="story-body">
+          <div class="story-statement">כ-Central Admin, אני רוצה להסיט תקציב מחטיבה אחת לחטיבה אחרת, כדי לאפשר מצבים שבהם חטיבה אחת מממנת פעילות של עובד בחטיבה אחרת.</div>
+          <div class="ac-label">קריטריוני קבלה</div>
+          <ul class="ac-list">
+            <li>Central Admin בלבד יכול להסיט תקציב בין חטיבות — לא מנהל החטיבה עצמו.</li>
+            <li>הפעולה מבוצעת כ"הפחתה מחטיבה א׳ + הוספה לחטיבה ב׳" בפעולה אטומית אחת.</li>
+            <li>ניתן לבחור: העברה חד-פעמית (לחודש הנוכחי) או קבועה (לכל החודשים הבאים).</li>
+            <li>לאחר ההעברה — Division Budget Owner של חטיבה ב׳ מקבל יתרה גדולה יותר ב-Pool שלו ויכול להקצות ממנה למשתמש ספציפי.</li>
+            <li>כל העברה נרשמת ב-Audit Log: מה הועבר, מאיזו חטיבה, לאיזו חטיבה, מי ביצע ומתי.</li>
+          </ul>
+          <div class="note"><strong>דוגמה:</strong> חטיבת תפעול מממנת עבודת פיתוח בחטיבה הטכנולוגית — Central Admin מעביר תקציב מתפעול לטכנולוגיה, ואז מנהל הטכנולוגיה מוסיף לעובד הרלוונטי מהPool שלו.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- E2 -->
+  <div class="section" id="e2">
+    <div class="section-header">
+      <span class="epic-id">E2</span>
+      <h2>ניהול תקציב</h2>
+    </div>
+    <div class="section-body">
+
+      <div class="story">
+        <div class="story-header">
+          <span class="story-id">E2-01</span>
+          <div>
+            <div class="story-title">Hard Budget כספי ברמת חטיבה</div>
+            <div class="badges"><span class="badge badge-mvp">MVP</span></div>
+          </div>
+        </div>
+        <div class="story-body">
+          <div class="story-statement">כ-Central Admin, אני רוצה להגדיר תקציב חודשי מחייב (Hard Budget) לכל חטיבה, כדי שהצריכה לא תחרוג ממנו ללא אישור מפורש.</div>
+          <div class="ac-label">קריטריוני קבלה</div>
+          <ul class="ac-list">
+            <li>ניתן להגדיר Hard Budget כספי (₪/$) ברמת חטיבה.</li>
+            <li>כשהחטיבה מגיעה ל-100% — ברירת המחדל היא חסימה (Hard Stop) אלא אם הוגדרה מדיניות אחרת.</li>
+            <li>חריגה מעבר ל-Hard Budget אפשרית רק לאחר אישור Central Admin.</li>
+            <li>ה-Budget הכספי הוא מקור האמת התקציבי — לא Tokens.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="story">
+        <div class="story-header">
+          <span class="story-id">E2-02</span>
+          <div>
+            <div class="story-title">איפוס חודשי ללא צבירה</div>
+            <div class="badges"><span class="badge badge-mvp">MVP</span></div>
+          </div>
+        </div>
+        <div class="story-body">
+          <div class="story-statement">כ-Central Admin, אני רוצה שתקציב כל חטיבה יתאפס אוטומטית בתחילת כל חודש קלנדרי למלוא הסכום המאושר, כדי שכל חודש יתחיל טרי ויתרות לא יצטברו.</div>
+          <div class="ac-label">קריטריוני קבלה</div>
+          <ul class="ac-list">
+            <li>ב-1 לחודש ה-Budget חוזר ל-100% ללא Rollover של יתרה.</li>
+            <li>יתרה שלא נוצלה נשמרת בהיסטוריה לצורכי דיווח בלבד.</li>
+            <li>האיפוס הוא אוטומטי — אינו דורש פעולה ידנית.</li>
+            <li>ניתן לצפות בתקציב הנוכחי ובתקציב שהוגדר (לפני ואחרי איפוס).</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="story">
+        <div class="story-header">
+          <span class="story-id">E2-03</span>
+          <div>
+            <div class="story-title">הוספת תקציב — קבוע או חד-פעמי</div>
+            <div class="badges"><span class="badge badge-mvp">MVP</span></div>
+          </div>
+        </div>
+        <div class="story-body">
+          <div class="story-statement">כ-Central Admin, אני רוצה להוסיף תקציב לחטיבה — קבוע (לכל החודשים מכאן ואילך) או חד-פעמי (לחודש הנוכחי בלבד), כדי שאוכל להגיב לצרכים עסקיים משתנים.</div>
+          <div class="ac-label">קריטריוני קבלה</div>
+          <ul class="ac-list">
+            <li>Central Admin בלבד יכול להוסיף תקציב — לא Division Budget Owner.</li>
+            <li>בהוספה ניתן לבחור: קבוע (מעדכן את ה-Baseline לחודשים הבאים) / חד-פעמי (תוספת לחודש הנוכחי בלבד).</li>
+            <li>כל שינוי תקציב נרשם ב-Audit Log עם שם המבצע, תאריך, סכום וסוג.</li>
+            <li>ניתן להסיט תקציב בין חטיבות (הפחתה מחטיבה א׳ + הוספה לחטיבה ב׳).</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="story">
+        <div class="story-header">
+          <span class="story-id">E2-04</span>
+          <div>
+            <div class="story-title">Pool חטיבתי — עריכת הקצאה ברמת עובד ספציפי</div>
+            <div class="badges"><span class="badge badge-mvp">MVP</span></div>
+          </div>
+        </div>
+        <div class="story-body">
+          <div class="story-statement">כ-Division Budget Owner, אני רוצה לערוך את הקצאת התקציב של עובד ספציפי בחטיבה שלי ישירות מה-Pool שלי, מבלי לחרוג מהתקציב החטיבתי הכולל.</div>
+          <div class="ac-label">קריטריוני קבלה</div>
+          <ul class="ac-list">
+            <li>ה-Budget החטיבתי הוא Pool — הקצאות לתחומים ולמשתמשים לא נועלות כסף מראש.</li>
+            <li>Division Budget Owner יכול להגדיל או להקטין את הקצאת עובד ספציפי ישירות מה-Pool שלו — ללא צורך באישור Central Admin, כל עוד הפעולה בגבולות הPool.</li>
+            <li>ניתן לבצע עריכה ברמת עובד גם דרך Allocation Manager שהוסמך לכך.</li>
+            <li>ברירת המחדל לתחום: Soft Limit (ניתן לחרוג אם יש יתרה ב-Pool).</li>
+            <li>ניתן להגדיר Hard Cap לתחום — עצירה קשיחה בגובה ה-Cap.</li>
+            <li>הצריכה של כלל התחומים והמשתמשים לא תחרוג מה-Pool החטיבתי הכולל.</li>
+            <li>כל עריכת הקצאה ברמת עובד נרשמת ב-Audit Log: מי ביצע, מה שונה ומתי.</li>
+          </ul>
+          <div class="note"><strong>הבחנה חשובה:</strong> עריכת הקצאת <em>עובד</em> — סמכות Division Budget Owner מתוך ה-Pool שלו. עריכת <em>תקציב החטיבה עצמה</em> — Central Admin בלבד.</div>
+        </div>
+      </div>
+
+      <div class="story">
+        <div class="story-header">
+          <span class="story-id">E2-05</span>
+          <div>
+            <div class="story-title">הגדרת מדיניות בגבול 100%</div>
+            <div class="badges"><span class="badge badge-mvp">MVP</span></div>
+          </div>
+        </div>
+        <div class="story-body">
+          <div class="story-statement">כ-Central Admin, אני רוצה להגדיר מה קורה כשיחידה מגיעה ל-100% מהתקציב, כדי שהתנהגות המערכת תהיה ברורה ומוגדרת מראש.</div>
+          <div class="ac-label">קריטריוני קבלה</div>
+          <ul class="ac-list">
+            <li>ניתן לבחור מדיניות לכל חטיבה/תחום: התרעה בלבד / המשך מה-Pool / Hard Stop / Escalation.</li>
+            <li>ברירת המחדל: Hard Stop.</li>
+            <li>Escalation — שליחת בקשת הגדלה לרמה שמעל (תחום → חטיבה → ארגון).</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- E3 -->
+  <div class="section" id="e3">
+    <div class="section-header">
+      <span class="epic-id">E3</span>
+      <h2>תפקידים והרשאות (RBAC)</h2>
+    </div>
+    <div class="section-body">
+
+      <div class="story">
+        <div class="story-header">
+          <span class="story-id">E3-01</span>
+          <div>
+            <div class="story-title">הגדרת 5 תפקידי ניהול</div>
+            <div class="badges"><span class="badge badge-mvp">MVP</span></div>
+          </div>
+        </div>
+        <div class="story-body">
+          <div class="story-statement">כ-Central Admin, אני רוצה שהמערכת תתמוך בחמישה תפקידים עם הרשאות מובחנות, כדי שלכל משתמש תהיה גישה בדיוק למה שנדרש לו — לא יותר.</div>
+          <div class="ac-label">תפקידים ורמות גישה</div>
+          <ul class="ac-list">
+            <li><strong>Central Admin</strong> — צפייה וניהול של כל הארגון: משתמשים, Profiles, תקציבים, מדיניות, Audit.</li>
+            <li><strong>Division Budget Owner</strong> — צפייה וניהול בחטיבה שלו; האצלה למנהלי הקצאה; אינו יכול להגדיל Budget מעבר למה שאושר.</li>
+            <li><strong>Domain Budget Manager</strong> (טכנולוגיה) — צפייה וניהול בתחום שלו; אינו יכול לחרוג מה-Allocation החטיבתי.</li>
+            <li><strong>Allocation Manager</strong> — ניהול קבוצת משתמשים מורשית; שיוך Profiles; אינו יכול לשנות Budget ברמה שמעליו.</li>
+            <li><strong>End User</strong> — גישה לשירות בלבד; אינו רואה עלויות אחרים.</li>
+          </ul>
+          <div class="ac-label" style="margin-top:14px">קריטריוני קבלה</div>
+          <ul class="ac-list">
+            <li>Role מוגדר בנפרד מ-Model Profile ו-Usage Profile — אינו קובע מודלים או תקציב.</li>
+            <li>עקרון Least Privilege: כל תפקיד רואה ומנהל רק את אוכלוסייתו.</li>
+            <li>לא ניתן לשנות הקצאה החורגת ממסגרת הסמכות ללא אישור מתאים.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="story">
+        <div class="story-header">
+          <span class="story-id">E3-02</span>
+          <div>
+            <div class="story-title">האצלת סמכות לניהול הקצאות</div>
+            <div class="badges"><span class="badge badge-mvp">MVP</span></div>
+          </div>
+        </div>
+        <div class="story-body">
+          <div class="story-statement">כ-Division Budget Owner, אני רוצה להסמיך Allocation Managers לנהל משתמשים ב-Profiles בתוך תקציב החטיבה, ללא יכולתם לגשת לחטיבות אחרות.</div>
+          <div class="ac-label">קריטריוני קבלה</div>
+          <ul class="ac-list">
+            <li>Division Budget Owner יכול להוסיף/להסיר Allocation Managers בחטיבה שלו בלבד.</li>
+            <li>Allocation Manager לא יכול לראות חטיבות/תחומים אחרים.</li>
+            <li>הסמכה נרשמת ב-Audit Log.</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- E4 -->
+  <div class="section" id="e4">
+    <div class="section-header">
+      <span class="epic-id">E4</span>
+      <h2>פרופילי מודלים ושימוש</h2>
+    </div>
+    <div class="section-body">
+
+      <div class="story">
+        <div class="story-header">
+          <span class="story-id">E4-01</span>
+          <div>
+            <div class="story-title">הגדרת Model Profiles</div>
+            <div class="badges"><span class="badge badge-mvp">MVP</span></div>
+          </div>
+        </div>
+        <div class="story-body">
+          <div class="story-statement">כ-Central Admin, אני רוצה להגדיר פרופילי מודלים (Standard, Advanced, Developer, Restricted), כדי שגישה למודלים תנוהל דרך פרופיל אחיד ולא דרך הקצאה ידנית לכל משתמש.</div>
+          <div class="ac-label">קריטריוני קבלה</div>
+          <ul class="ac-list">
+            <li>כל פרופיל מגדיר רשימת מודלים מאושרים.</li>
+            <li>Central Admin בלבד יכול ליצור/לשנות Model Profile.</li>
+            <li>ניתן לשייך Model Profile לחטיבה/תחום/משתמש.</li>
+            <li>שינוי Profile נרשם ב-Audit Log.</li>
+          </ul>
+          <div class="note"><strong>פרופילים ראשוניים לאישור:</strong> Standard / Advanced / Developer / Restricted — תוכן מדויק להשלמה.</div>
+        </div>
+      </div>
+
+      <div class="story">
+        <div class="story-header">
+          <span class="story-id">E4-02</span>
+          <div>
+            <div class="story-title">הגדרת Usage Profiles</div>
+            <div class="badges"><span class="badge badge-mvp">MVP</span></div>
+          </div>
+        </div>
+        <div class="story-body">
+          <div class="story-statement">כ-Central Admin, אני רוצה להגדיר פרופילי שימוש (Basic, Standard, Power, Custom) עם הקצאת ברירת מחדל חודשית, כדי שפתיחת משתמשים תהיה מהירה ועקבית.</div>
+          <div class="ac-label">קריטריוני קבלה</div>
+          <ul class="ac-list">
+            <li>כל Usage Profile מגדיר הקצאת ברירת מחדל (סכום כספי או מכסת Tokens אופציונלית).</li>
+            <li>Central Admin מגדיר את הפרופילים; Budget Owner / Allocation Manager מקצה אותם למשתמשים.</li>
+            <li>ניתן לבצע Override לפרופיל ספציפי לאחר אישור Budget Owner.</li>
+            <li>Custom — חריג לפי החלטה של Budget Owner בהתאם לסמכות.</li>
+          </ul>
+          <div class="note"><strong>הערה:</strong> גובה ה-Baseline הכספי לכל פרופיל יועבר בטבלה נפרדת.</div>
+        </div>
+      </div>
+
+      <div class="story">
+        <div class="story-header">
+          <span class="story-id">E4-03</span>
+          <div>
+            <div class="story-title">Budget Override למשתמש ספציפי</div>
+            <div class="badges"><span class="badge badge-mvp">MVP</span></div>
+          </div>
+        </div>
+        <div class="story-body">
+          <div class="story-statement">כ-Allocation Manager, אני רוצה לבצע Override על הקצאת ברירת המחדל של משתמש ספציפי, כדי שאוכל להתאים את ההקצאה לצרכים ייחודיים בלי לשנות את הפרופיל לכולם.</div>
+          <div class="ac-label">קריטריוני קבלה</div>
+          <ul class="ac-list">
+            <li>Override אפשרי רק בגבולות ה-Pool / Allocation שהוקצו לחטיבה/לתחום.</li>
+            <li>Override נרשם ב-Audit Log עם מבצע, תאריך ונימוק.</li>
+            <li>Override לא משנה את הפרופיל הארגוני — פרטני בלבד.</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- E5 -->
+  <div class="section" id="e5">
+    <div class="section-header">
+      <span class="epic-id">E5</span>
+      <h2>דשבורד ודיווח</h2>
+    </div>
+    <div class="section-body">
+
+      <div class="story">
+        <div class="story-header">
+          <span class="story-id">E5-01</span>
+          <div>
+            <div class="story-title">דשבורד ארגוני — תמונה מלאה</div>
+            <div class="badges"><span class="badge badge-mvp">MVP</span></div>
+          </div>
+        </div>
+        <div class="story-body">
+          <div class="story-statement">כ-Central Admin, אני רוצה דשבורד ארגוני שמציג את כל החטיבות בתמונה אחת, כדי שאוכל לנהל את התקציב הכולל ולזהות חריגים.</div>
+          <div class="ac-label">קריטריוני קבלה — Dual View חובה</div>
+          <ul class="ac-list">
+            <li>Budget חודשי, Spend בפועל, Remaining Budget, ניצול %.</li>
+            <li>Input Tokens, Output Tokens, Total Tokens.</li>
+            <li>תחזית Run-rate לסוף החודש.</li>
+            <li>פירוט לפי חטיבה ולפי מודל.</li>
+            <li>Top Users ו-Top Spenders ברמה ארגונית.</li>
+            <li>משתמשים ללא שימוש בתקופה.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="story">
+        <div class="story-header">
+          <span class="story-id">E5-02</span>
+          <div>
+            <div class="story-title">דשבורד חטיבתי — Scoped View</div>
+            <div class="badges"><span class="badge badge-mvp">MVP</span></div>
+          </div>
+        </div>
+        <div class="story-body">
+          <div class="story-statement">כ-Division Budget Owner, אני רוצה דשבורד שמציג רק את החטיבה שלי, כדי שאוכל לנהל תקציב ומשתמשים ללא גישה לנתוני חטיבות אחרות.</div>
+          <div class="ac-label">קריטריוני קבלה</div>
+          <ul class="ac-list">
+            <li>כל הנתונים המוצגים — מסוננים לחטיבה בלבד.</li>
+            <li>פירוט לפי תחום (כשרלוונטי), קבוצה ומשתמש.</li>
+            <li>Drill-down: חטיבה → תחום → משתמש.</li>
+            <li>Dual View: Budget/Spend/Remaining + Tokens.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="story">
+        <div class="story-header">
+          <span class="story-id">E5-03</span>
+          <div>
+            <div class="story-title">דשבורד תחום — לחטיבה הטכנולוגית</div>
+            <div class="badges"><span class="badge badge-mvp">MVP</span></div>
+          </div>
+        </div>
+        <div class="story-body">
+          <div class="story-statement">כ-Domain Budget Manager, אני רוצה לראות ולנהל רק את נתוני התחום שלי, כדי שאוכל לקבל החלטות הקצאה בלי גישה לתחומים מקבילים.</div>
+          <div class="ac-label">קריטריוני קבלה</div>
+          <ul class="ac-list">
+            <li>הדשבורד מסונן לתחום בלבד.</li>
+            <li>מוצגת ההקצאה שקיבל התחום מה-Pool החטיבתי וכמה ניצל.</li>
+            <li>Drill-down: תחום → צוות/משתמש.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="story">
+        <div class="story-header">
+          <span class="story-id">E5-04</span>
+          <div>
+            <div class="story-title">דוח ניצול — ייצוא</div>
+            <div class="badges"><span class="badge badge-phase2">Phase 2</span></div>
+          </div>
+        </div>
+        <div class="story-body">
+          <div class="story-statement">כ-Central Admin, אני רוצה לייצא דוח ניצול לפי ארגון / חטיבה / תחום / משתמש לתקופה נבחרת, לצורך Chargeback וניתוח.</div>
+          <div class="ac-label">קריטריוני קבלה</div>
+          <ul class="ac-list">
+            <li>ייצוא ל-CSV / Excel.</li>
+            <li>סינון לפי תקופה, חטיבה, תחום, מודל, פרופיל.</li>
+            <li>כל שורה כוללת: משתמש, יחידה, מודל, Tokens (Input/Output), עלות.</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- E6 -->
+  <div class="section" id="e6">
+    <div class="section-header">
+      <span class="epic-id">E6</span>
+      <h2>התראות</h2>
+    </div>
+    <div class="section-body">
+
+      <div class="story">
+        <div class="story-header">
+          <span class="story-id">E6-01</span>
+          <div>
+            <div class="story-title">התראות מדורגות לפי ניצול תקציב</div>
+            <div class="badges"><span class="badge badge-mvp">MVP</span></div>
+          </div>
+        </div>
+        <div class="story-body">
+          <div class="story-statement">כ-Central Admin, אני רוצה שהמערכת תשלח התראות אוטומטיות ב-70% / 90% / 100% ניצול, לרמות הארגון, החטיבה והתחום, כדי שמנהלים יוכלו לפעול לפני חריגה.</div>
+          <div class="ac-label">קריטריוני קבלה</div>
+          <ul class="ac-list">
+            <li>ספי התראה ניתנים להגדרה (ברירת מחדל: 70% / 90% / 100%).</li>
+            <li>ניתן לקבוע לאן נשלחת ההתראה: מייל / ממשק / ערוץ אחר.</li>
+            <li>ב-100% — ההתראה מלווה בפעולה לפי המדיניות שהוגדרה (E2-05).</li>
+            <li>ניתן להפעיל/לכבות התראה לפי יחידה.</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- E7 -->
+  <div class="section" id="e7">
+    <div class="section-header">
+      <span class="epic-id">E7</span>
+      <h2>שיוך ואודיט</h2>
+    </div>
+    <div class="section-body">
+
+      <div class="story">
+        <div class="story-header">
+          <span class="story-id">E7-01</span>
+          <div>
+            <div class="story-title">שיוך חובה לכל קריאת LLM</div>
+            <div class="badges"><span class="badge badge-mvp">MVP</span></div>
+          </div>
+        </div>
+        <div class="story-body">
+          <div class="story-statement">כ-Central Admin, אני רוצה שכל קריאה ל-LLM תשויך אוטומטית למשתמש, יחידה ארגונית, מודל, כמות Tokens ועלות, כדי שיהיה Chargeback מלא ואין צריכה אנונימית.</div>
+          <div class="ac-label">קריטריוני קבלה</div>
+          <ul class="ac-list">
+            <li>כל קריאה רושמת: User ID, Division, Domain (אם רלוונטי), Model, Input Tokens, Output Tokens, עלות.</li>
+            <li>לא ניתן לבצע קריאה ללא שיוך יחידה תקין.</li>
+            <li>הנתונים מצטברים בזמן אמת לדשבורד.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="story">
+        <div class="story-header">
+          <span class="story-id">E7-02</span>
+          <div>
+            <div class="story-title">Audit Log מלא לשינויים</div>
+            <div class="badges"><span class="badge badge-mvp">MVP</span></div>
+          </div>
+        </div>
+        <div class="story-body">
+          <div class="story-statement">כ-Central Admin, אני רוצה לוג אודיט מלא של כל שינויי הרשאות, תקציבים, Profiles ושיוכי משתמשים, כדי שתהיה שקיפות ואחריות מלאה.</div>
+          <div class="ac-label">קריטריוני קבלה</div>
+          <ul class="ac-list">
+            <li>כל שינוי רושם: מה השתנה, מי שינה, מתי, הערך הקודם והחדש.</li>
+            <li>נושאים: הרשאות, תקציבים, Profiles, שיוך משתמשים, Override.</li>
+            <li>Central Admin בלבד רשאי לצפות ב-Audit Log המלא.</li>
+            <li>ניתן לסנן לפי תקופה, יחידה, סוג שינוי.</li>
+          </ul>
+          <div class="note"><strong>שאלה פתוחה:</strong> מי רשאי לצפות ב-Prompt/Response metadata לעומת נתוני Usage בלבד? — ראו שאלות פתוחות.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- E8 -->
+  <div class="section" id="e8">
+    <div class="section-header">
+      <span class="epic-id">E8</span>
+      <h2>Rate Limits (TPM/RPM)</h2>
+    </div>
+    <div class="section-body">
+
+      <div class="story">
+        <div class="story-header">
+          <span class="story-id">E8-01</span>
+          <div>
+            <div class="story-title">ניהול Rate Limits בנפרד מה-Budget</div>
+            <div class="badges"><span class="badge badge-phase2">Phase 2</span></div>
+          </div>
+        </div>
+        <div class="story-body">
+          <div class="story-statement">כ-Central Admin, אני רוצה לנהל מגבלות קצב (TPM/RPM) כמנגנון טכני נפרד מה-Budget החודשי, כדי שאוכל למנוע עומסים מבלי לחסום משתמשים שלא ניצלו את תקציבם.</div>
+          <div class="ac-label">קריטריוני קבלה</div>
+          <ul class="ac-list">
+            <li>ניתן להגדיר TPM/RPM ברמת חטיבה / תחום / משתמש.</li>
+            <li>חריגה מ-Rate Limit לא מפחיתה מה-Budget החודשי — מנגנון נפרד לחלוטין.</li>
+            <li>Rate Limit אינו מוצג בדשבורד התקציבי — מוצג בממשק ניהול טכני.</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- E9 -->
+  <div class="section" id="e9">
+    <div class="section-header">
+      <span class="epic-id">E9</span>
+      <h2>היסטוריה, Forecast ו-Showback</h2>
+    </div>
+    <div class="section-body">
+
+      <div class="story">
+        <div class="story-header">
+          <span class="story-id">E9-01</span>
+          <div>
+            <div class="story-title">שמירת היסטוריה חודשית</div>
+            <div class="badges"><span class="badge badge-mvp">MVP</span></div>
+          </div>
+        </div>
+        <div class="story-body">
+          <div class="story-statement">כ-Central Admin, אני רוצה שהמערכת תשמור נתוני Budget, Spend, Tokens ויתרות לכל חודש, כדי שאוכל לנתח מגמות ולהכין תחזיות לשנה הבאה.</div>
+          <div class="ac-label">קריטריוני קבלה</div>
+          <ul class="ac-list">
+            <li>לכל חודש נשמר: Budget שהוגדר, Spend בפועל, Remaining, יתרה שלא נוצלה, Tokens לפי מודל.</li>
+            <li>הנתונים נשמרים לפי חטיבה / תחום / משתמש.</li>
+            <li>ניתן לצפות בהיסטוריה עד 12 חודשים אחורה לפחות.</li>
+            <li>ניתן לסנן ולהשוות בין תקופות.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="story">
+        <div class="story-header">
+          <span class="story-id">E9-02</span>
+          <div>
+            <div class="story-title">תחזית Run-rate לסוף החודש</div>
+            <div class="badges"><span class="badge badge-mvp">MVP</span></div>
+          </div>
+        </div>
+        <div class="story-body">
+          <div class="story-statement">כ-Division Budget Owner, אני רוצה לראות תחזית צריכה לסוף החודש הנוכחי, כדי שאדע אם אני בדרך לחריגה לפני שזה קורה.</div>
+          <div class="ac-label">קריטריוני קבלה</div>
+          <ul class="ac-list">
+            <li>Run-rate מחושב על בסיס צריכה יומית ממוצעת מתחילת החודש.</li>
+            <li>מוצג בדשבורד לצד Budget ו-Spend.</li>
+            <li>מוצגת גם % ניצול צפויה בסוף החודש.</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Open Questions -->
+  <div class="oq-section" id="oq">
+    <h2>שאלות פתוחות — נדרשת החלטה לפני פיתוח</h2>
+    <ol class="oq-list">
+      <li>מהי הישות הטכנית המדויקת ב-LiteLLM שתייצג <strong>חטיבה</strong>, ומה תייצג <strong>תחום</strong> (Team / Organization / Project / Key Group)?</li>
+      <li>האם ניתן לממש Budget parent-child אמיתי ב-LiteLLM, או שהקצאות התחום יהיו תקרות לוגיות בלבד בשכבת ניהול נפרדת?</li>
+      <li>כיצד מטפלים במשתמש המשויך ליותר מחטיבה/פרויקט אחד — מי נושא בעלות? לפי אחוזים קבועים? לפי שימוש בפועל?</li>
+      <li>האם מנהלי הקצאה ינהלו ישירות ב-LiteLLM UI או דרך <strong>פורטל ארגוני</strong> / שכבת ניהול נפרדת?</li>
+      <li>מי רשאי לצפות ב-Prompt/Response metadata לעומת נתוני Usage בלבד — האם יש דרגות צפייה?</li>
+      <li>כיצד מוגדרים פרופילי המודלים בפועל (Standard / Advanced / Developer) — אילו מודלים בכל פרופיל?</li>
+      <li>מה תהליך DR/HA ומה ה-Retention הנדרש של לוגים ונתוני שימוש?</li>
+    </ol>
+  </div>
+
+  <!-- DOD -->
+  <div class="dod-section" id="dod">
+    <h2>DOD — הגדרת סיום (MVP)</h2>
+    <ol class="dod-list">
+      <li>Central Admin מסוגל לראות את כלל החטיבות, המשתמשים, הצריכה והעלות.</li>
+      <li>מנהל חטיבה מסוגל לראות ולנהל רק את החטיבה שלו.</li>
+      <li>מנהל תחום בטכנולוגיה מסוגל לראות ולנהל רק את התחום שלו.</li>
+      <li>לא ניתן לבצע הקצאה החורגת מהמסגרת שהוגדרה ללא אישור מתאים.</li>
+      <li>כל שימוש משויך בצורה חד-משמעית למשתמש וליחידה ארגונית.</li>
+      <li>שינוי תפקיד/שיוך משתמש מתועד ב-Audit Log.</li>
+      <li>ניתן להפיק דוח שימוש ועלות ברמת ארגון, חטיבה, תחום ומשתמש.</li>
+      <li>ב-1 לחודש ה-Budget של כל חטיבה חוזר אוטומטית למלוא הסכום המאושר — ללא העברת יתרה.</li>
+      <li>Dashboard מציג במקביל Budget/Spend/Remaining ו-Input/Output/Total Tokens.</li>
+      <li>ניתן להגדיר Allocation ברמת תחום כ-Soft Limit או Hard Cap, מבלי לפגוע בתקרת ה-Budget החטיבתית.</li>
+      <li>TPM/RPM מנוהלים בנפרד ואינם משמשים כתחליף למכסה החודשית.</li>
+    </ol>
+  </div>
+
+</div>
+</body>
+</html>
