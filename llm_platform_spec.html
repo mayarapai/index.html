@@ -259,6 +259,58 @@
 
     h3.sub { font-size: 13px; font-weight: 700; color: #6b7a99; margin: 16px 0 8px; text-transform: uppercase; letter-spacing: 0.06em; }
 
+    /* Accordion */
+    .story-header { cursor: pointer; user-select: none; }
+    .story-header:hover { background: #f0f3fa; }
+    .story-toggle {
+      margin-right: auto;
+      margin-left: 4px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #e8edfa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+    .story-header:hover .story-toggle { background: #d0d8f4; }
+    .story-toggle svg {
+      transition: transform 0.2s ease;
+      display: block;
+    }
+    .story.collapsed .story-toggle svg { transform: rotate(-90deg); }
+    .story-body {
+      overflow: hidden;
+      transition: max-height 0.25s ease, padding 0.25s ease;
+      max-height: 1000px;
+    }
+    .story.collapsed .story-body {
+      max-height: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+    /* Expand/Collapse all controls */
+    .accordion-controls {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      align-items: center;
+    }
+    .accordion-btn {
+      font-size: 11px;
+      font-weight: 700;
+      color: #3355cc;
+      background: #f0f3fa;
+      border: 1px solid #d8e0f4;
+      border-radius: 16px;
+      padding: 3px 12px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .accordion-btn:hover { background: #dde5f8; }
+
     /* Background section */
     .bg-section {
       background: #fff;
@@ -1136,5 +1188,53 @@
   </div>
 
 </div>
+
+<script>
+  // Add toggle icon to every story-header
+  document.querySelectorAll('.story-header').forEach(function(header) {
+    var toggle = document.createElement('div');
+    toggle.className = 'story-toggle';
+    toggle.innerHTML = '<svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 3.5L5 6.5L8 3.5" stroke="#3355cc" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    header.appendChild(toggle);
+  });
+
+  // Add expand/collapse all buttons to each section-body
+  document.querySelectorAll('.section-body').forEach(function(body) {
+    var hasStories = body.querySelector('.story');
+    if (!hasStories) return;
+    var controls = document.createElement('div');
+    controls.className = 'accordion-controls';
+    controls.innerHTML =
+      '<span style="font-size:11px;color:#6b7a99;">סטוריס:</span>' +
+      '<button class="accordion-btn" onclick="expandSection(this)">פתח הכל</button>' +
+      '<button class="accordion-btn" onclick="collapseSection(this)">סגור הכל</button>';
+    body.insertBefore(controls, body.firstChild);
+  });
+
+  // Click handler on story headers
+  document.querySelectorAll('.story-header').forEach(function(header) {
+    header.addEventListener('click', function() {
+      var story = this.closest('.story');
+      story.classList.toggle('collapsed');
+    });
+  });
+
+  // Collapse all by default
+  document.querySelectorAll('.story').forEach(function(s) {
+    s.classList.add('collapsed');
+  });
+
+  function expandSection(btn) {
+    btn.closest('.section-body').querySelectorAll('.story').forEach(function(s) {
+      s.classList.remove('collapsed');
+    });
+  }
+
+  function collapseSection(btn) {
+    btn.closest('.section-body').querySelectorAll('.story').forEach(function(s) {
+      s.classList.add('collapsed');
+    });
+  }
+</script>
 </body>
 </html>
