@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>דאשבורד ניהול תקלות — מבט</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 14px;
+  background: #f0f2f7;
+  color: #1a1a2e;
+  direction: rtl;
+  min-height: 100vh;
+}
+
+/* ─── HEADER ─── */
+.header {
+  background: linear-gradient(135deg, #0f1b3d 0%, #1a2f6e 100%);
+  color: #fff;
+  padding: 20px 32px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.header-title h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+.header-title p  { color: #8ba3d8; font-size: 12px; margin-top: 3px; }
+
+.header-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.header-filters label { color: #a8bcdf; font-size: 12px; }
+.header-filters select {
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  outline: none;
+}
+.header-filters select option { background: #1a2f6e; color: #fff; }
+
+.refresh-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+.refresh-box .refresh-label { color: #8ba3d8; font-size: 11px; }
+.refresh-box .refresh-timer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #5ee8a0;
+  font-size: 12px;
+  font-weight: 600;
+}
+.dot-live {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #5ee8a0;
+  animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.4; transform: scale(0.8); }
+}
+
+/* ─── MAIN LAYOUT ─── */
+.page { max-width: 1300px; margin: 0 auto; padding: 24px 24px 60px; }
+
+/* ─── KPI ROW ─── */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 22px;
+}
+.kpi-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 18px 20px;
+  border-right: 4px solid #1a2f6e;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.kpi-card.red    { border-right-color: #e53e3e; }
+.kpi-card.orange { border-right-color: #e07400; }
+.kpi-card.green  { border-right-color: #2e8b57; }
+.kpi-card.blue   { border-right-color: #3b5fc0; }
+.kpi-label { font-size: 11px; color: #6b7a99; text-transform: uppercase; letter-spacing: 0.05em; }
+.kpi-value { font-size: 32px; font-weight: 800; color: #1a1a2e; line-height: 1; }
+.kpi-sub   { font-size: 11px; color: #9aa3b8; margin-top: 2px; }
+
+/* ─── SECTION TITLE ─── */
+.section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a1a2e;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-right: 3px solid #3b5fc0;
+  padding-right: 10px;
+  margin-bottom: 12px;
+}
+
+/* ─── TABLE CARD ─── */
+.card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+  margin-bottom: 18px;
+}
+
+/* ─── DATA TABLES ─── */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.data-table thead th {
+  background: #f5f7fc;
+  color: #4a5578;
+  font-weight: 700;
+  padding: 9px 14px;
+  text-align: center;
+  border-bottom: 2px solid #e2e8f4;
+  white-space: nowrap;
+}
+.data-table thead th:first-child { text-align: right; }
+.data-table tbody td {
+  padding: 9px 14px;
+  border-bottom: 1px solid #edf0f7;
+  text-align: center;
+  color: #2a2e45;
+}
+.data-table tbody td:first-child { text-align: right; font-weight: 600; }
+.data-table tbody tr:last-child td { border-bottom: none; }
+.data-table tbody tr:hover { background: #f9fbff; }
+
+/* severity badges */
+.sev {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.sev-high   { background: #fff0f0; color: #c0392b; }
+.sev-mid    { background: #fff7ed; color: #c05900; }
+.sev-low    { background: #f0faf4; color: #2e7d52; }
+
+/* number pills */
+.num { font-weight: 700; font-size: 14px; }
+.num-high { color: #c0392b; }
+.num-mid  { color: #c05900; }
+.num-low  { color: #2e7d52; }
+.num-gray { color: #6b7a99; }
+.num-blue { color: #3b5fc0; }
+
+/* ─── DOMAIN GRID ─── */
+.domain-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.domain-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+  overflow: hidden;
+}
+.domain-header {
+  padding: 10px 14px;
+  font-weight: 800;
+  font-size: 13px;
+  color: #fff;
+}
+.domain-digital { background: #1a4fc4; }
+.domain-chat    { background: #6d28d9; }
+.domain-infra   { background: #0f766e; }
+.domain-data    { background: #c2500a; }
+
+.domain-body { padding: 10px 14px; }
+.domain-team-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid #f0f2f7;
+  font-size: 12px;
+}
+.domain-team-row:last-child { border-bottom: none; }
+.domain-team-name { color: #3a4260; font-weight: 600; }
+.domain-pills { display: flex; gap: 4px; }
+.pill {
+  display: inline-block;
+  min-width: 22px;
+  padding: 1px 6px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+}
+.pill-h { background: #ffeaea; color: #c0392b; }
+.pill-m { background: #fff3e0; color: #c05900; }
+.pill-l { background: #e8f8ee; color: #2e7d52; }
+
+/* ─── TWO-COL LAYOUT ─── */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+/* ─── AVG TIME TABLE ─── */
+.avg-bar-wrap { display: flex; align-items: center; gap: 8px; }
+.avg-bar-bg {
+  flex: 1;
+  background: #edf0f7;
+  border-radius: 6px;
+  height: 8px;
+  overflow: hidden;
+}
+.avg-bar-fill {
+  height: 100%;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #3b5fc0, #6b8ef5);
+  transition: width 0.6s ease;
+}
+.avg-days { font-weight: 700; font-size: 13px; color: #3b5fc0; white-space: nowrap; }
+
+/* ─── STATUS RIBBON ─── */
+.status-bar {
+  display: flex;
+  gap: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  height: 10px;
+  margin-bottom: 16px;
+}
+.status-bar div { transition: width 0.5s ease; }
+
+/* ─── FOOTER ─── */
+.footer {
+  text-align: center;
+  color: #aab0c8;
+  font-size: 11px;
+  margin-top: 40px;
+}
+
+@media (max-width: 900px) {
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .domain-grid { grid-template-columns: repeat(2, 1fr); }
+  .two-col { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ HEADER ═══════════════ -->
+<div class="header">
+  <div class="header-title">
+    <h1>דאשבורד ניהול תקלות</h1>
+    <p>מקור נתונים: מערכת מבט | עמודות: A · E · F · I · J</p>
+  </div>
+
+  <div class="header-filters">
+    <div>
+      <label>פרויקט</label><br>
+      <select id="filterProject" onchange="render()">
+        <option value="all">כל הפרויקטים</option>
+        <option value="P-1201">P-1201 — פורטל סוכנים</option>
+        <option value="P-1305">P-1305 — מערכת תביעות</option>
+        <option value="P-1412">P-1412 — פלטפורמת AI</option>
+      </select>
+    </div>
+    <div>
+      <label>סביבה</label><br>
+      <select id="filterEnv" onchange="render()">
+        <option value="all">כל הסביבות</option>
+        <option value="פרודקשן">פרודקשן</option>
+        <option value="סטייג׳ינג">סטייג׳ינג</option>
+        <option value="פיתוח">פיתוח</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="refresh-box">
+    <span class="refresh-label">עודכן לאחרונה: <span id="lastRefresh">—</span></span>
+    <div class="refresh-timer">
+      <div class="dot-live"></div>
+      <span>רענון בעוד <span id="countdown">30</span> שנ׳</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ PAGE ═══════════════ -->
+<div class="page">
+
+  <!-- KPI ROW -->
+  <div class="kpi-row">
+    <div class="kpi-card blue">
+      <div class="kpi-label">תקלות פתוחות כרגע</div>
+      <div class="kpi-value" id="kpi-open">—</div>
+      <div class="kpi-sub" id="kpi-open-sub">—</div>
+    </div>
+    <div class="kpi-card red">
+      <div class="kpi-label">חומרה גבוהה — פתוח</div>
+      <div class="kpi-value" id="kpi-high">—</div>
+      <div class="kpi-sub" id="kpi-high-sub">—</div>
+    </div>
+    <div class="kpi-card orange">
+      <div class="kpi-label">תקלות חדשות היום</div>
+      <div class="kpi-value" id="kpi-new">—</div>
+      <div class="kpi-sub" id="kpi-new-sub">—</div>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-label">ממוצע ימי טיפול (סגורות)</div>
+      <div class="kpi-value" id="kpi-avg">—</div>
+      <div class="kpi-sub" id="kpi-avg-sub">—</div>
+    </div>
+  </div>
+
+  <!-- PROGRESS RIBBON -->
+  <div class="status-bar" id="statusRibbon"></div>
+
+  <!-- TABLE 1: OPEN BY SEVERITY × AGE -->
+  <div class="card">
+    <div class="section-title">תקלות פתוחות לפי חומרה וגיל</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>חומרה</th>
+          <th>סה"כ פתוח</th>
+          <th>חדש היום</th>
+          <th>1–2 ימים</th>
+          <th>3–5 ימים</th>
+          <th>מעל 5 ימים</th>
+        </tr>
+      </thead>
+      <tbody id="tbl-age"></tbody>
+    </table>
+  </div>
+
+  <!-- DOMAIN CARDS -->
+  <div class="section-title">כמות תקלות פתוחות לפי תחום וצוות</div>
+  <div class="domain-grid" id="domainGrid"></div>
+
+  <!-- TWO COL: Teams table + Closed -->
+  <div class="two-col">
+    <!-- Team breakdown -->
+    <div class="card">
+      <div class="section-title">כמות תקלות לפי צוות</div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>צוות</th>
+            <th>פתוח</th>
+            <th><span class="sev sev-high">גבוהה</span></th>
+            <th><span class="sev sev-mid">בינונית</span></th>
+            <th><span class="sev sev-low">נמוכה</span></th>
+            <th>נסגרו</th>
+          </tr>
+        </thead>
+        <tbody id="tbl-teams"></tbody>
+      </table>
+    </div>
+
+    <!-- Avg resolution time -->
+    <div class="card">
+      <div class="section-title">ממוצע זמן טיפול לפי צוות (ימים)</div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>צוות</th>
+            <th><span class="sev sev-high">גבוהה</span></th>
+            <th><span class="sev sev-mid">בינונית</span></th>
+            <th><span class="sev sev-low">נמוכה</span></th>
+            <th>ממוצע כולל</th>
+          </tr>
+        </thead>
+        <tbody id="tbl-avg"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="footer">
+    דאשבורד ניהול תקלות | מקור: מערכת מבט | נתוני דמו — יש לחבר למקור האמיתי
+  </div>
+</div>
+
+<!-- ═══════════════ DATA & LOGIC ═══════════════ -->
+<script>
+// ─── DEMO DATA ───────────────────────────────────────────────────────────────
+// Fields: id, project, env, status, openDate, closeDate, severity, domain, team
+// status: 'פתוח' | 'בטיפול' | 'סגור'
+// severity: 'גבוהה' | 'בינונית' | 'נמוכה'
+// domain: 'דיגיטל' | 'חאט' | 'תשתיות' | 'דאטה ו-AI'
+const TODAY = '2026-08-10';
+
+const RAW = [
+  // ── P-1201 פורטל סוכנים ──────────────────────
+  {id:'TK-001',project:'P-1201',env:'פרודקשן',   status:'פתוח',   openDate:'2026-08-10',closeDate:null,         severity:'גבוהה', domain:'דיגיטל',   team:'צוות פורטל'},
+  {id:'TK-002',project:'P-1201',env:'פרודקשן',   status:'פתוח',   openDate:'2026-08-10',closeDate:null,         severity:'גבוהה', domain:'דיגיטל',   team:'צוות פורטל'},
+  {id:'TK-003',project:'P-1201',env:'פרודקשן',   status:'פתוח',   openDate:'2026-08-09',closeDate:null,         severity:'בינונית',domain:'דיגיטל',   team:'צוות פורטל'},
+  {id:'TK-004',project:'P-1201',env:'סטייג׳ינג', status:'פתוח',   openDate:'2026-08-08',closeDate:null,         severity:'נמוכה', domain:'דיגיטל',   team:'צוות פורטל'},
+  {id:'TK-005',project:'P-1201',env:'פרודקשן',   status:'בטיפול', openDate:'2026-08-05',closeDate:null,         severity:'גבוהה', domain:'דיגיטל',   team:'צוות אפ'},
+  {id:'TK-006',project:'P-1201',env:'פרודקשן',   status:'פתוח',   openDate:'2026-08-04',closeDate:null,         severity:'גבוהה', domain:'דיגיטל',   team:'צוות אפ'},
+  {id:'TK-007',project:'P-1201',env:'סטייג׳ינג', status:'פתוח',   openDate:'2026-08-03',closeDate:null,         severity:'בינונית',domain:'דיגיטל',   team:'צוות אפ'},
+  {id:'TK-008',project:'P-1201',env:'פיתוח',      status:'סגור',   openDate:'2026-07-28',closeDate:'2026-08-06',severity:'בינונית',domain:'חאט',       team:'צוות בוט'},
+  {id:'TK-009',project:'P-1201',env:'פרודקשן',   status:'פתוח',   openDate:'2026-08-10',closeDate:null,         severity:'בינונית',domain:'חאט',       team:'צוות בוט'},
+  {id:'TK-010',project:'P-1201',env:'פרודקשן',   status:'פתוח',   openDate:'2026-08-07',closeDate:null,         severity:'גבוהה', domain:'חאט',       team:'צוות בוט'},
+  {id:'TK-011',project:'P-1201',env:'סטייג׳ינג', status:'פתוח',   openDate:'2026-08-06',closeDate:null,         severity:'נמוכה', domain:'חאט',       team:'צוות ממשק'},
+  {id:'TK-012',project:'P-1201',env:'פרודקשן',   status:'סגור',   openDate:'2026-07-30',closeDate:'2026-08-04',severity:'גבוהה', domain:'חאט',       team:'צוות ממשק'},
+  {id:'TK-013',project:'P-1201',env:'פרודקשן',   status:'פתוח',   openDate:'2026-08-02',closeDate:null,         severity:'נמוכה', domain:'תשתיות',   team:'צוות DevOps'},
+  {id:'TK-014',project:'P-1201',env:'פיתוח',      status:'פתוח',   openDate:'2026-08-09',closeDate:null,         severity:'בינונית',domain:'תשתיות',   team:'צוות DevOps'},
+  {id:'TK-015',project:'P-1201',env:'פרודקשן',   status:'סגור',   openDate:'2026-07-25',closeDate:'2026-08-01',severity:'גבוהה', domain:'תשתיות',   team:'צוות רשת'},
+  {id:'TK-016',project:'P-1201',env:'סטייג׳ינג', status:'פתוח',   openDate:'2026-08-10',closeDate:null,         severity:'גבוהה', domain:'תשתיות',   team:'צוות רשת'},
+  {id:'TK-017',project:'P-1201',env:'פרודקשן',   status:'פתוח',   openDate:'2026-08-08',closeDate:null,         severity:'בינונית',domain:'דאטה ו-AI',team:'צוות BI'},
+  {id:'TK-018',project:'P-1201',env:'פרודקשן',   status:'פתוח',   openDate:'2026-08-05',closeDate:null,         severity:'נמוכה', domain:'דאטה ו-AI',team:'צוות BI'},
+  {id:'TK-019',project:'P-1201',env:'פיתוח',      status:'סגור',   openDate:'2026-08-01',closeDate:'2026-08-08',severity:'בינונית',domain:'דאטה ו-AI',team:'צוות מודלים'},
+  {id:'TK-020',project:'P-1201',env:'פרודקשן',   status:'פתוח',   openDate:'2026-08-10',closeDate:null,         severity:'גבוהה', domain:'דאטה ו-AI',team:'צוות מודלים'},
+
+  // ── P-1305 מערכת תביעות ──────────────────────
+  {id:'TK-021',project:'P-1305',env:'פרודקשן',   status:'פתוח',   openDate:'2026-08-10',closeDate:null,         severity:'גבוהה', domain:'דיגיטל',   team:'צוות פורטל'},
+  {id:'TK-022',project:'P-1305',env:'פרודקשן',   status:'פתוח',   openDate:'2026-08-09',closeDate:null,         severity:'בינונית',domain:'דיגיטל',   team:'צוות פורטל'},
+  {id:'TK-023',project:'P-1305',env:'סטייג׳ינג', status:'פתוח',   openDate:'2026-08-07',closeDate:null,         severity:'נמוכה', domain:'דיגיטל',   team:'צוות אפ'},
+  {id:'TK-024',project:'P-1305',env:'פרודקשן',   status:'בטיפול', openDate:'2026-08-04',closeDate:null,         severity:'גבוהה', domain:'דיגיטל',   team:'צוות אפ'},
+  {id:'TK-025',project:'P-1305',env:'פרודקשן',   status:'פתוח',   openDate:'2026-08-03',closeDate:null,         severity:'בינונית',domain:'חאט',       team:'צוות בוט'},
+  {id:'TK-026',project:'P-1305',env:'פרודקשן',   status:'סגור',   openDate:'2026-07-29',closeDate:'2026-08-05',severity:'גבוהה', domain:'חאט',       team:'צוות בוט'},
+  {id:'TK-027',project:'P-1305',env:'פיתוח',      status:'פתוח',   openDate:'2026-08-10',closeDate:null,         severity:'נמוכה', domain:'חאט',       team:'צוות ממשק'},
+  {id:'TK-028',project:'P-1305',env:'פרודקשן',   status:'פתוח',   openDate:'2026-08-06',closeDate:null,         severity:'גבוהה', domain:'חאט',       team:'צוות ממשק'},
+  {id:'TK-029',project:'P-1305',env:'פרודקשן',   status:'פתוח',   openDate:'2026-08-05',closeDate:null,         severity:'בינונית',domain:'תשתיות',   team:'צוות DevOps'},
+  {id:'TK-030',project:'P-1305',env:'סטייג׳ינג', status:'סגור',   openDate:'2026-07-27',closeDate:'2026-08-02',severity:'גבוהה', domain:'תשתיות',   team:'צוות DevOps'},
+  {id:'TK-031',project:'P-1305',env:'פרודקשן',   status:'פתוח',   openDate:'2026-08-10',closeDate:null,         severity:'גבוהה', domain:'תשתיות',   team:'צוות רשת'},
+  {id:'TK-032',project:'P-1305',env:'פרודקשן',   status:'פתוח',   openDate:'2026-08-08',closeDate:null,         severity:'נמוכה', domain:'תשתיות',   team:'צוות רשת'},
+  {id:'TK-033',project:'P-1305',env:'פרודקשן',   status:'פתוח',   openDate:'2026-08-09',closeDate:null,         severity:'בינונית',domain:'דאטה ו-AI',team:'צוות BI'},
+  {id:'TK-034',project:'P-1305',env:'פרודקשן',   status:'סגור',   openDate:'2026-07-31',closeDate:'2026-08-07',severity:'גבוהה', domain:'דאטה ו-AI',team:'צוות BI'},
+  {id:'TK-035',project:'P-1305',env:'פיתוח',      status:'פתוח',   openDate:'2026-08-07',closeDate:null,         severity:'נמוכה', domain:'דאטה ו-AI',team:'צוות מודלים'},
+  {id:'TK-036',project:'P-1305',env:'פרודקשן',   status:'פתוח',   openDate:'2026-08-04',closeDate:null,         severity:'גבוהה', domain:'דאטה ו-AI',team:'צוות מודלים'},
+
+  // ── P-1412 פלטפורמת AI ──────────────────────
+  {id:'TK-037',project:'P-1412',env:'פיתוח',      status:'פתוח',   openDate:'2026-08-10',closeDate:null,         severity:'בינונית',domain:'דאטה ו-AI',team:'צוות מודלים'},
+  {id:'TK-038',project:'P-1412',env:'פיתוח',      status:'פתוח',   openDate:'2026-08-10',closeDate:null,         severity:'גבוהה', domain:'דאטה ו-AI',team:'צוות מודלים'},
+  {id:'TK-039',project:'P-1412',env:'סטייג׳ינג', status:'פתוח',   openDate:'2026-08-09',closeDate:null,         severity:'בינונית',domain:'דאטה ו-AI',team:'צוות BI'},
+  {id:'TK-040',project:'P-1412',env:'פיתוח',      status:'פתוח',   openDate:'2026-08-07',closeDate:null,         severity:'נמוכה', domain:'דאטה ו-AI',team:'צוות BI'},
+  {id:'TK-041',project:'P-1412',env:'סטייג׳ינג', status:'פתוח',   openDate:'2026-08-06',closeDate:null,         severity:'גבוהה', domain:'תשתיות',   team:'צוות DevOps'},
+  {id:'TK-042',project:'P-1412',env:'פיתוח',      status:'סגור',   openDate:'2026-07-28',closeDate:'2026-08-04',severity:'בינונית',domain:'תשתיות',   team:'צוות DevOps'},
+  {id:'TK-043',project:'P-1412',env:'פיתוח',      status:'פתוח',   openDate:'2026-08-10',closeDate:null,         severity:'נמוכה', domain:'תשתיות',   team:'צוות רשת'},
+  {id:'TK-044',project:'P-1412',env:'סטייג׳ינג', status:'פתוח',   openDate:'2026-08-05',closeDate:null,         severity:'בינונית',domain:'דיגיטל',   team:'צוות אפ'},
+  {id:'TK-045',project:'P-1412',env:'פיתוח',      status:'פתוח',   openDate:'2026-08-09',closeDate:null,         severity:'גבוהה', domain:'דיגיטל',   team:'צוות אפ'},
+  {id:'TK-046',project:'P-1412',env:'פיתוח',      status:'סגור',   openDate:'2026-07-26',closeDate:'2026-08-03',severity:'גבוהה', domain:'דיגיטל',   team:'צוות פורטל'},
+  {id:'TK-047',project:'P-1412',env:'סטייג׳ינג', status:'פתוח',   openDate:'2026-08-08',closeDate:null,         severity:'נמוכה', domain:'דיגיטל',   team:'צוות פורטל'},
+  {id:'TK-048',project:'P-1412',env:'פיתוח',      status:'פתוח',   openDate:'2026-08-04',closeDate:null,         severity:'גבוהה', domain:'חאט',       team:'צוות בוט'},
+  {id:'TK-049',project:'P-1412',env:'פיתוח',      status:'סגור',   openDate:'2026-07-30',closeDate:'2026-08-09',severity:'בינונית',domain:'חאט',       team:'צוות בוט'},
+  {id:'TK-050',project:'P-1412',env:'סטייג׳ינג', status:'פתוח',   openDate:'2026-08-10',closeDate:null,         severity:'גבוהה', domain:'חאט',       team:'צוות ממשק'},
+  {id:'TK-051',project:'P-1412',env:'פיתוח',      status:'פתוח',   openDate:'2026-08-03',closeDate:null,         severity:'בינונית',domain:'חאט',       team:'צוות ממשק'},
+  {id:'TK-052',project:'P-1412',env:'סטייג׳ינג', status:'פתוח',   openDate:'2026-08-07',closeDate:null,         severity:'נמוכה', domain:'דאטה ו-AI',team:'צוות מודלים'},
+];
+
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
+const DOMAINS = ['דיגיטל','חאט','תשתיות','דאטה ו-AI'];
+const DOMAIN_CSS = {'דיגיטל':'domain-digital','חאט':'domain-chat','תשתיות':'domain-infra','דאטה ו-AI':'domain-data'};
+const TEAMS_ORDER = ['צוות פורטל','צוות אפ','צוות בוט','צוות ממשק','צוות DevOps','צוות רשת','צוות BI','צוות מודלים'];
+
+function daysBetween(d1, d2) {
+  return Math.round((new Date(d2) - new Date(d1)) / 86400000);
+}
+function ageOf(rec) {
+  return daysBetween(rec.openDate, TODAY);
+}
+function ageBucket(rec) {
+  const d = ageOf(rec);
+  if (d === 0) return 'today';
+  if (d <= 2)  return '1-2';
+  if (d <= 5)  return '3-5';
+  return '5+';
+}
+function isOpen(r) { return r.status !== 'סגור'; }
+
+// ─── FILTER ───────────────────────────────────────────────────────────────────
+function filtered() {
+  const proj = document.getElementById('filterProject').value;
+  const env  = document.getElementById('filterEnv').value;
+  return RAW.filter(r =>
+    (proj === 'all' || r.project === proj) &&
+    (env  === 'all' || r.env    === env)
+  );
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+function render() {
+  const data = filtered();
+  const open = data.filter(isOpen);
+  const closed = data.filter(r => r.status === 'סגור');
+  const newToday = open.filter(r => r.openDate === TODAY);
+  const highOpen = open.filter(r => r.severity === 'גבוהה');
+
+  // Avg resolution days
+  const closedWithDays = closed.filter(r => r.closeDate);
+  const avgDays = closedWithDays.length
+    ? (closedWithDays.reduce((s,r) => s + daysBetween(r.openDate, r.closeDate), 0) / closedWithDays.length).toFixed(1)
+    : '—';
+
+  // KPIs
+  document.getElementById('kpi-open').textContent = open.length;
+  document.getElementById('kpi-open-sub').textContent = `מתוכן ${data.filter(r=>r.status==='בטיפול').length} בטיפול פעיל`;
+  document.getElementById('kpi-high').textContent = highOpen.length;
+  document.getElementById('kpi-high-sub').textContent = `${Math.round(highOpen.length/Math.max(open.length,1)*100)}% מסך הפתוחות`;
+  document.getElementById('kpi-new').textContent = newToday.length;
+  document.getElementById('kpi-new-sub').textContent = `${closed.length} נסגרו בסה"כ`;
+  document.getElementById('kpi-avg').textContent = avgDays;
+  document.getElementById('kpi-avg-sub').textContent = `מבוסס על ${closedWithDays.length} תקלות שנסגרו`;
+
+  // Status ribbon
+  const sevCounts = {גבוהה:0, בינונית:0, נמוכה:0};
+  open.forEach(r => sevCounts[r.severity]++);
+  const total = open.length || 1;
+  document.getElementById('statusRibbon').innerHTML =
+    `<div style="width:${sevCounts['גבוהה']/total*100}%;background:#e53e3e"></div>` +
+    `<div style="width:${sevCounts['בינונית']/total*100}%;background:#e07400"></div>` +
+    `<div style="width:${sevCounts['נמוכה']/total*100}%;background:#2e8b57"></div>`;
+
+  // Table 1: severity × age
+  const SEVS = ['גבוהה','בינונית','נמוכה'];
+  const SEV_CSS = {גבוהה:'num-high', בינונית:'num-mid', נמוכה:'num-low'};
+  const SEV_BADGE = {גבוהה:'sev-high', בינונית:'sev-mid', נמוכה:'sev-low'};
+  let ageHtml = '';
+  let totals = {today:0,'1-2':0,'3-5':0,'5+':0, all:0};
+  SEVS.forEach(sev => {
+    const rows = open.filter(r => r.severity === sev);
+    const byBucket = b => rows.filter(r => ageBucket(r) === b).length;
+    const t = rows.length, td=byBucket('today'), t12=byBucket('1-2'), t35=byBucket('3-5'), t5=byBucket('5+');
+    totals.all += t; totals.today += td; totals['1-2'] += t12; totals['3-5'] += t35; totals['5+'] += t5;
+    ageHtml += `<tr>
+      <td><span class="sev ${SEV_BADGE[sev]}">${sev}</span></td>
+      <td class="num ${SEV_CSS[sev]}">${t}</td>
+      <td class="num-gray">${td}</td>
+      <td class="num-gray">${t12}</td>
+      <td class="num-gray">${t35}</td>
+      <td class="${t5>0?'num-high':'num-gray'}">${t5}</td>
+    </tr>`;
+  });
+  ageHtml += `<tr style="background:#f5f7fc;font-weight:700">
+    <td>סה"כ</td>
+    <td class="num-blue">${totals.all}</td>
+    <td>${totals.today}</td>
+    <td>${totals['1-2']}</td>
+    <td>${totals['3-5']}</td>
+    <td class="${totals['5+']>0?'num-high':''}">${totals['5+']}</td>
+  </tr>`;
+  document.getElementById('tbl-age').innerHTML = ageHtml;
+
+  // Domain cards
+  let domainHtml = '';
+  DOMAINS.forEach(domain => {
+    const domainOpen = open.filter(r => r.domain === domain);
+    const teams = [...new Set(domainOpen.map(r => r.team))].sort();
+    const teamRows = teams.map(team => {
+      const tr = domainOpen.filter(r => r.team === team);
+      return `<div class="domain-team-row">
+        <span class="domain-team-name">${team}</span>
+        <div class="domain-pills">
+          <span class="pill pill-h">${tr.filter(r=>r.severity==='גבוהה').length}</span>
+          <span class="pill pill-m">${tr.filter(r=>r.severity==='בינונית').length}</span>
+          <span class="pill pill-l">${tr.filter(r=>r.severity==='נמוכה').length}</span>
+        </div>
+      </div>`;
+    }).join('');
+    domainHtml += `<div class="domain-card">
+      <div class="domain-header ${DOMAIN_CSS[domain]}">
+        ${domain} <span style="float:left;font-size:18px;font-weight:800">${domainOpen.length}</span>
+      </div>
+      <div class="domain-body">
+        <div style="display:flex;justify-content:flex-end;gap:6px;margin-bottom:6px;font-size:10px;color:#6b7a99">
+          <span style="min-width:22px;text-align:center">ג׳</span>
+          <span style="min-width:22px;text-align:center">ב׳</span>
+          <span style="min-width:22px;text-align:center">נ׳</span>
+        </div>
+        ${teamRows || '<div style="color:#aaa;font-size:12px;padding:6px 0">אין תקלות פתוחות</div>'}
+      </div>
+    </div>`;
+  });
+  document.getElementById('domainGrid').innerHTML = domainHtml;
+
+  // Team table
+  const allTeams = [...new Set(data.map(r => r.team))].sort((a,b) => {
+    return TEAMS_ORDER.indexOf(a) - TEAMS_ORDER.indexOf(b);
+  });
+  let teamHtml = '';
+  allTeams.forEach(team => {
+    const tOpen   = open.filter(r => r.team === team);
+    const tClosed = closed.filter(r => r.team === team);
+    const dom = data.find(r => r.team === team)?.domain || '';
+    teamHtml += `<tr>
+      <td><span style="font-weight:700">${team}</span><br><span style="font-size:11px;color:#8b93ab">${dom}</span></td>
+      <td class="num-blue">${tOpen.length}</td>
+      <td class="num-high">${tOpen.filter(r=>r.severity==='גבוהה').length}</td>
+      <td class="num-mid">${tOpen.filter(r=>r.severity==='בינונית').length}</td>
+      <td class="num-low">${tOpen.filter(r=>r.severity==='נמוכה').length}</td>
+      <td class="num-gray">${tClosed.length}</td>
+    </tr>`;
+  });
+  document.getElementById('tbl-teams').innerHTML = teamHtml;
+
+  // Avg time by team
+  let avgHtml = '';
+  const MAX_AVG = 14;
+  allTeams.forEach(team => {
+    const dom = data.find(r => r.team === team)?.domain || '';
+    function avgBySev(sev) {
+      const recs = closed.filter(r => r.team === team && r.severity === sev && r.closeDate);
+      if (!recs.length) return '—';
+      return (recs.reduce((s,r) => s + daysBetween(r.openDate, r.closeDate), 0) / recs.length).toFixed(1);
+    }
+    const allClosed = closed.filter(r => r.team === team && r.closeDate);
+    const allAvg = allClosed.length
+      ? (allClosed.reduce((s,r) => s + daysBetween(r.openDate, r.closeDate), 0) / allClosed.length)
+      : null;
+    const barPct = allAvg ? Math.min(allAvg / MAX_AVG * 100, 100) : 0;
+    avgHtml += `<tr>
+      <td><span style="font-weight:700">${team}</span><br><span style="font-size:11px;color:#8b93ab">${dom}</span></td>
+      <td>${avgBySev('גבוהה')}</td>
+      <td>${avgBySev('בינונית')}</td>
+      <td>${avgBySev('נמוכה')}</td>
+      <td>
+        <div class="avg-bar-wrap">
+          <div class="avg-bar-bg"><div class="avg-bar-fill" style="width:${barPct}%"></div></div>
+          <span class="avg-days">${allAvg ? allAvg.toFixed(1) : '—'}</span>
+        </div>
+      </td>
+    </tr>`;
+  });
+  document.getElementById('tbl-avg').innerHTML = avgHtml;
+
+  // Last refresh
+  const now = new Date();
+  document.getElementById('lastRefresh').textContent =
+    now.toLocaleTimeString('he-IL', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+
+// ─── AUTO REFRESH ─────────────────────────────────────────────────────────────
+let secondsLeft = 30;
+function tick() {
+  secondsLeft--;
+  if (secondsLeft <= 0) {
+    secondsLeft = 30;
+    render();
+  }
+  document.getElementById('countdown').textContent = secondsLeft;
+}
+
+render();
+setInterval(tick, 1000);
+</script>
+</body>
+</html>
