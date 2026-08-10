@@ -262,10 +262,60 @@ body {
   margin-top: 40px;
 }
 
+/* ─── RESPONSIVE ─── */
+
+/* טאבלט */
 @media (max-width: 900px) {
-  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .page { padding: 16px 16px 48px; }
+  .kpi-row { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .domain-grid { grid-template-columns: repeat(2, 1fr); }
   .two-col { grid-template-columns: 1fr; }
+  .header { padding: 16px 20px 14px; gap: 14px; }
+  .header-title h1 { font-size: 18px; }
+}
+
+/* מובייל */
+@media (max-width: 540px) {
+  .page { padding: 12px 10px 40px; }
+
+  /* header — כל אחד בשורה משלו */
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 14px 16px 12px;
+    gap: 12px;
+  }
+  .header-title h1 { font-size: 17px; }
+  .header-title p  { font-size: 11px; }
+  .header-filters { width: 100%; gap: 8px; }
+  .header-filters select { width: 100%; font-size: 14px; padding: 8px 10px; }
+  .refresh-box { width: 100%; flex-direction: row; justify-content: space-between; align-items: center; }
+
+  /* KPI — עמודה אחת */
+  .kpi-row { grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  .kpi-card { padding: 14px 14px; }
+  .kpi-value { font-size: 26px; }
+  .kpi-label { font-size: 10px; }
+
+  /* תחומים — עמודה אחת */
+  .domain-grid { grid-template-columns: 1fr; }
+
+  /* card — גלילה אופקית לטבלאות */
+  .card { padding: 14px 12px; overflow-x: auto; }
+
+  /* טבלאות — גודל קטן יותר */
+  .data-table { font-size: 12px; min-width: 420px; }
+  .data-table thead th { padding: 7px 8px; }
+  .data-table tbody td { padding: 7px 8px; }
+
+  /* section title */
+  .section-title { font-size: 11px; margin-bottom: 10px; }
+
+  /* avg bar קצר יותר */
+  .avg-bar-bg { min-width: 40px; }
+
+  /* ribbon */
+  .status-bar { height: 7px; margin-bottom: 12px; }
 }
 </style>
 </head>
