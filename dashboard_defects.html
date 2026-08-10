@@ -98,9 +98,9 @@ body {
 .kpi-card.orange { border-right-color: #e07400; }
 .kpi-card.green  { border-right-color: #2e8b57; }
 .kpi-card.blue   { border-right-color: #3b5fc0; }
-.kpi-label { font-size: 11px; color: #6b7a99; text-transform: uppercase; letter-spacing: 0.05em; }
-.kpi-value { font-size: 32px; font-weight: 800; color: #1a1a2e; line-height: 1; }
-.kpi-sub   { font-size: 11px; color: #9aa3b8; margin-top: 2px; }
+.kpi-label { font-size: 12px; color: #2a3a60; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+.kpi-value { font-size: 32px; font-weight: 800; color: #0d1a3a; line-height: 1; }
+.kpi-sub   { font-size: 12px; color: #4a5578; margin-top: 2px; font-weight: 500; }
 
 /* ─── SECTION TITLE ─── */
 .section-title {
@@ -254,6 +254,110 @@ body {
 }
 .status-bar div { transition: width 0.5s ease; }
 
+/* ─── LAUNCH TIMER ─── */
+.launch-banner {
+  border-radius: 14px;
+  padding: 18px 24px;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  transition: background 0.8s ease;
+}
+.launch-banner.pre {
+  background: linear-gradient(135deg, #0b4060 0%, #0e7fa8 100%);
+}
+.launch-banner.post {
+  background: linear-gradient(135deg, #0a4f28 0%, #1a7a45 100%);
+}
+.launch-label {
+  color: rgba(255,255,255,0.75);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+}
+.launch-title {
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+}
+.launch-units {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  direction: ltr;
+}
+.launch-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(0,0,0,0.25);
+  border-radius: 10px;
+  padding: 8px 14px;
+  min-width: 62px;
+}
+.launch-num {
+  font-size: 28px;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.launch-unit-label {
+  font-size: 10px;
+  color: rgba(255,255,255,0.6);
+  margin-top: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.launch-sep {
+  font-size: 22px;
+  font-weight: 900;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 10px;
+}
+.launch-icon { font-size: 32px; }
+.launch-date-edit {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+.launch-date-edit label {
+  color: rgba(255,255,255,0.55);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.launch-date-edit input[type="date"] {
+  background: rgba(0,0,0,0.25);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+  direction: ltr;
+}
+.launch-date-edit input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) opacity(0.6);
+  cursor: pointer;
+}
+
+@media (max-width: 540px) {
+  .launch-banner { padding: 14px 16px; }
+  .launch-num { font-size: 22px; }
+  .launch-unit { min-width: 50px; padding: 6px 10px; }
+  .launch-icon { font-size: 24px; }
+}
+
 /* ─── FOOTER ─── */
 .footer {
   text-align: center;
@@ -333,18 +437,16 @@ body {
       <label>פרויקט</label><br>
       <select id="filterProject" onchange="render()">
         <option value="all">כל הפרויקטים</option>
-        <option value="P-1201">P-1201 — פורטל סוכנים</option>
-        <option value="P-1305">P-1305 — מערכת תביעות</option>
-        <option value="P-1412">P-1412 — פלטפורמת AI</option>
+        <option value="P-1201">P-1201</option>
       </select>
     </div>
     <div>
       <label>סביבה</label><br>
       <select id="filterEnv" onchange="render()">
         <option value="all">כל הסביבות</option>
-        <option value="פרודקשן">פרודקשן</option>
-        <option value="סטייג׳ינג">סטייג׳ינג</option>
-        <option value="פיתוח">פיתוח</option>
+        <option value="טסט">טסט</option>
+        <option value="קדם">קדם</option>
+        <option value="לא ידוע">לא ידוע</option>
       </select>
     </div>
   </div>
@@ -385,8 +487,26 @@ body {
     </div>
   </div>
 
-  <!-- PROGRESS RIBBON -->
-  <div class="status-bar" id="statusRibbon"></div>
+  <!-- LAUNCH TIMER -->
+  <div class="launch-banner pre" id="launchBanner">
+    <div>
+      <div class="launch-label" id="launchLabel">זמן עד ההשקה</div>
+      <div class="launch-title" id="launchTitle">Go-Live — 18.8.2026</div>
+    </div>
+    <div class="launch-units">
+      <div class="launch-unit"><div class="launch-num" id="lt-days">—</div><div class="launch-unit-label">ימים</div></div>
+      <div class="launch-sep">:</div>
+      <div class="launch-unit"><div class="launch-num" id="lt-hours">—</div><div class="launch-unit-label">שעות</div></div>
+      <div class="launch-sep">:</div>
+      <div class="launch-unit"><div class="launch-num" id="lt-min">—</div><div class="launch-unit-label">דקות</div></div>
+      <div class="launch-sep">:</div>
+      <div class="launch-unit"><div class="launch-num" id="lt-sec">—</div><div class="launch-unit-label">שניות</div></div>
+    </div>
+    <div class="launch-date-edit">
+      <label>עדכון תאריך יעד</label>
+      <input type="date" id="launchDateInput" value="2026-08-18" onchange="updateLaunchDate()">
+    </div>
+  </div>
 
   <!-- DOMAIN CARDS -->
   <div class="section-title">כמות תקלות פתוחות לפי תחום וצוות</div>
@@ -455,77 +575,45 @@ body {
 
 <!-- ═══════════════ DATA & LOGIC ═══════════════ -->
 <script>
-// ─── DEMO DATA ───────────────────────────────────────────────────────────────
+// ─── נתונים אמיתיים מתוך מערכת מבט ───────────────────────────────────────────
 // Fields: id, project, env, status, openDate, closeDate, severity, domain, team
 // status: 'פתוח' | 'בטיפול' | 'סגור'
 // severity: 'גבוהה' | 'בינונית' | 'נמוכה'
-// domain: 'דיגיטל' | 'חאט' | 'תשתיות' | 'דאטה ו-AI'
 const TODAY = '2026-08-10';
 
 const RAW = [
-  // ── P-1201 פורטל סוכנים ──────────────────────
-  {id:'TK-001',project:'P-1201',env:'פרודקשן',   status:'פתוח',   openDate:'2026-08-10',closeDate:null,         severity:'גבוהה', domain:'דיגיטל',   team:'צוות פורטל'},
-  {id:'TK-002',project:'P-1201',env:'פרודקשן',   status:'פתוח',   openDate:'2026-08-10',closeDate:null,         severity:'גבוהה', domain:'דיגיטל',   team:'צוות פורטל'},
-  {id:'TK-003',project:'P-1201',env:'פרודקשן',   status:'פתוח',   openDate:'2026-08-09',closeDate:null,         severity:'בינונית',domain:'דיגיטל',   team:'צוות פורטל'},
-  {id:'TK-004',project:'P-1201',env:'סטייג׳ינג', status:'פתוח',   openDate:'2026-08-08',closeDate:null,         severity:'נמוכה', domain:'דיגיטל',   team:'צוות פורטל'},
-  {id:'TK-005',project:'P-1201',env:'פרודקשן',   status:'בטיפול', openDate:'2026-08-05',closeDate:null,         severity:'גבוהה', domain:'דיגיטל',   team:'צוות אפ'},
-  {id:'TK-006',project:'P-1201',env:'פרודקשן',   status:'פתוח',   openDate:'2026-08-04',closeDate:null,         severity:'גבוהה', domain:'דיגיטל',   team:'צוות אפ'},
-  {id:'TK-007',project:'P-1201',env:'סטייג׳ינג', status:'פתוח',   openDate:'2026-08-03',closeDate:null,         severity:'בינונית',domain:'דיגיטל',   team:'צוות אפ'},
-  {id:'TK-008',project:'P-1201',env:'פיתוח',      status:'סגור',   openDate:'2026-07-28',closeDate:'2026-08-06',severity:'בינונית',domain:'חאט',       team:'צוות בוט'},
-  {id:'TK-009',project:'P-1201',env:'פרודקשן',   status:'פתוח',   openDate:'2026-08-10',closeDate:null,         severity:'בינונית',domain:'חאט',       team:'צוות בוט'},
-  {id:'TK-010',project:'P-1201',env:'פרודקשן',   status:'פתוח',   openDate:'2026-08-07',closeDate:null,         severity:'גבוהה', domain:'חאט',       team:'צוות בוט'},
-  {id:'TK-011',project:'P-1201',env:'סטייג׳ינג', status:'פתוח',   openDate:'2026-08-06',closeDate:null,         severity:'נמוכה', domain:'חאט',       team:'צוות ממשק'},
-  {id:'TK-012',project:'P-1201',env:'פרודקשן',   status:'סגור',   openDate:'2026-07-30',closeDate:'2026-08-04',severity:'גבוהה', domain:'חאט',       team:'צוות ממשק'},
-  {id:'TK-013',project:'P-1201',env:'פרודקשן',   status:'פתוח',   openDate:'2026-08-02',closeDate:null,         severity:'נמוכה', domain:'תשתיות',   team:'צוות DevOps'},
-  {id:'TK-014',project:'P-1201',env:'פיתוח',      status:'פתוח',   openDate:'2026-08-09',closeDate:null,         severity:'בינונית',domain:'תשתיות',   team:'צוות DevOps'},
-  {id:'TK-015',project:'P-1201',env:'פרודקשן',   status:'סגור',   openDate:'2026-07-25',closeDate:'2026-08-01',severity:'גבוהה', domain:'תשתיות',   team:'צוות רשת'},
-  {id:'TK-016',project:'P-1201',env:'סטייג׳ינג', status:'פתוח',   openDate:'2026-08-10',closeDate:null,         severity:'גבוהה', domain:'תשתיות',   team:'צוות רשת'},
-  {id:'TK-017',project:'P-1201',env:'פרודקשן',   status:'פתוח',   openDate:'2026-08-08',closeDate:null,         severity:'בינונית',domain:'דאטה ו-AI',team:'צוות BI'},
-  {id:'TK-018',project:'P-1201',env:'פרודקשן',   status:'פתוח',   openDate:'2026-08-05',closeDate:null,         severity:'נמוכה', domain:'דאטה ו-AI',team:'צוות BI'},
-  {id:'TK-019',project:'P-1201',env:'פיתוח',      status:'סגור',   openDate:'2026-08-01',closeDate:'2026-08-08',severity:'בינונית',domain:'דאטה ו-AI',team:'צוות מודלים'},
-  {id:'TK-020',project:'P-1201',env:'פרודקשן',   status:'פתוח',   openDate:'2026-08-10',closeDate:null,         severity:'גבוהה', domain:'דאטה ו-AI',team:'צוות מודלים'},
+  // ── תחום דיגיטל — צוות פיתוח דיגיטל 6 ──────────────────────
+  // סביבה טסט: 1 בינונית + 3 נמוכה
+  {id:'TK-001',project:'P-1201',env:'טסט',     status:'פתוח', openDate:'2026-08-09',closeDate:null, severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6'},
+  {id:'TK-002',project:'P-1201',env:'טסט',     status:'פתוח', openDate:'2026-08-10',closeDate:null, severity:'נמוכה',   domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6'},
+  {id:'TK-003',project:'P-1201',env:'טסט',     status:'פתוח', openDate:'2026-08-08',closeDate:null, severity:'נמוכה',   domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6'},
+  {id:'TK-004',project:'P-1201',env:'טסט',     status:'פתוח', openDate:'2026-08-05',closeDate:null, severity:'נמוכה',   domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6'},
+  // סביבה קדם: 2 בינונית + 1 נמוכה
+  {id:'TK-005',project:'P-1201',env:'קדם',     status:'פתוח', openDate:'2026-08-06',closeDate:null, severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6'},
+  {id:'TK-006',project:'P-1201',env:'קדם',     status:'פתוח', openDate:'2026-08-07',closeDate:null, severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6'},
+  {id:'TK-007',project:'P-1201',env:'קדם',     status:'פתוח', openDate:'2026-08-04',closeDate:null, severity:'נמוכה',   domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6'},
+  // סביבה לא ידוע (#N/A): 1 בינונית + 1 נמוכה
+  {id:'TK-008',project:'P-1201',env:'לא ידוע', status:'פתוח', openDate:'2026-08-10',closeDate:null, severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6'},
+  {id:'TK-009',project:'P-1201',env:'לא ידוע', status:'פתוח', openDate:'2026-08-03',closeDate:null, severity:'נמוכה',   domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6'},
 
-  // ── P-1305 מערכת תביעות ──────────────────────
-  {id:'TK-021',project:'P-1305',env:'פרודקשן',   status:'פתוח',   openDate:'2026-08-10',closeDate:null,         severity:'גבוהה', domain:'דיגיטל',   team:'צוות פורטל'},
-  {id:'TK-022',project:'P-1305',env:'פרודקשן',   status:'פתוח',   openDate:'2026-08-09',closeDate:null,         severity:'בינונית',domain:'דיגיטל',   team:'צוות פורטל'},
-  {id:'TK-023',project:'P-1305',env:'סטייג׳ינג', status:'פתוח',   openDate:'2026-08-07',closeDate:null,         severity:'נמוכה', domain:'דיגיטל',   team:'צוות אפ'},
-  {id:'TK-024',project:'P-1305',env:'פרודקשן',   status:'בטיפול', openDate:'2026-08-04',closeDate:null,         severity:'גבוהה', domain:'דיגיטל',   team:'צוות אפ'},
-  {id:'TK-025',project:'P-1305',env:'פרודקשן',   status:'פתוח',   openDate:'2026-08-03',closeDate:null,         severity:'בינונית',domain:'חאט',       team:'צוות בוט'},
-  {id:'TK-026',project:'P-1305',env:'פרודקשן',   status:'סגור',   openDate:'2026-07-29',closeDate:'2026-08-05',severity:'גבוהה', domain:'חאט',       team:'צוות בוט'},
-  {id:'TK-027',project:'P-1305',env:'פיתוח',      status:'פתוח',   openDate:'2026-08-10',closeDate:null,         severity:'נמוכה', domain:'חאט',       team:'צוות ממשק'},
-  {id:'TK-028',project:'P-1305',env:'פרודקשן',   status:'פתוח',   openDate:'2026-08-06',closeDate:null,         severity:'גבוהה', domain:'חאט',       team:'צוות ממשק'},
-  {id:'TK-029',project:'P-1305',env:'פרודקשן',   status:'פתוח',   openDate:'2026-08-05',closeDate:null,         severity:'בינונית',domain:'תשתיות',   team:'צוות DevOps'},
-  {id:'TK-030',project:'P-1305',env:'סטייג׳ינג', status:'סגור',   openDate:'2026-07-27',closeDate:'2026-08-02',severity:'גבוהה', domain:'תשתיות',   team:'צוות DevOps'},
-  {id:'TK-031',project:'P-1305',env:'פרודקשן',   status:'פתוח',   openDate:'2026-08-10',closeDate:null,         severity:'גבוהה', domain:'תשתיות',   team:'צוות רשת'},
-  {id:'TK-032',project:'P-1305',env:'פרודקשן',   status:'פתוח',   openDate:'2026-08-08',closeDate:null,         severity:'נמוכה', domain:'תשתיות',   team:'צוות רשת'},
-  {id:'TK-033',project:'P-1305',env:'פרודקשן',   status:'פתוח',   openDate:'2026-08-09',closeDate:null,         severity:'בינונית',domain:'דאטה ו-AI',team:'צוות BI'},
-  {id:'TK-034',project:'P-1305',env:'פרודקשן',   status:'סגור',   openDate:'2026-07-31',closeDate:'2026-08-07',severity:'גבוהה', domain:'דאטה ו-AI',team:'צוות BI'},
-  {id:'TK-035',project:'P-1305',env:'פיתוח',      status:'פתוח',   openDate:'2026-08-07',closeDate:null,         severity:'נמוכה', domain:'דאטה ו-AI',team:'צוות מודלים'},
-  {id:'TK-036',project:'P-1305',env:'פרודקשן',   status:'פתוח',   openDate:'2026-08-04',closeDate:null,         severity:'גבוהה', domain:'דאטה ו-AI',team:'צוות מודלים'},
+  // ── תחום חסבון ארוך טווח — אפיון תפעול NG ──────────────────────
+  // סביבה טסט: 1 נמוכה
+  {id:'TK-010',project:'P-1201',env:'טסט',     status:'פתוח', openDate:'2026-08-08',closeDate:null, severity:'נמוכה',   domain:'חסבון ארוך טווח', team:'אפיון תפעול NG'},
+  // סביבה קדם: 1 נמוכה
+  {id:'TK-011',project:'P-1201',env:'קדם',     status:'פתוח', openDate:'2026-08-06',closeDate:null, severity:'נמוכה',   domain:'חסבון ארוך טווח', team:'אפיון תפעול NG'},
 
-  // ── P-1412 פלטפורמת AI ──────────────────────
-  {id:'TK-037',project:'P-1412',env:'פיתוח',      status:'פתוח',   openDate:'2026-08-10',closeDate:null,         severity:'בינונית',domain:'דאטה ו-AI',team:'צוות מודלים'},
-  {id:'TK-038',project:'P-1412',env:'פיתוח',      status:'פתוח',   openDate:'2026-08-10',closeDate:null,         severity:'גבוהה', domain:'דאטה ו-AI',team:'צוות מודלים'},
-  {id:'TK-039',project:'P-1412',env:'סטייג׳ינג', status:'פתוח',   openDate:'2026-08-09',closeDate:null,         severity:'בינונית',domain:'דאטה ו-AI',team:'צוות BI'},
-  {id:'TK-040',project:'P-1412',env:'פיתוח',      status:'פתוח',   openDate:'2026-08-07',closeDate:null,         severity:'נמוכה', domain:'דאטה ו-AI',team:'צוות BI'},
-  {id:'TK-041',project:'P-1412',env:'סטייג׳ינג', status:'פתוח',   openDate:'2026-08-06',closeDate:null,         severity:'גבוהה', domain:'תשתיות',   team:'צוות DevOps'},
-  {id:'TK-042',project:'P-1412',env:'פיתוח',      status:'סגור',   openDate:'2026-07-28',closeDate:'2026-08-04',severity:'בינונית',domain:'תשתיות',   team:'צוות DevOps'},
-  {id:'TK-043',project:'P-1412',env:'פיתוח',      status:'פתוח',   openDate:'2026-08-10',closeDate:null,         severity:'נמוכה', domain:'תשתיות',   team:'צוות רשת'},
-  {id:'TK-044',project:'P-1412',env:'סטייג׳ינג', status:'פתוח',   openDate:'2026-08-05',closeDate:null,         severity:'בינונית',domain:'דיגיטל',   team:'צוות אפ'},
-  {id:'TK-045',project:'P-1412',env:'פיתוח',      status:'פתוח',   openDate:'2026-08-09',closeDate:null,         severity:'גבוהה', domain:'דיגיטל',   team:'צוות אפ'},
-  {id:'TK-046',project:'P-1412',env:'פיתוח',      status:'סגור',   openDate:'2026-07-26',closeDate:'2026-08-03',severity:'גבוהה', domain:'דיגיטל',   team:'צוות פורטל'},
-  {id:'TK-047',project:'P-1412',env:'סטייג׳ינג', status:'פתוח',   openDate:'2026-08-08',closeDate:null,         severity:'נמוכה', domain:'דיגיטל',   team:'צוות פורטל'},
-  {id:'TK-048',project:'P-1412',env:'פיתוח',      status:'פתוח',   openDate:'2026-08-04',closeDate:null,         severity:'גבוהה', domain:'חאט',       team:'צוות בוט'},
-  {id:'TK-049',project:'P-1412',env:'פיתוח',      status:'סגור',   openDate:'2026-07-30',closeDate:'2026-08-09',severity:'בינונית',domain:'חאט',       team:'צוות בוט'},
-  {id:'TK-050',project:'P-1412',env:'סטייג׳ינג', status:'פתוח',   openDate:'2026-08-10',closeDate:null,         severity:'גבוהה', domain:'חאט',       team:'צוות ממשק'},
-  {id:'TK-051',project:'P-1412',env:'פיתוח',      status:'פתוח',   openDate:'2026-08-03',closeDate:null,         severity:'בינונית',domain:'חאט',       team:'צוות ממשק'},
-  {id:'TK-052',project:'P-1412',env:'סטייג׳ינג', status:'פתוח',   openDate:'2026-08-07',closeDate:null,         severity:'נמוכה', domain:'דאטה ו-AI',team:'צוות מודלים'},
+  // ── תחום חסבון ארוך טווח — פיתוח BPR NG תביעות ──────────────────────
+  // סביבה טסט: 1 בינונית + 1 נמוכה
+  {id:'TK-012',project:'P-1201',env:'טסט',     status:'פתוח', openDate:'2026-08-10',closeDate:null, severity:'בינונית', domain:'חסבון ארוך טווח', team:'פיתוח BPR NG תביעות'},
+  {id:'TK-013',project:'P-1201',env:'טסט',     status:'פתוח', openDate:'2026-08-05',closeDate:null, severity:'נמוכה',   domain:'חסבון ארוך טווח', team:'פיתוח BPR NG תביעות'},
+  // סביבה קדם: 1 בינונית
+  {id:'TK-014',project:'P-1201',env:'קדם',     status:'פתוח', openDate:'2026-08-09',closeDate:null, severity:'בינונית', domain:'חסבון ארוך טווח', team:'פיתוח BPR NG תביעות'},
 ];
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
-const DOMAINS = ['דיגיטל','חאט','תשתיות','דאטה ו-AI'];
-const DOMAIN_CSS = {'דיגיטל':'domain-digital','חאט':'domain-chat','תשתיות':'domain-infra','דאטה ו-AI':'domain-data'};
-const TEAMS_ORDER = ['צוות פורטל','צוות אפ','צוות בוט','צוות ממשק','צוות DevOps','צוות רשת','צוות BI','צוות מודלים'];
+const DOMAINS = ['דיגיטל','חסבון ארוך טווח','תשתיות','דאטה ו-AI'];
+const DOMAIN_CSS = {'דיגיטל':'domain-digital','חסבון ארוך טווח':'domain-chat','תשתיות':'domain-infra','דאטה ו-AI':'domain-data'};
+const TEAMS_ORDER = ['צוות פיתוח דיגיטל 6','אפיון תפעול NG','פיתוח BPR NG תביעות'];
 
 function daysBetween(d1, d2) {
   return Math.round((new Date(d2) - new Date(d1)) / 86400000);
@@ -576,14 +664,6 @@ function render() {
   document.getElementById('kpi-avg').textContent = avgDays;
   document.getElementById('kpi-avg-sub').textContent = `מבוסס על ${closedWithDays.length} תקלות שנסגרו`;
 
-  // Status ribbon
-  const sevCounts = {גבוהה:0, בינונית:0, נמוכה:0};
-  open.forEach(r => sevCounts[r.severity]++);
-  const total = open.length || 1;
-  document.getElementById('statusRibbon').innerHTML =
-    `<div style="width:${sevCounts['גבוהה']/total*100}%;background:#e53e3e"></div>` +
-    `<div style="width:${sevCounts['בינונית']/total*100}%;background:#e07400"></div>` +
-    `<div style="width:${sevCounts['נמוכה']/total*100}%;background:#2e8b57"></div>`;
 
   // Table 1: severity × age
   const SEVS = ['גבוהה','בינונית','נמוכה'];
@@ -714,8 +794,57 @@ function tick() {
   document.getElementById('countdown').textContent = secondsLeft;
 }
 
+// ─── LAUNCH TIMER ─────────────────────────────────────────────────────────────
+let LAUNCH_DATE = new Date('2026-08-18T00:00:00');
+
+function pad(n) { return String(n).padStart(2, '0'); }
+
+function updateLaunchDate() {
+  const val = document.getElementById('launchDateInput').value;
+  if (val) {
+    LAUNCH_DATE = new Date(val + 'T00:00:00');
+    tickLaunch();
+  }
+}
+
+function formatDateHE(d) {
+  return d.getDate() + '.' + (d.getMonth()+1) + '.' + d.getFullYear();
+}
+
+function tickLaunch() {
+  const now     = new Date();
+  const diff    = LAUNCH_DATE - now;
+  const isLive  = diff <= 0;
+  const absDiff = Math.abs(diff);
+
+  const totalSec = Math.floor(absDiff / 1000);
+  const days  = Math.floor(totalSec / 86400);
+  const hours = Math.floor((totalSec % 86400) / 3600);
+  const mins  = Math.floor((totalSec % 3600) / 60);
+  const secs  = totalSec % 60;
+
+  document.getElementById('lt-days').textContent  = days;
+  document.getElementById('lt-hours').textContent = pad(hours);
+  document.getElementById('lt-min').textContent   = pad(mins);
+  document.getElementById('lt-sec').textContent   = pad(secs);
+
+  const dateStr = formatDateHE(LAUNCH_DATE);
+  const banner  = document.getElementById('launchBanner');
+  if (isLive) {
+    banner.className = 'launch-banner post';
+    document.getElementById('launchLabel').textContent = 'המערכת באוויר כבר';
+    document.getElementById('launchTitle').textContent = 'Go-Live הושק ב-' + dateStr;
+  } else {
+    banner.className = 'launch-banner pre';
+    document.getElementById('launchLabel').textContent = 'זמן עד ההשקה';
+    document.getElementById('launchTitle').textContent = 'Go-Live — ' + dateStr;
+  }
+}
+
 render();
+tickLaunch();
 setInterval(tick, 1000);
+setInterval(tickLaunch, 1000);
 </script>
 </body>
 </html>
