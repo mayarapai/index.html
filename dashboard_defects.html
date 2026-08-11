@@ -579,35 +579,23 @@ body {
 // Fields: id, project, env, status, openDate, closeDate, severity, domain, team
 // status: 'פתוח' | 'בטיפול' | 'סגור'
 // severity: 'גבוהה' | 'בינונית' | 'נמוכה'
-const TODAY = '2026-08-10';
+const TODAY = '2026-08-11';
 
 const RAW = [
   // ── תחום דיגיטל — צוות פיתוח דיגיטל 6 ──────────────────────
-  // סביבה טסט: 1 בינונית + 3 נמוכה
-  {id:'TK-001',project:'P-1201',env:'טסט',     status:'פתוח', openDate:'2026-08-09',closeDate:null, severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6'},
+  // טסט: 1 בינונית + 2 נמוכה
+  {id:'TK-001',project:'P-1201',env:'טסט',     status:'פתוח', openDate:'2026-08-11',closeDate:null, severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6'},
   {id:'TK-002',project:'P-1201',env:'טסט',     status:'פתוח', openDate:'2026-08-10',closeDate:null, severity:'נמוכה',   domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6'},
-  {id:'TK-003',project:'P-1201',env:'טסט',     status:'פתוח', openDate:'2026-08-08',closeDate:null, severity:'נמוכה',   domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6'},
-  {id:'TK-004',project:'P-1201',env:'טסט',     status:'פתוח', openDate:'2026-08-05',closeDate:null, severity:'נמוכה',   domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6'},
-  // סביבה קדם: 2 בינונית + 1 נמוכה
-  {id:'TK-005',project:'P-1201',env:'קדם',     status:'פתוח', openDate:'2026-08-06',closeDate:null, severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6'},
-  {id:'TK-006',project:'P-1201',env:'קדם',     status:'פתוח', openDate:'2026-08-07',closeDate:null, severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6'},
-  {id:'TK-007',project:'P-1201',env:'קדם',     status:'פתוח', openDate:'2026-08-04',closeDate:null, severity:'נמוכה',   domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6'},
-  // סביבה לא ידוע (#N/A): 1 בינונית + 1 נמוכה
-  {id:'TK-008',project:'P-1201',env:'לא ידוע', status:'פתוח', openDate:'2026-08-10',closeDate:null, severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6'},
-  {id:'TK-009',project:'P-1201',env:'לא ידוע', status:'פתוח', openDate:'2026-08-03',closeDate:null, severity:'נמוכה',   domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6'},
+  {id:'TK-003',project:'P-1201',env:'טסט',     status:'פתוח', openDate:'2026-08-09',closeDate:null, severity:'נמוכה',   domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6'},
+  // קדם: 1 בינונית + 1 נמוכה
+  {id:'TK-004',project:'P-1201',env:'קדם',     status:'פתוח', openDate:'2026-08-08',closeDate:null, severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6'},
+  {id:'TK-005',project:'P-1201',env:'קדם',     status:'פתוח', openDate:'2026-08-07',closeDate:null, severity:'נמוכה',   domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6'},
+  // לא ידוע (#N/A): 1 בינונית
+  {id:'TK-006',project:'P-1201',env:'לא ידוע', status:'פתוח', openDate:'2026-08-11',closeDate:null, severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6'},
 
-  // ── תחום חסבון ארוך טווח — אפיון תפעול NG ──────────────────────
-  // סביבה טסט: 1 נמוכה
-  {id:'TK-010',project:'P-1201',env:'טסט',     status:'פתוח', openDate:'2026-08-08',closeDate:null, severity:'נמוכה',   domain:'חסבון ארוך טווח', team:'אפיון תפעול NG'},
-  // סביבה קדם: 1 נמוכה
-  {id:'TK-011',project:'P-1201',env:'קדם',     status:'פתוח', openDate:'2026-08-06',closeDate:null, severity:'נמוכה',   domain:'חסבון ארוך טווח', team:'אפיון תפעול NG'},
-
-  // ── תחום חסבון ארוך טווח — פיתוח BPR NG תביעות ──────────────────────
-  // סביבה טסט: 1 בינונית + 1 נמוכה
-  {id:'TK-012',project:'P-1201',env:'טסט',     status:'פתוח', openDate:'2026-08-10',closeDate:null, severity:'בינונית', domain:'חסבון ארוך טווח', team:'פיתוח BPR NG תביעות'},
-  {id:'TK-013',project:'P-1201',env:'טסט',     status:'פתוח', openDate:'2026-08-05',closeDate:null, severity:'נמוכה',   domain:'חסבון ארוך טווח', team:'פיתוח BPR NG תביעות'},
-  // סביבה קדם: 1 בינונית
-  {id:'TK-014',project:'P-1201',env:'קדם',     status:'פתוח', openDate:'2026-08-09',closeDate:null, severity:'בינונית', domain:'חסבון ארוך טווח', team:'פיתוח BPR NG תביעות'},
+  // ── תחום חסבון ארוך טווח ──────────────────────
+  // טסט: 1 נמוכה
+  {id:'TK-007',project:'P-1201',env:'טסט',     status:'פתוח', openDate:'2026-08-09',closeDate:null, severity:'נמוכה',   domain:'חסבון ארוך טווח', team:'אפיון תפעול NG'},
 ];
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
