@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>דאשבורד ניהול תקלות — מבט</title>
+<title>דשבורד ניהול תקלות — מבט</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800;900&display=swap');
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -442,7 +442,7 @@ body {
 <!-- ═══════════════ HEADER ═══════════════ -->
 <div class="header">
   <div class="header-title">
-    <h1>דאשבורד ניהול תקלות</h1>
+    <h1>דשבורד ניהול תקלות</h1>
     <p>מקור נתונים: מערכת מבט &nbsp;|&nbsp; עודכן: <span id="lastRefresh">—</span> &nbsp;
       <span class="dot-live" style="display:inline-block;vertical-align:middle"></span>&nbsp;
       רענון בעוד <span id="countdown">30</span> שנ׳
@@ -574,7 +574,7 @@ body {
   </div>
 
   <div class="footer">
-    דאשבורד ניהול תקלות | מקור: מערכת מבט | נתוני דמו — יש לחבר למקור האמיתי
+    דשבורד ניהול תקלות | מקור: מערכת מבט | נתוני דמו — יש לחבר למקור האמיתי
   </div>
 </div>
 
@@ -709,10 +709,10 @@ function render() {
         ${domain} <span style="float:left;font-size:18px;font-weight:800">${domainOpen.length}</span>
       </div>
       <div class="domain-body">
-        <div style="display:flex;justify-content:flex-end;gap:6px;margin-bottom:6px;font-size:10px;color:#6b7a99">
-          <span style="min-width:22px;text-align:center">ג׳</span>
-          <span style="min-width:22px;text-align:center">ב׳</span>
-          <span style="min-width:22px;text-align:center">נ׳</span>
+        <div style="display:flex;justify-content:flex-end;gap:4px;margin-bottom:6px">
+          <span class="pill pill-h" style="font-size:9px;padding:1px 5px">גבוהה</span>
+          <span class="pill pill-m" style="font-size:9px;padding:1px 5px">בינונית</span>
+          <span class="pill pill-l" style="font-size:9px;padding:1px 5px">נמוכה</span>
         </div>
         ${teamRows || '<div style="color:#aaa;font-size:12px;padding:6px 0">אין תקלות פתוחות</div>'}
       </div>
