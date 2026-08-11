@@ -5,9 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>דאשבורד ניהול תקלות — מבט</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800;900&display=swap');
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
-  font-family: 'Segoe UI', Arial, sans-serif;
+  font-family: 'Heebo', 'Segoe UI', Arial, sans-serif;
   font-size: 14px;
   background: #f0f2f7;
   color: #1a1a2e;
@@ -256,33 +257,27 @@ body {
 
 /* ─── LAUNCH TIMER ─── */
 .launch-banner {
-  border-radius: 14px;
-  padding: 18px 24px;
-  margin-bottom: 18px;
+  padding: 10px 32px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 20px;
   flex-wrap: wrap;
-  transition: background 0.8s ease;
+  transition: background 0.5s ease;
 }
-.launch-banner.pre {
-  background: linear-gradient(135deg, #0b4060 0%, #0e7fa8 100%);
-}
-.launch-banner.post {
-  background: linear-gradient(135deg, #0a4f28 0%, #1a7a45 100%);
-}
+.launch-banner.pre  { background: #07111f; }
+.launch-banner.post { background: #071a0f; }
 .launch-label {
-  color: rgba(255,255,255,0.75);
-  font-size: 12px;
+  color: rgba(255,255,255,0.55);
+  font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 .launch-title {
   color: #fff;
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 800;
 }
 .launch-units {
@@ -296,32 +291,32 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: rgba(0,0,0,0.25);
-  border-radius: 10px;
-  padding: 8px 14px;
-  min-width: 62px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 7px;
+  padding: 4px 10px;
+  min-width: 46px;
 }
 .launch-num {
-  font-size: 28px;
+  font-size: 20px;
   font-weight: 900;
   color: #fff;
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
 .launch-unit-label {
-  font-size: 10px;
-  color: rgba(255,255,255,0.6);
-  margin-top: 3px;
+  font-size: 9px;
+  color: rgba(255,255,255,0.45);
+  margin-top: 2px;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
 }
 .launch-sep {
-  font-size: 22px;
+  font-size: 16px;
   font-weight: 900;
-  color: rgba(255,255,255,0.4);
-  margin-bottom: 10px;
+  color: rgba(255,255,255,0.3);
+  margin-bottom: 8px;
 }
-.launch-icon { font-size: 32px; }
+.launch-icon { font-size: 18px; margin-left: 6px; }
 .launch-date-edit {
   display: flex;
   flex-direction: column;
@@ -352,10 +347,11 @@ body {
 }
 
 @media (max-width: 540px) {
-  .launch-banner { padding: 14px 16px; }
-  .launch-num { font-size: 22px; }
-  .launch-unit { min-width: 50px; padding: 6px 10px; }
-  .launch-icon { font-size: 24px; }
+  .launch-banner { padding: 8px 14px; gap: 10px; }
+  .launch-num { font-size: 16px; }
+  .launch-unit { min-width: 36px; padding: 3px 7px; }
+  .launch-icon { font-size: 14px; }
+  .launch-title { font-size: 12px; }
 }
 
 /* ─── FOOTER ─── */
@@ -429,7 +425,7 @@ body {
 <div class="header">
   <div class="header-title">
     <h1>דאשבורד ניהול תקלות</h1>
-    <p>מקור נתונים: מערכת מבט | עמודות: A · E · F · I · J</p>
+    <p>מקור נתונים: מערכת מבט</p>
   </div>
 
   <div class="header-filters">
@@ -460,6 +456,30 @@ body {
   </div>
 </div>
 
+<!-- ═══════════════ LAUNCH STRIP ═══════════════ -->
+<div class="launch-banner pre" id="launchBanner">
+  <div style="display:flex;align-items:center;gap:10px">
+    <span class="launch-icon" id="launchIcon">&#9203;</span>
+    <div>
+      <div class="launch-label" id="launchLabel">זמן עד ההשקה</div>
+      <div class="launch-title" id="launchTitle">Go-Live — 18.8.2026</div>
+    </div>
+  </div>
+  <div class="launch-units">
+    <div class="launch-unit"><div class="launch-num" id="lt-days">—</div><div class="launch-unit-label">ימים</div></div>
+    <div class="launch-sep">:</div>
+    <div class="launch-unit"><div class="launch-num" id="lt-hours">—</div><div class="launch-unit-label">שעות</div></div>
+    <div class="launch-sep">:</div>
+    <div class="launch-unit"><div class="launch-num" id="lt-min">—</div><div class="launch-unit-label">דקות</div></div>
+    <div class="launch-sep">:</div>
+    <div class="launch-unit"><div class="launch-num" id="lt-sec">—</div><div class="launch-unit-label">שניות</div></div>
+  </div>
+  <div class="launch-date-edit">
+    <label>עדכון תאריך יעד</label>
+    <input type="date" id="launchDateInput" value="2026-08-18" onchange="updateLaunchDate()">
+  </div>
+</div>
+
 <!-- ═══════════════ PAGE ═══════════════ -->
 <div class="page">
 
@@ -484,27 +504,6 @@ body {
       <div class="kpi-label">ממוצע ימי טיפול (סגורות)</div>
       <div class="kpi-value" id="kpi-avg">—</div>
       <div class="kpi-sub" id="kpi-avg-sub">—</div>
-    </div>
-  </div>
-
-  <!-- LAUNCH TIMER -->
-  <div class="launch-banner pre" id="launchBanner">
-    <div>
-      <div class="launch-label" id="launchLabel">זמן עד ההשקה</div>
-      <div class="launch-title" id="launchTitle">Go-Live — 18.8.2026</div>
-    </div>
-    <div class="launch-units">
-      <div class="launch-unit"><div class="launch-num" id="lt-days">—</div><div class="launch-unit-label">ימים</div></div>
-      <div class="launch-sep">:</div>
-      <div class="launch-unit"><div class="launch-num" id="lt-hours">—</div><div class="launch-unit-label">שעות</div></div>
-      <div class="launch-sep">:</div>
-      <div class="launch-unit"><div class="launch-num" id="lt-min">—</div><div class="launch-unit-label">דקות</div></div>
-      <div class="launch-sep">:</div>
-      <div class="launch-unit"><div class="launch-num" id="lt-sec">—</div><div class="launch-unit-label">שניות</div></div>
-    </div>
-    <div class="launch-date-edit">
-      <label>עדכון תאריך יעד</label>
-      <input type="date" id="launchDateInput" value="2026-08-18" onchange="updateLaunchDate()">
     </div>
   </div>
 
