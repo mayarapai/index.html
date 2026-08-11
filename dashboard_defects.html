@@ -28,7 +28,7 @@ body {
   flex-wrap: wrap;
 }
 .header-title h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
-.header-title p  { color: #8ba3d8; font-size: 12px; margin-top: 3px; }
+.header-title p  { color: #8ba3d8; font-size: 12px; margin-top: 5px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
 
 .header-filters {
   display: flex;
@@ -317,6 +317,24 @@ body {
   margin-bottom: 8px;
 }
 .launch-icon { font-size: 18px; margin-left: 6px; }
+.strip-filters {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.strip-filters select {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+}
+.strip-filters select option { background: #0f1e30; color: #fff; }
 .launch-date-edit {
   display: flex;
   flex-direction: column;
@@ -425,34 +443,22 @@ body {
 <div class="header">
   <div class="header-title">
     <h1>דאשבורד ניהול תקלות</h1>
-    <p>מקור נתונים: מערכת מבט</p>
+    <p>מקור נתונים: מערכת מבט &nbsp;|&nbsp; עודכן: <span id="lastRefresh">—</span> &nbsp;
+      <span class="dot-live" style="display:inline-block;vertical-align:middle"></span>&nbsp;
+      רענון בעוד <span id="countdown">30</span> שנ׳
+    </p>
   </div>
-
   <div class="header-filters">
-    <div>
-      <label>פרויקט</label><br>
-      <select id="filterProject" onchange="render()">
-        <option value="all">כל הפרויקטים</option>
-        <option value="P-1201">P-1201</option>
-      </select>
-    </div>
-    <div>
-      <label>סביבה</label><br>
-      <select id="filterEnv" onchange="render()">
-        <option value="all">כל הסביבות</option>
-        <option value="טסט">טסט</option>
-        <option value="קדם">קדם</option>
-        <option value="לא ידוע">לא ידוע</option>
-      </select>
-    </div>
-  </div>
-
-  <div class="refresh-box">
-    <span class="refresh-label">עודכן לאחרונה: <span id="lastRefresh">—</span></span>
-    <div class="refresh-timer">
-      <div class="dot-live"></div>
-      <span>רענון בעוד <span id="countdown">30</span> שנ׳</span>
-    </div>
+    <select id="filterProject" onchange="render()">
+      <option value="all">כל הפרויקטים</option>
+      <option value="P-1201">P-1201</option>
+    </select>
+    <select id="filterEnv" onchange="render()">
+      <option value="all">כל הסביבות</option>
+      <option value="טסט">טסט</option>
+      <option value="קדם">קדם</option>
+      <option value="לא ידוע">לא ידוע</option>
+    </select>
   </div>
 </div>
 
