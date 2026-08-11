@@ -579,7 +579,7 @@ body {
 // Fields: id, project, env, status, openDate, closeDate, severity, domain, team
 // status: 'פתוח' | 'בטיפול' | 'סגור'
 // severity: 'גבוהה' | 'בינונית' | 'נמוכה'
-const TODAY = '2026-08-11';
+const TODAY = new Date().toISOString().slice(0, 10); // תאריך אמיתי מהמחשב
 
 const RAW = [
   // ── תחום דיגיטל — צוות פיתוח דיגיטל 6 ──────────────────────
