@@ -588,18 +588,9 @@ const TODAY = new Date().toISOString().slice(0, 10); // תאריך אמיתי מ
 
 const RAW = [
   // ── תחום דיגיטל — צוות פיתוח דיגיטל 6 ──────────────────────
-  // טסט: 1 בינונית + 2 נמוכה
-  {id:'TK-001',project:'P-1201',env:'טסט',     status:'פתוח', openDate:'2026-08-10',closeDate:null, severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6'},
-  {id:'TK-002',project:'P-1201',env:'טסט',     status:'פתוח', openDate:'2026-08-10',closeDate:null, severity:'נמוכה',   domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6'},
-  {id:'TK-003',project:'P-1201',env:'טסט',     status:'פתוח', openDate:'2026-08-09',closeDate:null, severity:'נמוכה',   domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6'},
-  // קדם: 1 בינונית + 1 נמוכה
   {id:'TK-004',project:'P-1201',env:'קדם',     status:'פתוח', openDate:'2026-08-08',closeDate:null, severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6'},
-  {id:'TK-005',project:'P-1201',env:'קדם',     status:'פתוח', openDate:'2026-08-07',closeDate:null, severity:'נמוכה',   domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6'},
-  // לא ידוע (#N/A): 1 בינונית
-  {id:'TK-006',project:'P-1201',env:'לא ידוע', status:'פתוח', openDate:'2026-08-10',closeDate:null, severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6'},
 
   // ── תחום חסכון ארוך טווח ──────────────────────
-  // טסט: 1 נמוכה
   {id:'TK-007',project:'P-1201',env:'טסט',     status:'פתוח', openDate:'2026-08-09',closeDate:null, severity:'נמוכה',   domain:'חסכון ארוך טווח', team:'אפיון תפעול NG'},
 ];
 
@@ -693,15 +684,14 @@ function render() {
   DOMAINS.forEach(domain => {
     const domainOpen = open.filter(r => r.domain === domain);
     const teams = [...new Set(domainOpen.map(r => r.team))].sort();
+    const COL = 'width:38px;text-align:center;flex-shrink:0';
     const teamRows = teams.map(team => {
       const tr = domainOpen.filter(r => r.team === team);
-      return `<div class="domain-team-row">
-        <span class="domain-team-name">${team}</span>
-        <div class="domain-pills">
-          <span class="pill pill-h">${tr.filter(r=>r.severity==='גבוהה').length}</span>
-          <span class="pill pill-m">${tr.filter(r=>r.severity==='בינונית').length}</span>
-          <span class="pill pill-l">${tr.filter(r=>r.severity==='נמוכה').length}</span>
-        </div>
+      return `<div style="display:flex;align-items:center;padding:5px 0;border-bottom:1px solid #f0f2f7">
+        <span class="domain-team-name" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${team}</span>
+        <span class="pill pill-h" style="${COL}">${tr.filter(r=>r.severity==='גבוהה').length}</span>
+        <span class="pill pill-m" style="${COL};margin:0 3px">${tr.filter(r=>r.severity==='בינונית').length}</span>
+        <span class="pill pill-l" style="${COL}">${tr.filter(r=>r.severity==='נמוכה').length}</span>
       </div>`;
     }).join('');
     domainHtml += `<div class="domain-card">
@@ -709,10 +699,11 @@ function render() {
         ${domain} <span style="float:left;font-size:18px;font-weight:800">${domainOpen.length}</span>
       </div>
       <div class="domain-body">
-        <div style="display:flex;justify-content:flex-end;gap:4px;margin-bottom:6px">
-          <span class="pill pill-h" style="font-size:9px;padding:1px 5px">גבוהה</span>
-          <span class="pill pill-m" style="font-size:9px;padding:1px 5px">בינונית</span>
-          <span class="pill pill-l" style="font-size:9px;padding:1px 5px">נמוכה</span>
+        <div style="display:flex;align-items:center;margin-bottom:4px;padding-bottom:4px;border-bottom:2px solid #e8ecf5">
+          <div style="flex:1"></div>
+          <span class="pill pill-h" style="${COL};font-size:9px;padding:1px 3px">גבוהה</span>
+          <span class="pill pill-m" style="${COL};font-size:9px;padding:1px 3px;margin:0 3px">בינונית</span>
+          <span class="pill pill-l" style="${COL};font-size:9px;padding:1px 3px">נמוכה</span>
         </div>
         ${teamRows || '<div style="color:#aaa;font-size:12px;padding:6px 0">אין תקלות פתוחות</div>'}
       </div>
