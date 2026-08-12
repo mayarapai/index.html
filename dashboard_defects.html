@@ -592,7 +592,8 @@ const RAW = [
   {id:'TK-006',project:'P-1201',env:'לא ידוע', status:'פתוח', openDate:'2026-08-10',closeDate:null, severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6'},
 
   // ── תחום חסכון ארוך טווח ──────────────────────
-  {id:'TK-007',project:'P-1201',env:'טסט',     status:'פתוח', openDate:'2026-08-09',closeDate:null, severity:'נמוכה',   domain:'חסכון ארוך טווח', team:'אפיון תפעול NG'},
+  {id:'TK-007',project:'P-1201',env:'טסט',     status:'פתוח', openDate:'2026-08-09',closeDate:null, severity:'נמוכה',   domain:'חסכון ארוך טווח', team:'אפיון תפעול NG', desc:null},
+  {id:'TK-008',project:'P-1201',env:'קדם',     status:'פתוח', openDate:'2026-08-12',closeDate:null, severity:'גבוהה',   domain:'חסכון ארוך טווח', team:'אפיון תפעול NG', desc:'נפילת בקשות ב-SOA'},
 ];
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
@@ -707,6 +708,10 @@ function render() {
           <span class="pill pill-l" style="${COL};font-size:9px;padding:1px 3px">נמוכה</span>
         </div>
         ${teamRows || '<div style="color:#aaa;font-size:12px;padding:6px 0">אין תקלות פתוחות</div>'}
+        ${domainOpen.filter(r=>r.severity==='גבוהה'&&r.desc).map(r=>`
+          <div style="margin-top:7px;background:#fff0f0;border-right:3px solid #c0392b;border-radius:5px;padding:5px 8px;font-size:11px;color:#c0392b;font-weight:600">
+            &#9888; ${r.desc}
+          </div>`).join('')}
       </div>
     </div>`;
   });
