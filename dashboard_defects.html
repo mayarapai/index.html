@@ -227,6 +227,12 @@ body {
   margin-bottom: 18px;
 }
 
+/* ─── STATUS BADGES ─── */
+.st-badge { display:inline-block; padding:2px 9px; border-radius:12px; font-size:11px; font-weight:700; white-space:nowrap; }
+.st-open    { background:#e8f0fe; color:#1a4fc4; }
+.st-fixing  { background:#fff3e0; color:#c05900; }
+.st-closed  { background:#e8f8ee; color:#2e7d52; }
+
 /* ─── AVG TIME TABLE ─── */
 .avg-bar-wrap { display: flex; align-items: center; gap: 8px; }
 .avg-bar-bg {
@@ -468,7 +474,7 @@ body {
     <span class="launch-icon" id="launchIcon">&#9203;</span>
     <div>
       <div class="launch-label" id="launchLabel">זמן עד ההשקה</div>
-      <div class="launch-title" id="launchTitle">Go-Live — 18.8.2026</div>
+      <div class="launch-title" id="launchTitle">Go-Live — 26.8.2026</div>
     </div>
   </div>
   <div class="launch-units">
@@ -482,7 +488,7 @@ body {
   </div>
   <div class="launch-date-edit">
     <label>עדכון תאריך יעד</label>
-    <input type="date" id="launchDateInput" value="2026-08-18" onchange="updateLaunchDate()">
+    <input type="date" id="launchDateInput" value="2026-08-26" onchange="updateLaunchDate()">
   </div>
 </div>
 
@@ -502,7 +508,7 @@ body {
       <div class="kpi-sub" id="kpi-high-sub">—</div>
     </div>
     <div class="kpi-card orange">
-      <div class="kpi-label">תקלות חדשות היום</div>
+      <div class="kpi-label">בטיפול / בתיקון</div>
       <div class="kpi-value" id="kpi-new">—</div>
       <div class="kpi-sub" id="kpi-new-sub">—</div>
     </div>
@@ -516,6 +522,24 @@ body {
   <!-- DOMAIN CARDS -->
   <div class="section-title">כמות תקלות פתוחות לפי תחום וצוות</div>
   <div class="domain-grid" id="domainGrid"></div>
+
+  <!-- OPEN DEFECTS LIST -->
+  <div class="card" style="margin-bottom:18px">
+    <div class="section-title">רשימת תקלות פתוחות</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="text-align:right">תיאור</th>
+          <th>חומרה</th>
+          <th>צוות</th>
+          <th>סביבה</th>
+          <th>ימים פתוח</th>
+          <th>סטטוס</th>
+        </tr>
+      </thead>
+      <tbody id="tbl-open-list"></tbody>
+    </table>
+  </div>
 
   <!-- TABLE 1: OPEN BY SEVERITY × AGE -->
   <div class="card">
@@ -588,17 +612,20 @@ const TODAY = new Date().toISOString().slice(0, 10); // תאריך אמיתי מ
 
 const RAW = [
   // ── תחום דיגיטל — צוות פיתוח דיגיטל 6 ──────────────────────
-  {id:'TK-004',project:'P-1201',env:'קדם',     status:'פתוח', openDate:'2026-08-08',closeDate:null, severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6'},
-  {id:'TK-006',project:'P-1201',env:'לא ידוע', status:'פתוח', openDate:'2026-08-10',closeDate:null, severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6'},
+  {id:'TK-009',project:'P-1201',env:'טסט',     status:'פתוח', openDate:'2026-08-16',closeDate:null, severity:'נמוכה',   domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'מובייל - הודעת דחייה, לסדר טקסט'},
+  {id:'TK-010',project:'P-1201',env:'טסט',     status:'פתוח', openDate:'2026-08-16',closeDate:null, severity:'נמוכה',   domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'מובייל - הצהרות - לסדר טקסט פופאפ הצהרות'},
 
   // ── תחום חסכון ארוך טווח ──────────────────────
-  {id:'TK-007',project:'P-1201',env:'טסט',     status:'פתוח', openDate:'2026-08-09',closeDate:null, severity:'נמוכה',   domain:'חסכון ארוך טווח', team:'אפיון תפעול NG', desc:null},
+  {id:'TK-011',project:'P-1201',env:'קדם',     status:'סגור', openDate:'2026-08-12',closeDate:'2026-08-16', severity:'בינונית', domain:'חסכון ארוך טווח', team:'פיתוח BPR NG תביעות 2', desc:'קיים חריג בפוליסה - מסלול אדום'},
+  {id:'TK-012',project:'P-1201',env:'קדם',     status:'פתוח', openDate:'2026-08-16',closeDate:null, severity:'בינונית', domain:'חסכון ארוך טווח', team:'פיתוח BPR NG תביעות 2', desc:'בתהליך דחייה סף 2 לא מופיע נותן השירות'},
+  {id:'TK-013',project:'P-1201',env:'קדם',     status:'בטיפול', openDate:'2026-08-16',closeDate:null, severity:'בינונית', domain:'חסכון ארוך טווח', team:'פיתוח BPR NG תביעות 2', desc:'נסח תביית 10645 לסוכן אינה תקינה'},
+  {id:'TK-014',project:'P-1201',env:'קדם',     status:'פתוח', openDate:'2026-08-16',closeDate:null, severity:'בינונית', domain:'חסכון ארוך טווח', team:'פיתוח BPR NG תביעות 2', desc:'קישור הטרקר נפתח עם שגיאה - 404'},
 ];
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
 const DOMAINS = ['דיגיטל','חסכון ארוך טווח','תשתיות','דאטה ו-AI'];
 const DOMAIN_CSS = {'דיגיטל':'domain-digital','חסכון ארוך טווח':'domain-chat','תשתיות':'domain-infra','דאטה ו-AI':'domain-data'};
-const TEAMS_ORDER = ['צוות פיתוח דיגיטל 6','אפיון תפעול NG','פיתוח BPR NG תביעות'];
+const TEAMS_ORDER = ['צוות פיתוח דיגיטל 6','אפיון תפעול NG','פיתוח BPR NG תביעות','פיתוח BPR NG תביעות 2'];
 
 function daysBetween(d1, d2) {
   return Math.round((new Date(d2) - new Date(d1)) / 86400000);
@@ -644,16 +671,19 @@ function render() {
   document.getElementById('kpi-open-sub').textContent = `מתוכן ${data.filter(r=>r.status==='בטיפול').length} בטיפול פעיל`;
   document.getElementById('kpi-high').textContent = highOpen.length;
   document.getElementById('kpi-high-sub').textContent = `${Math.round(highOpen.length/Math.max(open.length,1)*100)}% מסך הפתוחות`;
-  document.getElementById('kpi-new').textContent = newToday.length;
-  document.getElementById('kpi-new-sub').textContent = `${closed.length} נסגרו בסה"כ`;
+  const inProgress = data.filter(r => r.status === 'בטיפול').length;
+  document.getElementById('kpi-new').textContent = inProgress;
+  document.getElementById('kpi-new-sub').textContent = `${closed.length} נסגרו | ${newToday.length} נפתחו היום`;
   document.getElementById('kpi-avg').textContent = avgDays;
   document.getElementById('kpi-avg-sub').textContent = `מבוסס על ${closedWithDays.length} תקלות שנסגרו`;
 
 
-  // Table 1: severity × age
+  // Severity helpers (shared)
   const SEVS = ['גבוהה','בינונית','נמוכה'];
-  const SEV_CSS = {גבוהה:'num-high', בינונית:'num-mid', נמוכה:'num-low'};
+  const SEV_CSS   = {גבוהה:'num-high', בינונית:'num-mid', נמוכה:'num-low'};
   const SEV_BADGE = {גבוהה:'sev-high', בינונית:'sev-mid', נמוכה:'sev-low'};
+
+  // Table 1: severity × age
   let ageHtml = '';
   let totals = {today:0,'1-2':0,'3-5':0,'5+':0, all:0};
   SEVS.forEach(sev => {
@@ -679,6 +709,25 @@ function render() {
     <td class="${totals['5+']>0?'num-high':''}">${totals['5+']}</td>
   </tr>`;
   document.getElementById('tbl-age').innerHTML = ageHtml;
+
+  // Open defects list
+  const ST_LABEL = {'פתוח':'פתוח','בטיפול':'בתיקון','סגור':'נסגר'};
+  const ST_CSS   = {'פתוח':'st-open','בטיפול':'st-fixing','סגור':'st-closed'};
+  const openList = data.filter(r => r.status !== 'סגור');
+  let openListHtml = '';
+  openList.forEach(r => {
+    const age = ageOf(r);
+    openListHtml += `<tr>
+      <td style="text-align:right;max-width:260px">${r.desc || '—'}</td>
+      <td><span class="sev ${SEV_BADGE[r.severity]}">${r.severity}</span></td>
+      <td style="font-size:12px;color:#4a5578">${r.team}</td>
+      <td style="font-size:12px">${r.env}</td>
+      <td class="${age>=5?'num-high':age>=3?'num-mid':'num-gray'}">${age === 0 ? 'היום' : age + ' י׳'}</td>
+      <td><span class="st-badge ${ST_CSS[r.status]||'st-open'}">${ST_LABEL[r.status]||r.status}</span></td>
+    </tr>`;
+  });
+  if (!openListHtml) openListHtml = '<tr><td colspan="6" style="text-align:center;color:#aaa;padding:14px">אין תקלות פתוחות</td></tr>';
+  document.getElementById('tbl-open-list').innerHTML = openListHtml;
 
   // Domain cards
   let domainHtml = '';
@@ -784,7 +833,7 @@ function tick() {
 }
 
 // ─── LAUNCH TIMER ─────────────────────────────────────────────────────────────
-let LAUNCH_DATE = new Date('2026-08-18T00:00:00');
+let LAUNCH_DATE = new Date('2026-08-26T00:00:00');
 
 function pad(n) { return String(n).padStart(2, '0'); }
 
