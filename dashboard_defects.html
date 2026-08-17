@@ -534,6 +534,7 @@ body {
           <th>צוות</th>
           <th>סביבה</th>
           <th>ימים פתוח</th>
+          <th>צפי תיקון</th>
           <th>סטטוס</th>
         </tr>
       </thead>
@@ -611,21 +612,27 @@ body {
 const TODAY = new Date().toISOString().slice(0, 10); // תאריך אמיתי מהמחשב
 
 const RAW = [
-  // ── תחום דיגיטל — צוות פיתוח דיגיטל 6 ──────────────────────
-  {id:'TK-009',project:'P-1201',env:'טסט',     status:'פתוח', openDate:'2026-08-16',closeDate:null, severity:'נמוכה',   domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'מובייל - הודעת דחייה, לסדר טקסט'},
-  {id:'TK-010',project:'P-1201',env:'טסט',     status:'פתוח', openDate:'2026-08-16',closeDate:null, severity:'נמוכה',   domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'מובייל - הצהרות - לסדר טקסט פופאפ הצהרות'},
+  // ── תחום חסכון ארוך טווח — צוות פיתוח דיגיטל 6 ──────────────────────
+  {id:'TK-011',project:'P-1201',env:'קדם', status:'סגור', openDate:'2026-08-12',closeDate:'2026-08-16', severity:'בינונית', domain:'חסכון ארוך טווח', team:'צוות פיתוח דיגיטל 6',  desc:'קיים חריג בפוליסה - מסלול אדום',                               fixDate:null},
+  {id:'TK-015',project:'P-1201',env:'קדם', status:'בטיפול', openDate:'2026-08-17',closeDate:null,         severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6',  desc:'לאחר שידור נפתחו 2 תהליכים ללא מס׳ תביעה שניהם',              fixDate:'2026-08-18'},
+  {id:'TK-016',project:'P-1201',env:'קדם', status:'בטיפול', openDate:'2026-08-17',closeDate:null,         severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6',  desc:'בסיום השידור לא נפתח תהליך ב-NG, ללא ס׳ תביעה וללא זמן טיפול',fixDate:'2026-08-18'},
+  {id:'TK-017',project:'P-1201',env:'קדם', status:'בטיפול', openDate:'2026-08-17',closeDate:null,         severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6',  desc:'בכניסה לתהליך לאחר שידור - הודעה שמסמך קבלה לא תקין, למרות שנסרק', fixDate:'2026-08-18'},
 
-  // ── תחום חסכון ארוך טווח ──────────────────────
-  {id:'TK-011',project:'P-1201',env:'קדם',     status:'סגור', openDate:'2026-08-12',closeDate:'2026-08-16', severity:'בינונית', domain:'חסכון ארוך טווח', team:'פיתוח BPR NG תביעות 2', desc:'קיים חריג בפוליסה - מסלול אדום'},
-  {id:'TK-012',project:'P-1201',env:'קדם',     status:'פתוח', openDate:'2026-08-16',closeDate:null, severity:'בינונית', domain:'חסכון ארוך טווח', team:'פיתוח BPR NG תביעות 2', desc:'בתהליך דחייה סף 2 לא מופיע נותן השירות'},
-  {id:'TK-013',project:'P-1201',env:'קדם',     status:'בטיפול', openDate:'2026-08-16',closeDate:null, severity:'בינונית', domain:'חסכון ארוך טווח', team:'פיתוח BPR NG תביעות 2', desc:'נסח תביית 10645 לסוכן אינה תקינה'},
-  {id:'TK-014',project:'P-1201',env:'קדם',     status:'פתוח', openDate:'2026-08-16',closeDate:null, severity:'בינונית', domain:'חסכון ארוך טווח', team:'פיתוח BPR NG תביעות 2', desc:'קישור הטרקר נפתח עם שגיאה - 404'},
+  // ── תחום חסכון ארוך טווח — פיתוח BPR NG תביעות ──────────────────────
+  {id:'TK-018',project:'P-1201',env:'קדם', status:'בטיפול', openDate:'2026-08-17',closeDate:null,         severity:'בינונית', domain:'חסכון ארוך טווח', team:'פיתוח BPR NG תביעות',   desc:'לא תקין מכתב דחייה בתהליך משידור - סטטוסים בירוק, דחייה',     fixDate:'2026-08-18'},
+  {id:'TK-019',project:'P-1201',env:'קדם', status:'בטיפול', openDate:'2026-08-17',closeDate:null,         severity:'בינונית', domain:'חסכון ארוך טווח', team:'פיתוח BPR NG תביעות',   desc:'תביעה משידור עם שגיאה ריקה בעת הזנת תאריך טיפול - נדחתה',     fixDate:'2026-08-18'},
+
+  // ── תחום דאטה ו-AI — VISION ──────────────────────
+  {id:'TK-021',project:'P-1201',env:'קדם', status:'בטיפול', openDate:'2026-08-15',closeDate:null,         severity:'נמוכה',   domain:'דאטה ו-AI',        team:'VISION',                 desc:'אי חילוץ ת.ז של לקוח - חד פעמי',                              fixDate:'2026-08-18'},
+  {id:'TK-022',project:'P-1201',env:'קדם', status:'בטיפול', openDate:'2026-08-15',closeDate:null,         severity:'נמוכה',   domain:'דאטה ו-AI',        team:'VISION',                 desc:'חילוץ סכום לא נכון מקבלה - חד פעמי',                          fixDate:'2026-08-18'},
+  {id:'TK-023',project:'P-1201',env:'קדם', status:'בטיפול', openDate:'2026-08-15',closeDate:null,         severity:'נמוכה',   domain:'דאטה ו-AI',        team:'VISION',                 desc:'אי חילוץ שני תאריכי טיפול שונים - חד פעמי',                   fixDate:'2026-08-18'},
+  {id:'TK-024',project:'P-1201',env:'קדם', status:'בטיפול', openDate:'2026-08-15',closeDate:null,         severity:'נמוכה',   domain:'דאטה ו-AI',        team:'VISION',                 desc:'חילוץ מספר קבלה עם וודאות 0',                                  fixDate:'2026-08-18'},
 ];
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
 const DOMAINS = ['דיגיטל','חסכון ארוך טווח','תשתיות','דאטה ו-AI'];
 const DOMAIN_CSS = {'דיגיטל':'domain-digital','חסכון ארוך טווח':'domain-chat','תשתיות':'domain-infra','דאטה ו-AI':'domain-data'};
-const TEAMS_ORDER = ['צוות פיתוח דיגיטל 6','אפיון תפעול NG','פיתוח BPR NG תביעות','פיתוח BPR NG תביעות 2'];
+const TEAMS_ORDER = ['צוות פיתוח דיגיטל 6','אפיון תפעול NG','פיתוח BPR NG תביעות','פיתוח BPR NG תביעות','VISION'];
 
 function daysBetween(d1, d2) {
   return Math.round((new Date(d2) - new Date(d1)) / 86400000);
@@ -723,10 +730,11 @@ function render() {
       <td style="font-size:12px;color:#4a5578">${r.team}</td>
       <td style="font-size:12px">${r.env}</td>
       <td class="${age>=5?'num-high':age>=3?'num-mid':'num-gray'}">${age === 0 ? 'היום' : age + ' י׳'}</td>
+      <td style="font-size:12px;color:#1a4fc4;font-weight:600">${r.fixDate ? r.fixDate.slice(8,10)+'.'+r.fixDate.slice(5,7) : '—'}</td>
       <td><span class="st-badge ${ST_CSS[r.status]||'st-open'}">${ST_LABEL[r.status]||r.status}</span></td>
     </tr>`;
   });
-  if (!openListHtml) openListHtml = '<tr><td colspan="6" style="text-align:center;color:#aaa;padding:14px">אין תקלות פתוחות</td></tr>';
+  if (!openListHtml) openListHtml = '<tr><td colspan="7" style="text-align:center;color:#aaa;padding:14px">אין תקלות פתוחות</td></tr>';
   document.getElementById('tbl-open-list').innerHTML = openListHtml;
 
   // Domain cards
