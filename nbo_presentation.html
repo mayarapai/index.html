@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NBO — Next Best Offer | מצגת הנהלה</title>
+<style>
+  :root {
+    --primary: #1a2e4a;
+    --accent: #0072ce;
+    --accent2: #00b4d8;
+    --green: #2ecc71;
+    --orange: #f39c12;
+    --red: #e74c3c;
+    --light: #f5f8fc;
+    --card: #ffffff;
+    --border: #dde4ef;
+    --text: #1a2e4a;
+    --muted: #6b7a99;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: var(--primary);
+    color: var(--text);
+    min-height: 100vh;
+    direction: rtl;
+  }
+
+  /* ===== TOP NAV ===== */
+  .top-nav {
+    background: #0d1e35;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  }
+  .brand { color: #fff; font-size: 15px; font-weight: 700; letter-spacing: 0.5px; }
+  .brand span { color: var(--accent2); }
+  .nav-tabs { display: flex; gap: 4px; align-items: center; }
+  .nav-tab {
+    background: none; border: none; color: #8aa3c4;
+    padding: 6px 14px; border-radius: 6px;
+    cursor: pointer; font-size: 13px; font-family: inherit;
+    transition: all 0.2s;
+  }
+  .nav-tab:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  .nav-tab.active { background: var(--accent); color: #fff; font-weight: 600; }
+  .slide-counter { color: #8aa3c4; font-size: 13px; min-width: 70px; text-align: left; }
+
+  /* ===== SLIDE ARROWS ===== */
+  .slide-nav {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 12px;
+    z-index: 100;
+    align-items: center;
+  }
+  .arrow-btn {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff;
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .arrow-btn:hover { background: var(--accent); border-color: var(--accent); }
+  .arrow-btn:disabled { opacity: 0.3; cursor: default; }
+  .dot-nav { display: flex; gap: 8px; align-items: center; }
+  .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: rgba(255,255,255,0.25);
+    cursor: pointer; transition: all 0.2s;
+  }
+  .dot.active { background: var(--accent2); width: 22px; border-radius: 4px; }
+
+  /* ===== SLIDE WRAPPER ===== */
+  .slides-container {
+    margin-top: 56px;
+    min-height: calc(100vh - 56px);
+    padding-bottom: 80px;
+  }
+  .slide {
+    display: none;
+    padding: 40px 48px 32px;
+    min-height: calc(100vh - 56px);
+    animation: fadeIn 0.3s ease;
+  }
+  .slide.active { display: flex; flex-direction: column; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ===== SLIDE HEADER ===== */
+  .slide-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 2px;
+    color: var(--accent2); text-transform: uppercase; margin-bottom: 8px;
+  }
+  .slide-title {
+    font-size: 30px; font-weight: 800; color: #fff;
+    line-height: 1.2; margin-bottom: 6px;
+  }
+  .slide-sub {
+    font-size: 15px; color: #8aa3c4; margin-bottom: 32px;
+    line-height: 1.5;
+  }
+
+  /* ===== CARDS ===== */
+  .card {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+  }
+  .card-title {
+    font-size: 13px; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px;
+  }
+
+  /* ===== GRID LAYOUTS ===== */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+
+  /* ===== FLOW / ARROWS ===== */
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 8px 0;
+  }
+  .flow-step {
+    background: #fff;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--primary);
+    flex-shrink: 0;
+    position: relative;
+    min-width: 110px;
+  }
+  .flow-step.highlight {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  .flow-step .step-icon { font-size: 20px; margin-bottom: 4px; }
+  .flow-arrow {
+    color: var(--accent2);
+    font-size: 22px;
+    flex-shrink: 0;
+    padding: 0 4px;
+  }
+
+  /* ===== BADGES ===== */
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .badge-high { background: #d4f5e3; color: #1a7a45; }
+  .badge-mid { background: #fff3cd; color: #7a5b00; }
+  .badge-low { background: #fde8e8; color: #7a1a1a; }
+
+  /* ===== SLIDE 1 ===== */
+  .problem-box {
+    background: linear-gradient(135deg, #1e3a5f, #0d2240);
+    border: 1px solid rgba(0, 114, 206, 0.3);
+    border-radius: 14px;
+    padding: 28px;
+    color: #fff;
+  }
+  .problem-quote {
+    font-size: 18px; font-weight: 300; line-height: 1.6;
+    color: #c8d8f0; border-right: 3px solid var(--accent2);
+    padding-right: 16px;
+  }
+  .solution-highlight {
+    background: linear-gradient(135deg, #0072ce, #0056a0);
+    border-radius: 12px;
+    padding: 20px 24px;
+    color: #fff;
+    font-size: 16px; font-weight: 600; line-height: 1.6;
+  }
+
+  /* ===== SLIDE 2 – Customer 360 ===== */
+  .c360-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    border-right: 4px solid var(--accent);
+  }
+  .c360-icon { font-size: 28px; margin-bottom: 10px; }
+  .c360-title { font-size: 14px; font-weight: 700; color: var(--primary); margin-bottom: 6px; }
+  .c360-items { font-size: 12px; color: var(--muted); line-height: 1.8; }
+  .insight-box {
+    background: linear-gradient(135deg, #e8f4ff, #d0eaff);
+    border-radius: 12px;
+    padding: 20px 24px;
+    border: 1px solid #b3d4f5;
+    margin-top: 20px;
+    font-size: 14px;
+    color: var(--primary);
+    line-height: 1.7;
+    font-weight: 500;
+  }
+
+  /* ===== SLIDE 3 – Customer Example ===== */
+  .customer-profile {
+    background: linear-gradient(135deg, #1e3a5f, #0d2240);
+    border-radius: 14px;
+    padding: 24px;
+    color: #fff;
+  }
+  .customer-name { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+  .customer-age { color: var(--accent2); font-size: 14px; margin-bottom: 16px; }
+  .customer-tag {
+    display: inline-block; background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 20px; padding: 4px 12px;
+    font-size: 12px; margin: 3px;
+  }
+  .recommendation-box {
+    background: #fff;
+    border-radius: 14px;
+    padding: 24px;
+    text-align: center;
+  }
+  .rec-label { font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing: 1px; margin-bottom: 8px; }
+  .rec-product {
+    font-size: 28px; font-weight: 900;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 16px;
+  }
+  .signal-row {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--light); border-radius: 8px;
+    padding: 10px 14px; margin-bottom: 8px;
+  }
+  .signal-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+  .signal-text { font-size: 13px; color: var(--primary); }
+  .ranking-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; border-radius: 8px; margin-bottom: 8px;
+    background: var(--light);
+  }
+  .ranking-item.top { background: #e8f4ff; border: 1px solid #b3d4f5; }
+  .rank-name { font-size: 14px; font-weight: 700; color: var(--primary); }
+  .rank-bar-wrap { flex: 1; margin: 0 14px; height: 6px; background: #dde4ef; border-radius: 3px; }
+  .rank-bar { height: 6px; border-radius: 3px; background: var(--accent); }
+
+  /* ===== SLIDE 4 – Profiles ===== */
+  .profile-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .profile-accent {
+    position: absolute; top: 0; right: 0;
+    width: 4px; height: 100%;
+  }
+  .profile-icon { font-size: 26px; margin-bottom: 10px; }
+  .profile-name { font-size: 14px; font-weight: 800; color: var(--primary); margin-bottom: 6px; }
+  .profile-desc { font-size: 12px; color: var(--muted); line-height: 1.6; margin-bottom: 12px; }
+  .profile-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .profile-tag {
+    font-size: 11px; font-weight: 600;
+    padding: 3px 10px; border-radius: 20px;
+    background: var(--light); color: var(--accent);
+  }
+  .warning-box {
+    background: #fff8e1;
+    border: 1px solid #ffe082;
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 13px;
+    color: #5a4000;
+    margin-top: 20px;
+    line-height: 1.6;
+  }
+
+  /* ===== SLIDE 5 – Audit ===== */
+  .audit-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 22px;
+  }
+  .audit-icon { font-size: 28px; margin-bottom: 10px; }
+  .audit-title { font-size: 15px; font-weight: 800; color: var(--primary); margin-bottom: 4px; }
+  .audit-sub { font-size: 12px; color: var(--muted); margin-bottom: 14px; }
+  .audit-item {
+    display: flex; align-items: flex-start; gap: 8px;
+    font-size: 12px; color: var(--text); margin-bottom: 8px; line-height: 1.5;
+  }
+  .audit-bullet { color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+  .message-box {
+    background: linear-gradient(135deg, #0072ce, #0056a0);
+    border-radius: 12px;
+    padding: 20px 24px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.7;
+    margin-top: 20px;
+  }
+
+  /* ===== SLIDE 6 – Guardrails ===== */
+  .guardrail-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    align-items: center;
+  }
+  .gf-box {
+    background: #fff;
+    border-radius: 10px;
+    padding: 14px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--primary);
+    text-align: center;
+    width: 280px;
+    border: 2px solid var(--border);
+  }
+  .gf-box.model { border-color: var(--accent); background: #e8f4ff; }
+  .gf-box.rules { border-color: #f39c12; background: #fff8e1; }
+  .gf-box.action { border-color: var(--green); background: #d4f5e3; }
+  .gf-arrow { color: var(--accent2); font-size: 24px; line-height: 1; padding: 6px; }
+  .rules-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .rule-item {
+    display: flex; align-items: center; gap: 10px;
+    background: #fff; border-radius: 8px; padding: 12px 14px;
+    border: 1px solid var(--border);
+  }
+  .rule-check { color: var(--orange); font-size: 16px; }
+  .rule-text { font-size: 12px; color: var(--primary); line-height: 1.4; }
+
+  /* ===== SLIDE 7 – Results ===== */
+  .metric-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 22px;
+    text-align: center;
+  }
+  .metric-icon { font-size: 28px; margin-bottom: 8px; }
+  .metric-value { font-size: 32px; font-weight: 900; color: var(--accent); margin-bottom: 4px; }
+  .metric-label { font-size: 13px; color: var(--muted); }
+  .metric-sub { font-size: 11px; color: #aaa; margin-top: 4px; }
+  .warning-note {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 10px;
+    padding: 16px 20px;
+    font-size: 13px;
+    color: #5a4000;
+    line-height: 1.7;
+    margin-top: 20px;
+  }
+  .perf-row {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--light); border-radius: 8px;
+    padding: 10px 16px; margin-bottom: 8px;
+  }
+  .perf-label { font-size: 13px; font-weight: 600; color: var(--primary); }
+  .perf-bar-wrap { flex: 1; margin: 0 16px; height: 8px; background: #dde4ef; border-radius: 4px; }
+  .perf-bar { height: 8px; border-radius: 4px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+  .perf-pct { font-size: 13px; font-weight: 700; color: var(--accent); min-width: 40px; text-align: left; }
+
+  /* ===== DASHBOARD ===== */
+  .dashboard { display: none; padding: 40px 48px 32px; }
+  .dashboard.active { display: block; }
+  .dash-title {
+    font-size: 26px; font-weight: 900; color: #fff;
+    margin-bottom: 6px;
+  }
+  .dash-sub { font-size: 14px; color: #8aa3c4; margin-bottom: 28px; }
+  .dash-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 20px;
+  }
+  .dash-card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+  }
+  .dash-card-header {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+  }
+  .dash-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+  }
+  .dash-card-title { font-size: 16px; font-weight: 800; color: var(--primary); }
+  .dash-card-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* WHO */
+  .who-segment {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+  }
+  .who-segment:last-child { border-bottom: none; }
+  .who-name { font-size: 13px; font-weight: 600; color: var(--primary); }
+  .who-count { font-size: 13px; color: var(--muted); }
+  .who-bar-wrap { width: 80px; height: 6px; background: #dde4ef; border-radius: 3px; margin: 0 12px; }
+  .who-bar { height: 6px; border-radius: 3px; background: var(--accent); }
+
+  /* WHAT */
+  .what-row {
+    display: flex; align-items: center;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+    gap: 12px;
+  }
+  .what-row:last-child { border-bottom: none; }
+  .what-rank { font-size: 20px; font-weight: 900; color: var(--border); min-width: 28px; }
+  .what-product { font-size: 14px; font-weight: 700; color: var(--primary); flex: 1; }
+  .what-pct { font-size: 13px; font-weight: 700; color: var(--accent); }
+  .what-change { font-size: 11px; }
+  .up { color: var(--green); }
+  .down { color: var(--red); }
+
+  /* WHY */
+  .why-driver {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 0; border-bottom: 1px solid var(--border);
+  }
+  .why-driver:last-child { border-bottom: none; }
+  .why-color { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+  .why-label { font-size: 13px; color: var(--primary); flex: 1; }
+  .why-pct { font-size: 13px; font-weight: 700; color: var(--muted); }
+
+  /* DOES IT WORK */
+  .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+  .kpi-box {
+    background: var(--light); border-radius: 10px; padding: 14px;
+    text-align: center;
+  }
+  .kpi-val { font-size: 24px; font-weight: 900; color: var(--accent); }
+  .kpi-lbl { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .stability-bar {
+    height: 10px; border-radius: 5px;
+    background: linear-gradient(90deg, var(--green) 0%, var(--green) 70%, var(--orange) 70%, var(--orange) 85%, var(--red) 85%);
+    margin-bottom: 4px;
+  }
+  .stability-label { font-size: 11px; color: var(--muted); display: flex; justify-content: space-between; }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 900px) {
+    .slide { padding: 24px 20px; }
+    .grid-3, .grid-4, .grid-5 { grid-template-columns: 1fr 1fr; }
+    .dash-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="top-nav">
+  <div class="brand">NBO <span>Next Best Offer</span></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showMode('slides')">מצגת</button>
+    <button class="nav-tab" onclick="showMode('dashboard')">דאשבורד הנהלה</button>
+  </div>
+  <div class="slide-counter" id="counter">שקף 1 / 7</div>
+</nav>
+
+<!-- SLIDES -->
+<div class="slides-container" id="slidesContainer">
+
+  <!-- SLIDE 1: מה אנחנו מנסים לפתור -->
+  <div class="slide active" id="slide-1">
+    <div class="slide-label">שקף 1 — הבעיה</div>
+    <div class="slide-title">למי נכון להציע מה ומתי?</div>
+    <div class="slide-sub">האתגר שה-NBO בא לפתור</div>
+
+    <div class="problem-box" style="margin-bottom:24px;">
+      <p class="problem-quote">
+        "איש המכירות רואה לקוח עם הרבה מאוד מידע —<br>
+        אבל קשה להבין מתוכו מהי הזדמנות המכירה הטובה ביותר."
+      </p>
+    </div>
+
+    <div class="solution-highlight" style="margin-bottom:28px;">
+      ה-NBO עושה דבר אחד:<br>
+      <strong>מדרג עבור כל לקוח את הזדמנויות המכירה האפשריות — ומזהה את ההזדמנות החזקה ביותר.</strong>
+    </div>
+
+    <div class="card">
+      <div class="card-title">התהליך המלא</div>
+      <div class="flow">
+        <div class="flow-step">
+          <div class="step-icon">👤</div>
+          לקוח
+        </div>
+        <div class="flow-arrow">←</div>
+        <div class="flow-step">
+          <div class="step-icon">🔍</div>
+          הבנת מצב הלקוח
+        </div>
+        <div class="flow-arrow">←</div>
+        <div class="flow-step">
+          <div class="step-icon">💡</div>
+          זיהוי הזדמנויות
+        </div>
+        <div class="flow-arrow">←</div>
+        <div class="flow-step highlight">
+          <div class="step-icon">📊</div>
+          דירוג מוצרים
+        </div>
+        <div class="flow-arrow">←</div>
+        <div class="flow-step">
+          <div class="step-icon">🎯</div>
+          המלצה
+        </div>
+        <div class="flow-arrow">←</div>
+        <div class="flow-step">
+          <div class="step-icon">📞</div>
+          פעולה
+        </div>
+        <div class="flow-arrow">←</div>
+        <div class="flow-step">
+          <div class="step-icon">✅</div>
+          תוצאה
+        </div>
+        <div class="flow-arrow">←</div>
+        <div class="flow-step">
+          <div class="step-icon">🔄</div>
+          למידה
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: מה המודל יודע על הלקוח -->
+  <div class="slide" id="slide-2">
+    <div class="slide-label">שקף 2 — הנתונים</div>
+    <div class="slide-title">מה המודל יודע על הלקוח</div>
+    <div class="slide-sub">Customer 360 — תמונה מלאה מ-5 זוויות</div>
+
+    <div class="grid-5" style="margin-bottom:20px;">
+      <div class="c360-card" style="border-color:#0072ce;">
+        <div class="c360-icon">👤</div>
+        <div class="c360-title">מי הלקוח</div>
+        <div class="c360-items">גיל · מצב משפחתי<br>ילדים · עיסוק<br>הכנסה · מגורים</div>
+      </div>
+      <div class="c360-card" style="border-color:#00b4d8;">
+        <div class="c360-icon">📦</div>
+        <div class="c360-title">מה כבר יש לו</div>
+        <div class="c360-items">מוצרים קיימים<br>כיסויים · ותק<br>היקף פעילות</div>
+      </div>
+      <div class="c360-card" style="border-color:#2ecc71;">
+        <div class="c360-icon">📅</div>
+        <div class="c360-title">מה קרה לאחרונה</div>
+        <div class="c360-items">רכישות · שינויים<br>פדיונות · אירועים<br>פניות · תלונות</div>
+      </div>
+      <div class="c360-card" style="border-color:#f39c12;">
+        <div class="c360-icon">🖥️</div>
+        <div class="c360-title">איך מתנהל מול מגדל</div>
+        <div class="c360-items">דיגיטל · שירות<br>קמפיינים · לידים<br>ערוצי קשר</div>
+      </div>
+      <div class="c360-card" style="border-color:#9b59b6;">
+        <div class="c360-icon">🔮</div>
+        <div class="c360-title">צרכים פוטנציאליים</div>
+        <div class="c360-items">מידע משפחתי<br>פיננסי · מסלקה<br>נתוני סוכן</div>
+      </div>
+    </div>
+
+    <div class="insight-box">
+      <strong>עיקרון המפתח:</strong><br>
+      המודל אינו מסתכל על נתון בודד. הוא מחפש <strong>שילובים של מאפיינים והתנהגויות</strong> שבעבר אפיינו לקוחות שרכשו מוצר מסוים — ומחפש דפוסים דומים בלקוחות חדשים.
+    </div>
+  </div>
+
+  <!-- SLIDE 3: למה קיבל הלקוח את ההמלצה -->
+  <div class="slide" id="slide-3">
+    <div class="slide-label">שקף 3 — ההסבר (החשוב ביותר)</div>
+    <div class="slide-title">למה קיבל הלקוח את ההמלצה?</div>
+    <div class="slide-sub">דוגמה אמיתית: לקוחה ספציפית, המלצה ספציפית, הסבר מלא</div>
+
+    <div class="grid-2" style="gap:20px; flex:1;">
+      <!-- שמאל: פרופיל + signals -->
+      <div style="display:flex; flex-direction:column; gap:16px;">
+        <div class="customer-profile">
+          <div class="customer-name">דנה כ.</div>
+          <div class="customer-age">בת 41</div>
+          <div>
+            <span class="customer-tag">נשואה + 2 ילדים</span>
+            <span class="customer-tag">לקוחה 9 שנים</span>
+            <span class="customer-tag">פנסיה פעילה</span>
+            <span class="customer-tag">ללא ביטוח בריאות</span>
+            <span class="customer-tag">דיגיטל גבוה</span>
+            <span class="customer-tag">שינוי משפחתי לאחרונה</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">הסיגנלים שתמכו בהמלצה</div>
+          <div class="signal-row"><div class="signal-dot" style="background:#0072ce;"></div><div class="signal-text">שלב חיים ומשפחה — אמצע החיים עם ילדים קטנים</div></div>
+          <div class="signal-row"><div class="signal-dot" style="background:#00b4d8;"></div><div class="signal-text">פער במעטפת המוצרים — אין כיסוי בריאותי בכלל</div></div>
+          <div class="signal-row"><div class="signal-dot" style="background:#2ecc71;"></div><div class="signal-text">דמיון לקוחות — פרופיל דומה שרכש בריאות בעבר</div></div>
+          <div class="signal-row"><div class="signal-dot" style="background:#f39c12;"></div><div class="signal-text">אירוע אחרון — שינוי משפחתי העלה רלוונטיות</div></div>
+          <div class="signal-row"><div class="signal-dot" style="background:#9b59b6;"></div><div class="signal-text">היסטוריית קשר — פעילות דיגיטלית גבוהה, מעורבות</div></div>
+        </div>
+      </div>
+
+      <!-- ימין: המלצה + דירוג -->
+      <div style="display:flex; flex-direction:column; gap:16px;">
+        <div class="recommendation-box">
+          <div class="rec-label">המלצת NBO</div>
+          <div class="rec-product">ביטוח בריאות</div>
+          <div style="font-size:12px; color:var(--muted); margin-bottom:16px;">
+            זוהתה כהזדמנות הרלוונטית ביותר לדנה
+          </div>
+          <div style="background:#d4f5e3; border-radius:8px; padding:10px 14px; font-size:13px; color:#1a7a45; font-weight:600;">
+            אנחנו יכולים להסביר מדוע — לא רק "האלגוריתם אמר"
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">דירוג כלל ההזדמנויות</div>
+          <div class="ranking-item top">
+            <div class="rank-name">בריאות</div>
+            <div class="rank-bar-wrap"><div class="rank-bar" style="width:88%; background:var(--accent);"></div></div>
+            <span class="badge badge-high">גבוהה</span>
+          </div>
+          <div class="ranking-item">
+            <div class="rank-name">מזור</div>
+            <div class="rank-bar-wrap"><div class="rank-bar" style="width:52%; background:#f39c12;"></div></div>
+            <span class="badge badge-mid">בינונית</span>
+          </div>
+          <div class="ranking-item">
+            <div class="rank-name">ריסק</div>
+            <div class="rank-bar-wrap"><div class="rank-bar" style="width:28%; background:#e74c3c;"></div></div>
+            <span class="badge badge-low">נמוכה</span>
+          </div>
+          <div style="font-size:11px; color:var(--muted); margin-top:12px; padding-top:10px; border-top:1px solid var(--border);">
+            * הדירוג מבוסס על סיגנלים, לא על מספרים בלבד. למנהלים שרוצים להעמיק — נתונים מפורטים זמינים בנספח.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: פרופילי מכירה -->
+  <div class="slide" id="slide-4">
+    <div class="slide-label">שקף 4 — פרופילי מכירה</div>
+    <div class="slide-title">הדפוסים שחוזרים על עצמם</div>
+    <div class="slide-sub">מעבר להסבר של כל המלצה בודדת — המודל מזהה טיפוסים שחוזרים שוב ושוב</div>
+
+    <div class="grid-3" style="margin-bottom:20px; flex:1;">
+      <div class="profile-card">
+        <div class="profile-accent" style="background:#0072ce;"></div>
+        <div class="profile-icon">👨‍👩‍👧‍👦</div>
+        <div class="profile-name">משפחה בצמיחה</div>
+        <div class="profile-desc">לקוחות עם ילדים / שינוי משפחתי, מעטפת הגנות חלקית</div>
+        <div class="profile-tags">
+          <span class="profile-tag">בריאות</span>
+          <span class="profile-tag">ריסק</span>
+        </div>
+      </div>
+      <div class="profile-card">
+        <div class="profile-accent" style="background:#e74c3c;"></div>
+        <div class="profile-icon">🛡️</div>
+        <div class="profile-name">פער בהגנה</div>
+        <div class="profile-desc">פעילות פיננסית משמעותית אך ללא מעטפת ביטוחית מתאימה</div>
+        <div class="profile-tags">
+          <span class="profile-tag">ריסק</span>
+          <span class="profile-tag">בריאות</span>
+        </div>
+      </div>
+      <div class="profile-card">
+        <div class="profile-accent" style="background:#2ecc71;"></div>
+        <div class="profile-icon">💰</div>
+        <div class="profile-name">לקוח פיננסי בשל</div>
+        <div class="profile-desc">צבירות ונכסים פעילים — ללא מוצר פיננסי משלים</div>
+        <div class="profile-tags">
+          <span class="profile-tag">השקעות</span>
+          <span class="profile-tag">פיננסים</span>
+        </div>
+      </div>
+      <div class="profile-card">
+        <div class="profile-accent" style="background:#f39c12;"></div>
+        <div class="profile-icon">📈</div>
+        <div class="profile-name">פוטנציאל להעמקה</div>
+        <div class="profile-desc">מספר מוצרים נמוך יחסית לפרופיל דומה — מועמד להרחבה</div>
+        <div class="profile-tags">
+          <span class="profile-tag">מוצר משלים</span>
+          <span class="profile-tag">פרופיל-תלוי</span>
+        </div>
+      </div>
+      <div class="profile-card">
+        <div class="profile-accent" style="background:#9b59b6;"></div>
+        <div class="profile-icon">🔔</div>
+        <div class="profile-name">Lifecycle Event</div>
+        <div class="profile-desc">שינוי תעסוקתי, משפחתי או פיננסי — הלקוח נמצא בנקודת מפנה</div>
+        <div class="profile-tags">
+          <span class="profile-tag">משתנה לפי אירוע</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="warning-box">
+      <strong>הבחנה חשובה:</strong> פרופילים אלו לא הומצאו — הם <strong>נגזרים בפועל מהנתונים</strong> ומה-drivers של ההמלצות.
+      כך אפשר להגיד בביטחון: "זה מה שהמודל באמת עושה."
+    </div>
+  </div>
+
+  <!-- SLIDE 5: כיצד אנחנו מבקרים את ה-NBO -->
+  <div class="slide" id="slide-5">
+    <div class="slide-label">שקף 5 — ביקורת ובקרה</div>
+    <div class="slide-title">כיצד אנחנו מבקרים את ה-NBO</div>
+    <div class="slide-sub">אנחנו לא מסתכלים רק על מכירות — יש ארבעה סוגי בקרה</div>
+
+    <div class="grid-2" style="flex:1; margin-bottom:20px;">
+      <div class="audit-card">
+        <div class="audit-icon">🧠</div>
+        <div class="audit-title">Business Sense</div>
+        <div class="audit-sub">האם ההמלצות הגיוניות עסקית?</div>
+        <div class="audit-item"><span class="audit-bullet">▸</span> התפלגות המלצות לפי מוצר ואוכלוסייה</div>
+        <div class="audit-item"><span class="audit-bullet">▸</span> בדיקה שאין מוצר שמקבל 80% מההמלצות</div>
+        <div class="audit-item"><span class="audit-bullet">▸</span> ניתוח לפי גיל, מוצר קיים, פרופיל לקוח</div>
+      </div>
+      <div class="audit-card">
+        <div class="audit-icon">🎯</div>
+        <div class="audit-title">Model Quality</div>
+        <div class="audit-sub">כמה פעמים ההמלצה תאמה לרכישה בפועל?</div>
+        <div class="audit-item"><span class="audit-bullet">▸</span> Hit Rate — התאמת המלצה לרכישה</div>
+        <div class="audit-item"><span class="audit-bullet">▸</span> Coverage — כמה לקוחות קיבלו המלצה חזקה</div>
+        <div class="audit-item"><span class="audit-bullet">▸</span> ביצועים לפי מוצר ואוכלוסייה</div>
+      </div>
+      <div class="audit-card">
+        <div class="audit-icon">📊</div>
+        <div class="audit-title">Stability</div>
+        <div class="audit-sub">האם המודל מתנהג באופן עקבי?</div>
+        <div class="audit-item"><span class="audit-bullet">▸</span> האם 60% מהלקוחות מקבלים פתאום אותו מוצר?</div>
+        <div class="audit-item"><span class="audit-bullet">▸</span> האם פרופילי ההמלצה יציבים מחודש לחודש?</div>
+        <div class="audit-item"><span class="audit-bullet">▸</span> מעקב אחר חריגות ודריפט</div>
+      </div>
+      <div class="audit-card">
+        <div class="audit-icon">💼</div>
+        <div class="audit-title">Business Outcome</div>
+        <div class="audit-sub">האם זה מייצר ערך לעומת המצב הקיים?</div>
+        <div class="audit-item"><span class="audit-bullet">▸</span> Conversion — שיעור המרה מול אוכלוסיית ביקורת</div>
+        <div class="audit-item"><span class="audit-bullet">▸</span> Lift — עלייה מעל בסיס הייחוס</div>
+        <div class="audit-item"><span class="audit-bullet">▸</span> Incremental revenue / premium</div>
+      </div>
+    </div>
+
+    <div class="message-box">
+      מכירה היא מדד התוצאה — אבל היא אינה מנגנון הבקרה היחיד.
+      אנחנו עוקבים אחרי <strong>איכות, התפלגות, יציבות ותוצאות עסקיות</strong> — באופן שוטף.
+    </div>
+  </div>
+
+  <!-- SLIDE 6: Business Guardrails -->
+  <div class="slide" id="slide-6">
+    <div class="slide-label">שקף 6 — שכבת הבקרה העסקית</div>
+    <div class="slide-title">המודל מציע — העסק מחליט</div>
+    <div class="slide-sub">שכבת חוקים עסקיים מסננת כל המלצה לפני שמגיעה לאיש המכירות</div>
+
+    <div class="grid-2" style="flex:1;">
+      <div style="display:flex; align-items:center; justify-content:center;">
+        <div style="width:100%;">
+          <div class="guardrail-flow">
+            <div class="gf-box" style="background:#e8f4ff; border-color:#0072ce;">
+              📊 נתוני לקוח
+            </div>
+            <div class="gf-arrow">↓</div>
+            <div class="gf-box model">
+              🤖 NBO — דירוג הזדמנויות
+            </div>
+            <div class="gf-arrow">↓</div>
+            <div class="gf-box rules">
+              ⚙️ חוקים עסקיים וזכאות
+            </div>
+            <div class="gf-arrow">↓</div>
+            <div class="gf-box action">
+              🎯 המלצה לאיש המכירות
+            </div>
+            <div class="gf-arrow">↓</div>
+            <div class="gf-box" style="background:#e8f0e8; border-color:#2ecc71;">
+              📞 ערוץ המכירה
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-title">מה נבדק בשכבת הכללים?</div>
+          <div class="rules-grid">
+            <div class="rule-item">
+              <span class="rule-check">✓</span>
+              <div class="rule-text">הלקוח כבר מחזיק את המוצר?</div>
+            </div>
+            <div class="rule-item">
+              <span class="rule-check">✓</span>
+              <div class="rule-text">מותר לפנות ללקוח? (הסכמות, GDPR)</div>
+            </div>
+            <div class="rule-item">
+              <span class="rule-check">✓</span>
+              <div class="rule-text">המוצר מתאים לאוכלוסייה?</div>
+            </div>
+            <div class="rule-item">
+              <span class="rule-check">✓</span>
+              <div class="rule-text">יש קמפיין עסקי קיים שגובר?</div>
+            </div>
+            <div class="rule-item">
+              <span class="rule-check">✓</span>
+              <div class="rule-text">קיימת מגבלת ערוץ מכירה?</div>
+            </div>
+            <div class="rule-item">
+              <span class="rule-check">✓</span>
+              <div class="rule-text">עומד ביעדי האסטרטגיה הנוכחית?</div>
+            </div>
+          </div>
+        </div>
+        <div class="message-box">
+          <strong>המסר החשוב:</strong><br>
+          המודל מייצר signal — ה<strong>החלטה העסקית</strong> מתקבלת בתוך מסגרת חוקים, זכאות ואסטרטגיה שאנחנו שולטים בה לחלוטין.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: האם זה עובד -->
+  <div class="slide" id="slide-7">
+    <div class="slide-label">שקף 7 — תוצאות</div>
+    <div class="slide-title">האם זה עובד?</div>
+    <div class="slide-sub">מדדים שמספרים את הסיפור המלא — לא רק דיוק</div>
+
+    <div class="grid-4" style="margin-bottom:20px;">
+      <div class="metric-card">
+        <div class="metric-icon">🎯</div>
+        <div class="metric-value">68%</div>
+        <div class="metric-label">Hit Rate</div>
+        <div class="metric-sub">התאמת המלצה לרכישה בפועל</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon">📈</div>
+        <div class="metric-value">+2.4x</div>
+        <div class="metric-label">Lift</div>
+        <div class="metric-sub">מעל אוכלוסיית ביקורת</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon">👥</div>
+        <div class="metric-value">82%</div>
+        <div class="metric-label">Coverage</div>
+        <div class="metric-sub">לקוחות שקיבלו המלצה חזקה</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon">💰</div>
+        <div class="metric-value">+18%</div>
+        <div class="metric-label">Conversion</div>
+        <div class="metric-sub">עלייה בהמרה מול שיטה ישנה</div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-bottom:20px;">
+      <div class="card">
+        <div class="card-title">ביצועים לפי מוצר</div>
+        <div class="perf-row"><div class="perf-label">בריאות</div><div class="perf-bar-wrap"><div class="perf-bar" style="width:78%;"></div></div><div class="perf-pct">78%</div></div>
+        <div class="perf-row"><div class="perf-label">ריסק</div><div class="perf-bar-wrap"><div class="perf-bar" style="width:71%;"></div></div><div class="perf-pct">71%</div></div>
+        <div class="perf-row"><div class="perf-label">מזור</div><div class="perf-bar-wrap"><div class="perf-bar" style="width:64%;"></div></div><div class="perf-pct">64%</div></div>
+        <div class="perf-row"><div class="perf-label">פיננסים</div><div class="perf-bar-wrap"><div class="perf-bar" style="width:59%;"></div></div><div class="perf-pct">59%</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">ביצועים לפי קבוצת גיל</div>
+        <div class="perf-row"><div class="perf-label">25-35</div><div class="perf-bar-wrap"><div class="perf-bar" style="width:65%;"></div></div><div class="perf-pct">65%</div></div>
+        <div class="perf-row"><div class="perf-label">36-50</div><div class="perf-bar-wrap"><div class="perf-bar" style="width:81%;"></div></div><div class="perf-pct">81%</div></div>
+        <div class="perf-row"><div class="perf-label">51-65</div><div class="perf-bar-wrap"><div class="perf-bar" style="width:72%;"></div></div><div class="perf-pct">72%</div></div>
+        <div class="perf-row"><div class="perf-label">65+</div><div class="perf-bar-wrap"><div class="perf-bar" style="width:55%;"></div></div><div class="perf-pct">55%</div></div>
+      </div>
+    </div>
+
+    <div class="warning-note">
+      <strong>הבהרה חשובה:</strong> המדדים מודדים התאמה של ההמלצה לרכישה שאירעה בפועל — <strong>לא</strong> רק בקרב מי שרכש כבר.
+      Coverage ו-Lift ביחס לאוכלוסיית ביקורת מספרים את התמונה המלאה יותר.
+    </div>
+  </div>
+
+</div><!-- end slides-container -->
+
+<!-- SLIDE NAVIGATION -->
+<div class="slide-nav" id="slideNav">
+  <button class="arrow-btn" id="prevBtn" onclick="changeSlide(-1)" disabled>›</button>
+  <div class="dot-nav" id="dotNav"></div>
+  <button class="arrow-btn" id="nextBtn" onclick="changeSlide(1)">‹</button>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dashboard" id="dashboardView" style="padding-top:96px;">
+  <div class="dash-title">דאשבורד NBO — תצוגת הנהלה</div>
+  <div class="dash-sub">ארבעה אזורים: מי · מה · למה · האם זה עובד</div>
+
+  <div class="dash-grid">
+
+    <!-- WHO -->
+    <div class="dash-card">
+      <div class="dash-card-header">
+        <div class="dash-icon" style="background:#e8f4ff;">👥</div>
+        <div>
+          <div class="dash-card-title">WHO — למי אנחנו ממליצים</div>
+          <div class="dash-card-sub">פרופילי לקוח שמקבלים המלצה חזקה</div>
+        </div>
+      </div>
+      <div class="who-segment">
+        <div class="who-name">משפחה בצמיחה</div>
+        <div class="who-bar-wrap"><div class="who-bar" style="width:85%;"></div></div>
+        <div class="who-count">34%</div>
+      </div>
+      <div class="who-segment">
+        <div class="who-name">פער בהגנה</div>
+        <div class="who-bar-wrap"><div class="who-bar" style="width:60%; background:#00b4d8;"></div></div>
+        <div class="who-count">24%</div>
+      </div>
+      <div class="who-segment">
+        <div class="who-name">לקוח פיננסי בשל</div>
+        <div class="who-bar-wrap"><div class="who-bar" style="width:45%; background:#2ecc71;"></div></div>
+        <div class="who-count">18%</div>
+      </div>
+      <div class="who-segment">
+        <div class="who-name">Lifecycle Event</div>
+        <div class="who-bar-wrap"><div class="who-bar" style="width:35%; background:#f39c12;"></div></div>
+        <div class="who-count">14%</div>
+      </div>
+      <div class="who-segment">
+        <div class="who-name">פוטנציאל להעמקה</div>
+        <div class="who-bar-wrap"><div class="who-bar" style="width:25%; background:#9b59b6;"></div></div>
+        <div class="who-count">10%</div>
+      </div>
+    </div>
+
+    <!-- WHAT -->
+    <div class="dash-card">
+      <div class="dash-card-header">
+        <div class="dash-icon" style="background:#d4f5e3;">📦</div>
+        <div>
+          <div class="dash-card-title">WHAT — איזה מוצר</div>
+          <div class="dash-card-sub">התפלגות ההמלצות לפי מוצר (החודש)</div>
+        </div>
+      </div>
+      <div class="what-row">
+        <div class="what-rank">1</div>
+        <div class="what-product">ביטוח בריאות</div>
+        <div class="what-pct">38%</div>
+        <div class="what-change up">+3% ↑</div>
+      </div>
+      <div class="what-row">
+        <div class="what-rank">2</div>
+        <div class="what-product">ריסק</div>
+        <div class="what-pct">27%</div>
+        <div class="what-change up">+1% ↑</div>
+      </div>
+      <div class="what-row">
+        <div class="what-rank">3</div>
+        <div class="what-product">מזור</div>
+        <div class="what-pct">18%</div>
+        <div class="what-change down">-2% ↓</div>
+      </div>
+      <div class="what-row">
+        <div class="what-rank">4</div>
+        <div class="what-product">מוצרי חיסכון</div>
+        <div class="what-pct">11%</div>
+        <div class="what-change" style="color:var(--muted);">ללא שינוי</div>
+      </div>
+      <div class="what-row">
+        <div class="what-rank">5</div>
+        <div class="what-product">אחר</div>
+        <div class="what-pct">6%</div>
+        <div class="what-change down">-2% ↓</div>
+      </div>
+    </div>
+
+    <!-- WHY -->
+    <div class="dash-card">
+      <div class="dash-card-header">
+        <div class="dash-icon" style="background:#fff8e1;">💡</div>
+        <div>
+          <div class="dash-card-title">WHY — מה מניע את ההמלצות</div>
+          <div class="dash-card-sub">הסיגנלים המשפיעים ביותר על דירוג המוצרים</div>
+        </div>
+      </div>
+      <div class="why-driver">
+        <div class="why-color" style="background:#0072ce;"></div>
+        <div class="why-label">פרופיל משפחתי ושלב חיים</div>
+        <div class="why-pct">31%</div>
+      </div>
+      <div class="why-driver">
+        <div class="why-color" style="background:#00b4d8;"></div>
+        <div class="why-label">פרצות במעטפת המוצרים</div>
+        <div class="why-pct">24%</div>
+      </div>
+      <div class="why-driver">
+        <div class="why-color" style="background:#2ecc71;"></div>
+        <div class="why-label">דמיון ללקוחות שרכשו</div>
+        <div class="why-pct">19%</div>
+      </div>
+      <div class="why-driver">
+        <div class="why-color" style="background:#f39c12;"></div>
+        <div class="why-label">אירוע / שינוי לאחרונה</div>
+        <div class="why-pct">16%</div>
+      </div>
+      <div class="why-driver">
+        <div class="why-color" style="background:#9b59b6;"></div>
+        <div class="why-label">היסטוריית קשר ופעילות</div>
+        <div class="why-pct">10%</div>
+      </div>
+    </div>
+
+    <!-- DOES IT WORK -->
+    <div class="dash-card">
+      <div class="dash-card-header">
+        <div class="dash-icon" style="background:#fde8e8;">✅</div>
+        <div>
+          <div class="dash-card-title">DOES IT WORK — האם ההמלצה נכונה?</div>
+          <div class="dash-card-sub">מדדי ביצוע מרכזיים — עדכון חודשי</div>
+        </div>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi-box">
+          <div class="kpi-val" style="color:var(--green);">68%</div>
+          <div class="kpi-lbl">Hit Rate</div>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-val">+2.4x</div>
+          <div class="kpi-lbl">Lift vs. ביקורת</div>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-val" style="color:#f39c12;">82%</div>
+          <div class="kpi-lbl">Coverage</div>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-val" style="color:var(--green);">+18%</div>
+          <div class="kpi-lbl">Conversion</div>
+        </div>
+      </div>
+      <div style="margin-top:14px;">
+        <div style="font-size:12px; font-weight:700; color:var(--muted); margin-bottom:8px;">יציבות ה-NBO — 3 חודשים אחרונים</div>
+        <div class="stability-bar"></div>
+        <div class="stability-label">
+          <span style="color:var(--green);">יציב</span>
+          <span style="color:var(--orange);">אזהרה</span>
+          <span style="color:var(--red);">חריגה</span>
+        </div>
+        <div style="font-size:11px; color:var(--muted); margin-top:8px;">המצב הנוכחי: יציב — אין חריגות בהתפלגות ההמלצות</div>
+      </div>
+    </div>
+
+  </div>
+</div><!-- end dashboard -->
+
+<script>
+  let currentSlide = 1;
+  const totalSlides = 7;
+  let mode = 'slides';
+
+  function showMode(m) {
+    mode = m;
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+
+    if (m === 'slides') {
+      document.getElementById('slidesContainer').style.display = 'block';
+      document.getElementById('slideNav').style.display = 'flex';
+      document.getElementById('dashboardView').classList.remove('active');
+      document.getElementById('counter').textContent = `שקף ${currentSlide} / ${totalSlides}`;
+      goToSlide(currentSlide);
+    } else {
+      document.getElementById('slidesContainer').style.display = 'none';
+      document.getElementById('slideNav').style.display = 'none';
+      document.getElementById('dashboardView').classList.add('active');
+      document.getElementById('counter').textContent = 'דאשבורד';
+    }
+  }
+
+  function goToSlide(n) {
+    document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+    document.getElementById(`slide-${n}`).classList.add('active');
+    currentSlide = n;
+    document.getElementById('counter').textContent = `שקף ${n} / ${totalSlides}`;
+    document.getElementById('prevBtn').disabled = (n === 1);
+    document.getElementById('nextBtn').disabled = (n === totalSlides);
+    document.querySelectorAll('.dot').forEach((d, i) => {
+      d.classList.toggle('active', i + 1 === n);
+    });
+  }
+
+  function changeSlide(dir) {
+    const next = currentSlide + dir;
+    if (next >= 1 && next <= totalSlides) goToSlide(next);
+  }
+
+  // Build dots
+  const dotNav = document.getElementById('dotNav');
+  for (let i = 1; i <= totalSlides; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 1 ? ' active' : '');
+    d.onclick = () => goToSlide(i);
+    dotNav.appendChild(d);
+  }
+
+  // Keyboard navigation
+  document.addEventListener('keydown', e => {
+    if (mode !== 'slides') return;
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') changeSlide(-1);
+    if (e.key === 'ArrowRight' || e.key === 'ArrowUp') changeSlide(1);
+  });
+</script>
+</body>
+</html>
