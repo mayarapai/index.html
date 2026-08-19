@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מפרט לוגים — ניטור תביעה אמבולטורי E2E</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #f7f8fa;
+  color: #1a202c;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 14px;
+  direction: rtl;
+  line-height: 1.6;
+}
+
+/* ===== PAGE ===== */
+.page { max-width: 960px; margin: 0 auto; padding: 40px 32px; }
+
+/* ===== HEADER ===== */
+.doc-header {
+  background: #1a202c;
+  color: white;
+  border-radius: 8px;
+  padding: 28px 32px;
+  margin-bottom: 32px;
+}
+.doc-title { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+.doc-sub { color: #a0aec0; font-size: 13px; }
+.doc-meta { margin-top: 16px; display: flex; gap: 24px; flex-wrap: wrap; }
+.doc-meta-item { font-size: 12px; color: #718096; }
+.doc-meta-item strong { color: #e2e8f0; }
+
+/* ===== INTRO BOX ===== */
+.intro-box {
+  background: #ebf4ff;
+  border: 1px solid #bee3f8;
+  border-right: 4px solid #3182ce;
+  border-radius: 6px;
+  padding: 16px 18px;
+  margin-bottom: 28px;
+  font-size: 13px;
+  color: #2c5282;
+  line-height: 1.8;
+}
+.intro-box strong { color: #1a365d; }
+
+/* ===== SECTION HEADER ===== */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 32px 0 16px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #e2e8f0;
+}
+.section-num {
+  background: #2d3748;
+  color: white;
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700;
+  flex-shrink: 0;
+}
+.section-title-text { font-size: 17px; font-weight: 700; color: #1a202c; }
+.section-owner { font-size: 12px; color: #718096; margin-top: 2px; }
+
+.section-num.s0 { background: #5a67d8; }
+.section-num.s1 { background: #38a169; }
+.section-num.s2 { background: #38a169; }
+.section-num.s3 { background: #38a169; }
+.section-num.s4 { background: #dd6b20; }
+.section-num.s5 { background: #dd6b20; }
+.section-num.s6 { background: #dd6b20; }
+.section-num.s7 { background: #38a169; }
+.section-num.s8 { background: #38a169; }
+.section-num.s9 { background: #e53e3e; }
+.section-num.s10 { background: #38a169; }
+.section-num.s11 { background: #38a169; }
+
+/* ===== SUBSECTION ===== */
+.subsection { margin-bottom: 20px; }
+.subsection-title {
+  font-size: 13px; font-weight: 700; color: #2d3748;
+  margin-bottom: 8px;
+  padding: 4px 10px;
+  background: #edf2f7;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+/* ===== TABLE ===== */
+.spec-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-bottom: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.spec-table th {
+  background: #2d3748;
+  color: #e2e8f0;
+  font-size: 11px;
+  font-weight: 600;
+  text-align: right;
+  padding: 8px 10px;
+}
+.spec-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #e2e8f0;
+  vertical-align: top;
+}
+.spec-table tr:last-child td { border-bottom: none; }
+.spec-table tr:nth-child(even) td { background: #f7f8fa; }
+
+.f-name { font-family: monospace; font-size: 12px; color: #2b6cb0; font-weight: 600; }
+.f-type { color: #718096; font-size: 11px; }
+.f-req  { font-size: 11px; font-weight: 700; }
+.f-req.must { color: #e53e3e; }
+.f-req.nice { color: #dd6b20; }
+.f-example { font-family: monospace; font-size: 11px; color: #276749; background: #f0fff4; padding: 1px 5px; border-radius: 3px; }
+.f-note { color: #4a5568; font-size: 12px; }
+
+/* ===== EVENT BOX ===== */
+.event-box {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+.event-header {
+  background: #edf2f7;
+  padding: 8px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e2e8f0;
+}
+.event-name { font-weight: 700; font-size: 13px; color: #1a202c; font-family: monospace; }
+.event-desc { font-size: 12px; color: #4a5568; }
+.event-trigger { font-size: 11px; color: #718096; font-style: italic; }
+
+/* ===== NOTES ===== */
+.note-box {
+  background: #fffbeb;
+  border: 1px solid #f6e05e;
+  border-right: 3px solid #d69e2e;
+  border-radius: 4px;
+  padding: 10px 12px;
+  font-size: 12px;
+  color: #744210;
+  margin-bottom: 14px;
+}
+.note-box.blue {
+  background: #ebf4ff;
+  border-color: #90cdf4;
+  border-right-color: #3182ce;
+  color: #2c5282;
+}
+.note-box.red {
+  background: #fff5f5;
+  border-color: #fed7d7;
+  border-right-color: #e53e3e;
+  color: #742a2a;
+}
+
+/* ===== COMMON FIELDS ===== */
+.common-box {
+  background: #faf5ff;
+  border: 1px solid #d6bcfa;
+  border-right: 4px solid #805ad5;
+  border-radius: 6px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+.common-box-title { font-weight: 700; color: #553c9a; margin-bottom: 8px; font-size: 13px; }
+
+/* ===== CONNECTOR SPEC ===== */
+.connector-spec {
+  background: #e6fffa;
+  border: 1px solid #81e6d9;
+  border-radius: 6px;
+  padding: 14px 16px;
+  margin-bottom: 24px;
+}
+.connector-spec-title { font-weight: 700; color: #234e52; margin-bottom: 8px; font-size: 13px; }
+
+/* ===== FLOW BANNER ===== */
+.flow-banner {
+  background: #1a202c;
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin-bottom: 28px;
+  overflow-x: auto;
+  white-space: nowrap;
+  font-size: 12px;
+  direction: ltr;
+  text-align: center;
+}
+.fstep { display: inline-block; background: #2d3748; color: #e2e8f0; padding: 5px 10px; border-radius: 4px; margin: 0 1px; }
+.farrow { color: #4a5568; margin: 0 2px; }
+
+/* ===== STATUS BADGE ===== */
+.badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+.badge-green { background: #c6f6d5; color: #276749; }
+.badge-amber { background: #feebc8; color: #744210; }
+.badge-red   { background: #fed7d7; color: #742a2a; }
+
+/* ===== DIVIDER ===== */
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 28px 0; }
+
+/* ===== FOOTER ===== */
+.doc-footer {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 2px solid #e2e8f0;
+  font-size: 12px;
+  color: #718096;
+  text-align: center;
+}
+
+/* ===== PRINT ===== */
+@media print {
+  body { background: white; font-size: 11px; }
+  .page { padding: 20px; }
+  .event-box { break-inside: avoid; }
+  .section-header { break-before: page; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- ===== DOC HEADER ===== -->
+<div class="doc-header">
+  <div class="doc-title">מפרט דרישות לוגים — ניטור תביעה אמבולטורי End-to-End</div>
+  <div class="doc-sub">מסמך טכני לבעלי המערכות — הגדרת אירועי הלוג הנדרשים לבניית דאשבורד Splunk</div>
+  <div class="doc-meta">
+    <div class="doc-meta-item"><strong>מיועד ל:</strong> בעלי מערכת / Tech Lead של כל תחנה בתהליך</div>
+    <div class="doc-meta-item"><strong>מבוקש על ידי:</strong> צוות Splunk</div>
+    <div class="doc-meta-item"><strong>מטרה:</strong> בניית Journey Health Dashboard</div>
+  </div>
+</div>
+
+<!-- ===== INTRO ===== -->
+<div class="intro-box">
+  <strong>מה המסמך הזה?</strong><br>
+  מסמך זה מגדיר עבור כל מערכת בתהליך הגשת התביעה האמבולטורית — <strong>אילו אירועים עליה לשלוח ל-Splunk</strong>, ואילו שדות חייבים להופיע בכל אירוע.<br><br>
+  הדאשבורד שייבנה ינטר את <strong>בריאות התהליך הטכני מקצה לקצה</strong> — לא תוצאות עסקיות, אלא: האם כל מעבר בין מערכות מתרחש כנדרש, מהיר מספיק, וללא אובדן נתונים.<br><br>
+  <strong>חשוב:</strong> ללא הלוגים המוגדרים כאן, לא ניתן לבנות את הדאשבורד. כל שדה שמסומן "חובה" הוא תנאי הכרחי לניטור.
+</div>
+
+<!-- ===== FLOW ===== -->
+<div class="flow-banner">
+  <span class="fstep">1 Digital</span><span class="farrow">&#8594;</span>
+  <span class="fstep">2 BPR</span><span class="farrow">&#8594;</span>
+  <span class="fstep">3 Upload</span><span class="farrow">&#8594;</span>
+  <span class="fstep">4 Whitening</span><span class="farrow">&#8594;</span>
+  <span class="fstep">5 OCR</span><span class="farrow">&#8594;</span>
+  <span class="fstep">6 OCR&#8594;Digital</span><span class="farrow">&#8594;</span>
+  <span class="fstep">7 Doctor DB</span><span class="farrow">&#8594;</span>
+  <span class="fstep">8 Eligibility</span><span class="farrow">&#8594;</span>
+  <span class="fstep">9 Fraud</span><span class="farrow">&#8594;</span>
+  <span class="fstep">10 Routing</span><span class="farrow">&#8594;</span>
+  <span class="fstep">11 Payment</span>
+</div>
+
+<!-- ===== SECTION 0: COMMON FIELDS ===== -->
+<div class="section-header">
+  <div class="section-num s0">0</div>
+  <div>
+    <div class="section-title-text">שדות חובה משותפים — כל מערכת, כל אירוע</div>
+    <div class="section-owner">חל על כל 11 התחנות ללא יוצא מן הכלל</div>
+  </div>
+</div>
+
+<div class="common-box">
+  <div class="common-box-title">&#9888; השדות הבאים חייבים להופיע בכל אירוע לוג שנשלח מכל מערכת</div>
+  <div style="font-size:12px; color:#553c9a; margin-bottom:8px">ללא שדות אלה לא ניתן לקשר אירועים בין מערכות ולא ניתן לבנות את הדאשבורד.</div>
+</div>
+
+<table class="spec-table">
+  <thead>
+    <tr>
+      <th style="width:20%">שם השדה</th>
+      <th style="width:10%">סוג</th>
+      <th style="width:10%">חובה?</th>
+      <th style="width:25%">דוגמה</th>
+      <th style="width:35%">הסבר</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><span class="f-name">timestamp</span></td>
+      <td><span class="f-type">datetime UTC</span></td>
+      <td><span class="f-req must">חובה</span></td>
+      <td><span class="f-example">2025-06-01T08:24:02.341Z</span></td>
+      <td class="f-note">חותמת זמן מדויקת. פורמט ISO 8601 בלבד. חובה UTC. רזולוציה: מילישניות.</td>
+    </tr>
+    <tr>
+      <td><span class="f-name">correlation_id</span></td>
+      <td><span class="f-type">string UUID</span></td>
+      <td><span class="f-req must">חובה</span></td>
+      <td><span class="f-example">a3f9-8b12-...</span></td>
+      <td class="f-note"><strong>השדה הקריטי ביותר.</strong> נוצר בשלב 1 (Digital) ומועבר ללא שינוי לכל המערכות לאורך כל ה-Journey. מאפשר לקשר את כל האירועים של אותה תביעה.</td>
+    </tr>
+    <tr>
+      <td><span class="f-name">component</span></td>
+      <td><span class="f-type">string</span></td>
+      <td><span class="f-req must">חובה</span></td>
+      <td><span class="f-example">ocr-service</span></td>
+      <td class="f-note">שם המערכת השולחת. קבוע לכל מערכת. לא ישתנה בין אירועים.</td>
+    </tr>
+    <tr>
+      <td><span class="f-name">stage</span></td>
+      <td><span class="f-type">string enum</span></td>
+      <td><span class="f-req must">חובה</span></td>
+      <td><span class="f-example">OCR</span></td>
+      <td class="f-note">שם השלב בתהליך. ערכים אפשריים: DIGITAL / BPR / UPLOAD / WHITENING / OCR / OCR_RESPONSE / DOCTOR_DB / ELIGIBILITY / FRAUD / ROUTING / PAYMENT</td>
+    </tr>
+    <tr>
+      <td><span class="f-name">action</span></td>
+      <td><span class="f-type">string enum</span></td>
+      <td><span class="f-req must">חובה</span></td>
+      <td><span class="f-example">PROCESS_COMPLETE</span></td>
+      <td class="f-note">מה קרה באירוע זה. כל מערכת תגדיר את הערכים הרלוונטיים לה (מפורט בסעיפים הבאים).</td>
+    </tr>
+    <tr>
+      <td><span class="f-name">status</span></td>
+      <td><span class="f-type">string enum</span></td>
+      <td><span class="f-req must">חובה</span></td>
+      <td><span class="f-example">SUCCESS</span></td>
+      <td class="f-note">תוצאת האירוע: SUCCESS / FAILURE / TIMEOUT / PARTIAL</td>
+    </tr>
+    <tr>
+      <td><span class="f-name">duration_ms</span></td>
+      <td><span class="f-type">integer</span></td>
+      <td><span class="f-req must">חובה</span></td>
+      <td><span class="f-example">342</span></td>
+      <td class="f-note">זמן עיבוד בין תחילת הפעולה לסיומה, במילישניות. נדרש לחישוב P95 latency.</td>
+    </tr>
+    <tr>
+      <td><span class="f-name">environment</span></td>
+      <td><span class="f-type">string enum</span></td>
+      <td><span class="f-req must">חובה</span></td>
+      <td><span class="f-example">production</span></td>
+      <td class="f-note">סביבת הרצה: production / staging / dev. נדרש לסינון בדאשבורד.</td>
+    </tr>
+    <tr>
+      <td><span class="f-name">service_version</span></td>
+      <td><span class="f-type">string</span></td>
+      <td><span class="f-req must">חובה</span></td>
+      <td><span class="f-example">2.4.1</span></td>
+      <td class="f-note">גרסת הרכיב. קריטי לזיהוי רגרסיה אחרי deploy.</td>
+    </tr>
+    <tr>
+      <td><span class="f-name">error_code</span></td>
+      <td><span class="f-type">string</span></td>
+      <td><span class="f-req nice">כשרלוונטי</span></td>
+      <td><span class="f-example">TIMEOUT_503</span></td>
+      <td class="f-note">קוד שגיאה מובנה. חובה כאשר status=FAILURE. לא טקסט חופשי — ערכים קבועים ומוסכמים.</td>
+    </tr>
+    <tr>
+      <td><span class="f-name">error_type</span></td>
+      <td><span class="f-type">string enum</span></td>
+      <td><span class="f-req nice">כשרלוונטי</span></td>
+      <td><span class="f-example">TIMEOUT</span></td>
+      <td class="f-note">סיווג השגיאה: TIMEOUT / CONNECTION_ERROR / INVALID_RESPONSE / INTERNAL_ERROR / BUSINESS_REJECTION</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="note-box red">
+  <strong>אבטחת מידע:</strong> אסור לשלוח בלוגים מידע רפואי גולמי, שם מלא של מבוטח, תעודת זהות, או כל PII שאינו נדרש לניטור טכני. מזהי תביעה ומבוטח ישלחו ממוסכים / כטכניים בלבד בהתאם למדיניות הארגונית.
+</div>
+
+<hr>
+
+<!-- ===== SECTION 1: DIGITAL ===== -->
+<div class="section-header">
+  <div class="section-num s1">1</div>
+  <div>
+    <div class="section-title-text">Digital — פתיחת תביעה</div>
+    <div class="section-owner">בעל מערכת: צוות Digital | שלב: יצירת תביעה ומזהה תהליך</div>
+  </div>
+</div>
+
+<div class="note-box blue">
+  <strong>תפקיד שלב זה בדאשבורד:</strong> זהו נקודת הכניסה לכל Journey. המערכת הזו יוצרת את ה-<code>correlation_id</code> ומעבירה אותו לכל השלבים הבאים. בלי זה הדאשבורד לא עובד.
+</div>
+
+<div class="event-box">
+  <div class="event-header">
+    <div>
+      <div class="event-name">CLAIM_PROCESS_OPENED</div>
+      <div class="event-desc">פתיחת תהליך תביעה חדש</div>
+    </div>
+    <div class="event-trigger">מתי לשלוח: בעת יצירת Process ID חדש</div>
+  </div>
+  <table class="spec-table">
+    <thead><tr><th>שדה</th><th>סוג</th><th>חובה</th><th>דוגמה</th><th>הסבר</th></tr></thead>
+    <tbody>
+      <tr><td><span class="f-name">correlation_id</span></td><td><span class="f-type">UUID</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">a3f9-8b12-cc01...</span></td><td class="f-note"><strong>נוצר כאן.</strong> ייווצר בדיוק פעם אחת לכל תביעה ויועבר לכל המערכות.</td></tr>
+      <tr><td><span class="f-name">process_id</span></td><td><span class="f-type">string</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">PROC-20250601-4817</span></td><td class="f-note">המזהה הפנימי של התהליך במערכת Digital. שונה מ-claim_id.</td></tr>
+      <tr><td><span class="f-name">claim_id_masked</span></td><td><span class="f-type">string</span></td><td><span class="f-req nice">מומלץ</span></td><td><span class="f-example">CLM-***-4821</span></td><td class="f-note">מזהה תביעה ממוסך לצורך Drill Down. לא מספר זהות.</td></tr>
+      <tr><td><span class="f-name">channel</span></td><td><span class="f-type">string enum</span></td><td><span class="f-req nice">מומלץ</span></td><td><span class="f-example">WEB / MOBILE / API</span></td><td class="f-note">ערוץ הגשה. מאפשר לזהות אם בעיה מוגבלת לערוץ ספציפי.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="event-box">
+  <div class="event-header">
+    <div>
+      <div class="event-name">CLAIM_PROCESS_FAILED</div>
+      <div class="event-desc">כשל בפתיחת תהליך — לא נוצר Process ID</div>
+    </div>
+    <div class="event-trigger">מתי לשלוח: כאשר הבקשה נכנסת אך התהליך לא נפתח</div>
+  </div>
+  <table class="spec-table">
+    <thead><tr><th>שדה</th><th>סוג</th><th>חובה</th><th>דוגמה</th><th>הסבר</th></tr></thead>
+    <tbody>
+      <tr><td><span class="f-name">error_code</span></td><td><span class="f-type">string</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">PROCESS_CREATE_FAILED</span></td><td class="f-note">קוד שגיאה מובנה. לא הודעת exception.</td></tr>
+      <tr><td><span class="f-name">error_type</span></td><td><span class="f-type">enum</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">TIMEOUT / DB_ERROR / INTERNAL</span></td><td class="f-note">סיווג השגיאה הטכנית.</td></tr>
+      <tr><td><span class="f-name">request_id</span></td><td><span class="f-type">string</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">REQ-8812-A</span></td><td class="f-note">מזהה הבקשה שנכנסה, גם כשלא נוצר process_id.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<hr>
+
+<!-- ===== SECTION 2: BPR ===== -->
+<div class="section-header">
+  <div class="section-num s2">2</div>
+  <div>
+    <div class="section-title-text">BPR — Gate 1 (בדיקות סף ראשוניות)</div>
+    <div class="section-owner">בעל מערכת: צוות BPR | שלב: זיהוי לקוח, זכאות בסיסית, תנאים מקדימים</div>
+  </div>
+</div>
+
+<div class="note-box">
+  <strong>חשוב:</strong> הדאשבורד חייב להפריד בין <strong>דחייה עסקית</strong> (לקוח לא זכאי — אינה תקלה) לבין <strong>כשל טכני</strong> (timeout, אין תשובה, תשובה לא תקינה — אלה הן תקלות). ההפרדה הזו תלויה לגמרי בשדה <code>failure_category</code>.
+</div>
+
+<div class="event-box">
+  <div class="event-header">
+    <div>
+      <div class="event-name">BPR_CHECK_COMPLETED</div>
+      <div class="event-desc">קריאה ל-BPR הסתיימה — בין אם עברה, נדחתה עסקית, או נכשלה טכנית</div>
+    </div>
+    <div class="event-trigger">מתי לשלוח: עם קבלת תשובה מ-BPR (כל תוצאה)</div>
+  </div>
+  <table class="spec-table">
+    <thead><tr><th>שדה</th><th>סוג</th><th>חובה</th><th>דוגמה</th><th>הסבר</th></tr></thead>
+    <tbody>
+      <tr><td><span class="f-name">correlation_id</span></td><td><span class="f-type">UUID</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">a3f9-8b12-...</span></td><td class="f-note">מועבר מ-Digital ללא שינוי.</td></tr>
+      <tr><td><span class="f-name">bpr_result</span></td><td><span class="f-type">enum</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">PASS / BIZ_REJECT / TECH_FAIL</span></td><td class="f-note">תוצאת הבדיקה. שלושה ערכים בלבד.</td></tr>
+      <tr><td><span class="f-name">failure_category</span></td><td><span class="f-type">enum</span></td><td><span class="f-req must">חובה כשנכשל</span></td><td><span class="f-example">BUSINESS / TECHNICAL</span></td><td class="f-note"><strong>הפרדה קריטית.</strong> BUSINESS = לקוח לא זכאי. TECHNICAL = המערכת לא עבדה תקין.</td></tr>
+      <tr><td><span class="f-name">timeout_flag</span></td><td><span class="f-type">boolean</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">false</span></td><td class="f-note">true אם הקריאה הסתיימה ב-timeout. גם כאשר status=FAILURE.</td></tr>
+      <tr><td><span class="f-name">response_received</span></td><td><span class="f-type">boolean</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">true</span></td><td class="f-note">false = נשלחה בקשה אך לא התקבלה תשובה כלל.</td></tr>
+      <tr><td><span class="f-name">http_response_code</span></td><td><span class="f-type">integer</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">200</span></td><td class="f-note">קוד HTTP שהוחזר. נדרש לזיהוי בעיות אינטגרציה.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="event-box">
+  <div class="event-header">
+    <div>
+      <div class="event-name">BPR_NO_RESPONSE</div>
+      <div class="event-desc">נשלחה קריאה ל-BPR ולא התקבלה תשובה (timeout / drop)</div>
+    </div>
+    <div class="event-trigger">מתי לשלוח: לאחר תום ה-timeout הרשמי ועדיין אין תשובה</div>
+  </div>
+  <table class="spec-table">
+    <thead><tr><th>שדה</th><th>סוג</th><th>חובה</th><th>דוגמה</th><th>הסבר</th></tr></thead>
+    <tbody>
+      <tr><td><span class="f-name">correlation_id</span></td><td><span class="f-type">UUID</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">a3f9-8b12-...</span></td><td class="f-note"></td></tr>
+      <tr><td><span class="f-name">wait_duration_ms</span></td><td><span class="f-type">integer</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">5000</span></td><td class="f-note">כמה זמן המתנו לתשובה לפני ה-timeout.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<hr>
+
+<!-- ===== SECTION 3: UPLOAD ===== -->
+<div class="section-header">
+  <div class="section-num s3">3</div>
+  <div>
+    <div class="section-title-text">Upload — העלאת מסמכים</div>
+    <div class="section-owner">בעל מערכת: צוות Digital (רכיב Upload) | שלב: קבלת קבצים מהמשתמש</div>
+  </div>
+</div>
+
+<div class="note-box blue">
+  הדאשבורד ינטר שני דברים: (א) כמה מסמכים הועלו בהצלחה, (ב) <strong>האם כל מסמך שהועלה אכן הועבר לשלב ההלבנה</strong>. פער בין השניים הוא אירוע ניטור.
+</div>
+
+<div class="event-box">
+  <div class="event-header">
+    <div>
+      <div class="event-name">DOCUMENT_UPLOADED</div>
+      <div class="event-desc">מסמך בודד הועלה — יש לשלוח אירוע נפרד לכל מסמך</div>
+    </div>
+    <div class="event-trigger">מתי לשלוח: עם סיום העלאת כל מסמך (הצלחה או כשל)</div>
+  </div>
+  <table class="spec-table">
+    <thead><tr><th>שדה</th><th>סוג</th><th>חובה</th><th>דוגמה</th><th>הסבר</th></tr></thead>
+    <tbody>
+      <tr><td><span class="f-name">correlation_id</span></td><td><span class="f-type">UUID</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">a3f9-8b12-...</span></td><td class="f-note"></td></tr>
+      <tr><td><span class="f-name">document_id</span></td><td><span class="f-type">string</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">DOC-2025-88812</span></td><td class="f-note">מזהה ייחודי לכל מסמך. ישמש לקישור בין כל השלבים (Upload→Whitening→OCR).</td></tr>
+      <tr><td><span class="f-name">upload_status</span></td><td><span class="f-type">enum</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">SUCCESS / FAILED / PARTIAL</span></td><td class="f-note">PARTIAL = קובץ הועלה חלקית.</td></tr>
+      <tr><td><span class="f-name">forwarded_to_whitening</span></td><td><span class="f-type">boolean</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">true</span></td><td class="f-note">האם המסמך נשלח לשלב ההלבנה. false = קלט של Connector Gap.</td></tr>
+      <tr><td><span class="f-name">file_type</span></td><td><span class="f-type">string</span></td><td><span class="f-req nice">מומלץ</span></td><td><span class="f-example">PDF / JPG / PNG</span></td><td class="f-note">סוג קובץ. מאפשר לזהות בעיות ספציפיות לפורמט.</td></tr>
+      <tr><td><span class="f-name">file_size_kb</span></td><td><span class="f-type">integer</span></td><td><span class="f-req nice">מומלץ</span></td><td><span class="f-example">842</span></td><td class="f-note">גודל הקובץ. מאפשר לזהות קורלציה בין גודל לשגיאות.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<hr>
+
+<!-- ===== SECTION 4: WHITENING ===== -->
+<div class="section-header">
+  <div class="section-num s4">4</div>
+  <div>
+    <div class="section-title-text">Whitening — מערכת הלבנת מסמכים</div>
+    <div class="section-owner">בעל מערכת: צוות Whitening | שלב: עיבוד ראשוני של המסמך לפני OCR</div>
+  </div>
+</div>
+
+<div class="note-box">
+  שלב זה הוא <strong>צוואר בקבוק נפוץ</strong>. הדאשבורד ינטר: עומס Queue, זמן עיבוד, ופער בין מה שנכנס לבין מה שיוצא ל-OCR. נדרש לשלוח <strong>snapshot של Queue</strong> אחת לדקה.
+</div>
+
+<div class="event-box">
+  <div class="event-header">
+    <div>
+      <div class="event-name">DOCUMENT_WHITENING_COMPLETED</div>
+      <div class="event-desc">עיבוד מסמך בודד הסתיים (הצלחה, כשל, או דחייה)</div>
+    </div>
+    <div class="event-trigger">מתי לשלוח: עם סיום עיבוד כל מסמך</div>
+  </div>
+  <table class="spec-table">
+    <thead><tr><th>שדה</th><th>סוג</th><th>חובה</th><th>דוגמה</th><th>הסבר</th></tr></thead>
+    <tbody>
+      <tr><td><span class="f-name">correlation_id</span></td><td><span class="f-type">UUID</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">a3f9-8b12-...</span></td><td class="f-note"></td></tr>
+      <tr><td><span class="f-name">document_id</span></td><td><span class="f-type">string</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">DOC-2025-88812</span></td><td class="f-note">אותו document_id שהגיע מ-Upload.</td></tr>
+      <tr><td><span class="f-name">whitening_status</span></td><td><span class="f-type">enum</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">DONE / FAILED / REJECTED</span></td><td class="f-note">REJECTED = המסמך לא עבר את בדיקות ה-Whitening (לא כשל טכני).</td></tr>
+      <tr><td><span class="f-name">forwarded_to_ocr</span></td><td><span class="f-type">boolean</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">true</span></td><td class="f-note"><strong>קריטי.</strong> מאפשר לזהות פער Whitening→OCR. false = לא הועבר, חובה לציין סיבה.</td></tr>
+      <tr><td><span class="f-name">processing_time_ms</span></td><td><span class="f-type">integer</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">4200</span></td><td class="f-note">זמן עיבוד המסמך הספציפי.</td></tr>
+      <tr><td><span class="f-name">sla_breach</span></td><td><span class="f-type">boolean</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">false</span></td><td class="f-note">true = חרג מ-SLA המוגדר (60 שניות). המערכת תחשב ותסמן.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="event-box">
+  <div class="event-header">
+    <div>
+      <div class="event-name">WHITENING_QUEUE_SNAPSHOT</div>
+      <div class="event-desc">מצב ה-Queue בנקודת זמן</div>
+    </div>
+    <div class="event-trigger">מתי לשלוח: אחת לדקה, ללא תלות בעיבוד מסמך ספציפי</div>
+  </div>
+  <table class="spec-table">
+    <thead><tr><th>שדה</th><th>סוג</th><th>חובה</th><th>דוגמה</th><th>הסבר</th></tr></thead>
+    <tbody>
+      <tr><td><span class="f-name">queue_depth</span></td><td><span class="f-type">integer</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">90</span></td><td class="f-note">כמות מסמכים הממתינים לעיבוד ברגע השליחה.</td></tr>
+      <tr><td><span class="f-name">oldest_item_age_sec</span></td><td><span class="f-type">integer</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">380</span></td><td class="f-note">גיל המסמך הישן ביותר ב-Queue, בשניות.</td></tr>
+      <tr><td><span class="f-name">processing_rate_per_min</span></td><td><span class="f-type">integer</span></td><td><span class="f-req nice">מומלץ</span></td><td><span class="f-example">45</span></td><td class="f-note">קצב עיבוד. יחד עם queue_depth מאפשר לחזות מתי ה-Queue יפרוץ SLA.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<hr>
+
+<!-- ===== SECTION 5: OCR ===== -->
+<div class="section-header">
+  <div class="section-num s5">5</div>
+  <div>
+    <div class="section-title-text">OCR — זיהוי, סיווג וחילוץ נתונים</div>
+    <div class="section-owner">בעל מערכת: צוות OCR / AI | שלב: קריאת מסמך, סיווג סוג, חילוץ שדות</div>
+  </div>
+</div>
+
+<div class="note-box">
+  <strong>ניטור Confidence הוא ייחודי לשלב הזה.</strong> ירידה ב-Confidence ממוצע עשויה להעיד על תקלה במודל, בגרסה, בפורמט מסמכים, או באיכות הקלט — גם כאשר הסרביס מחזיר HTTP 200. זה הבדל בין "הסרביס עולה" לבין "הסרביס עובד נכון".
+</div>
+
+<div class="event-box">
+  <div class="event-header">
+    <div>
+      <div class="event-name">OCR_DOCUMENT_PROCESSED</div>
+      <div class="event-desc">עיבוד OCR של מסמך בודד הסתיים</div>
+    </div>
+    <div class="event-trigger">מתי לשלוח: עם סיום כל עיבוד OCR</div>
+  </div>
+  <table class="spec-table">
+    <thead><tr><th>שדה</th><th>סוג</th><th>חובה</th><th>דוגמה</th><th>הסבר</th></tr></thead>
+    <tbody>
+      <tr><td><span class="f-name">correlation_id</span></td><td><span class="f-type">UUID</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">a3f9-8b12-...</span></td><td class="f-note"></td></tr>
+      <tr><td><span class="f-name">document_id</span></td><td><span class="f-type">string</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">DOC-2025-88812</span></td><td class="f-note">אותו document_id מכל השלבים הקודמים.</td></tr>
+      <tr><td><span class="f-name">ocr_status</span></td><td><span class="f-type">enum</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">SUCCESS / FAILED / TIMEOUT / EMPTY_RESPONSE</span></td><td class="f-note">EMPTY_RESPONSE = הסרביס החזיר 200 אבל התוצאה ריקה.</td></tr>
+      <tr><td><span class="f-name">classification_result</span></td><td><span class="f-type">string</span></td><td><span class="f-req must">חובה כשהצליח</span></td><td><span class="f-example">MEDICAL_RECEIPT</span></td><td class="f-note">סוג המסמך שזוהה. ערכים קבועים ומוסכמים.</td></tr>
+      <tr><td><span class="f-name">classification_status</span></td><td><span class="f-type">enum</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">SUCCESS / FAILED / LOW_CONFIDENCE</span></td><td class="f-note">תוצאת שלב הסיווג בנפרד מהחילוץ.</td></tr>
+      <tr><td><span class="f-name">extraction_status</span></td><td><span class="f-type">enum</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">SUCCESS / PARTIAL / FAILED</span></td><td class="f-note">תוצאת שלב החילוץ. PARTIAL = חלק מהשדות חולצו.</td></tr>
+      <tr><td><span class="f-name">confidence_physician_name</span></td><td><span class="f-type">float 0–1</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">0.71</span></td><td class="f-note">רמת ביטחון בשדה שם רופא. <strong>מנוטר בנפרד</strong> כי ירידה כאן מעידה על תקלה.</td></tr>
+      <tr><td><span class="f-name">confidence_date</span></td><td><span class="f-type">float 0–1</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">0.94</span></td><td class="f-note">רמת ביטחון בשדה תאריך.</td></tr>
+      <tr><td><span class="f-name">confidence_diagnosis_code</span></td><td><span class="f-type">float 0–1</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">0.88</span></td><td class="f-note">רמת ביטחון בשדה קוד אבחנה.</td></tr>
+      <tr><td><span class="f-name">model_version</span></td><td><span class="f-type">string</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">ocr-model-v3.1.2</span></td><td class="f-note">גרסת המודל. קריטי לזיהוי רגרסיה אחרי שינוי מודל.</td></tr>
+      <tr><td><span class="f-name">malformed_response</span></td><td><span class="f-type">boolean</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">false</span></td><td class="f-note">true = התשובה חזרה אבל לא בפורמט הצפוי.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<hr>
+
+<!-- ===== SECTION 6: OCR RESPONSE ===== -->
+<div class="section-header">
+  <div class="section-num s6">6</div>
+  <div>
+    <div class="section-title-text">OCR Response — החזרת תוצאות ל-Digital</div>
+    <div class="section-owner">בעל מערכת: צוות Digital (רכיב Integration) | שלב: קבלת תוצאות OCR</div>
+  </div>
+</div>
+
+<div class="note-box blue">
+  זוהי <strong>נקודת אינטגרציה קריטית</strong>. הדאשבורד ישווה בין מה שה-OCR אמר ששלח לבין מה שה-Digital אמר שקיבל. כל פער יוצג כאירוע ניטור.
+</div>
+
+<div class="event-box">
+  <div class="event-header">
+    <div>
+      <div class="event-name">OCR_RESPONSE_RECEIVED</div>
+      <div class="event-desc">Digital קיבל (או לא קיבל) את תוצאות ה-OCR</div>
+    </div>
+    <div class="event-trigger">מתי לשלוח: כאשר Digital מנסה לעבד את תשובת ה-OCR</div>
+  </div>
+  <table class="spec-table">
+    <thead><tr><th>שדה</th><th>סוג</th><th>חובה</th><th>דוגמה</th><th>הסבר</th></tr></thead>
+    <tbody>
+      <tr><td><span class="f-name">correlation_id</span></td><td><span class="f-type">UUID</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">a3f9-8b12-...</span></td><td class="f-note"></td></tr>
+      <tr><td><span class="f-name">document_id</span></td><td><span class="f-type">string</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">DOC-2025-88812</span></td><td class="f-note"></td></tr>
+      <tr><td><span class="f-name">response_received</span></td><td><span class="f-type">boolean</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">true</span></td><td class="f-note">false = לא התקבלה תשובה עבור מסמך זה.</td></tr>
+      <tr><td><span class="f-name">payload_valid</span></td><td><span class="f-type">boolean</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">true</span></td><td class="f-note">false = התשובה התקבלה אך לא תקינה מבחינת מבנה.</td></tr>
+      <tr><td><span class="f-name">parsing_error</span></td><td><span class="f-type">boolean</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">false</span></td><td class="f-note">true = כשל בפירסור התשובה.</td></tr>
+      <tr><td><span class="f-name">mapping_error</span></td><td><span class="f-type">boolean</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">false</span></td><td class="f-note">true = הנתונים התקבלו אבל לא ניתן למפות אותם לשדות הנדרשים.</td></tr>
+      <tr><td><span class="f-name">delivery_latency_ms</span></td><td><span class="f-type">integer</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">1820</span></td><td class="f-note">זמן בין שליחת תוצאת OCR לבין קבלתה ב-Digital.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<hr>
+
+<!-- ===== SECTION 7: DOCTOR DB ===== -->
+<div class="section-header">
+  <div class="section-num s7">7</div>
+  <div>
+    <div class="section-title-text">Doctor DB — בדיקת מאגר רופאים</div>
+    <div class="section-owner">בעל מערכת: צוות Doctor Registry | שלב: אימות זהות הרופא מול מאגר</div>
+  </div>
+</div>
+
+<div class="note-box">
+  <strong>הפרדה חשובה:</strong> "רופא לא נמצא במאגר" הוא תוצאה עסקית, לא תקלה. "שירות הרופאים לא זמין / timeout / תשובה לא תקינה" הוא תקלה טכנית. הפרדה זו חייבת לבוא בשדות הלוג.
+</div>
+
+<div class="event-box">
+  <div class="event-header">
+    <div>
+      <div class="event-name">DOCTOR_LOOKUP_COMPLETED</div>
+      <div class="event-desc">חיפוש רופא במאגר הסתיים</div>
+    </div>
+    <div class="event-trigger">מתי לשלוח: עם קבלת תשובה מ-Doctor Registry (כל תוצאה)</div>
+  </div>
+  <table class="spec-table">
+    <thead><tr><th>שדה</th><th>סוג</th><th>חובה</th><th>דוגמה</th><th>הסבר</th></tr></thead>
+    <tbody>
+      <tr><td><span class="f-name">correlation_id</span></td><td><span class="f-type">UUID</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">a3f9-8b12-...</span></td><td class="f-note"></td></tr>
+      <tr><td><span class="f-name">lookup_status</span></td><td><span class="f-type">enum</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">FOUND / NOT_FOUND / TECH_ERROR</span></td><td class="f-note"><strong>שלושה ערכים בלבד.</strong> NOT_FOUND = לא תקלה. TECH_ERROR = תקלה.</td></tr>
+      <tr><td><span class="f-name">failure_category</span></td><td><span class="f-type">enum</span></td><td><span class="f-req must">חובה כשנכשל</span></td><td><span class="f-example">BUSINESS / TECHNICAL</span></td><td class="f-note">BUSINESS = רופא לא נמצא. TECHNICAL = הסרביס עצמו נכשל.</td></tr>
+      <tr><td><span class="f-name">timeout_flag</span></td><td><span class="f-type">boolean</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">false</span></td><td class="f-note"></td></tr>
+      <tr><td><span class="f-name">invalid_response_flag</span></td><td><span class="f-type">boolean</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">false</span></td><td class="f-note">true = התשובה חזרה אבל לא בפורמט הצפוי.</td></tr>
+      <tr><td><span class="f-name">response_time_ms</span></td><td><span class="f-type">integer</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">380</span></td><td class="f-note">SLA לשלב זה: 5 שניות.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<hr>
+
+<!-- ===== SECTION 8: ELIGIBILITY ===== -->
+<div class="section-header">
+  <div class="section-num s8">8</div>
+  <div>
+    <div class="section-title-text">Eligibility — בדיקות זכאות (Gate 2)</div>
+    <div class="section-owner">בעל מערכת: צוות Rules Engine | שלב: בדיקות זכאות דטרמיניסטיות</div>
+  </div>
+</div>
+
+<div class="note-box">
+  <strong>הפרדה חשובה:</strong> "חוק זכאות נכשל" (לקוח לא עומד בתנאי הפוליסה) שונה לחלוטין מ-"מנוע הכללים לא הצליח לרוץ" (תקלה טכנית). הדאשבורד מנטר רק את השני.
+</div>
+
+<div class="event-box">
+  <div class="event-header">
+    <div>
+      <div class="event-name">ELIGIBILITY_CHECK_COMPLETED</div>
+      <div class="event-desc">בדיקת זכאות הסתיימה</div>
+    </div>
+    <div class="event-trigger">מתי לשלוח: עם סיום ריצת בדיקות הזכאות</div>
+  </div>
+  <table class="spec-table">
+    <thead><tr><th>שדה</th><th>סוג</th><th>חובה</th><th>דוגמה</th><th>הסבר</th></tr></thead>
+    <tbody>
+      <tr><td><span class="f-name">correlation_id</span></td><td><span class="f-type">UUID</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">a3f9-8b12-...</span></td><td class="f-note"></td></tr>
+      <tr><td><span class="f-name">exec_status</span></td><td><span class="f-type">enum</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">SUCCESS / TECH_FAIL / TIMEOUT</span></td><td class="f-note">האם מנוע הכללים <em>רץ</em> בהצלחה — לא מה היה תוצאת הכללים.</td></tr>
+      <tr><td><span class="f-name">eligibility_outcome</span></td><td><span class="f-type">enum</span></td><td><span class="f-req must">חובה כשexec_status=SUCCESS</span></td><td><span class="f-example">ELIGIBLE / NOT_ELIGIBLE</span></td><td class="f-note">התוצאה העסקית. NOT_ELIGIBLE לבדו אינו תקלה.</td></tr>
+      <tr><td><span class="f-name">rules_engine_error</span></td><td><span class="f-type">boolean</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">false</span></td><td class="f-note">true = מנוע הכללים החזיר שגיאה פנימית, לא תוצאה.</td></tr>
+      <tr><td><span class="f-name">timeout_flag</span></td><td><span class="f-type">boolean</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">false</span></td><td class="f-note"></td></tr>
+      <tr><td><span class="f-name">duration_ms</span></td><td><span class="f-type">integer</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">1100</span></td><td class="f-note"></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<hr>
+
+<!-- ===== SECTION 9: FRAUD ===== -->
+<div class="section-header">
+  <div class="section-num s9">9</div>
+  <div>
+    <div class="section-title-text">Fraud Engine — מנוע איתור הונאות</div>
+    <div class="section-owner">בעל מערכת: צוות Fraud / AI | שלב: מודל אנומליה + שכבת כללים + סקור משולב</div>
+  </div>
+</div>
+
+<div class="note-box red">
+  <strong>ניטור Score Distribution הוא קריטי.</strong> אם 95% מהתביעות מקבלות פתאום סקור דומה — זו תקלה גם אם הסרביס מחזיר HTTP 200. הדאשבורד ינטר שינוי חריג בהתפלגות. נדרשת שליחת <code>fraud_score</code> בכל אירוע.
+</div>
+
+<div class="event-box">
+  <div class="event-header">
+    <div>
+      <div class="event-name">FRAUD_SCORE_GENERATED</div>
+      <div class="event-desc">תהליך הסקורינג הושלם וסקור נוצר</div>
+    </div>
+    <div class="event-trigger">מתי לשלוח: עם יצירת סקור משולב לכל תביעה</div>
+  </div>
+  <table class="spec-table">
+    <thead><tr><th>שדה</th><th>סוג</th><th>חובה</th><th>דוגמה</th><th>הסבר</th></tr></thead>
+    <tbody>
+      <tr><td><span class="f-name">correlation_id</span></td><td><span class="f-type">UUID</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">a3f9-8b12-...</span></td><td class="f-note"></td></tr>
+      <tr><td><span class="f-name">model_score</span></td><td><span class="f-type">float 0–1</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">0.42</span></td><td class="f-note">סקור המודל האנומליה בלבד, לפני כללים.</td></tr>
+      <tr><td><span class="f-name">rules_result</span></td><td><span class="f-type">enum</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">FLAG / CLEAR / ERROR</span></td><td class="f-note">תוצאת שכבת הכללים.</td></tr>
+      <tr><td><span class="f-name">combined_score</span></td><td><span class="f-type">float 0–1</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">0.48</span></td><td class="f-note">הסקור המשולב שעובר ל-Routing.</td></tr>
+      <tr><td><span class="f-name">model_exec_status</span></td><td><span class="f-type">enum</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">SUCCESS / FAILED / TIMEOUT</span></td><td class="f-note">האם המודל רץ בהצלחה.</td></tr>
+      <tr><td><span class="f-name">rules_exec_status</span></td><td><span class="f-type">enum</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">SUCCESS / FAILED / TIMEOUT</span></td><td class="f-note">האם שכבת הכללים רצה בהצלחה.</td></tr>
+      <tr><td><span class="f-name">model_latency_ms</span></td><td><span class="f-type">integer</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">3200</span></td><td class="f-note">זמן ריצת המודל בלבד.</td></tr>
+      <tr><td><span class="f-name">rules_latency_ms</span></td><td><span class="f-type">integer</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">800</span></td><td class="f-note">זמן ריצת הכללים בלבד.</td></tr>
+      <tr><td><span class="f-name">model_version</span></td><td><span class="f-type">string</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">fraud-model-v2.0.4</span></td><td class="f-note">גרסת מודל. קריטי לזיהוי התנהגות חריגה אחרי deploy.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="event-box">
+  <div class="event-header">
+    <div>
+      <div class="event-name">FRAUD_SCORE_MISSING</div>
+      <div class="event-desc">תביעה לא קיבלה סקור — כשל בכל שכבות ה-Fraud</div>
+    </div>
+    <div class="event-trigger">מתי לשלוח: כאשר לא ניתן לייצר combined_score</div>
+  </div>
+  <table class="spec-table">
+    <thead><tr><th>שדה</th><th>סוג</th><th>חובה</th><th>דוגמה</th><th>הסבר</th></tr></thead>
+    <tbody>
+      <tr><td><span class="f-name">correlation_id</span></td><td><span class="f-type">UUID</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">a3f9-8b12-...</span></td><td class="f-note"></td></tr>
+      <tr><td><span class="f-name">failure_reason</span></td><td><span class="f-type">enum</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">MODEL_TIMEOUT / RULES_ERROR / BOTH_FAILED</span></td><td class="f-note">סיבת אי-יצירת סקור.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<hr>
+
+<!-- ===== SECTION 10: ROUTING ===== -->
+<div class="section-header">
+  <div class="section-num s10">10</div>
+  <div>
+    <div class="section-title-text">Routing — ניתוב תביעה למסלול</div>
+    <div class="section-owner">בעל מערכת: צוות Digital / Workflow | שלב: החלטת ניתוב לאחר קבלת סקור</div>
+  </div>
+</div>
+
+<div class="event-box">
+  <div class="event-header">
+    <div>
+      <div class="event-name">CLAIM_ROUTED</div>
+      <div class="event-desc">תביעה נותבה למסלול</div>
+    </div>
+    <div class="event-trigger">מתי לשלוח: עם ביצוע החלטת הניתוב</div>
+  </div>
+  <table class="spec-table">
+    <thead><tr><th>שדה</th><th>סוג</th><th>חובה</th><th>דוגמה</th><th>הסבר</th></tr></thead>
+    <tbody>
+      <tr><td><span class="f-name">correlation_id</span></td><td><span class="f-type">UUID</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">a3f9-8b12-...</span></td><td class="f-note"></td></tr>
+      <tr><td><span class="f-name">score_at_routing</span></td><td><span class="f-type">float 0–1</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">0.48</span></td><td class="f-note">הסקור שעמד בבסיס ההחלטה. מאפשר לאמת שה-Threshold מיושם נכון.</td></tr>
+      <tr><td><span class="f-name">route</span></td><td><span class="f-type">enum</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">AUTO_APPROVAL / MANUAL_REVIEW</span></td><td class="f-note">המסלול שנבחר.</td></tr>
+      <tr><td><span class="f-name">routing_threshold_used</span></td><td><span class="f-type">float</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">0.65</span></td><td class="f-note">ה-Threshold שהיה מוגדר בזמן הניתוב. מאפשר לזהות שינוי configuration.</td></tr>
+      <tr><td><span class="f-name">routing_failure_flag</span></td><td><span class="f-type">boolean</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">false</span></td><td class="f-note">true = הניתוב נכשל טכנית.</td></tr>
+      <tr><td><span class="f-name">no_route_flag</span></td><td><span class="f-type">boolean</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">false</span></td><td class="f-note">true = קיים סקור אבל לא בוצע ניתוב.</td></tr>
+      <tr><td><span class="f-name">latency_ms</span></td><td><span class="f-type">integer</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">220</span></td><td class="f-note">זמן בין קבלת הסקור לבין ביצוע הניתוב.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<hr>
+
+<!-- ===== SECTION 11: PAYMENT ===== -->
+<div class="section-header">
+  <div class="section-num s11">11</div>
+  <div>
+    <div class="section-title-text">Payment — אישור ותשלום אוטומטי</div>
+    <div class="section-owner">בעל מערכת: צוות Payment / Finance Systems | שלב: ביצוע תשלום לתביעות שאושרו</div>
+  </div>
+</div>
+
+<div class="event-box">
+  <div class="event-header">
+    <div>
+      <div class="event-name">PAYMENT_PROCESSED</div>
+      <div class="event-desc">בקשת תשלום בוצעה</div>
+    </div>
+    <div class="event-trigger">מתי לשלוח: עם קבלת תשובה ממערכת התשלום</div>
+  </div>
+  <table class="spec-table">
+    <thead><tr><th>שדה</th><th>סוג</th><th>חובה</th><th>דוגמה</th><th>הסבר</th></tr></thead>
+    <tbody>
+      <tr><td><span class="f-name">correlation_id</span></td><td><span class="f-type">UUID</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">a3f9-8b12-...</span></td><td class="f-note"></td></tr>
+      <tr><td><span class="f-name">payment_request_id</span></td><td><span class="f-type">string</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">PAY-REQ-20250601-771</span></td><td class="f-note">מזהה בקשת התשלום. לא כולל סכום.</td></tr>
+      <tr><td><span class="f-name">payment_status</span></td><td><span class="f-type">enum</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">SUCCESS / FAILED / TIMEOUT / PENDING</span></td><td class="f-note"></td></tr>
+      <tr><td><span class="f-name">duplicate_flag</span></td><td><span class="f-type">boolean</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">false</span></td><td class="f-note">true = זוהה ניסיון לתשלום כפול ונחסם.</td></tr>
+      <tr><td><span class="f-name">payment_triggered</span></td><td><span class="f-type">boolean</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">true</span></td><td class="f-note">false = התביעה אושרה אך בקשת התשלום לא נשלחה.</td></tr>
+      <tr><td><span class="f-name">response_time_ms</span></td><td><span class="f-type">integer</span></td><td><span class="f-req must">חובה</span></td><td><span class="f-example">2100</span></td><td class="f-note">זמן עד קבלת אישור ממערכת התשלום.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<hr>
+
+<!-- ===== CONNECTOR SPEC ===== -->
+<div class="section-header">
+  <div class="section-num" style="background:#234e52">&#8596;</div>
+  <div>
+    <div class="section-title-text">ניטור מעברים בין מערכות — Connector Gap Detection</div>
+    <div class="section-owner">נדרש מכל מערכת שולחת ומקבלת</div>
+  </div>
+</div>
+
+<div class="connector-spec">
+  <div class="connector-spec-title">כיצד הדאשבורד מזהה אובדן נתונים בין מערכות</div>
+  <div style="font-size:12px; color:#234e52; line-height:1.9">
+    עבור כל מעבר בין מערכות (לדוגמה Whitening&#8594;OCR), הדאשבורד יספור:<br>
+    <strong>כמה מסמכים שלחה מערכת A</strong> (שדה <code>forwarded_to_ocr = true</code> בלוגי Whitening)<br>
+    <strong>כמה מסמכים קיבלה מערכת B</strong> (מספר אירועי <code>OCR_DOCUMENT_PROCESSED</code> שנרשמו)<br>
+    אם יש פער — הדאשבורד מציג אירוע ניטור. <strong>הפער עצמו הוא הבעיה, לא כל מערכת בנפרד.</strong><br><br>
+    לכן: כל מערכת שולחת חייבת לרשום <strong>אירוע יציאה</strong> עם שדה "הועבר לשלב הבא: כן/לא".<br>
+    כל מערכת מקבלת חייבת לרשום <strong>אירוע כניסה</strong> עם <code>correlation_id</code> ו-<code>document_id</code>.
+  </div>
+</div>
+
+<table class="spec-table">
+  <thead>
+    <tr>
+      <th>מעבר</th>
+      <th>שדה ביציאה (מערכת שולחת)</th>
+      <th>שדה בכניסה (מערכת מקבלת)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>Digital &#8594; BPR</td><td><span class="f-name">action=CLAIM_SENT_TO_BPR</span></td><td><span class="f-name">action=BPR_REQUEST_RECEIVED</span></td></tr>
+    <tr><td>Upload &#8594; Whitening</td><td><span class="f-name">forwarded_to_whitening=true</span></td><td><span class="f-name">action=DOCUMENT_WHITENING_STARTED</span></td></tr>
+    <tr><td>Whitening &#8594; OCR</td><td><span class="f-name">forwarded_to_ocr=true</span></td><td><span class="f-name">action=OCR_DOCUMENT_RECEIVED</span></td></tr>
+    <tr><td>OCR &#8594; Digital</td><td><span class="f-name">action=OCR_RESPONSE_SENT</span></td><td><span class="f-name">response_received=true/false</span></td></tr>
+    <tr><td>Fraud &#8594; Routing</td><td><span class="f-name">action=SCORE_SENT_TO_ROUTING</span></td><td><span class="f-name">action=SCORE_RECEIVED_FOR_ROUTING</span></td></tr>
+    <tr><td>Routing &#8594; Payment</td><td><span class="f-name">action=ROUTED_TO_PAYMENT</span></td><td><span class="f-name">payment_triggered=true/false</span></td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<!-- ===== SUMMARY TABLE ===== -->
+<div class="section-header">
+  <div class="section-num" style="background:#1a202c">&#9776;</div>
+  <div>
+    <div class="section-title-text">סיכום — מה כל מערכת צריכה לספק</div>
+  </div>
+</div>
+
+<table class="spec-table">
+  <thead>
+    <tr>
+      <th>מערכת</th>
+      <th>אירועים נדרשים</th>
+      <th>שדות ייחודיים קריטיים</th>
+      <th>תדירות</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Digital</strong></td>
+      <td>CLAIM_PROCESS_OPENED, CLAIM_PROCESS_FAILED</td>
+      <td><span class="f-name">correlation_id</span> (יוצר כאן), <span class="f-name">process_id</span></td>
+      <td>לכל תביעה</td>
+    </tr>
+    <tr>
+      <td><strong>BPR</strong></td>
+      <td>BPR_CHECK_COMPLETED, BPR_NO_RESPONSE</td>
+      <td><span class="f-name">bpr_result</span>, <span class="f-name">failure_category</span></td>
+      <td>לכל תביעה</td>
+    </tr>
+    <tr>
+      <td><strong>Upload</strong></td>
+      <td>DOCUMENT_UPLOADED</td>
+      <td><span class="f-name">document_id</span>, <span class="f-name">forwarded_to_whitening</span></td>
+      <td>לכל מסמך</td>
+    </tr>
+    <tr>
+      <td><strong>Whitening</strong></td>
+      <td>DOCUMENT_WHITENING_COMPLETED, WHITENING_QUEUE_SNAPSHOT</td>
+      <td><span class="f-name">forwarded_to_ocr</span>, <span class="f-name">queue_depth</span>, <span class="f-name">sla_breach</span></td>
+      <td>לכל מסמך + כל דקה (Snapshot)</td>
+    </tr>
+    <tr>
+      <td><strong>OCR</strong></td>
+      <td>OCR_DOCUMENT_PROCESSED</td>
+      <td><span class="f-name">confidence_physician_name</span>, <span class="f-name">classification_status</span>, <span class="f-name">model_version</span></td>
+      <td>לכל מסמך</td>
+    </tr>
+    <tr>
+      <td><strong>Digital (Integration)</strong></td>
+      <td>OCR_RESPONSE_RECEIVED</td>
+      <td><span class="f-name">response_received</span>, <span class="f-name">payload_valid</span>, <span class="f-name">mapping_error</span></td>
+      <td>לכל מסמך</td>
+    </tr>
+    <tr>
+      <td><strong>Doctor DB</strong></td>
+      <td>DOCTOR_LOOKUP_COMPLETED</td>
+      <td><span class="f-name">lookup_status</span>, <span class="f-name">failure_category</span>, <span class="f-name">invalid_response_flag</span></td>
+      <td>לכל תביעה</td>
+    </tr>
+    <tr>
+      <td><strong>Eligibility</strong></td>
+      <td>ELIGIBILITY_CHECK_COMPLETED</td>
+      <td><span class="f-name">exec_status</span>, <span class="f-name">rules_engine_error</span></td>
+      <td>לכל תביעה</td>
+    </tr>
+    <tr>
+      <td><strong>Fraud Engine</strong></td>
+      <td>FRAUD_SCORE_GENERATED, FRAUD_SCORE_MISSING</td>
+      <td><span class="f-name">combined_score</span>, <span class="f-name">model_exec_status</span>, <span class="f-name">model_version</span></td>
+      <td>לכל תביעה</td>
+    </tr>
+    <tr>
+      <td><strong>Routing</strong></td>
+      <td>CLAIM_ROUTED</td>
+      <td><span class="f-name">route</span>, <span class="f-name">score_at_routing</span>, <span class="f-name">routing_threshold_used</span></td>
+      <td>לכל תביעה</td>
+    </tr>
+    <tr>
+      <td><strong>Payment</strong></td>
+      <td>PAYMENT_PROCESSED</td>
+      <td><span class="f-name">payment_status</span>, <span class="f-name">duplicate_flag</span>, <span class="f-name">payment_triggered</span></td>
+      <td>לכל תביעה</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ===== FOOTER ===== -->
+<div class="doc-footer">
+  מסמך זה מגדיר את דרישות הלוגים לבניית דאשבורד ניטור Journey תביעה אמבולטורי ב-Splunk.<br>
+  שאלות טכניות: צוות Splunk | לוגיקת ניטור ו-SLA: להסכים עם בעלי התהליך לפני פיתוח.
+</div>
+
+</div><!-- /page -->
+</body>
+</html>
