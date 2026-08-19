@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Splunk Mockup — ניטור תביעה אמבולטורי E2E</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #0f1117;
+  color: #c8d2e0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 13px;
+  direction: rtl;
+}
+
+/* ===== HEADER ===== */
+.header {
+  background: #1a1f2e;
+  border-bottom: 2px solid #2d3748;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.header-title { font-size: 17px; font-weight: 700; color: #e2e8f0; }
+.header-sub { color: #718096; font-size: 11px; margin-top: 3px; }
+.header-controls { display: flex; gap: 10px; align-items: center; }
+.refresh-badge { background: #1a4731; color: #68d391; font-size: 11px; padding: 4px 10px; border-radius: 4px; border: 1px solid #2f855a; }
+select, input[type=text] {
+  background: #1a1f2e; border: 1px solid #4a5568; color: #e2e8f0;
+  padding: 4px 8px; border-radius: 4px; font-size: 12px; direction: rtl;
+}
+button {
+  background: #5a67d8; color: white; border: none;
+  padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;
+}
+
+/* ===== MAIN ===== */
+.main { padding: 14px 18px; }
+
+.section-label {
+  color: #718096; font-size: 10px; text-transform: uppercase;
+  letter-spacing: 0.08em; margin-bottom: 8px; padding-bottom: 5px;
+  border-bottom: 1px solid #2d3748;
+}
+
+/* ===== HEALTH BAR ===== */
+.health-bar {
+  display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;
+}
+.hcard {
+  background: #1a1f2e; border: 1px solid #2d3748; border-radius: 6px;
+  padding: 11px 14px; flex: 1; min-width: 140px;
+}
+.hcard .lbl { color: #718096; font-size: 10px; margin-bottom: 5px; }
+.hcard .val { font-size: 19px; font-weight: 700; color: #e2e8f0; }
+.hcard .sub { color: #718096; font-size: 10px; margin-top: 4px; }
+.hcard .sub.warn { color: #f6ad55; }
+.hcard .sub.danger { color: #fc8181; }
+
+.badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 10px; font-size: 12px; font-weight: 700; }
+.badge-green  { background: #1a4731; color: #68d391; border: 1px solid #2f855a; }
+.badge-amber  { background: #4a3217; color: #f6ad55; border: 1px solid #c05621; }
+.badge-red    { background: #4a1a1a; color: #fc8181; border: 1px solid #c53030; }
+.badge-blue   { background: #1a1f4a; color: #7f9cf5; border: 1px solid #3c4db5; }
+
+/* ===== FLOW ===== */
+.flow-scroll { overflow-x: auto; padding-bottom: 8px; margin-bottom: 18px; }
+.flow-wrap {
+  display: flex; align-items: stretch; gap: 0;
+  min-width: max-content; direction: ltr;
+}
+
+/* TILE */
+.tile {
+  background: #1a1f2e; border: 1px solid #2d3748; border-radius: 6px;
+  padding: 10px; width: 148px; flex-shrink: 0;
+  position: relative; display: flex; flex-direction: column;
+}
+.tile.s-green { border-top: 3px solid #48bb78; }
+.tile.s-amber { border-top: 3px solid #ed8936; }
+.tile.s-red   { border-top: 3px solid #f56565; }
+
+.tile-num  { font-size: 9px; color: #4a5568; text-align:center; }
+.tile-name { font-size: 11px; font-weight: 700; color: #e2e8f0; text-align: center; margin: 2px 0 5px; line-height: 1.4; }
+.tile-stat { text-align: center; font-size: 11px; font-weight: 700; margin-bottom: 7px; }
+.tile-stat.green { color: #68d391; }
+.tile-stat.amber { color: #f6ad55; }
+.tile-stat.red   { color: #fc8181; }
+
+.mrow { display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 2px; }
+.ml   { color: #718096; }
+.mv   { color: #cbd5e0; font-weight: 600; }
+.mv.w { color: #f6ad55; }
+.mv.d { color: #fc8181; }
+
+/* Requirements box */
+.req {
+  margin-top: auto; padding-top: 7px; border-top: 1px dashed #2d3748;
+}
+.req-title { color: #5a67d8; font-size: 9px; font-weight: 700; margin-bottom: 3px; }
+.req-body  { color: #4a5568; font-size: 9px; line-height: 1.6; }
+.req-body span { color: #6b7ac4; }
+
+/* CONNECTOR */
+.conn {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 0 3px; width: 80px; flex-shrink: 0;
+}
+.conn-line {
+  display: flex; align-items: center; width: 100%; gap: 2px;
+}
+.conn-dot  { width: 5px; height: 5px; border-radius: 50%; background: #4a5568; flex-shrink: 0; }
+.conn-bar  { height: 1px; flex: 1; background: #4a5568; }
+.conn-arr  { color: #4a5568; font-size: 11px; }
+
+.conn-dot.red { background: #f56565; }
+.conn-dot.amber { background: #ed8936; }
+.conn-bar.red { background: #f56565; }
+.conn-bar.amber { background: #ed8936; }
+.conn-arr.red { color: #f56565; }
+.conn-arr.amber { color: #ed8936; }
+
+.conn-info { text-align: center; margin-top: 4px; direction: ltr; }
+.conn-out  { font-size: 9px; color: #718096; }
+.conn-in   { font-size: 9px; color: #718096; }
+.conn-gap  { font-size: 11px; font-weight: 700; margin-top: 1px; }
+.conn-gap.ok     { color: #68d391; }
+.conn-gap.warn   { color: #f6ad55; }
+.conn-gap.danger { color: #fc8181; }
+.conn-note { font-size: 9px; color: #4a5568; }
+
+/* ===== BOTTOM GRID ===== */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.panel {
+  background: #1a1f2e; border: 1px solid #2d3748;
+  border-radius: 6px; padding: 13px;
+}
+.panel-title { font-size: 13px; font-weight: 600; color: #e2e8f0; margin-bottom: 11px; }
+
+/* TABLE */
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th { color: #718096; font-size: 10px; font-weight: 600; text-align: right; padding: 5px 7px; border-bottom: 1px solid #2d3748; }
+td { padding: 6px 7px; border-bottom: 1px solid #1e2435; color: #cbd5e0; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #1e2739; }
+.sla-red { color: #fc8181; font-weight: 700; }
+.sla-amber { color: #f6ad55; font-weight: 600; }
+.drill { color: #667eea; cursor: pointer; font-size: 11px; }
+.drill:hover { text-decoration: underline; }
+
+/* ALERTS */
+.alert-list { display: flex; flex-direction: column; gap: 7px; }
+.alert {
+  padding: 8px 10px; border-radius: 4px; font-size: 11px;
+  border-right: 3px solid; display: flex; justify-content: space-between; align-items: flex-start;
+}
+.alert-crit { background: #2d1515; border-color: #f56565; }
+.alert-warn { background: #2a1e0f; border-color: #ed8936; }
+.alert-info { background: #131a2d; border-color: #5a67d8; }
+.alert-txt  { color: #e2e8f0; flex: 1; line-height: 1.4; }
+.alert-time { color: #718096; font-size: 10px; flex-shrink: 0; margin-right: 10px; }
+
+/* TREND GRID */
+.trend-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.tcard {
+  background: #131720; border: 1px solid #1e2738;
+  border-radius: 4px; padding: 9px;
+}
+.tlbl { font-size: 10px; color: #718096; margin-bottom: 4px; }
+.tval { font-size: 15px; font-weight: 700; }
+.tval.up  { color: #fc8181; }
+.tval.dn  { color: #68d391; }
+.tsub { font-size: 10px; color: #4a5568; margin-top: 3px; }
+
+/* JOURNEY TIMELINE EXAMPLE */
+.timeline-wrap { display: flex; gap: 3px; align-items: center; flex-wrap: wrap; direction: ltr; margin: 8px 0; }
+.tj-ok    { background: #1a4731; color: #68d391; padding: 3px 7px; border-radius: 3px; font-size: 10px; }
+.tj-fail  { background: #4a1a1a; color: #fc8181; padding: 3px 7px; border-radius: 3px; font-size: 10px; }
+.tj-arrow { color: #4a5568; font-size: 10px; }
+
+/* CORRELATION NOTE */
+.corr-note {
+  background: #1a1f2e; border: 1px solid #2d3748;
+  border-right: 3px solid #5a67d8; border-radius: 6px;
+  padding: 13px 16px; margin-bottom: 6px;
+}
+.corr-title { color: #7f9cf5; font-size: 13px; font-weight: 600; margin-bottom: 7px; }
+.corr-body  { color: #a0aec0; font-size: 12px; line-height: 1.9; }
+code {
+  background: #2d3748; padding: 1px 6px; border-radius: 3px;
+  color: #7f9cf5; font-size: 11px; font-family: monospace;
+}
+
+@media (max-width: 850px) { .grid2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<div class="header">
+  <div>
+    <div class="header-title">Ambulatory Claims — End-to-End Journey Health Monitor</div>
+    <div class="header-sub">Splunk Dashboard Mockup · לא מחובר לנתונים אמיתיים · נבנה להמחשת האיפיון</div>
+  </div>
+  <div class="header-controls">
+    <span class="refresh-badge">&#8635; NRT · כל 30 שניות</span>
+    <span style="color:#718096; font-size:12px">08:47:23</span>
+    <select>
+      <option>שעה אחרונה</option>
+      <option>4 שעות</option>
+      <option>24 שעות</option>
+    </select>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- ===== HEALTH BAR ===== -->
+<div class="section-label">מצב כולל — End-to-End Health</div>
+<div class="health-bar">
+
+  <div class="hcard">
+    <div class="lbl">בריאות כוללת</div>
+    <div class="val"><span class="badge badge-amber">&#9671; DEGRADED</span></div>
+    <div class="sub warn">OCR latency + Whitening backlog</div>
+  </div>
+
+  <div class="hcard">
+    <div class="lbl">תביעות בתהליך כרגע</div>
+    <div class="val">1,847</div>
+    <div class="sub warn">&#8679; 12% מהבייסליין לשעה זו</div>
+  </div>
+
+  <div class="hcard">
+    <div class="lbl">כשלים טכניים (שעה)</div>
+    <div class="val" style="color:#f6ad55">83</div>
+    <div class="sub warn">&#9650; 3.1% error rate</div>
+  </div>
+
+  <div class="hcard">
+    <div class="lbl">תביעות תקועות מעל SLA</div>
+    <div class="val" style="color:#fc8181">71</div>
+    <div class="sub danger">&#128308; דורש טיפול מיידי</div>
+  </div>
+
+  <div class="hcard">
+    <div class="lbl">E2E P95 Processing Time</div>
+    <div class="val" style="color:#f6ad55">4m 12s</div>
+    <div class="sub warn">SLA: 3m 00s &#8679;</div>
+  </div>
+
+  <div class="hcard">
+    <div class="lbl">Oldest Stuck Claim</div>
+    <div class="val" style="color:#fc8181">23m</div>
+    <div class="sub danger">OCR · TXN-00481</div>
+  </div>
+
+</div>
+
+<!-- ===== JOURNEY FLOW ===== -->
+<div class="section-label" style="margin-bottom:5px">Journey Flow — Digital &#8594; BPR &#8594; Upload &#8594; Whitening &#8594; OCR &#8594; Digital &#8594; Doctor DB &#8594; Eligibility &#8594; Fraud &#8594; Routing &#8594; Payment</div>
+<div style="margin-bottom:8px; display:flex; gap:16px; align-items:center; flex-wrap:wrap">
+  <span style="font-size:10px; color:#48bb78">&#9646; HEALTHY</span>
+  <span style="font-size:10px; color:#ed8936">&#9646; DEGRADED</span>
+  <span style="font-size:10px; color:#f56565">&#9646; INCIDENT</span>
+  <span style="font-size:10px; color:#4a5568">|</span>
+  <span style="font-size:10px; color:#5a67d8">&#9642; כחול = שדות נדרשים מכל רכיב</span>
+</div>
+
+<div class="flow-scroll">
+<div class="flow-wrap">
+
+  <!-- 1. DIGITAL -->
+  <div class="tile s-green">
+    <div class="tile-num">שלב 1</div>
+    <div class="tile-name">Digital<br>פתיחת תביעה</div>
+    <div class="tile-stat green">&#128994; HEALTHY</div>
+    <div class="mrow"><span class="ml">IN</span><span class="mv">2,104</span></div>
+    <div class="mrow"><span class="ml">OUT</span><span class="mv">2,098</span></div>
+    <div class="mrow"><span class="ml">Error%</span><span class="mv">0.3%</span></div>
+    <div class="mrow"><span class="ml">P95</span><span class="mv">1.2s</span></div>
+    <div class="mrow"><span class="ml">Timeout</span><span class="mv">0</span></div>
+    <div class="req">
+      <div class="req-title">&#128203; נדרש מהמערכת:</div>
+      <div class="req-body">
+        <span>process_id</span> (חדש לכל תביעה)<br>
+        <span>correlation_id</span><br>
+        <span>action</span>: OPEN / FAIL<br>
+        <span>response_code</span><br>
+        <span>duration_ms</span><br>
+        <span>error_type</span> אם רלוונטי
+      </div>
+    </div>
+  </div>
+
+  <!-- CONN 1->2 -->
+  <div class="conn">
+    <div class="conn-line">
+      <div class="conn-dot"></div><div class="conn-bar"></div><div class="conn-arr">&#9658;</div>
+    </div>
+    <div class="conn-info">
+      <div class="conn-out">OUT 2,098</div>
+      <div class="conn-in">IN&nbsp; 2,094</div>
+      <div class="conn-gap ok">&#916; 4</div>
+      <div class="conn-note">&#10003; בטווח</div>
+    </div>
+  </div>
+
+  <!-- 2. BPR -->
+  <div class="tile s-green">
+    <div class="tile-num">שלב 2</div>
+    <div class="tile-name">BPR<br>Gate 1</div>
+    <div class="tile-stat green">&#128994; HEALTHY</div>
+    <div class="mrow"><span class="ml">Requests</span><span class="mv">2,094</span></div>
+    <div class="mrow"><span class="ml">Responses</span><span class="mv">2,091</span></div>
+    <div class="mrow"><span class="ml">Tech Err</span><span class="mv">0.1%</span></div>
+    <div class="mrow"><span class="ml">P95</span><span class="mv">0.8s</span></div>
+    <div class="mrow"><span class="ml">Timeout</span><span class="mv">2</span></div>
+    <div class="req">
+      <div class="req-title">&#128203; נדרש מהמערכת:</div>
+      <div class="req-body">
+        <span>correlation_id</span><br>
+        <span>status</span>: PASS / BIZ_REJECT / TECH_FAIL<br>
+        <span>error_type</span>: TIMEOUT / NO_RESP / ...<br>
+        <span>latency_ms</span><br>
+        <span>timeout_flag</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONN 2->3 -->
+  <div class="conn">
+    <div class="conn-line">
+      <div class="conn-dot"></div><div class="conn-bar"></div><div class="conn-arr">&#9658;</div>
+    </div>
+    <div class="conn-info">
+      <div class="conn-out">OUT 2,091</div>
+      <div class="conn-in">IN&nbsp; 2,089</div>
+      <div class="conn-gap ok">&#916; 2</div>
+      <div class="conn-note">&#10003; בטווח</div>
+    </div>
+  </div>
+
+  <!-- 3. UPLOAD -->
+  <div class="tile s-green">
+    <div class="tile-num">שלב 3</div>
+    <div class="tile-name">Upload<br>מסמכים</div>
+    <div class="tile-stat green">&#128994; HEALTHY</div>
+    <div class="mrow"><span class="ml">Docs uploaded</span><span class="mv">4,318</span></div>
+    <div class="mrow"><span class="ml">Failed</span><span class="mv">12</span></div>
+    <div class="mrow"><span class="ml">Docs/Claim</span><span class="mv">2.1</span></div>
+    <div class="mrow"><span class="ml">P95</span><span class="mv">3.4s</span></div>
+    <div class="mrow"><span class="ml">Partial</span><span class="mv">5</span></div>
+    <div class="req">
+      <div class="req-title">&#128203; נדרש מהמערכת:</div>
+      <div class="req-body">
+        <span>document_id</span><br>
+        <span>correlation_id</span><br>
+        <span>upload_status</span>: OK / FAIL / PARTIAL<br>
+        <span>file_size_kb</span><br>
+        <span>partial_flag</span><br>
+        <span>forwarded_flag</span> (הועבר להלבנה?)
+      </div>
+    </div>
+  </div>
+
+  <!-- CONN 3->4 -->
+  <div class="conn">
+    <div class="conn-line">
+      <div class="conn-dot"></div><div class="conn-bar"></div><div class="conn-arr">&#9658;</div>
+    </div>
+    <div class="conn-info">
+      <div class="conn-out">OUT 4,306</div>
+      <div class="conn-in">IN&nbsp; 4,301</div>
+      <div class="conn-gap ok">&#916; 5</div>
+      <div class="conn-note">&#10003; בטווח</div>
+    </div>
+  </div>
+
+  <!-- 4. WHITENING -->
+  <div class="tile s-amber">
+    <div class="tile-num">שלב 4</div>
+    <div class="tile-name">Whitening<br>הלבנת מסמכים</div>
+    <div class="tile-stat amber">&#128992; DEGRADED</div>
+    <div class="mrow"><span class="ml">IN</span><span class="mv">4,301</span></div>
+    <div class="mrow"><span class="ml">OUT</span><span class="mv">4,211</span></div>
+    <div class="mrow"><span class="ml">Queue</span><span class="mv w">90 &#8679;</span></div>
+    <div class="mrow"><span class="ml">P95</span><span class="mv w">28s &#8679;</span></div>
+    <div class="mrow"><span class="ml">SLA breach</span><span class="mv w">7</span></div>
+    <div class="req">
+      <div class="req-title">&#128203; נדרש מהמערכת:</div>
+      <div class="req-body">
+        <span>document_id</span><br>
+        <span>correlation_id</span><br>
+        <span>status</span>: DONE / FAILED / REJECTED<br>
+        <span>queue_depth</span> (snapshot כל דקה)<br>
+        <span>processing_time_ms</span><br>
+        <span>sla_breach_flag</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONN 4->5  *** GAP *** -->
+  <div class="conn">
+    <div class="conn-line">
+      <div class="conn-dot red"></div><div class="conn-bar red"></div><div class="conn-arr red">&#9658;</div>
+    </div>
+    <div class="conn-info">
+      <div class="conn-out" style="color:#f6ad55">OUT 4,211</div>
+      <div class="conn-in"  style="color:#fc8181">IN&nbsp; 4,167</div>
+      <div class="conn-gap danger">&#128308; &#916; 44</div>
+      <div class="conn-note" style="color:#fc8181">!!! בדוק אינטגרציה</div>
+    </div>
+  </div>
+
+  <!-- 5. OCR -->
+  <div class="tile s-amber">
+    <div class="tile-num">שלב 5</div>
+    <div class="tile-name">OCR / Class.<br>Extraction</div>
+    <div class="tile-stat amber">&#128992; DEGRADED</div>
+    <div class="mrow"><span class="ml">IN</span><span class="mv w">4,167</span></div>
+    <div class="mrow"><span class="ml">OUT</span><span class="mv">4,054</span></div>
+    <div class="mrow"><span class="ml">Error%</span><span class="mv w">2.7%</span></div>
+    <div class="mrow"><span class="ml">P95</span><span class="mv w">41s &#8679;</span></div>
+    <div class="mrow"><span class="ml">Confidence</span><span class="mv w">71% &#8681;</span></div>
+    <div class="req">
+      <div class="req-title">&#128203; נדרש מהמערכת:</div>
+      <div class="req-body">
+        <span>document_id</span>, <span>correlation_id</span><br>
+        <span>classification_result</span><br>
+        <span>extraction_status</span><br>
+        <span>avg_confidence</span> (per field type)<br>
+        <span>model_version</span><br>
+        <span>latency_ms</span><br>
+        <span>error_code</span> אם נכשל
+      </div>
+    </div>
+  </div>
+
+  <!-- CONN 5->6 -->
+  <div class="conn">
+    <div class="conn-line">
+      <div class="conn-dot amber"></div><div class="conn-bar amber"></div><div class="conn-arr amber">&#9658;</div>
+    </div>
+    <div class="conn-info">
+      <div class="conn-out" style="color:#f6ad55">OUT 4,054</div>
+      <div class="conn-in"  style="color:#f6ad55">IN&nbsp; 4,039</div>
+      <div class="conn-gap warn">&#9888; &#916; 15</div>
+      <div class="conn-note">בטווח מוגבל</div>
+    </div>
+  </div>
+
+  <!-- 6. OCR RESPONSE -> DIGITAL -->
+  <div class="tile s-amber">
+    <div class="tile-num">שלב 6</div>
+    <div class="tile-name">OCR Response<br>&#8594; Digital</div>
+    <div class="tile-stat amber">&#128992; DEGRADED</div>
+    <div class="mrow"><span class="ml">Sent</span><span class="mv">4,054</span></div>
+    <div class="mrow"><span class="ml">Received</span><span class="mv w">4,039</span></div>
+    <div class="mrow"><span class="ml">Missing</span><span class="mv w">15</span></div>
+    <div class="mrow"><span class="ml">Payload Err</span><span class="mv">3</span></div>
+    <div class="mrow"><span class="ml">Latency</span><span class="mv">1.8s</span></div>
+    <div class="req">
+      <div class="req-title">&#128203; נדרש מהמערכת:</div>
+      <div class="req-body">
+        <span>correlation_id</span><br>
+        <span>response_received_flag</span><br>
+        <span>payload_error_flag</span><br>
+        <span>parsing_error</span><br>
+        <span>mapping_error</span><br>
+        <span>delivery_latency_ms</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONN 6->7 -->
+  <div class="conn">
+    <div class="conn-line">
+      <div class="conn-dot"></div><div class="conn-bar"></div><div class="conn-arr">&#9658;</div>
+    </div>
+    <div class="conn-info">
+      <div class="conn-out">OUT 4,039</div>
+      <div class="conn-in">IN&nbsp; 4,039</div>
+      <div class="conn-gap ok">&#916; 0</div>
+      <div class="conn-note">&#10003; תקין</div>
+    </div>
+  </div>
+
+  <!-- 7. DOCTOR DB -->
+  <div class="tile s-green">
+    <div class="tile-num">שלב 7</div>
+    <div class="tile-name">Doctor DB<br>Lookup</div>
+    <div class="tile-stat green">&#128994; HEALTHY</div>
+    <div class="mrow"><span class="ml">Requests</span><span class="mv">4,039</span></div>
+    <div class="mrow"><span class="ml">Found</span><span class="mv">3,881</span></div>
+    <div class="mrow"><span class="ml">Tech Err</span><span class="mv">0.2%</span></div>
+    <div class="mrow"><span class="ml">P95</span><span class="mv">0.4s</span></div>
+    <div class="mrow"><span class="ml">Timeout</span><span class="mv">1</span></div>
+    <div class="req">
+      <div class="req-title">&#128203; נדרש מהמערכת:</div>
+      <div class="req-body">
+        <span>correlation_id</span><br>
+        <span>lookup_status</span>: FOUND / NOT_FOUND / TECH_ERR<br>
+        <span>timeout_flag</span><br>
+        <span>invalid_response_flag</span><br>
+        <span>response_time_ms</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONN 7->8 -->
+  <div class="conn">
+    <div class="conn-line">
+      <div class="conn-dot"></div><div class="conn-bar"></div><div class="conn-arr">&#9658;</div>
+    </div>
+    <div class="conn-info">
+      <div class="conn-out">OUT 4,039</div>
+      <div class="conn-in">IN&nbsp; 4,037</div>
+      <div class="conn-gap ok">&#916; 2</div>
+      <div class="conn-note">&#10003; בטווח</div>
+    </div>
+  </div>
+
+  <!-- 8. ELIGIBILITY -->
+  <div class="tile s-green">
+    <div class="tile-num">שלב 8</div>
+    <div class="tile-name">Eligibility<br>Gate 2</div>
+    <div class="tile-stat green">&#128994; HEALTHY</div>
+    <div class="mrow"><span class="ml">Requests</span><span class="mv">4,037</span></div>
+    <div class="mrow"><span class="ml">Completed</span><span class="mv">4,033</span></div>
+    <div class="mrow"><span class="ml">Tech Err</span><span class="mv">0.1%</span></div>
+    <div class="mrow"><span class="ml">P95</span><span class="mv">1.1s</span></div>
+    <div class="mrow"><span class="ml">Stuck</span><span class="mv">1</span></div>
+    <div class="req">
+      <div class="req-title">&#128203; נדרש מהמערכת:</div>
+      <div class="req-body">
+        <span>correlation_id</span><br>
+        <span>exec_status</span>: OK / BIZ_FAIL / TECH_ERR<br>
+        <span>rules_engine_error_flag</span><br>
+        <span>duration_ms</span><br>
+        <span>timeout_flag</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONN 8->9 -->
+  <div class="conn">
+    <div class="conn-line">
+      <div class="conn-dot"></div><div class="conn-bar"></div><div class="conn-arr">&#9658;</div>
+    </div>
+    <div class="conn-info">
+      <div class="conn-out">OUT 4,033</div>
+      <div class="conn-in">IN&nbsp; 4,031</div>
+      <div class="conn-gap ok">&#916; 2</div>
+      <div class="conn-note">&#10003; בטווח</div>
+    </div>
+  </div>
+
+  <!-- 9. FRAUD -->
+  <div class="tile s-red">
+    <div class="tile-num">שלב 9</div>
+    <div class="tile-name">Fraud Engine<br>Anomaly + Rules</div>
+    <div class="tile-stat red">&#128308; INCIDENT</div>
+    <div class="mrow"><span class="ml">Sent</span><span class="mv">4,031</span></div>
+    <div class="mrow"><span class="ml">Score OK</span><span class="mv d">3,741</span></div>
+    <div class="mrow"><span class="ml">Missing</span><span class="mv d">290</span></div>
+    <div class="mrow"><span class="ml">P95</span><span class="mv d">14s &#8679;&#8679;</span></div>
+    <div class="mrow"><span class="ml">Score Dist.</span><span class="mv d">&#9888; Drift</span></div>
+    <div class="req">
+      <div class="req-title">&#128203; נדרש מהמערכת:</div>
+      <div class="req-body">
+        <span>correlation_id</span><br>
+        <span>model_score</span> (0–1)<br>
+        <span>rules_result</span><br>
+        <span>combined_score</span><br>
+        <span>score_missing_flag</span><br>
+        <span>model_latency_ms</span><br>
+        <span>rules_latency_ms</span><br>
+        <span>model_version</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONN 9->10 -->
+  <div class="conn">
+    <div class="conn-line">
+      <div class="conn-dot red"></div><div class="conn-bar red"></div><div class="conn-arr red">&#9658;</div>
+    </div>
+    <div class="conn-info">
+      <div class="conn-out" style="color:#fc8181">OUT 3,741</div>
+      <div class="conn-in"  style="color:#fc8181">IN&nbsp; 3,737</div>
+      <div class="conn-gap ok">&#916; 4</div>
+      <div class="conn-note">&#10003; בטווח</div>
+    </div>
+  </div>
+
+  <!-- 10. ROUTING -->
+  <div class="tile s-red">
+    <div class="tile-num">שלב 10</div>
+    <div class="tile-name">Routing<br>Decision</div>
+    <div class="tile-stat red">&#128308; INCIDENT</div>
+    <div class="mrow"><span class="ml">Decisions</span><span class="mv">3,737</span></div>
+    <div class="mrow"><span class="ml">Auto (&#8804;0.65)</span><span class="mv">2,812</span></div>
+    <div class="mrow"><span class="ml">Manual</span><span class="mv">925</span></div>
+    <div class="mrow"><span class="ml">Routing Fail</span><span class="mv d">12</span></div>
+    <div class="mrow"><span class="ml">No Route</span><span class="mv d">4</span></div>
+    <div class="req">
+      <div class="req-title">&#128203; נדרש מהמערכת:</div>
+      <div class="req-body">
+        <span>correlation_id</span><br>
+        <span>score_at_routing</span><br>
+        <span>route</span>: AUTO / MANUAL<br>
+        <span>routing_failure_flag</span><br>
+        <span>no_route_flag</span><br>
+        <span>latency_ms</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONN 10->11 -->
+  <div class="conn">
+    <div class="conn-line">
+      <div class="conn-dot"></div><div class="conn-bar"></div><div class="conn-arr">&#9658;</div>
+    </div>
+    <div class="conn-info">
+      <div class="conn-out">OUT 2,812</div>
+      <div class="conn-in">IN&nbsp; 2,810</div>
+      <div class="conn-gap ok">&#916; 2</div>
+      <div class="conn-note">&#10003; בטווח</div>
+    </div>
+  </div>
+
+  <!-- 11. PAYMENT -->
+  <div class="tile s-green">
+    <div class="tile-num">שלב 11</div>
+    <div class="tile-name">Payment<br>Auto Approval</div>
+    <div class="tile-stat green">&#128994; HEALTHY</div>
+    <div class="mrow"><span class="ml">Requests</span><span class="mv">2,810</span></div>
+    <div class="mrow"><span class="ml">Success</span><span class="mv">2,807</span></div>
+    <div class="mrow"><span class="ml">Tech Err</span><span class="mv">0.1%</span></div>
+    <div class="mrow"><span class="ml">P95</span><span class="mv">2.1s</span></div>
+    <div class="mrow"><span class="ml">Duplicate</span><span class="mv">0</span></div>
+    <div class="req">
+      <div class="req-title">&#128203; נדרש מהמערכת:</div>
+      <div class="req-body">
+        <span>correlation_id</span><br>
+        <span>payment_request_id</span><br>
+        <span>payment_status</span>: OK / FAIL / TIMEOUT<br>
+        <span>duplicate_flag</span><br>
+        <span>response_time_ms</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div><!-- /flow-scroll -->
+
+<!-- ===== BOTTOM PANELS ROW 1 ===== -->
+<div class="grid2">
+
+  <!-- STUCK TRANSACTIONS -->
+  <div class="panel">
+    <div class="panel-title">&#9201; תביעות תקועות מעל SLA — לחיצה פותחת Drill Down</div>
+    <table>
+      <thead>
+        <tr>
+          <th>שלב</th>
+          <th>תקועות</th>
+          <th>הכי ישנה</th>
+          <th>SLA</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>OCR</td>
+          <td class="sla-red">38</td>
+          <td class="sla-red">23m</td>
+          <td>90s</td>
+          <td><span class="drill">Drill Down &#9658;</span></td>
+        </tr>
+        <tr>
+          <td>Fraud Engine</td>
+          <td class="sla-red">22</td>
+          <td class="sla-red">9m</td>
+          <td>10s</td>
+          <td><span class="drill">Drill Down &#9658;</span></td>
+        </tr>
+        <tr>
+          <td>Whitening</td>
+          <td class="sla-amber">7</td>
+          <td class="sla-amber">6m</td>
+          <td>60s</td>
+          <td><span class="drill">Drill Down &#9658;</span></td>
+        </tr>
+        <tr>
+          <td>Doctor DB</td>
+          <td>4</td>
+          <td>3m</td>
+          <td>5s</td>
+          <td><span class="drill">Drill Down &#9658;</span></td>
+        </tr>
+        <tr>
+          <td>BPR</td>
+          <td style="color:#68d391">0</td>
+          <td style="color:#4a5568">—</td>
+          <td>2s</td>
+          <td style="color:#4a5568; font-size:11px">&#10003; תקין</td>
+        </tr>
+        <tr>
+          <td>Payment</td>
+          <td style="color:#68d391">0</td>
+          <td style="color:#4a5568">—</td>
+          <td>5s</td>
+          <td style="color:#4a5568; font-size:11px">&#10003; תקין</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ACTIVE ALERTS -->
+  <div class="panel">
+    <div class="panel-title">&#128276; התראות פעילות</div>
+    <div class="alert-list">
+      <div class="alert alert-crit">
+        <div class="alert-txt">&#128308; <strong>Fraud Engine</strong> — 290 תביעות ללא Score · Missing responses · חשד לתקלת מודל</div>
+        <div class="alert-time">08:41</div>
+      </div>
+      <div class="alert alert-crit">
+        <div class="alert-txt">&#128308; <strong>Whitening&#8594;OCR Gap</strong> — &#916;44 מסמכים לא הגיעו ל-OCR · חשד לכשל אינטגרציה</div>
+        <div class="alert-time">08:43</div>
+      </div>
+      <div class="alert alert-warn">
+        <div class="alert-txt">&#128992; <strong>OCR Confidence Drift</strong> — ירד מ-94% ל-71% בשעה האחרונה (physician name)</div>
+        <div class="alert-time">08:39</div>
+      </div>
+      <div class="alert alert-warn">
+        <div class="alert-txt">&#128992; <strong>OCR Latency Drift</strong> — P95 עלה ל-41s · SLA=30s · 4 חלונות רצופים בעלייה</div>
+        <div class="alert-time">08:35</div>
+      </div>
+      <div class="alert alert-warn">
+        <div class="alert-txt">&#128992; <strong>Fraud Score Cluster</strong> — 87% מהתביעות בטווח 0.60–0.65 (חריג בהתפלגות)</div>
+        <div class="alert-time">08:44</div>
+      </div>
+      <div class="alert alert-info">
+        <div class="alert-txt">&#128309; <strong>Volume Anomaly</strong> — נפח גבוה ב-12% מהבייסליין הרגיל לשעות 08:00–09:00</div>
+        <div class="alert-time">08:30</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== BOTTOM PANELS ROW 2 ===== -->
+<div class="grid2">
+
+  <!-- TREND INDICATORS -->
+  <div class="panel">
+    <div class="panel-title">&#128200; מגמות — זיהוי Degradation לפני כשל</div>
+    <div class="trend-grid">
+      <div class="tcard">
+        <div class="tlbl">OCR P95 Latency Drift</div>
+        <div class="tval up">41s &#8679;&#8679;</div>
+        <div class="tsub">26s &#8594; 28s &#8594; 33s &#8594; 41s (4 חלונות)</div>
+      </div>
+      <div class="tcard">
+        <div class="tlbl">OCR Confidence Drift</div>
+        <div class="tval up">71% &#8681;</div>
+        <div class="tsub">94% &#8594; 88% &#8594; 79% &#8594; 71%</div>
+      </div>
+      <div class="tcard">
+        <div class="tlbl">Whitening Queue Growth</div>
+        <div class="tval up">90 &#8679;</div>
+        <div class="tsub">8 &#8594; 22 &#8594; 51 &#8594; 90 (30 דקות)</div>
+      </div>
+      <div class="tcard">
+        <div class="tlbl">Error Rate Drift (OCR)</div>
+        <div class="tval up">2.7% &#8679;</div>
+        <div class="tsub">0.4% &#8594; 1.1% &#8594; 2.7%</div>
+      </div>
+      <div class="tcard">
+        <div class="tlbl">Fraud Score Distribution</div>
+        <div class="tval up">87% Cluster</div>
+        <div class="tsub">חשד לתקלה במודל / גרסה / קלט</div>
+      </div>
+      <div class="tcard">
+        <div class="tlbl">E2E P95 Trend</div>
+        <div class="tval up">4m 12s &#8679;</div>
+        <div class="tsub">SLA 3m · גידול 40% ב-45 דקות</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LAST KNOWN GOOD / FIRST FAILURE -->
+  <div class="panel">
+    <div class="panel-title">&#128269; Last Known Good / First Failure Detection</div>
+    <div style="font-size:11px; color:#718096; margin-bottom:10px">לחיצה על תביעה פותחת את ה-Journey Timeline המלא שלה</div>
+
+    <div style="background:#131720; border-radius:4px; padding:10px; margin-bottom:10px">
+      <div style="font-size:11px; color:#718096; margin-bottom:6px">TXN-00481 · נפתחה 08:24:02 · <span style="color:#fc8181">תקועה 23 דקות</span></div>
+      <div class="timeline-wrap">
+        <span class="tj-ok">&#10003; Digital<br>08:24:02</span>
+        <span class="tj-arrow">&#8594;</span>
+        <span class="tj-ok">&#10003; BPR<br>08:24:03</span>
+        <span class="tj-arrow">&#8594;</span>
+        <span class="tj-ok">&#10003; Upload<br>08:24:19</span>
+        <span class="tj-arrow">&#8594;</span>
+        <span class="tj-ok">&#10003; Whitening<br>08:24:21</span>
+        <span class="tj-arrow">&#8594;</span>
+        <span class="tj-fail">&#10007; OCR<br>No Input</span>
+      </div>
+      <div style="margin-top:9px; background:#2a1e0f; border-right:2px solid #ed8936; padding:7px 10px; border-radius:3px; font-size:11px; direction:rtl">
+        <div style="color:#f6ad55">&#9888; Last Known Good: Whitening completed 08:24:21</div>
+        <div style="color:#718096; margin-top:3px">First Failure: OCR — אין אירוע קלט כלל</div>
+        <div style="color:#a0aec0; margin-top:3px"><strong>Suspected:</strong> Whitening&#8594;OCR integration failure</div>
+      </div>
+    </div>
+
+    <div style="background:#131720; border-radius:4px; padding:9px">
+      <div style="color:#5a67d8; font-size:11px; font-weight:600; margin-bottom:6px">&#128270; חיפוש Journey לפי מזהה</div>
+      <div style="display:flex; gap:8px; direction:ltr">
+        <input type="text" placeholder="Process ID / Correlation ID / Claim ID / Doc ID" style="flex:1; font-size:11px">
+        <button>חפש</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== CORRELATION ID NOTE ===== -->
+<div class="corr-note">
+  <div class="corr-title">&#9888; דרישת יסוד — Correlation ID אחיד בכל המערכות</div>
+  <div class="corr-body">
+    כדי שהדאשבורד הזה יעבוד, <strong style="color:#e2e8f0">כל מערכת חייבת לשלוח את אותו</strong> <code>correlation_id</code> בכל לוג לאורך כל ה-Journey.
+    <br>השדות המינימליים מכל רכיב: <code>timestamp</code> · <code>correlation_id</code> · <code>component</code> · <code>stage</code> · <code>action</code> · <code>status</code> · <code>duration_ms</code> · <code>error_code</code>
+    <br>ניטור ה-Connector Gaps (Sent&#8800;Received) מבוסס על השוואת ספירות לפי <code>correlation_id</code> בין שתי מערכות — בלי ID אחיד, אי אפשר לזהות אובדן בין-מערכתי.
+    <br>שדות נוספים לשלבים ספציפיים: <code>document_id</code> · <code>model_version</code> · <code>avg_confidence</code> · <code>fraud_score</code> · <code>route</code> · <code>payment_status</code>
+  </div>
+</div>
+
+</div><!-- /main -->
+</body>
+</html>
