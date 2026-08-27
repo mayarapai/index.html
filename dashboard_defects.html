@@ -461,8 +461,9 @@ body {
     </select>
     <select id="filterEnv" onchange="render()">
       <option value="all">כל הסביבות</option>
-      <option value="טסט">טסט</option>
+      <option value="ייצור" selected>ייצור</option>
       <option value="קדם">קדם</option>
+      <option value="טסט">טסט</option>
       <option value="לא ידוע">לא ידוע</option>
     </select>
   </div>
@@ -634,12 +635,29 @@ const RAW = [
 
   // ── בינונית — חסכון ארוך טווח — פיתוח BPR NG תביעות ───────────────────────
   {id:'TK-029',project:'P-1201',env:'קדם', status:'פתוח', openDate:'2026-08-18',closeDate:null, severity:'בינונית', domain:'חסכון ארוך טווח', team:'פיתוח BPR NG תביעות', desc:'לבטל חובת סימון צ׳קבוקס למבוטח עם צו שיפוטי / חוב כאשר מבצעים דחיית תביעה', fixDate:'2026-08-18'},
+
+  // ── ייצור — מאז עליה לאוויר 26.8.2026 ───────────────────────────────────────
+  {id:'TK-030',project:'P-1201',env:'ייצור', status:'בטיפול', openDate:'2026-08-26',closeDate:null,          severity:'גבוהה',   domain:'חסכון ארוך טווח', team:'פיתוח BPR NG תביעות',    desc:'הגשת תביעה משולחן עבודה לסוכן במסלול אדום ארעה שגיאת מערכת',          fixDate:null},
+  {id:'TK-031',project:'P-1201',env:'ייצור', status:'סגור',   openDate:'2026-08-26',closeDate:'2026-08-26', severity:'בינונית', domain:'חסכון ארוך טווח', team:'פיתוח BPR NG תביעות',    desc:'בדיוון לטרקר מתקבל: null: maxDaysSla - לא תקלה',                       fixDate:null},
+  {id:'TK-032',project:'P-1201',env:'ייצור', status:'פתוח',   openDate:'2026-08-27',closeDate:null,          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6',  desc:'כפתור המשך לא מוצג ברזולוציה של 100',                                   fixDate:null},
+  {id:'TK-033',project:'P-1201',env:'ייצור', status:'סגור',   openDate:'2026-08-27',closeDate:'2026-08-27', severity:'בינונית', domain:'חסכון ארוך טווח', team:'פיתוח BPR NG תביעות',    desc:'התביעה שגדרה בכפילות NG עם אותו מספר תביעה - לא תקלה',                  fixDate:null},
+  {id:'TK-034',project:'P-1201',env:'ייצור', status:'פתוח',   openDate:'2026-08-27',closeDate:null,          severity:'גבוהה',   domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6',  desc:'בהזנקה משולחן עבודה - מבוטח מוביל שבוחר קטין, התהליך נכשל',           fixDate:null},
+  {id:'TK-035',project:'P-1201',env:'ייצור', status:'סגור',   openDate:'2026-08-27',closeDate:'2026-08-27', severity:'בינונית', domain:'חסכון ארוך טווח', team:'פיתוח BPR NG תביעות',    desc:'תהליך נוסף נפל על כפילות NG - לא תקלה',                                 fixDate:null},
+  {id:'TK-036',project:'P-1201',env:'ייצור', status:'סגור',   openDate:'2026-08-27',closeDate:'2026-08-27', severity:'בינונית', domain:'חסכון ארוך טווח', team:'אפיון תפעול NG',          desc:'תביעה בגין פיזיותרפיה במלול ירוק במקום לעצור לאדום - לא תקלה',        fixDate:null},
+  {id:'TK-037',project:'P-1201',env:'ייצור', status:'סגור',   openDate:'2026-08-27',closeDate:'2026-08-27', severity:'בינונית', domain:'חסכון ארוך טווח', team:'אפיון תפעול NG',          desc:'תביעה נדחתה על מיצוי אמבולטורי - לא תקלה',                             fixDate:null},
+  {id:'TK-038',project:'P-1201',env:'ייצור', status:'סגור',   openDate:'2026-08-27',closeDate:'2026-08-27', severity:'גבוהה',   domain:'תשתיות',            team:'תשתיות חא"ט',           desc:'חזרת שגיאה מ SLA לחוקה בגלל עומסים',                                   fixDate:null},
+  {id:'TK-039',project:'P-1201',env:'ייצור', status:'פתוח',   openDate:'2026-08-27',closeDate:null,          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6',  desc:'העלאת קובץ עם תוים מיוחדים לא תקינה - נכשל',                           fixDate:null},
+  {id:'TK-040',project:'P-1201',env:'ייצור', status:'פתוח',   openDate:'2026-08-27',closeDate:null,          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6',  desc:'שו"ש - ביטול אפשרות BIT במקרה של סלולרי חסר',                          fixDate:null},
+  {id:'TK-041',project:'P-1201',env:'ייצור', status:'סגור',   openDate:'2026-08-27',closeDate:'2026-08-27', severity:'גבוהה',   domain:'חסכון ארוך טווח', team:'פיתוח BPR NG תביעות',    desc:'שגיאה בתביעה - נעצר עקב תקלה במנגנון בקרה',                            fixDate:null},
+  {id:'TK-042',project:'P-1201',env:'ייצור', status:'פתוח',   openDate:'2026-08-27',closeDate:null,          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6',  desc:'שסן קצר של 15 דקות - לקוח מתנתק באמצע תהליך',                          fixDate:null},
+  {id:'TK-043',project:'P-1201',env:'ייצור', status:'פתוח',   openDate:'2026-08-27',closeDate:null,          severity:'גבוהה',   domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6',  desc:'לקוח התקדם בתהליך גם כאשר הקובץ לא זוהה באופן מלא',                   fixDate:null},
+  {id:'TK-044',project:'P-1201',env:'ייצור', status:'פתוח',   openDate:'2026-08-27',closeDate:null,          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6',  desc:'שר"ש - חסימה אפשרות הגשת תביעה ישירות מקטין דרך שולחן עבודה',         fixDate:null},
 ];
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
 const DOMAINS = ['דיגיטל','חסכון ארוך טווח','תשתיות','דאטה ו-AI'];
 const DOMAIN_CSS = {'דיגיטל':'domain-digital','חסכון ארוך טווח':'domain-chat','תשתיות':'domain-infra','דאטה ו-AI':'domain-data'};
-const TEAMS_ORDER = ['צוות פיתוח דיגיטל 6','אפיון תפעול NG','פיתוח BPR NG תביעות','DOCAH'];
+const TEAMS_ORDER = ['צוות פיתוח דיגיטל 6','אפיון תפעול NG','פיתוח BPR NG תביעות','תשתיות חא"ט','DOCAH'];
 
 function daysBetween(d1, d2) {
   return Math.round((new Date(d2) - new Date(d1)) / 86400000);
