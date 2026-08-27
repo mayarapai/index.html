@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>דשבורד תביעות אמבולטוריות — תהליך הגשה דיגיטלי</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0e1117;
+    color: #c9d1e0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 13px;
+    direction: rtl;
+  }
+
+  /* ===== TOP BAR ===== */
+  .topbar {
+    background: #161b27;
+    border-bottom: 1px solid #2a3550;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .topbar .logo { color: #f86b3f; font-size: 18px; font-weight: bold; letter-spacing: 1px; }
+  .topbar .breadcrumb { font-size: 12px; color: #6b7fa3; }
+  .topbar .controls { display: flex; gap: 10px; align-items: center; }
+  .btn {
+    background: #1e2a42;
+    border: 1px solid #2e3f60;
+    color: #9bacc8;
+    padding: 5px 14px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .btn.primary { background: #1266a8; border-color: #1a7dd1; color: #fff; }
+  .time-badge {
+    background: #1e2a42;
+    border: 1px solid #2e3f60;
+    color: #9bacc8;
+    padding: 5px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+  }
+
+  /* ===== DASHBOARD TITLE ===== */
+  .dash-title {
+    background: #131822;
+    text-align: center;
+    padding: 14px;
+    font-size: 20px;
+    font-weight: 600;
+    color: #dce6f5;
+    border-bottom: 1px solid #1e2d47;
+  }
+  .dash-subtitle {
+    text-align: center;
+    font-size: 12px;
+    color: #5a7299;
+    margin-top: 3px;
+  }
+
+  /* ===== GRID LAYOUT ===== */
+  .grid { display: grid; gap: 10px; padding: 12px; }
+  .grid-5 { grid-template-columns: repeat(5, 1fr); }
+  .grid-4 { grid-template-columns: repeat(4, 1fr); }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-2 { grid-template-columns: 1fr 1fr; }
+  .grid-main { grid-template-columns: 2fr 1fr; }
+  .grid-docs { grid-template-columns: 1.5fr 1fr 1fr; }
+  .col-span-2 { grid-column: span 2; }
+
+  /* ===== PANEL ===== */
+  .panel {
+    background: #161c2d;
+    border: 1px solid #1e2d47;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .panel-header {
+    background: #1a2236;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #8ea8cc;
+    border-bottom: 1px solid #1e2d47;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .panel-header .icon { margin-left: 6px; opacity: 0.7; }
+  .panel-body { padding: 14px; }
+
+  /* ===== KPI TILE ===== */
+  .kpi { text-align: center; padding: 16px 10px; }
+  .kpi .label { font-size: 11px; color: #5a7299; margin-bottom: 6px; line-height: 1.4; }
+  .kpi .value { font-size: 36px; font-weight: 700; line-height: 1; }
+  .kpi .sub { font-size: 11px; margin-top: 5px; color: #4a6080; }
+  .kpi .delta { font-size: 11px; margin-top: 4px; }
+  .c-green { color: #3fc87a; }
+  .c-red { color: #e85d6a; }
+  .c-yellow { color: #e8c23a; }
+  .c-purple { color: #a064f0; }
+  .c-blue { color: #3aa8f0; }
+  .c-orange { color: #f0843a; }
+  .c-teal { color: #3ad4c8; }
+
+  /* ===== SECTION LABEL ===== */
+  .section-label {
+    padding: 6px 14px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #3a8fd4;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: #111825;
+    border-right: 3px solid #3a8fd4;
+    margin: 0 12px 0 12px;
+    border-radius: 0 4px 4px 0;
+  }
+
+  /* ===== FUNNEL ===== */
+  .funnel-container { padding: 10px 0; }
+  .funnel-step {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    gap: 10px;
+  }
+  .funnel-count { width: 62px; font-size: 20px; font-weight: 700; color: #fff; text-align: right; line-height: 1; padding-top: 6px; }
+  .funnel-bar-wrap { flex: 1; position: relative; height: 36px; }
+  .funnel-bar {
+    height: 100%;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    transition: width 0.3s;
+    position: relative;
+  }
+  .funnel-bar .bar-label { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.92); white-space: nowrap; }
+  .funnel-meta { width: 130px; text-align: left; }
+  .funnel-meta .pct { font-size: 13px; font-weight: 700; }
+  .funnel-meta .drop { font-size: 11px; color: #e85d6a; }
+
+  /* Step colors */
+  .step-1 .funnel-bar { background: linear-gradient(90deg, #1a6bc4, #2488e8); }
+  .step-2 .funnel-bar { background: linear-gradient(90deg, #1a5ab0, #1e78d4); }
+  .step-3 .funnel-bar { background: linear-gradient(90deg, #a06020, #d48030); }
+  .step-4 .funnel-bar { background: linear-gradient(90deg, #186080, #22a0cc); }
+  .step-5 .funnel-bar { background: linear-gradient(90deg, #1a6040, #28a060); }
+  .step-6 .funnel-bar { background: linear-gradient(90deg, #206820, #30a030); }
+
+  /* ===== SUCCESS ROUTING ===== */
+  .routing-box {
+    border: 1px solid #1e2d47;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 10px;
+    background: #111825;
+  }
+  .routing-box .route-title {
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #1e2d47;
+  }
+  .route-kpi {
+    display: flex;
+    justify-content: space-around;
+    text-align: center;
+  }
+  .route-kpi .rk-val { font-size: 24px; font-weight: 700; }
+  .route-kpi .rk-lbl { font-size: 10px; color: #4a6080; margin-top: 3px; }
+  .green-track {
+    margin-top: 8px;
+    background: #0d1f0d;
+    border: 1px solid #1e5e1e;
+    border-radius: 4px;
+    padding: 8px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .green-track .gt-label { font-size: 11px; color: #3fc87a; font-weight: 600; }
+  .green-track .gt-val { font-size: 18px; font-weight: 700; color: #3fc87a; }
+
+  /* ===== DOCAH FLOW ===== */
+  .flow-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #2e4060;
+    padding: 0 4px;
+  }
+  .doc-flow {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+  }
+  .doc-stage {
+    flex: 1;
+    background: #111825;
+    border: 1px solid #1e2d47;
+    border-radius: 6px;
+    padding: 12px;
+    text-align: center;
+    position: relative;
+  }
+  .doc-stage .ds-title { font-size: 11px; color: #5a7299; margin-bottom: 8px; font-weight: 600; }
+  .doc-stage .ds-value { font-size: 28px; font-weight: 700; }
+  .doc-stage .ds-sub { font-size: 10px; color: #3a5070; margin-top: 4px; }
+  .doc-stage-arrow { display: flex; align-items: center; padding: 0 6px; color: #2e4060; font-size: 20px; }
+
+  /* ===== CONFIDENCE BAR ===== */
+  .conf-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    gap: 8px;
+  }
+  .conf-label { width: 90px; font-size: 11px; text-align: right; }
+  .conf-bar-bg { flex: 1; background: #0e1520; border-radius: 3px; height: 20px; overflow: hidden; }
+  .conf-bar-fill { height: 100%; border-radius: 3px; display: flex; align-items: center; padding-right: 8px; }
+  .conf-bar-fill span { font-size: 11px; font-weight: 600; color: #fff; }
+  .conf-num { width: 50px; font-size: 12px; font-weight: 700; text-align: left; }
+
+  /* ===== RETRY TABLE ===== */
+  .retry-table { width: 100%; border-collapse: collapse; }
+  .retry-table th {
+    background: #111825;
+    color: #5a7299;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 6px 10px;
+    text-align: right;
+    border-bottom: 1px solid #1e2d47;
+  }
+  .retry-table td {
+    padding: 7px 10px;
+    font-size: 12px;
+    border-bottom: 1px solid #131a28;
+  }
+  .retry-table tr:last-child td { border-bottom: none; }
+  .retry-table tr:hover td { background: #111825; }
+
+  /* ===== SLA PANEL ===== */
+  .sla-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .sla-box {
+    background: #111825;
+    border: 1px solid #1e2d47;
+    border-radius: 6px;
+    padding: 12px;
+    text-align: center;
+  }
+  .sla-box .sb-title { font-size: 10px; color: #4a6080; margin-bottom: 8px; }
+  .sla-box .sb-val { font-size: 26px; font-weight: 700; }
+  .sla-box .sb-sub { font-size: 10px; margin-top: 5px; }
+
+  .sla-errors-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .sla-errors-table th {
+    background: #111825;
+    color: #5a7299;
+    font-size: 10px;
+    padding: 5px 10px;
+    text-align: right;
+    border-bottom: 1px solid #1e2d47;
+  }
+  .sla-errors-table td {
+    padding: 6px 10px;
+    border-bottom: 1px solid #131a28;
+  }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 600;
+  }
+  .badge-red { background: #3a0e12; color: #e85d6a; border: 1px solid #6a1a20; }
+  .badge-yellow { background: #2e2000; color: #e8c23a; border: 1px solid #5a3c00; }
+  .badge-green { background: #0a2a14; color: #3fc87a; border: 1px solid #1a5a2a; }
+
+  /* ===== MINI CHART (SVG sparklines) ===== */
+  .sparkline { display: block; }
+
+  /* ===== DIVIDER ===== */
+  .section-divider { height: 6px; background: #0a0e16; }
+
+  /* ===== FOOTER ===== */
+  .footer {
+    background: #0d1117;
+    border-top: 1px solid #1a2338;
+    padding: 8px 20px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: #2e4060;
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div>
+    <span class="logo">splunk&gt;</span>
+    <span class="breadcrumb" style="margin-right: 16px;">Home &rsaquo; Dashboards &rsaquo; <strong style="color:#9bacc8">תביעות אמבולטוריות — תהליך הגשה דיגיטלי</strong></span>
+  </div>
+  <div class="controls">
+    <span class="time-badge">&#128337; 24 שעות אחרונות</span>
+    <button class="btn">Export</button>
+    <button class="btn primary">Refresh</button>
+  </div>
+</div>
+
+<!-- TITLE -->
+<div class="dash-title">
+  תביעה אמבולטורית — תהליך הגשה דיגיטלי | תמונה תפעולית ועסקית
+  <div class="dash-subtitle">מדידת נפילות (drops) לאורך תהליך ההגשה · עדכון אחרון: 27.08.2026 09:14</div>
+</div>
+
+<!-- ======================================================== -->
+<!-- ROW 1 — TOP KPIs -->
+<!-- ======================================================== -->
+<div class="grid grid-5">
+  <div class="panel">
+    <div class="panel-header">&#128203; תביעות שהתחילו</div>
+    <div class="kpi">
+      <div class="label">סה"כ תהליכים שנפתחו</div>
+      <div class="value c-purple">1,240</div>
+      <div class="sub">24 שעות אחרונות</div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-header">&#10003; הושלמו בהצלחה</div>
+    <div class="kpi">
+      <div class="label">הגיעו למסך הצלחה</div>
+      <div class="value c-green">847</div>
+      <div class="delta c-green">&#9650; 68.3% שיעור השלמה</div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-header">&#128196; ניסיונות העלאת מסמכים</div>
+    <div class="kpi">
+      <div class="label">ממוצע ניסיונות לתהליך</div>
+      <div class="value c-yellow">1.8</div>
+      <div class="delta c-red">&#9650; 12% מול אתמול</div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-header">&#9888; שגיאות SLA</div>
+    <div class="kpi">
+      <div class="label">תהליכים עם חריגת SLA</div>
+      <div class="value c-red">23</div>
+      <div class="delta c-red">1.9% מסה"כ</div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-header">&#128260; ניסיונות חוזרים (Retries)</div>
+    <div class="kpi">
+      <div class="label">סה"כ retry events</div>
+      <div class="value c-orange">148</div>
+      <div class="delta" style="color:#5a7299">בכל תתי התהליכים</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================== -->
+<!-- SECTION: MAIN FUNNEL + SUCCESS ROUTING -->
+<!-- ======================================================== -->
+<div style="padding: 8px 12px 2px 12px;">
+  <div class="section-label">&#127387; משפך ראשי — נפילות לאורך תהליך ההגשה</div>
+</div>
+
+<div class="grid grid-main">
+
+  <!-- LEFT: MAIN FUNNEL -->
+  <div class="panel">
+    <div class="panel-header">&#128202; ניתוח דרופים שלב אחר שלב</div>
+    <div class="panel-body">
+      <div class="funnel-container">
+
+        <!-- Step 1 -->
+        <div class="funnel-step step-1">
+          <div class="funnel-count">1,240</div>
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar" style="width:100%">
+              <span class="bar-label">התחלת תהליך תביעה</span>
+            </div>
+          </div>
+          <div class="funnel-meta">
+            <div class="pct c-blue">100%</div>
+            <div class="drop">נקודת התחלה</div>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="funnel-step step-2">
+          <div class="funnel-count">1,118</div>
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar" style="width:90%">
+              <span class="bar-label">בחירת שירות</span>
+            </div>
+          </div>
+          <div class="funnel-meta">
+            <div class="pct c-blue">90.2%</div>
+            <div class="drop">&#9660; 122 נפלו (9.8%)</div>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="funnel-step step-3">
+          <div class="funnel-count" style="color:#e8c23a;">978</div>
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar" style="width:79%">
+              <span class="bar-label">העלאת מסמכים</span>
+            </div>
+          </div>
+          <div class="funnel-meta">
+            <div class="pct c-orange">78.9%</div>
+            <div class="drop">&#9660; 140 נפלו (12.5%)</div>
+          </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="funnel-step step-4">
+          <div class="funnel-count">891</div>
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar" style="width:72%">
+              <span class="bar-label">השלמת / אישור פרי קבלה</span>
+            </div>
+          </div>
+          <div class="funnel-meta">
+            <div class="pct c-teal">71.9%</div>
+            <div class="drop">&#9660; 87 נפלו (8.9%)</div>
+          </div>
+        </div>
+
+        <!-- Step 5 -->
+        <div class="funnel-step step-5">
+          <div class="funnel-count">862</div>
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar" style="width:74%">
+              <span class="bar-label">השלמת פרטי תשלום</span>
+            </div>
+          </div>
+          <div class="funnel-meta">
+            <div class="pct c-green">69.5%</div>
+            <div class="drop">&#9660; 29 נפלו (3.3%)</div>
+          </div>
+        </div>
+
+        <!-- Step 6 -->
+        <div class="funnel-step step-6">
+          <div class="funnel-count" style="color:#3fc87a;">847</div>
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar" style="width:68%">
+              <span class="bar-label">&#10004; מסך הצלחה</span>
+            </div>
+          </div>
+          <div class="funnel-meta">
+            <div class="pct c-green">68.3%</div>
+            <div class="drop" style="color:#3fc87a">&#9650; שיעור המרה</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Drop summary bar -->
+      <div style="margin-top: 12px; padding: 10px; background: #0e1520; border-radius: 5px;">
+        <div style="font-size: 11px; color: #5a7299; margin-bottom: 6px;">סה"כ נפלו לאורך התהליך</div>
+        <div style="display: flex; gap: 8px;">
+          <div style="text-align:center; flex:1; background:#1a0e10; border:1px solid #3a1520; border-radius:4px; padding:8px;">
+            <div style="font-size:20px; font-weight:700; color:#e85d6a;">393</div>
+            <div style="font-size:10px; color:#5a3040;">לא השלימו</div>
+          </div>
+          <div style="text-align:center; flex:1; background:#0d1f0d; border:1px solid #1a4020; border-radius:4px; padding:8px;">
+            <div style="font-size:20px; font-weight:700; color:#3fc87a;">847</div>
+            <div style="font-size:10px; color:#2a5030;">הושלמו</div>
+          </div>
+          <div style="text-align:center; flex:1; background:#0e1520; border:1px solid #1e2d47; border-radius:4px; padding:8px;">
+            <div style="font-size:20px; font-weight:700; color:#e8c23a;">31.7%</div>
+            <div style="font-size:10px; color:#5a4a10;">שיעור נטישה</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUCCESS / FAILURE INDICATOR -->
+      <div style="margin-top: 10px;">
+        <div style="font-size: 11px; color: #5a7299; margin-bottom: 5px;">אינדיקציית הצלחה — שלב סופי (מסך הצלחה)</div>
+        <div style="border-radius: 5px; overflow: hidden; height: 28px; display: flex;">
+          <!-- Green: 847/1240 = 68.3% -->
+          <div style="width:68.3%; background:linear-gradient(90deg,#1a5a30,#2a9050); display:flex; align-items:center; justify-content:center;">
+            <span style="font-size:12px; font-weight:700; color:#fff;">&#10004; הצלחה 68.3%</span>
+          </div>
+          <!-- Red: 393/1240 = 31.7% -->
+          <div style="width:31.7%; background:linear-gradient(90deg,#5a1a20,#a02030); display:flex; align-items:center; justify-content:center;">
+            <span style="font-size:11px; font-weight:700; color:#fff;">&#10008; נטישה 31.7%</span>
+          </div>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:10px; margin-top:3px; color:#4a6080;">
+          <span style="color:#3fc87a;">847 תהליכים הצליחו</span>
+          <span style="color:#e85d6a;">393 לא הושלמו</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: SUCCESS ROUTING -->
+  <div class="panel">
+    <div class="panel-header">&#128260; נתוב מסך הצלחה — 847 תהליכים</div>
+    <div class="panel-body">
+
+      <!-- 1. ROUTING SPLIT — FIRST -->
+      <div style="background:#0e1520; border-radius:6px; padding:12px; margin-bottom:10px;">
+        <div style="font-size:11px; color:#5a7299; margin-bottom:10px; font-weight:600; text-align:center;">פיצול ניתוב — 847 תהליכים שהצליחו</div>
+
+        <!-- Green bar -->
+        <div style="margin-bottom:8px;">
+          <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px;">
+            <span style="color:#3fc87a; font-weight:600;">&#9632; מסלול ירוק (אוטומטי)</span>
+            <span style="color:#3fc87a; font-weight:700;">63.2% &nbsp;|&nbsp; 535</span>
+          </div>
+          <div style="background:#0a1a0a; border-radius:3px; height:22px; overflow:hidden;">
+            <div style="width:63.2%; height:100%; background:linear-gradient(90deg,#1a5a30,#2a9050); border-radius:3px;"></div>
+          </div>
+        </div>
+
+        <!-- Red bar -->
+        <div>
+          <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px;">
+            <span style="color:#e85d6a; font-weight:600;">&#9632; מסלול אדום (ידני)</span>
+            <span style="color:#e85d6a; font-weight:700;">36.8% &nbsp;|&nbsp; 312</span>
+          </div>
+          <div style="background:#1a0e10; border-radius:3px; height:22px; overflow:hidden;">
+            <div style="width:36.8%; height:100%; background:linear-gradient(90deg,#5a1a20,#a02030); border-radius:3px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. MANUAL ROUTE — amount + count -->
+      <div class="routing-box" style="border-color: #5a1a20;">
+        <div class="route-title" style="color:#e85d6a;">&#128100; מסלול ידני — הופנו לבדיקת מיישב</div>
+        <div style="text-align:center; padding: 6px 0;">
+          <div style="font-size:11px; color:#5a3040; margin-bottom:4px;">סה"כ סכום תביעות שהוגשו</div>
+          <div style="font-size:38px; font-weight:700; color:#e85d6a; line-height:1;">&#8362;72K</div>
+          <div style="font-size:11px; color:#5a3040; margin-top:6px;">312 תהליכים · ממוצע &#8362;231 לתביעה</div>
+        </div>
+      </div>
+
+      <!-- 3. GREEN TRACK — full details -->
+      <div class="routing-box" style="border-color: #1e3a1e;">
+        <div class="route-title" style="color:#3fc87a;">&#9889; מסלול ירוק — תשלום אוטומטי</div>
+        <div class="route-kpi" style="margin-bottom:10px;">
+          <div>
+            <div class="rk-val c-green">535</div>
+            <div class="rk-lbl">נותבו לאוטומטי</div>
+          </div>
+          <div>
+            <div class="rk-val c-green">518</div>
+            <div class="rk-lbl">תשלום בוצע</div>
+          </div>
+          <div>
+            <div class="rk-val c-red">17</div>
+            <div class="rk-lbl">כשל תשלום</div>
+          </div>
+        </div>
+        <div class="green-track">
+          <span class="gt-label">&#127381; מסלול ירוק — תשלום הושלם</span>
+          <span class="gt-val">518</span>
+        </div>
+        <div style="margin-top: 8px; background: #0a1a0a; border-radius: 4px; padding: 7px;">
+          <div style="display: flex; justify-content: space-between;">
+            <div>
+              <div style="font-size:10px; color:#2a5030;">שיעור הצלחת תשלום</div>
+              <div style="font-size:18px; font-weight:700; color:#3fc87a;">96.8%</div>
+            </div>
+            <div>
+              <div style="font-size:10px; color:#2a5030;">סכום שולם (₪)</div>
+              <div style="font-size:18px; font-weight:700; color:#3fc87a;">248K</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- ======================================================== -->
+<!-- SECTION: DOCUMENT PROCESSING (DOCAH) -->
+<!-- ======================================================== -->
+<div class="section-divider"></div>
+<div style="padding: 8px 12px 2px 12px;">
+  <div class="section-label">&#128196; תת-תהליך: העלאת מסמכים ← הלבנה ← Docah</div>
+</div>
+
+<div class="grid" style="grid-template-columns: 1fr 1fr 1fr;">
+
+  <!-- DOC FLOW PANEL -->
+  <div class="panel" style="grid-column: span 2;">
+    <div class="panel-header">&#128260; זרימת מסמכים — מהלקוח עד Docah ובחזרה</div>
+    <div class="panel-body">
+
+      <!-- Flow diagram -->
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:4px; margin-bottom: 14px;">
+
+        <div class="doc-stage" style="border-color:#1a4080;">
+          <div class="ds-title">הועלו על ידי לקוח</div>
+          <div class="ds-value c-blue">978</div>
+          <div class="ds-sub">תהליכים עם מסמכים</div>
+        </div>
+
+        <div class="doc-stage-arrow">&#8594;</div>
+
+        <div class="doc-stage" style="border-color:#2a2060;">
+          <div class="ds-title">עברו תהליך הלבנה</div>
+          <div class="ds-value c-purple">961</div>
+          <div class="ds-sub">97.2% נותבו</div>
+          <div style="font-size:10px; color:#e85d6a; margin-top:4px;">17 נכשלו בנתוב &#9888;</div>
+        </div>
+
+        <div class="doc-stage-arrow">&#8594;</div>
+
+        <div class="doc-stage" style="border-color:#183060;">
+          <div class="ds-title">נשלחו ל-Docah</div>
+          <div class="ds-value c-teal">961</div>
+          <div class="ds-sub">סה"כ מעטפות</div>
+        </div>
+
+        <div class="doc-stage-arrow">&#8594;</div>
+
+        <div class="doc-stage" style="border-color:#1a3020;">
+          <div class="ds-title">קיבלו תשובה מ-Docah</div>
+          <div class="ds-value c-green">944</div>
+          <div class="ds-sub">98.2% הוחזרו</div>
+          <div style="font-size:10px; color:#e85d6a; margin-top:4px;">17 ללא תשובה &#9888;</div>
+        </div>
+
+        <div class="doc-stage-arrow">&#8594;</div>
+
+        <div class="doc-stage" style="border-color:#1a3020;">
+          <div class="ds-title">המשיכו לשלב הבא</div>
+          <div class="ds-value c-green">891</div>
+          <div class="ds-sub">94.4% לא נתקעו</div>
+          <div style="font-size:10px; color:#e85d6a; margin-top:4px;">53 נתקעו &#128274;</div>
+        </div>
+
+      </div>
+
+      <!-- Confidence breakdown -->
+      <div style="background:#0e1520; border-radius:5px; padding: 12px; margin-bottom: 10px;">
+        <div style="font-size:11px; color:#5a7299; margin-bottom:10px; font-weight:600;">רמת וודאות תשובת Docah — סה"כ 944 תגובות</div>
+
+        <div class="conf-row">
+          <div class="conf-label" style="color:#3fc87a;">וודאות גבוהה</div>
+          <div class="conf-bar-bg">
+            <div class="conf-bar-fill" style="width:72%; background: linear-gradient(90deg, #1a5a30, #2a9050);">
+              <span>72%</span>
+            </div>
+          </div>
+          <div class="conf-num c-green">680</div>
+        </div>
+
+        <div class="conf-row">
+          <div class="conf-label" style="color:#e8c23a;">וודאות נמוכה</div>
+          <div class="conf-bar-bg">
+            <div class="conf-bar-fill" style="width:28%; background: linear-gradient(90deg, #5a3a00, #8a5800);">
+              <span>28%</span>
+            </div>
+          </div>
+          <div class="conf-num c-yellow">264</div>
+        </div>
+
+        <div style="display:flex; gap: 10px; margin-top: 10px;">
+          <div style="flex:1; background:#0a1a10; border:1px solid #1a4020; border-radius:4px; padding:8px; text-align:center;">
+            <div style="font-size:10px; color:#2a5030;">וודאות גבוהה → המשיכו</div>
+            <div style="font-size:18px; font-weight:700; color:#3fc87a;">658 <span style="font-size:11px; color:#2a5030;">(96.8%)</span></div>
+          </div>
+          <div style="flex:1; background:#1a1000; border:1px solid #3a2800; border-radius:4px; padding:8px; text-align:center;">
+            <div style="font-size:10px; color:#5a3a10;">וודאות נמוכה → נתקעו</div>
+            <div style="font-size:18px; font-weight:700; color:#e85d6a;">53 <span style="font-size:11px; color:#5a3a10;">(20.1%)</span></div>
+          </div>
+          <div style="flex:1; background:#0e1520; border:1px solid #1e2d47; border-radius:4px; padding:8px; text-align:center;">
+            <div style="font-size:10px; color:#3a5070;">וודאות נמוכה → המשיכו</div>
+            <div style="font-size:18px; font-weight:700; color:#e8c23a;">211 <span style="font-size:11px; color:#5a4a10;">(79.9%)</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- RETRIES PANEL -->
+  <div class="panel">
+    <div class="panel-header">&#128260; ניסיונות חוזרים — העלאת מסמכים</div>
+    <div class="panel-body">
+      <div style="margin-bottom:12px;">
+        <div style="font-size:10px; color:#5a7299; margin-bottom: 6px;">התפלגות ניסיונות לתהליך</div>
+        <table class="retry-table">
+          <thead>
+            <tr>
+              <th>ניסיונות</th>
+              <th>מספר לקוחות</th>
+              <th>% מסה"כ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1 ניסיון</td>
+              <td class="c-green" style="font-weight:700;">541</td>
+              <td><span class="badge badge-green">55.3%</span></td>
+            </tr>
+            <tr>
+              <td>2 ניסיונות</td>
+              <td class="c-yellow" style="font-weight:700;">284</td>
+              <td><span class="badge badge-yellow">29.0%</span></td>
+            </tr>
+            <tr>
+              <td>3 ניסיונות</td>
+              <td class="c-orange" style="font-weight:700;">108</td>
+              <td><span class="badge badge-yellow">11.0%</span></td>
+            </tr>
+            <tr>
+              <td>4+ ניסיונות</td>
+              <td class="c-red" style="font-weight:700;">45</td>
+              <td><span class="badge badge-red">4.6%</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="background:#0e1520; border-radius:5px; padding:10px;">
+        <div style="font-size:10px; color:#5a7299; margin-bottom:6px;">ממוצע ניסיונות</div>
+        <div style="font-size:28px; font-weight:700; color:#e8c23a; text-align:center;">1.8</div>
+        <div style="font-size:10px; color:#5a4a10; text-align:center;">ניסיון לתהליך</div>
+      </div>
+
+      <div style="margin-top: 10px; background: #0e1520; border-radius:5px; padding:10px;">
+        <div style="font-size:10px; color:#5a7299; margin-bottom:6px;">סיבות עיקריות לכישלון</div>
+        <div style="font-size:11px; margin-bottom:5px; display:flex; justify-content:space-between;">
+          <span style="color:#9bacc8;">גודל קובץ גדול מדי</span><span class="c-red">38%</span>
+        </div>
+        <div style="font-size:11px; margin-bottom:5px; display:flex; justify-content:space-between;">
+          <span style="color:#9bacc8;">פורמט לא נתמך</span><span class="c-orange">27%</span>
+        </div>
+        <div style="font-size:11px; margin-bottom:5px; display:flex; justify-content:space-between;">
+          <span style="color:#9bacc8;">timeout חיבור</span><span class="c-yellow">21%</span>
+        </div>
+        <div style="font-size:11px; display:flex; justify-content:space-between;">
+          <span style="color:#9bacc8;">שגיאת שרת</span><span class="c-red">14%</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- ======================================================== -->
+<!-- SECTION: SLA & ERRORS -->
+<!-- ======================================================== -->
+<div class="section-divider"></div>
+<div style="padding: 8px 12px 2px 12px;">
+  <div class="section-label">&#9203; SLA — עמידה, שגיאות וניסיונות חוזרים</div>
+</div>
+
+<div class="grid" style="grid-template-columns: 1fr 2fr;">
+
+  <!-- SLA KPIs -->
+  <div class="panel">
+    <div class="panel-header">&#9203; מדדי SLA</div>
+    <div class="panel-body">
+      <div class="sla-grid">
+        <div class="sla-box">
+          <div class="sb-title">עמידה ב-SLA</div>
+          <div class="sb-val c-green">98.1%</div>
+          <div class="sb-sub c-green">&#10003; תקין</div>
+        </div>
+        <div class="sla-box">
+          <div class="sb-title">חריגות SLA</div>
+          <div class="sb-val c-red">23</div>
+          <div class="sb-sub c-red">1.9%</div>
+        </div>
+        <div class="sla-box">
+          <div class="sb-title">שגיאות בחוקה</div>
+          <div class="sb-val c-orange">41</div>
+          <div class="sb-sub" style="color:#5a7299;">אירועים</div>
+        </div>
+        <div class="sla-box">
+          <div class="sb-title">Retry ב-SLA</div>
+          <div class="sb-val c-yellow">67</div>
+          <div class="sb-sub" style="color:#5a7299;">ניסיונות חוזרים</div>
+        </div>
+        <div class="sla-box">
+          <div class="sb-title">זמן עיבוד ממוצע</div>
+          <div class="sb-val c-teal">2.4<span style="font-size:14px;"> דק'</span></div>
+          <div class="sb-sub" style="color:#5a7299;">לתהליך</div>
+        </div>
+        <div class="sla-box">
+          <div class="sb-title">מקסימום SLA</div>
+          <div class="sb-val c-yellow">18<span style="font-size:14px;"> דק'</span></div>
+          <div class="sb-sub c-red">&#9888; חריגה ב-3 מקרים</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLA ERRORS BY STAGE -->
+  <div class="panel">
+    <div class="panel-header">&#9888; שגיאות וניסיונות חוזרים לפי שלב</div>
+    <div class="panel-body">
+      <table class="sla-errors-table">
+        <thead>
+          <tr>
+            <th>שלב בתהליך</th>
+            <th>סה"כ שגיאות</th>
+            <th>ניסיונות חוזרים</th>
+            <th>חריגות SLA</th>
+            <th>סטטוס</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="color:#9bacc8; font-weight:600;">בחירת שירות</td>
+            <td class="c-green">2</td>
+            <td class="c-green">3</td>
+            <td class="c-green">0</td>
+            <td><span class="badge badge-green">תקין</span></td>
+          </tr>
+          <tr>
+            <td style="color:#9bacc8; font-weight:600;">העלאת מסמכים</td>
+            <td class="c-red">18</td>
+            <td class="c-orange">42</td>
+            <td class="c-yellow">8</td>
+            <td><span class="badge badge-yellow">&#9888; דרוש מעקב</span></td>
+          </tr>
+          <tr>
+            <td style="color:#9bacc8; font-weight:600;">נתוב הלבנה → Docah</td>
+            <td class="c-orange">12</td>
+            <td class="c-yellow">15</td>
+            <td class="c-orange">7</td>
+            <td><span class="badge badge-yellow">&#9888; דרוש מעקב</span></td>
+          </tr>
+          <tr>
+            <td style="color:#9bacc8; font-weight:600;">תגובת Docah</td>
+            <td class="c-red">17</td>
+            <td class="c-orange">34</td>
+            <td class="c-red">9</td>
+            <td><span class="badge badge-red">&#128721; בעיה</span></td>
+          </tr>
+          <tr>
+            <td style="color:#9bacc8; font-weight:600;">השלמת פרי קבלה</td>
+            <td class="c-green">4</td>
+            <td class="c-green">7</td>
+            <td class="c-green">1</td>
+            <td><span class="badge badge-green">תקין</span></td>
+          </tr>
+          <tr>
+            <td style="color:#9bacc8; font-weight:600;">פרטי תשלום</td>
+            <td class="c-yellow">6</td>
+            <td class="c-yellow">9</td>
+            <td class="c-yellow">3</td>
+            <td><span class="badge badge-yellow">&#9888; דרוש מעקב</span></td>
+          </tr>
+          <tr>
+            <td style="color:#9bacc8; font-weight:600;">תשלום אוטומטי</td>
+            <td class="c-red">17</td>
+            <td class="c-yellow">5</td>
+            <td class="c-yellow">3</td>
+            <td><span class="badge badge-red">&#128721; כשל תשלום</span></td>
+          </tr>
+          <tr style="background:#0e1520; font-weight:700;">
+            <td style="color:#dce6f5;">&#931; סה"כ</td>
+            <td class="c-red">76</td>
+            <td class="c-orange">115</td>
+            <td class="c-red">31</td>
+            <td><span class="badge badge-red">&#9888; דרוש טיפול</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div style="margin-top: 12px; display: flex; gap: 10px;">
+        <div style="flex:1; background:#0e1520; border-radius:4px; padding:8px; text-align:center;">
+          <div style="font-size:10px; color:#5a7299; margin-bottom:4px;">שלב בעייתי ביותר</div>
+          <div style="font-size:14px; font-weight:700; color:#e85d6a;">תגובת Docah</div>
+          <div style="font-size:10px; color:#5a3040;">17 שגיאות · 9 חריגות SLA</div>
+        </div>
+        <div style="flex:1; background:#0e1520; border-radius:4px; padding:8px; text-align:center;">
+          <div style="font-size:10px; color:#5a7299; margin-bottom:4px;">שגיאות קריטיות פתוחות</div>
+          <div style="font-size:14px; font-weight:700; color:#e85d6a;">34</div>
+          <div style="font-size:10px; color:#5a3040;">ממתינות לטיפול</div>
+        </div>
+        <div style="flex:1; background:#0e1520; border-radius:4px; padding:8px; text-align:center;">
+          <div style="font-size:10px; color:#5a7299; margin-bottom:4px;">Retry rate כולל</div>
+          <div style="font-size:14px; font-weight:700; color:#e8c23a;">9.3%</div>
+          <div style="font-size:10px; color:#5a4a10;">מסה"כ אירועים</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ======================================================== -->
+<!-- SECTION: ANOMALIES & PROCESS DURATION -->
+<!-- ======================================================== -->
+<div class="section-divider"></div>
+<div style="padding: 8px 12px 2px 12px;">
+  <div class="section-label">&#9888; אנומליות ומשך תהליך — זיהוי שינויים חריגים</div>
+</div>
+
+<div class="grid" style="grid-template-columns: 1fr 1fr 1fr;">
+
+  <!-- PROCESS DURATION KPIs -->
+  <div class="panel">
+    <div class="panel-header">&#9201; משך תהליך — חוויית לקוח</div>
+    <div class="panel-body">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px;">
+        <div style="background:#0e1520; border-radius:5px; padding:10px; text-align:center;">
+          <div style="font-size:10px; color:#5a7299; margin-bottom:4px;">ממוצע לתהליך</div>
+          <div style="font-size:26px; font-weight:700; color:#3ad4c8;">7.4<span style="font-size:13px;"> דק'</span></div>
+        </div>
+        <div style="background:#0e1520; border-radius:5px; padding:10px; text-align:center;">
+          <div style="font-size:10px; color:#5a7299; margin-bottom:4px;">חציון</div>
+          <div style="font-size:26px; font-weight:700; color:#3ad4c8;">5.9<span style="font-size:13px;"> דק'</span></div>
+        </div>
+        <div style="background:#0e1520; border-radius:5px; padding:10px; text-align:center;">
+          <div style="font-size:10px; color:#5a7299; margin-bottom:4px;">מינימום</div>
+          <div style="font-size:22px; font-weight:700; color:#3fc87a;">1.2<span style="font-size:11px;"> דק'</span></div>
+        </div>
+        <div style="background:#1a0e10; border-radius:5px; padding:10px; text-align:center; border:1px solid #3a1520;">
+          <div style="font-size:10px; color:#5a3040; margin-bottom:4px;">מקסימום</div>
+          <div style="font-size:22px; font-weight:700; color:#e85d6a;">38<span style="font-size:11px;"> דק'</span></div>
+          <div style="font-size:9px; color:#e85d6a;">&#9888; חריג</div>
+        </div>
+      </div>
+
+      <!-- Duration sparkline (SVG) -->
+      <div style="background:#0e1520; border-radius:5px; padding:10px;">
+        <div style="font-size:10px; color:#5a7299; margin-bottom:6px;">משך ממוצע — 24 שעות (כל שעה)</div>
+        <svg width="100%" height="45" viewBox="0 0 260 45" preserveAspectRatio="none">
+          <polyline
+            points="0,32 11,30 22,28 33,31 44,29 55,27 66,25 77,26 88,38 99,36 110,30 121,28 132,26 143,24 154,22 165,28 176,30 187,27 198,25 209,24 220,22 231,20 242,18 260,15"
+            fill="none" stroke="#3ad4c8" stroke-width="1.5"/>
+          <!-- Anomaly spike at hour 8-9 -->
+          <circle cx="88" cy="38" r="3" fill="#e85d6a"/>
+          <line x1="88" y1="0" x2="88" y2="45" stroke="#e85d6a" stroke-width="0.8" stroke-dasharray="2,2"/>
+          <text x="90" y="12" fill="#e85d6a" font-size="7">&#9888; spike</text>
+          <line x1="0" y1="28" x2="260" y2="28" stroke="#1e2d47" stroke-width="0.5" stroke-dasharray="3,3"/>
+          <text x="2" y="26" fill="#3a5070" font-size="7">ממוצע</text>
+        </svg>
+        <div style="font-size:10px; color:#5a7299; margin-top:4px;">&#9650; &#9660; שינוי מול אתמול: <span class="c-red">+1.2 דק' (+19%)</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANOMALIES DETECTED -->
+  <div class="panel">
+    <div class="panel-header">&#128680; אנומליות שזוהו — 24 שעות אחרונות</div>
+    <div class="panel-body">
+      <div style="margin-bottom:8px; background:#1a0800; border:1px solid #4a1a00; border-radius:5px; padding:10px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <span style="font-size:12px; font-weight:600; color:#f0843a;">&#9650; עלייה חדה בנטישה שלב 3</span>
+          <span style="font-size:10px; color:#5a3010;">08:15–09:00</span>
+        </div>
+        <div style="font-size:11px; color:#9bacc8;">שיעור נטישה עלה מ-12.5% ל-31% — נדרשת בדיקה</div>
+      </div>
+      <div style="margin-bottom:8px; background:#1a0e10; border:1px solid #3a1520; border-radius:5px; padding:10px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <span style="font-size:12px; font-weight:600; color:#e85d6a;">&#128721; Timeout ב-Docah</span>
+          <span style="font-size:10px; color:#5a3040;">11:42–12:05</span>
+        </div>
+        <div style="font-size:11px; color:#9bacc8;">17 מעטפות ללא תשובה — SLA חרג ב-9 מקרים</div>
+      </div>
+      <div style="margin-bottom:8px; background:#0a2a14; border:1px solid #1a5a2a; border-radius:5px; padding:10px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <span style="font-size:12px; font-weight:600; color:#3fc87a;">&#10003; התאוששות אוטומטית</span>
+          <span style="font-size:10px; color:#2a5030;">12:08</span>
+        </div>
+        <div style="font-size:11px; color:#9bacc8;">הנתוב לDodah חזר לתקין לאחר retry אוטומטי</div>
+      </div>
+      <div style="margin-bottom:8px; background:#1a1200; border:1px solid #3a2800; border-radius:5px; padding:10px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <span style="font-size:12px; font-weight:600; color:#e8c23a;">&#9888; עלייה בניסיונות העלאה</span>
+          <span style="font-size:10px; color:#5a4a10;">14:00–16:00</span>
+        </div>
+        <div style="font-size:11px; color:#9bacc8;">ממוצע 1.8 ניסיונות — גבוה מהרגיל (1.3 אתמול)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ERRORS PER STEP -->
+  <div class="panel">
+    <div class="panel-header">&#128204; הודעות שגיאה לפי שלב</div>
+    <div class="panel-body">
+      <div style="font-size:10px; color:#5a7299; margin-bottom:8px;">מספר שגיאות שנקלטו בלוגים — 24 שעות</div>
+
+      <!-- Error bars per step -->
+      <div style="margin-bottom:6px;">
+        <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:3px;">
+          <span style="color:#9bacc8;">בחירת שירות</span><span class="c-green">2</span>
+        </div>
+        <div style="background:#0e1520; height:12px; border-radius:2px; overflow:hidden;">
+          <div style="width:2%; height:100%; background:#2a8040;"></div>
+        </div>
+      </div>
+      <div style="margin-bottom:6px;">
+        <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:3px;">
+          <span style="color:#9bacc8;">העלאת מסמכים</span><span class="c-orange">18</span>
+        </div>
+        <div style="background:#0e1520; height:12px; border-radius:2px; overflow:hidden;">
+          <div style="width:24%; height:100%; background:#8a5000;"></div>
+        </div>
+      </div>
+      <div style="margin-bottom:6px;">
+        <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:3px;">
+          <span style="color:#9bacc8;">נתוב הלבנה → Docah</span><span class="c-orange">12</span>
+        </div>
+        <div style="background:#0e1520; height:12px; border-radius:2px; overflow:hidden;">
+          <div style="width:16%; height:100%; background:#6a3a00;"></div>
+        </div>
+      </div>
+      <div style="margin-bottom:6px;">
+        <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:3px;">
+          <span style="color:#e85d6a; font-weight:600;">תגובת Docah &#9888;</span><span class="c-red" style="font-weight:700;">17</span>
+        </div>
+        <div style="background:#0e1520; height:12px; border-radius:2px; overflow:hidden;">
+          <div style="width:22%; height:100%; background:#8a1a20;"></div>
+        </div>
+      </div>
+      <div style="margin-bottom:6px;">
+        <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:3px;">
+          <span style="color:#9bacc8;">השלמת פרי קבלה</span><span class="c-green">4</span>
+        </div>
+        <div style="background:#0e1520; height:12px; border-radius:2px; overflow:hidden;">
+          <div style="width:5%; height:100%; background:#2a8040;"></div>
+        </div>
+      </div>
+      <div style="margin-bottom:6px;">
+        <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:3px;">
+          <span style="color:#9bacc8;">פרטי תשלום</span><span class="c-yellow">6</span>
+        </div>
+        <div style="background:#0e1520; height:12px; border-radius:2px; overflow:hidden;">
+          <div style="width:8%; height:100%; background:#806020;"></div>
+        </div>
+      </div>
+      <div style="margin-bottom:10px;">
+        <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:3px;">
+          <span style="color:#e85d6a; font-weight:600;">תשלום אוטומטי &#9888;</span><span class="c-red" style="font-weight:700;">17</span>
+        </div>
+        <div style="background:#0e1520; height:12px; border-radius:2px; overflow:hidden;">
+          <div style="width:22%; height:100%; background:#8a1a20;"></div>
+        </div>
+      </div>
+
+      <div style="background:#0e1520; border-radius:4px; padding:8px; display:flex; justify-content:space-between;">
+        <div style="text-align:center;">
+          <div style="font-size:10px; color:#5a7299;">סה"כ שגיאות</div>
+          <div style="font-size:20px; font-weight:700; color:#e85d6a;">76</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:10px; color:#5a7299;">קריטיות</div>
+          <div style="font-size:20px; font-weight:700; color:#e85d6a;">34</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:10px; color:#5a7299;">אזהרות</div>
+          <div style="font-size:20px; font-weight:700; color:#e8c23a;">42</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ======================================================== -->
+<!-- SECTION: SOURCES & AMOUNTS (LOWER PRIORITY) -->
+<!-- ======================================================== -->
+<div class="section-divider"></div>
+<div style="padding: 8px 12px 2px 12px;">
+  <div class="section-label">&#128202; מדדים עסקיים — מקורות הגשה וסכומים</div>
+</div>
+
+<div class="grid" style="grid-template-columns: 1.2fr 1fr 1fr 1fr;">
+
+  <!-- SUBMISSION SOURCE -->
+  <div class="panel">
+    <div class="panel-header">&#127760; מקור הגשת התביעה</div>
+    <div class="panel-body">
+      <div style="display:flex; align-items:center; gap:14px;">
+        <!-- Donut SVG -->
+        <svg width="100" height="100" viewBox="0 0 100 100" style="flex-shrink:0;">
+          <circle cx="50" cy="50" r="36" fill="none" stroke="#1e2d47" stroke-width="16"/>
+          <!-- PersonalWebSite: 283/483 = 58.6% → 132° -->
+          <circle cx="50" cy="50" r="36" fill="none" stroke="#1a6bc4" stroke-width="16"
+            stroke-dasharray="226" stroke-dashoffset="0"
+            transform="rotate(-90 50 50)"/>
+          <!-- MDP: 107/483 = 22.2% → 80° -->
+          <circle cx="50" cy="50" r="36" fill="none" stroke="#a064f0" stroke-width="16"
+            stroke-dasharray="85 141"
+            stroke-dashoffset="-141"
+            transform="rotate(-90 50 50)"/>
+          <!-- Mobile: 93/483 = 19.3% → 69° -->
+          <circle cx="50" cy="50" r="36" fill="none" stroke="#2a8040" stroke-width="16"
+            stroke-dasharray="74 152"
+            stroke-dashoffset="-226"
+            transform="rotate(-90 50 50)"/>
+          <text x="50" y="47" text-anchor="middle" fill="#9bacc8" font-size="9" font-weight="bold">1,240</text>
+          <text x="50" y="57" text-anchor="middle" fill="#5a7299" font-size="7">סה"כ</text>
+        </svg>
+        <div style="flex:1; font-size:11px;">
+          <div style="margin-bottom:8px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:3px;">
+              <span style="color:#3aa8f0; font-weight:600;">&#9632; אתר אישי</span>
+              <span style="color:#3aa8f0; font-weight:700;">58.6%</span>
+            </div>
+            <div style="font-size:13px; font-weight:700; color:#3aa8f0;">726</div>
+          </div>
+          <div style="margin-bottom:8px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:3px;">
+              <span style="color:#a064f0; font-weight:600;">&#9632; MDP</span>
+              <span style="color:#a064f0; font-weight:700;">22.2%</span>
+            </div>
+            <div style="font-size:13px; font-weight:700; color:#a064f0;">275</div>
+          </div>
+          <div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:3px;">
+              <span style="color:#3fc87a; font-weight:600;">&#9632; אפליקציה</span>
+              <span style="color:#3fc87a; font-weight:700;">19.3%</span>
+            </div>
+            <div style="font-size:13px; font-weight:700; color:#3fc87a;">239</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOTAL CLAIM AMOUNTS -->
+  <div class="panel">
+    <div class="panel-header">&#8362; סכום תביעות שהוגשו</div>
+    <div class="panel-body" style="text-align:center;">
+      <div style="font-size:11px; color:#5a7299; margin-bottom:6px;">סה"כ סכום מבוקש</div>
+      <div style="font-size:40px; font-weight:700; color:#3ad4c8; line-height:1;">&#8362;196K</div>
+      <div style="font-size:10px; color:#3a5070; margin-top:4px;">24 שעות אחרונות</div>
+      <div style="margin-top:12px; display:flex; gap:8px;">
+        <div style="flex:1; background:#0e1520; border-radius:4px; padding:7px; text-align:center;">
+          <div style="font-size:9px; color:#4a6080;">ממוצע לתביעה</div>
+          <div style="font-size:16px; font-weight:700; color:#3ad4c8;">&#8362;232</div>
+        </div>
+        <div style="flex:1; background:#0e1520; border-radius:4px; padding:7px; text-align:center;">
+          <div style="font-size:9px; color:#4a6080;">מקסימום</div>
+          <div style="font-size:16px; font-weight:700; color:#e8c23a;">&#8362;4,800</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPLETION RATE BY SOURCE -->
+  <div class="panel">
+    <div class="panel-header">&#10003; אחוז השלמה לפי מקור</div>
+    <div class="panel-body">
+      <div style="margin-bottom:10px;">
+        <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:3px;">
+          <span style="color:#3aa8f0;">אתר אישי</span><span style="color:#3aa8f0; font-weight:700;">71.2%</span>
+        </div>
+        <div style="background:#0e1520; height:16px; border-radius:3px; overflow:hidden;">
+          <div style="width:71.2%; height:100%; background:linear-gradient(90deg,#1a4a8a,#2468c4); display:flex; align-items:center; padding-right:6px;">
+            <span style="font-size:10px; color:#fff; font-weight:600;">517</span>
+          </div>
+        </div>
+      </div>
+      <div style="margin-bottom:10px;">
+        <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:3px;">
+          <span style="color:#a064f0;">MDP</span><span style="color:#a064f0; font-weight:700;">65.8%</span>
+        </div>
+        <div style="background:#0e1520; height:16px; border-radius:3px; overflow:hidden;">
+          <div style="width:65.8%; height:100%; background:linear-gradient(90deg,#3a1a6a,#6044b0); display:flex; align-items:center; padding-right:6px;">
+            <span style="font-size:10px; color:#fff; font-weight:600;">181</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:3px;">
+          <span style="color:#3fc87a;">אפליקציה</span><span style="color:#3fc87a; font-weight:700;">62.3%</span>
+        </div>
+        <div style="background:#0e1520; height:16px; border-radius:3px; overflow:hidden;">
+          <div style="width:62.3%; height:100%; background:linear-gradient(90deg,#1a4a28,#2a8048); display:flex; align-items:center; padding-right:6px;">
+            <span style="font-size:10px; color:#fff; font-weight:600;">149</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BUSINESS ERRORS -->
+  <div class="panel">
+    <div class="panel-header">&#128204; Business Errors</div>
+    <div class="panel-body" style="text-align:center;">
+      <div style="font-size:11px; color:#5a7299; margin-bottom:8px;">שגיאות עסקיות (לא טכניות)</div>
+      <div style="font-size:52px; font-weight:700; color:#3fc87a; line-height:1;">0</div>
+      <div style="font-size:10px; color:#2a5030; margin-top:4px;">&#10003; תקין — אין שגיאות עסקיות</div>
+      <div style="margin-top:14px; background:#0e1520; border-radius:4px; padding:8px;">
+        <div style="font-size:10px; color:#4a6080; margin-bottom:4px;">דחיות עסקיות — אין זכאות</div>
+        <div style="font-size:22px; font-weight:700; color:#e8c23a;">7</div>
+        <div style="font-size:10px; color:#5a4a10;">0.6% מסה"כ</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <span>Splunk Dashboard Mockup · תביעות אמבולטוריות — תהליך הגשה דיגיטלי</span>
+  <span>נוצר: 27.08.2026 · נתונים: אחרונות 24 שעות · כל הנתונים הם לצורך המחשה</span>
+</div>
+
+</body>
+</html>
