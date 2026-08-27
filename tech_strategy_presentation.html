@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מצגת אסטרטגית — מודל הפעלה טכנולוגי</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f0f2f6;
+    color: #1a1a2e;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* ===== NAV ===== */
+  .nav-bar {
+    background: #1a1a2e;
+    display: flex;
+    gap: 2px;
+    padding: 10px 24px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    flex-wrap: wrap;
+  }
+  .nav-btn {
+    padding: 8px 14px;
+    border: none;
+    background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.6);
+    font-size: 11.5px;
+    font-weight: 600;
+    border-radius: 6px 6px 0 0;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .nav-btn:hover { background: rgba(255,255,255,0.16); color: white; }
+  .nav-btn.active { background: #f0f2f6; color: #1a1a2e; }
+
+  .slide { display: none; }
+  .slide.active { display: block; }
+
+  /* ===== SHARED ===== */
+  .slide-inner { max-width: 1100px; margin: 0 auto; padding: 32px 28px 48px; }
+
+  .slide-label {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.1em; color: #aaa; margin-bottom: 6px;
+  }
+  .slide-title {
+    font-size: 22px; font-weight: 800; color: #1a1a2e;
+    margin-bottom: 4px; line-height: 1.2;
+  }
+  .slide-sub {
+    font-size: 12.5px; color: #777; margin-bottom: 28px;
+    border-bottom: 1px solid #dde1e9; padding-bottom: 14px;
+  }
+
+  .section-label {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: #888; margin-bottom: 10px;
+    margin-top: 28px; padding-bottom: 4px;
+    border-bottom: 1px solid #e0e4ef;
+  }
+
+  /* ===== TITLE SLIDE ===== */
+  .title-slide {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
+    min-height: calc(100vh - 44px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 40px;
+  }
+  .title-inner { max-width: 700px; }
+  .title-tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.7);
+    font-size: 11px; font-weight: 700;
+    padding: 5px 16px; border-radius: 20px;
+    margin-bottom: 24px; letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .title-main {
+    font-size: 34px; font-weight: 800; color: white;
+    line-height: 1.2; margin-bottom: 16px;
+  }
+  .title-main span { color: #60a5fa; }
+  .title-desc {
+    font-size: 14px; color: rgba(255,255,255,0.6);
+    line-height: 1.7; margin-bottom: 36px;
+  }
+  .title-chips { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .title-chip {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.75);
+    font-size: 11px; padding: 6px 14px; border-radius: 20px;
+    font-weight: 600;
+  }
+
+  /* ===== MODEL CARDS ===== */
+  .model-spectrum {
+    display: flex; gap: 0; border-radius: 14px; overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+  }
+  .model-col {
+    flex: 1; padding: 20px 18px;
+    border-left: 1px solid rgba(255,255,255,0.1);
+  }
+  .model-col:last-child { border-left: none; }
+  .model-col.m-native { background: #1a1a2e; color: white; }
+  .model-col.m-hybrid { background: #1e3a5f; color: white; }
+  .model-col.m-trad   { background: #374151; color: white; }
+
+  .mc-badge {
+    display: inline-block; font-size: 9px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    padding: 3px 8px; border-radius: 10px; margin-bottom: 10px;
+  }
+  .badge-native { background: #3b82f6; color: white; }
+  .badge-hybrid { background: #0891b2; color: white; }
+  .badge-trad   { background: #6b7280; color: white; }
+
+  .mc-title { font-size: 15px; font-weight: 800; margin-bottom: 4px; }
+  .mc-sub   { font-size: 10.5px; opacity: 0.6; margin-bottom: 14px; }
+
+  .company-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 14px; }
+  .company-chip {
+    font-size: 10px; font-weight: 700;
+    padding: 3px 9px; border-radius: 10px;
+    background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.85);
+  }
+
+  .mc-section-label { font-size: 9px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.06em; opacity: 0.5; margin-bottom: 5px; }
+
+  .mc-item { font-size: 10.5px; opacity: 0.85; margin-bottom: 3px; padding-right: 10px; }
+  .mc-item::before { content: "·"; margin-left: 6px; opacity: 0.4; }
+
+  .pros-cons { display: flex; gap: 8px; margin-top: 12px; }
+  .pros, .cons {
+    flex: 1; border-radius: 8px; padding: 9px 10px;
+    font-size: 10px;
+  }
+  .pros { background: rgba(34,197,94,0.12); }
+  .cons { background: rgba(239,68,68,0.12); }
+  .pros-label { font-weight: 700; color: #4ade80; margin-bottom: 4px; font-size: 9px; text-transform: uppercase; }
+  .cons-label { font-weight: 700; color: #f87171; margin-bottom: 4px; font-size: 9px; text-transform: uppercase; }
+  .pros li, .cons li { margin-bottom: 2px; opacity: 0.85; padding-right: 8px; }
+
+  /* ===== INSIGHT BOX ===== */
+  .insight-box {
+    background: white; border-radius: 12px;
+    padding: 16px 20px; box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+    margin-bottom: 12px;
+  }
+  .insight-row { display: flex; gap: 12px; align-items: flex-start; }
+  .insight-icon {
+    width: 36px; height: 36px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .insight-text { flex: 1; }
+  .insight-title { font-size: 12.5px; font-weight: 700; margin-bottom: 3px; }
+  .insight-desc { font-size: 11px; color: #666; line-height: 1.5; }
+
+  /* ===== PRINCIPLES ===== */
+  .principles-grid {
+    display: grid; grid-template-columns: repeat(3,1fr); gap: 10px;
+    margin-top: 10px;
+  }
+  .principle-card {
+    background: white; border-radius: 10px; padding: 14px 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    border-right: 4px solid;
+  }
+  .p-num {
+    font-size: 22px; font-weight: 800; opacity: 0.15;
+    line-height: 1; margin-bottom: 6px;
+  }
+  .p-title { font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+  .p-desc  { font-size: 10.5px; color: #666; line-height: 1.5; }
+
+  /* ===== STRUCTURE OVERVIEW ===== */
+  .three-layers {
+    display: flex; gap: 0; border-radius: 14px; overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1); margin-bottom: 20px;
+  }
+  .layer {
+    flex: 1; padding: 22px 18px;
+    position: relative;
+  }
+  .layer-arrow {
+    display: flex; align-items: center; padding: 0 6px;
+    background: #e8eaf0; color: #9ca3af; font-size: 20px;
+  }
+  .layer-num {
+    font-size: 9px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; opacity: 0.5; margin-bottom: 6px;
+  }
+  .layer-title { font-size: 15px; font-weight: 800; margin-bottom: 8px; }
+  .layer-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 10px; }
+  .layer-chip {
+    font-size: 9.5px; font-weight: 600; padding: 3px 8px;
+    border-radius: 10px;
+  }
+
+  /* ===== UNIT CARDS ===== */
+  .units-grid {
+    display: grid; grid-template-columns: repeat(2,1fr); gap: 14px;
+  }
+  .unit-card {
+    background: white; border-radius: 12px; padding: 18px 20px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+    border-top: 4px solid;
+  }
+  .unit-name { font-size: 14px; font-weight: 800; margin-bottom: 3px; }
+  .unit-tagline { font-size: 10.5px; color: #888; margin-bottom: 12px; }
+  .unit-mission {
+    font-size: 11px; color: #444; line-height: 1.6;
+    background: #f8faff; border-radius: 8px; padding: 10px 12px;
+    margin-bottom: 12px;
+  }
+  .unit-connections-label {
+    font-size: 9.5px; font-weight: 700; text-transform: uppercase;
+    color: #aaa; margin-bottom: 6px; letter-spacing: 0.05em;
+  }
+  .connection-row { display: flex; flex-wrap: wrap; gap: 5px; }
+  .conn-tag {
+    font-size: 10px; font-weight: 600; padding: 3px 9px;
+    border-radius: 20px; display: flex; align-items: center; gap: 4px;
+  }
+  .conn-in  { background: #e8f5e9; color: #2e7d32; }
+  .conn-out { background: #e3f2fd; color: #0277bd; }
+  .conn-bi  { background: #f3e5f5; color: #6a1b9a; }
+
+  /* ===== PRODUCT DEEP DIVE ===== */
+  .method-steps {
+    display: flex; gap: 0; background: white;
+    border-radius: 12px; overflow: hidden;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+    margin-bottom: 20px;
+  }
+  .method-step { flex: 1; padding: 14px 12px; text-align: center; border-left: 1px solid #eee; }
+  .method-step:last-child { border-left: none; }
+  .method-step:nth-child(odd) { background: #fafbfd; }
+  .ms-num { font-size: 20px; font-weight: 800; color: #c62828; opacity: 0.2; margin-bottom: 4px; }
+  .ms-title { font-size: 11px; font-weight: 700; margin-bottom: 5px; }
+  .ms-item { font-size: 9.5px; color: #666; margin-bottom: 2px; }
+
+  .benefit-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+  .benefit-card {
+    background: white; border-radius: 10px; padding: 14px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    text-align: center;
+  }
+  .benefit-icon { font-size: 24px; margin-bottom: 8px; }
+  .benefit-title { font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+  .benefit-desc  { font-size: 10.5px; color: #666; line-height: 1.5; }
+
+  .verticals-row { display: flex; gap: 10px; margin-bottom: 16px; }
+  .vertical-box {
+    flex: 1; border-radius: 10px; padding: 14px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  }
+  .vb-title { font-size: 13px; font-weight: 700; margin-bottom: 8px; padding-bottom: 6px;
+    border-bottom: 1px solid rgba(0,0,0,0.07); }
+  .vb-item { font-size: 10.5px; color: #444; margin-bottom: 3px; }
+  .vb-item::before { content: "·"; margin-left: 5px; opacity: 0.4; }
+
+  .holistic-row { display: flex; gap: 8px; }
+  .holistic-team {
+    flex: 1; border-radius: 10px; overflow: hidden;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+    border: 1.5px solid;
+  }
+  .ht-header { padding: 8px 10px; font-size: 11px; font-weight: 700; text-align: center; color: white; }
+  .ht-leads {
+    display: flex; background: #f9fafb; border-bottom: 1px solid #eee;
+  }
+  .ht-lead { flex: 1; padding: 6px 8px; text-align: center;
+    font-size: 9.5px; border-left: 1px solid #eee; }
+  .ht-lead:last-child { border-left: none; }
+  .ht-lead strong { display: block; font-size: 9px; margin-bottom: 1px; }
+  .ht-squads { padding: 6px 8px; background: white; }
+  .ht-squad { font-size: 9.5px; color: #444; padding: 3px 6px;
+    border-radius: 4px; margin-bottom: 3px; background: #f0f2f6; }
+
+  .quote-dark {
+    background: #1a1a2e; color: white; border-radius: 12px;
+    padding: 20px 24px; text-align: center;
+    font-size: 14px; font-style: italic; line-height: 1.7;
+    margin-top: 20px;
+  }
+
+  /* spectrum arrow */
+  .spectrum-bar {
+    background: linear-gradient(to left, #374151, #1e3a5f, #1a1a2e);
+    height: 6px; border-radius: 3px; margin: 12px 0 4px;
+    position: relative;
+  }
+  .spectrum-labels { display: flex; justify-content: space-between; font-size: 9.5px; color: #aaa; }
+
+  .tag-row { display: flex; flex-wrap: wrap; gap: 4px; }
+  .tag-item {
+    font-size: 10px; padding: 2px 8px; border-radius: 20px;
+    font-weight: 500;
+  }
+  .t-owns { background: #e8f0fe; color: #2c4ecb; }
+  .t-from { background: #e8f5e9; color: #2e7d32; }
+  .t-to   { background: #e3f2fd; color: #0277bd; }
+
+</style>
+</head>
+<body>
+
+<!-- ===== NAV ===== -->
+<div class="nav-bar">
+  <button class="nav-btn active" onclick="showSlide('s0',this)">פתיחה</button>
+  <button class="nav-btn" onclick="showSlide('s1',this)">מחקר — ספקטרום מודלים</button>
+  <button class="nav-btn" onclick="showSlide('s2',this)">מה הכי עובד ולמה</button>
+  <button class="nav-btn" onclick="showSlide('s3',this)">עקרונות מנחים</button>
+  <button class="nav-btn" onclick="showSlide('s4',this)">המבנה שלנו — מבט על</button>
+  <button class="nav-btn" onclick="showSlide('s5',this)">היחידות — תפקידים וחיבורים</button>
+  <button class="nav-btn" onclick="showSlide('s6',this)">מוצר ולקוח — מתודולוגיה</button>
+</div>
+
+<!-- ================================================================ -->
+<!-- SLIDE 0: TITLE -->
+<!-- ================================================================ -->
+<div id="s0" class="slide active">
+<div class="title-slide">
+  <div class="title-inner">
+    <div class="title-tag">מצגת אסטרטגית — חטיבה טכנולוגית</div>
+    <div class="title-main">
+      ממחקר מבני עבודה<br>
+      <span>למודל הפעלה</span>
+    </div>
+    <div class="title-desc">
+      מה עושות החברות המובילות בעולם, מה עובד לארגון גדול ומסורתי,<br>
+      ואיך בנינו מודל שמשלב חשיבת מוצר עם ביצוע תוך שמירה על עומק מקצועי
+    </div>
+    <div class="title-chips">
+      <span class="title-chip">מחקר חברות מובילות</span>
+      <span class="title-chip">עקרונות מנחים</span>
+      <span class="title-chip">מבנה ויחידות</span>
+      <span class="title-chip">מתודולוגיית מוצר</span>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ================================================================ -->
+<!-- SLIDE 1: RESEARCH — MODEL SPECTRUM -->
+<!-- ================================================================ -->
+<div id="s1" class="slide">
+<div class="slide-inner">
+
+  <div class="slide-label">מחקר — שקף 1 מתוך 2</div>
+  <div class="slide-title">ספקטרום מודלי עבודה — מה עושות חברות מובילות</div>
+  <div class="slide-sub">בחנו חברות ממגוון נקודות על הספקטרום — מ-AI Native טהור ועד מבנה IT מסורתי</div>
+
+  <div class="spectrum-bar"></div>
+  <div class="spectrum-labels">
+    <span>← מסורתי</span>
+    <span>מעורב</span>
+    <span>AI Native →</span>
+  </div>
+
+  <div style="height:16px;"></div>
+
+  <div class="model-spectrum">
+
+    <!-- AI NATIVE -->
+    <div class="model-col m-native">
+      <span class="mc-badge badge-native">AI Native / Product-Led</span>
+      <div class="mc-title">חברת מוצר טהורה</div>
+      <div class="mc-sub">נבנו מאפס — אין Legacy, אין מחלקות מסורתיות</div>
+
+      <div class="company-chips">
+        <span class="company-chip">Lemonade</span>
+        <span class="company-chip">Root Insurance</span>
+        <span class="company-chip">Hippo</span>
+        <span class="company-chip">Monzo</span>
+        <span class="company-chip">N26</span>
+        <span class="company-chip">Oscar Health</span>
+      </div>
+
+      <div class="mc-section-label">איך עובדים</div>
+      <div class="mc-item">צוותים cross-functional שמחזיקים E2E מלא — מדרישה ועד ייצור</div>
+      <div class="mc-item">AI מוטמע בכל תהליך: חיתום, תביעות, שירות, תמחור</div>
+      <div class="mc-item">אין מחלקת IT נפרדת — ה-Engineers הם המוצר</div>
+      <div class="mc-item">מודד Outcome — לא Features שסופקו</div>
+      <div class="mc-item">Data-driven בכל החלטה — A/B Testing שוטף</div>
+
+      <div class="mc-section-label" style="margin-top:10px;">דוגמה: Lemonade</div>
+      <div class="mc-item">Jim AI — מאשר תביעות בשניות ללא אדם</div>
+      <div class="mc-item">Maya AI — מוכרת פוליסות, מסבירה, מנהלת</div>
+      <div class="mc-item">כל מדד פתוח לציבור — Transparency Report שנתי</div>
+
+      <div class="pros-cons">
+        <div class="pros">
+          <div class="pros-label">יתרונות</div>
+          <ul>
+            <li>מהירות שחרור גרסאות גבוהה מאוד</li>
+            <li>חווית לקוח דיגיטלית מלאה</li>
+            <li>עלויות תפעול נמוכות</li>
+            <li>מדידה מדויקת של ערך</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <div class="cons-label">חסרונות</div>
+          <ul>
+            <li>קשה לשכפל עם מערכות Legacy</li>
+            <li>לא מתאים לוותק רגולטורי מורכב</li>
+            <li>Greenfield בלבד</li>
+            <li>סיכון ריכוז ידע</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- HYBRID -->
+    <div class="model-col m-hybrid">
+      <span class="mc-badge badge-hybrid">Hybrid — מעורב ומתפתח</span>
+      <div class="mc-title">חברה מסורתית שהתחדשה</div>
+      <div class="mc-sub">Legacy קיים + שכבת מוצר + טרנספורמציה דיגיטלית</div>
+
+      <div class="company-chips">
+        <span class="company-chip">Zurich Insurance</span>
+        <span class="company-chip">Aviva</span>
+        <span class="company-chip">AXA</span>
+        <span class="company-chip">ING Bank</span>
+        <span class="company-chip">Allianz</span>
+        <span class="company-chip">DBS Bank</span>
+      </div>
+
+      <div class="mc-section-label">איך עובדים</div>
+      <div class="mc-item">שכבת Product / Journey מעל מערכות Legacy קיימות</div>
+      <div class="mc-item">Squads עם מנדט E2E — אך תלויים בצוותי Core</div>
+      <div class="mc-item">Platforms רוחביות מקטינות את כפל הפיתוח</div>
+      <div class="mc-item">AI ב-Use Cases ממוקדים: תביעות, חיתום, שירות</div>
+      <div class="mc-item">מרכזי מצוינות (CoE) לאיכות ואדריכלות</div>
+
+      <div class="mc-section-label" style="margin-top:10px;">דוגמה: ING — מודל ה-Spotify</div>
+      <div class="mc-item">Tribes, Chapters, Squads — מבנה עם בתים מקצועיים ברורים</div>
+      <div class="mc-item">Product Team Lead + Tech Lead לכל ורטיקל עסקי</div>
+      <div class="mc-item">Platforms שכל Squad צורך — אחיד ומהיר</div>
+
+      <div class="pros-cons">
+        <div class="pros">
+          <div class="pros-label">יתרונות</div>
+          <ul>
+            <li>ממנף ידע ומערכות קיימות</li>
+            <li>מאזן מהירות עם יציבות</li>
+            <li>מותאם לרגולציה</li>
+            <li>ניתן לאמץ בהדרגה</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <div class="cons-label">חסרונות</div>
+          <ul>
+            <li>תיאום בין יחידות מסובך</li>
+            <li>איטי יותר מ-Native</li>
+            <li>Legacy מאט את ה-Squads</li>
+            <li>דורש שינוי תרבות עמוק</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRADITIONAL -->
+    <div class="model-col m-trad">
+      <span class="mc-badge badge-trad">Traditional IT</span>
+      <div class="mc-title">IT כספק שירות פנימי</div>
+      <div class="mc-sub">הביזנס מגדיר דרישות, IT מממש — מנותקים זה מזה</div>
+
+      <div class="company-chips">
+        <span class="company-chip">חברות ביטוח קלאסיות</span>
+        <span class="company-chip">בנקים מסורתיים</span>
+        <span class="company-chip">גופים ממשלתיים</span>
+      </div>
+
+      <div class="mc-section-label">איך עובדים</div>
+      <div class="mc-item">הביזנס כותב מסמך דרישות — IT מקבל "תור"</div>
+      <div class="mc-item">פרויקטים מוגדרים מראש — שינויים קשים ויקרים</div>
+      <div class="mc-item">מדד הצלחה: "עמדנו בתכנית ובתקציב"</div>
+      <div class="mc-item">אין בעלות על Outcome — רק על Delivery</div>
+      <div class="mc-item">AI נתפס כ"כלי" — לא כ-Capability אסטרטגית</div>
+
+      <div class="mc-section-label" style="margin-top:10px;">הסיכון המרכזי</div>
+      <div class="mc-item">שנה עד גרסה — בשוק שמשתנה בחודשים</div>
+      <div class="mc-item">לקוח לא רואה ערך בין שחרורי גרסה</div>
+      <div class="mc-item">Backlog שגדל יותר מהר מהיכולת לספק</div>
+
+      <div class="pros-cons">
+        <div class="pros">
+          <div class="pros-label">יתרונות</div>
+          <ul>
+            <li>יציבות ושליטה גבוהה</li>
+            <li>עומק מקצועי בכל מערכת</li>
+            <li>תהליכים מוגדרים וברורים</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <div class="cons-label">חסרונות</div>
+          <ul>
+            <li>איטי — לא תחרותי</li>
+            <li>אין בעלות על חווית לקוח</li>
+            <li>חדשנות כמעט בלתי אפשרית</li>
+            <li>Backlog אינסופי</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+</div>
+
+<!-- ================================================================ -->
+<!-- SLIDE 2: WHAT WORKS AND WHY -->
+<!-- ================================================================ -->
+<div id="s2" class="slide">
+<div class="slide-inner">
+
+  <div class="slide-label">מחקר — שקף 2 מתוך 2</div>
+  <div class="slide-title">מה הכי עובד — ולמה לא כל מודל מתאים לכולם</div>
+  <div class="slide-sub">הלקח המרכזי: הצלחה לא נמדדת במודל שנבחר — אלא בהתאמה בין המודל לנסיבות הארגון</div>
+
+  <div class="section-label">שלושה כשלים נפוצים שראינו בחברות</div>
+
+  <div style="display:flex;gap:12px;margin-bottom:24px;">
+
+    <div class="insight-box" style="flex:1;border-right:4px solid #ef4444;">
+      <div class="insight-row">
+        <div class="insight-icon" style="background:#fef2f2;">⚠</div>
+        <div class="insight-text">
+          <div class="insight-title" style="color:#ef4444;">כשל 1 — העתקת Lemonade לארגון גדול</div>
+          <div class="insight-desc">ניסיון לבנות Squads מלאים E2E בארגון עם מערכות Legacy מביא לכפל ידע, פיצול מומחיות, ו-Squad שלא יודע לגעת במערכת הליבה. <strong>Lemonade עובד כי אין לה Legacy — לא כי יש לה Squads.</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight-box" style="flex:1;border-right:4px solid #f59e0b;">
+      <div class="insight-row">
+        <div class="insight-icon" style="background:#fffbeb;">⚠</div>
+        <div class="insight-text">
+          <div class="insight-title" style="color:#d97706;">כשל 2 — "מוצר" ללא כלים לממש</div>
+          <div class="insight-desc">הוספת שכבת Product Managers מעל IT מסורתית לא שינתה כלום — ה-PMs הגדירו דרישות, ה-IT קיבל תור כמו תמיד. <strong>מוצר בלי בעלות Delivery הוא רק Layer נוסף של הגדרת דרישות.</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight-box" style="flex:1;border-right:4px solid #8b5cf6;">
+      <div class="insight-row">
+        <div class="insight-icon" style="background:#f5f3ff;">⚠</div>
+        <div class="insight-text">
+          <div class="insight-title" style="color:#7c3aed;">כשל 3 — דיגיטל מנותק מהליבה</div>
+          <div class="insight-desc">חברות שבנו "חוויה דיגיטלית" נפרדת מעל מערכת ליבה לא-מחוברת יצרו Frontend יפה שלא יודע לסגור פוליסה בפועל. <strong>ממשק לקוח ללא חיבור E2E הוא חלון ראווה.</strong></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="section-label">מה כן עובד — לארגון גדול עם Legacy</div>
+
+  <div style="display:flex;gap:12px;margin-bottom:24px;">
+
+    <div style="flex:1;background:white;border-radius:12px;padding:18px;box-shadow:0 1px 6px rgba(0,0,0,0.07);border-top:4px solid #2e7d32;">
+      <div style="font-size:13px;font-weight:800;color:#2e7d32;margin-bottom:8px;">עקרון 1 — Encapsulate &amp; Evolve</div>
+      <div style="font-size:11px;color:#555;line-height:1.7;">
+        לא מחליפים את הליבה — מכניסים אותה בתוך שכבת Adapter ובונים שירותים חדשים מעל. כך ה-Squad יכול לפתח מהר בלי לגעת ב-Legacy, והליבה מתפתחת בקצב שלה.<br><br>
+        <strong style="color:#2e7d32;">Zurich ו-Aviva עשו בדיוק זאת — ולא "החליפו" את ה-Core.</strong>
+      </div>
+    </div>
+
+    <div style="flex:1;background:white;border-radius:12px;padding:18px;box-shadow:0 1px 6px rgba(0,0,0,0.07);border-top:4px solid #c62828;">
+      <div style="font-size:13px;font-weight:800;color:#c62828;margin-bottom:8px;">עקרון 2 — Product + Engineering + Core = מנגנון שלם</div>
+      <div style="font-size:11px;color:#555;line-height:1.7;">
+        Product מגדיר מה ולמה. Engineering מממש ומוביל E2E. Core מספק את העומק המערכתי. כל שלישייה אחראית על Journey שלם — לא על "חלק" בפרויקט.<br><br>
+        <strong style="color:#c62828;">ING ו-DBS הצליחו בזכות זה — לא כי הם בנו Squads, אלא כי נתנו להם בעלות אמיתית.</strong>
+      </div>
+    </div>
+
+    <div style="flex:1;background:white;border-radius:12px;padding:18px;box-shadow:0 1px 6px rgba(0,0,0,0.07);border-top:4px solid #00838f;">
+      <div style="font-size:13px;font-weight:800;color:#00695c;margin-bottom:8px;">עקרון 3 — Platforms מקטינות עלות שינוי</div>
+      <div style="font-size:11px;color:#555;line-height:1.7;">
+        כשכל Team בונה מאפס Forms, Workflow ו-Notifications — העלות היא 10x. Platforms רוחביות הן ההשקעה שמאפשרת לכולם לזוז מהר בלי להמציא את הגלגל.<br><br>
+        <strong style="color:#00695c;">Monzo ו-N26 בנו על Platforms מוצקות לפני שבנו מוצרים — לא אחרי.</strong>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="section-label">מיפוי — איפה אנחנו ולאן אנחנו הולכים</div>
+  <div style="background:white;border-radius:12px;padding:18px 24px;box-shadow:0 1px 6px rgba(0,0,0,0.07);">
+    <div style="display:flex;align-items:center;gap:0;margin-bottom:10px;">
+      <div style="flex:1;text-align:center;font-size:10.5px;color:#888;">Traditional IT</div>
+      <div style="flex:1;text-align:center;font-size:10.5px;color:#888;">Hybrid</div>
+      <div style="flex:1;text-align:center;font-size:10.5px;color:#888;">AI Native</div>
+    </div>
+    <div style="height:12px;background:linear-gradient(to left, #1a1a2e, #1e3a5f, #374151);border-radius:6px;position:relative;margin-bottom:10px;">
+      <div style="position:absolute;top:-4px;right:30%;width:20px;height:20px;background:#ef4444;border-radius:50%;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;">
+        <div style="width:6px;height:6px;background:white;border-radius:50%;"></div>
+      </div>
+      <div style="position:absolute;top:-4px;right:55%;width:20px;height:20px;background:#22c55e;border-radius:50%;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;">
+        <div style="width:6px;height:6px;background:white;border-radius:50%;"></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:20px;justify-content:center;font-size:10.5px;">
+      <div><span style="display:inline-block;width:10px;height:10px;background:#ef4444;border-radius:50%;margin-left:5px;"></span>היום בערך</div>
+      <div><span style="display:inline-block;width:10px;height:10px;background:#22c55e;border-radius:50%;margin-left:5px;"></span>יעד עם המודל החדש</div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ================================================================ -->
+<!-- SLIDE 3: PRINCIPLES -->
+<!-- ================================================================ -->
+<div id="s3" class="slide">
+<div class="slide-inner">
+
+  <div class="slide-label">גזירת עקרונות</div>
+  <div class="slide-title">מה גוזרים מהמחקר — עקרונות המנחים את המבנה שלנו</div>
+  <div class="slide-sub">שישה עקרונות שנבחרו כי הם עולים בכל החברות שהצליחו במעבר — ואבודים בכל החברות שנכשלו</div>
+
+  <div class="principles-grid">
+
+    <div class="principle-card" style="border-right-color:#c62828;">
+      <div class="p-num">01</div>
+      <div class="p-title">תמיד מתחילים מערך ללקוח</div>
+      <div class="p-desc">כל יוזמה — גדולה או קטנה — חייבת לפתוח בשאלה: מה ה-Outcome ללקוח? כל מדד, כל תכנית עבודה, כל Release — נבחן לפי ערך שנוצר, לא Features שסופקו.</div>
+    </div>
+
+    <div class="principle-card" style="border-right-color:#e65100;">
+      <div class="p-num">02</div>
+      <div class="p-title">מוצר מחזיק Outcome — לא רק דרישות</div>
+      <div class="p-desc">Product Manager אחראי על KPI ותוצאה עסקית — לא רק על Backlog. מוצר בלי בעלות על Outcome הוא ממשק להעברת דרישות, לא מנוע שינוי.</div>
+    </div>
+
+    <div class="principle-card" style="border-right-color:#0277bd;">
+      <div class="p-num">03</div>
+      <div class="p-title">ראייה רוחבית של מסע הלקוח</div>
+      <div class="p-desc">אף מערכת לא יודעת לספר את הסיפור המלא של הלקוח. יחידת מוצר ולקוח היא הגורם היחיד שמסתכל E2E — חוצה פנסיה, אלמנטר, CRM ודיגיטל יחד.</div>
+    </div>
+
+    <div class="principle-card" style="border-right-color:#00838f;">
+      <div class="p-num">04</div>
+      <div class="p-title">Platforms מקטינות עלות שינוי</div>
+      <div class="p-desc">כל שינוי שאפשר להפוך לקונפיגורציה — מקטין את עלות ה-Delivery פי 10. ההשקעה בפלטפורמות היא לא עלות תפעול — היא מנוע מהירות.</div>
+    </div>
+
+    <div class="principle-card" style="border-right-color:#6a1b9a;">
+      <div class="p-num">05</div>
+      <div class="p-title">בית מקצועי ברור לכל תחום</div>
+      <div class="p-desc">Squads מספקים — אבל ידע מקצועי נבנה בבית. כל מהנדס צריך בית ארגוני שבו הוא גדל מקצועית, לומד Craft ומקבל Mentoring — לא רק בית פרויקט.</div>
+    </div>
+
+    <div class="principle-card" style="border-right-color:#2e7d32;">
+      <div class="p-num">06</div>
+      <div class="p-title">Delivery מהיר דרך Squad + אחריות ברורה</div>
+      <div class="p-desc">Squad הוא יחידת Delivery זמנית — לא מבנה ארגוני. כשיש בעלות ברורה (Product Lead + Tech Lead + Capacity committed) — הדברים זזים. בלי זה — ישיבות.</div>
+    </div>
+
+  </div>
+
+  <div class="quote-dark">
+    "Product leads the demand. Architecture shapes the solution. Engineering delivers it. Platforms enable it.<br>
+    Customer work always starts at Product &amp; Customer — and always exits through customer value."
+  </div>
+
+</div>
+</div>
+
+<!-- ================================================================ -->
+<!-- SLIDE 4: STRUCTURE OVERVIEW -->
+<!-- ================================================================ -->
+<div id="s4" class="slide">
+<div class="slide-inner">
+
+  <div class="slide-label">מבנה — מבט על</div>
+  <div class="slide-title">המבנה שבנינו — שלוש שכבות, אחריות ברורה</div>
+  <div class="slide-sub">הפרדה בין Customer-Facing, Core Systems, ו-Infrastructure — כל שכבה יודעת בדיוק מה שלה</div>
+
+  <!-- 3 LAYERS VISUAL -->
+  <div class="three-layers">
+    <div class="layer" style="background:#fff5f5;flex:2.2;">
+      <div class="layer-num">שכבה 1 — Customer Facing</div>
+      <div class="layer-title" style="color:#c62828;">מוצר ולקוח</div>
+      <div style="font-size:11px;color:#444;line-height:1.6;">
+        כל דרישות הלקוח, כל ממשקי הלקוח וכל פיתוח ה-Frontend נמצאים כאן. תהליך העבודה <strong>תמיד מתחיל מכאן</strong> ומתפזר לשאר היחידות.
+      </div>
+      <div class="layer-chips">
+        <span class="layer-chip" style="background:#fce4ec;color:#c62828;">Product Management</span>
+        <span class="layer-chip" style="background:#fce4ec;color:#c62828;">Digital Engineering</span>
+        <span class="layer-chip" style="background:#fce4ec;color:#c62828;">CRM &amp; Salesforce</span>
+        <span class="layer-chip" style="background:#fce4ec;color:#c62828;">AI Products</span>
+        <span class="layer-chip" style="background:#fce4ec;color:#c62828;">Data Products</span>
+      </div>
+    </div>
+    <div class="layer-arrow">←</div>
+    <div class="layer" style="background:#e8f5e9;flex:1.4;">
+      <div class="layer-num">שכבה 2 — Core Systems</div>
+      <div class="layer-title" style="color:#2e7d32;">יחידות ליבה</div>
+      <div style="font-size:11px;color:#444;line-height:1.6;">
+        המערכות הביטוחיות — מתועדכנות לפי דרישה ממוצר ולקוח לפרויקטים רוחביים.
+      </div>
+      <div class="layer-chips">
+        <span class="layer-chip" style="background:#e8f5e9;color:#2e7d32;">חיים ופנסיה</span>
+        <span class="layer-chip" style="background:#fff3e0;color:#e65100;">אלמנטר</span>
+        <span class="layer-chip" style="background:#f3e5f5;color:#6a1b9a;">השקעות</span>
+      </div>
+    </div>
+    <div class="layer-arrow">←</div>
+    <div class="layer" style="background:#e0f7fa;flex:2;">
+      <div class="layer-num">שכבה 3 — Infrastructure</div>
+      <div class="layer-title" style="color:#00695c;">פלטפורמות ותשתיות</div>
+      <div style="font-size:11px;color:#444;line-height:1.6;">
+        כולל תשתית CRM ודיגיטל. כולם צורכים משם — אחד בונה ומחזיק.
+      </div>
+      <div class="layer-chips">
+        <span class="layer-chip" style="background:#e0f7fa;color:#00695c;">Cloud &amp; DevOps</span>
+        <span class="layer-chip" style="background:#e0f7fa;color:#00695c;">Integration</span>
+        <span class="layer-chip" style="background:#e0f7fa;color:#00695c;">Data Platform</span>
+        <span class="layer-chip" style="background:#e0f7fa;color:#00695c;">Forms &amp; Workflow</span>
+        <span class="layer-chip" style="background:#e0f7fa;color:#00695c;">Digital Infra</span>
+        <span class="layer-chip" style="background:#e0f7fa;color:#00695c;">CRM Infra</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- STAFF UNITS -->
+  <div class="section-label">יחידות Staff — שליטה ואסטרטגיה</div>
+  <div style="display:flex;gap:10px;margin-bottom:20px;">
+    <div style="flex:1;background:white;border-radius:10px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,0.07);border-top:3px solid #3b5bdb;">
+      <div style="font-size:12px;font-weight:800;color:#3b5bdb;margin-bottom:4px;">CTO — ארכיטקטורה ואסטרטגיה</div>
+      <div style="font-size:10.5px;color:#555;">Enterprise Architecture · Standards · Technology Strategy · Future Tech</div>
+    </div>
+    <div style="flex:1;background:white;border-radius:10px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,0.07);border-top:3px solid #f57f17;">
+      <div style="font-size:12px;font-weight:800;color:#e65100;margin-bottom:4px;">מטה — ניהול פרויקטים רוחביים</div>
+      <div style="font-size:10.5px;color:#555;">PMO · Portfolio · Budget · Governance · Dependency Management</div>
+    </div>
+    <div style="flex:1;background:white;border-radius:10px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,0.07);border-top:3px solid #ad1457;">
+      <div style="font-size:12px;font-weight:800;color:#ad1457;margin-bottom:4px;">CISO — אבטחת מידע</div>
+      <div style="font-size:10.5px;color:#555;">Cyber · Privacy · Compliance · IAM · Risk Management</div>
+    </div>
+  </div>
+
+  <!-- FLOW -->
+  <div class="section-label">תהליך עבודה — מרעיון לייצור</div>
+  <div style="background:white;border-radius:12px;padding:16px 20px;box-shadow:0 1px 6px rgba(0,0,0,0.07);">
+    <div style="display:flex;align-items:center;gap:0;">
+      <div style="flex:1;text-align:center;background:#fff5f5;border-radius:8px;padding:10px 6px;margin:0 2px;">
+        <div style="font-size:10px;font-weight:700;color:#c62828;">מוצר ולקוח</div>
+        <div style="font-size:9.5px;color:#666;margin-top:2px;">Discovery · Outcome · Journey</div>
+      </div>
+      <div style="font-size:18px;color:#bbb;padding:0 4px;">←</div>
+      <div style="flex:1;text-align:center;background:#e8f0fe;border-radius:8px;padding:10px 6px;margin:0 2px;">
+        <div style="font-size:10px;font-weight:700;color:#3b5bdb;">מוצר + CTO</div>
+        <div style="font-size:9.5px;color:#666;margin-top:2px;">Architecture · Build/Buy · שלד פתרון</div>
+      </div>
+      <div style="font-size:18px;color:#bbb;padding:0 4px;">←</div>
+      <div style="flex:1;text-align:center;background:#fff8e1;border-radius:8px;padding:10px 6px;margin:0 2px;">
+        <div style="font-size:10px;font-weight:700;color:#e65100;">מוצר + מטה</div>
+        <div style="font-size:9.5px;color:#666;margin-top:2px;">Resource Map · Capacity Commitment</div>
+      </div>
+      <div style="font-size:18px;color:#bbb;padding:0 4px;">←</div>
+      <div style="flex:1;text-align:center;background:#e8f5e9;border-radius:8px;padding:10px 6px;margin:0 2px;">
+        <div style="font-size:10px;font-weight:700;color:#2e7d32;">כל יחידות הפיתוח</div>
+        <div style="font-size:9.5px;color:#666;margin-top:2px;">Squad Delivery · Dev · QA · Release</div>
+      </div>
+      <div style="font-size:18px;color:#bbb;padding:0 4px;">←</div>
+      <div style="flex:1;text-align:center;background:#fff5f5;border-radius:8px;padding:10px 6px;margin:0 2px;">
+        <div style="font-size:10px;font-weight:700;color:#c62828;">מוצר ולקוח</div>
+        <div style="font-size:9.5px;color:#666;margin-top:2px;">מדידת KPI · Iteration · Outcome</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ================================================================ -->
+<!-- SLIDE 5: UNITS -->
+<!-- ================================================================ -->
+<div id="s5" class="slide">
+<div class="slide-inner">
+
+  <div class="slide-label">יחידות — תפקידים וחיבורים</div>
+  <div class="slide-title">כל יחידה — מה היא עושה ואיך היא מתחברת</div>
+  <div class="slide-sub">כל יחידה היא בית מקצועי ברור — עם מנדט, אחריות, וחיבורים מוגדרים ליחידות אחרות</div>
+
+  <div class="units-grid">
+
+    <!-- PRODUCT & CUSTOMER -->
+    <div class="unit-card" style="border-top-color:#c62828;">
+      <div class="unit-name" style="color:#c62828;">מוצר ולקוח</div>
+      <div class="unit-tagline">ה-Frontend האחיד — הגורם שמתחיל כל תהליך</div>
+      <div class="unit-mission">
+        מנהלת את כל דרישות הלקוח, ממשקי הלקוח, פיתוח דיגיטל ומסעות CRM. כל יוזמה מתחילה כאן ומסתיימת כאן — ב-KPI שנמדד.
+      </div>
+      <div class="unit-connections-label">חיבורים</div>
+      <div class="connection-row">
+        <span class="conn-out">← מגדיר לליבות מה נדרש</span>
+        <span class="conn-out">← מזמין Platform Services</span>
+        <span class="conn-bi">↔ עובד עם CTO על Architecture</span>
+        <span class="conn-in">→ מדווח ל-מטה על Portfolio</span>
+      </div>
+    </div>
+
+    <!-- CTO -->
+    <div class="unit-card" style="border-top-color:#3b5bdb;">
+      <div class="unit-name" style="color:#3b5bdb;">CTO — ארכיטקטורה ואסטרטגיה</div>
+      <div class="unit-tagline">מגדיר איך — לא מה</div>
+      <div class="unit-mission">
+        Enterprise Architecture, Technology Standards, Future Technologies ו-Solution Architecture Reviews. לא מנהל Delivery שוטף — מגדיר את המסגרת שבתוכה כולם עובדים.
+      </div>
+      <div class="unit-connections-label">חיבורים</div>
+      <div class="connection-row">
+        <span class="conn-bi">↔ מוצר — Architecture Review</span>
+        <span class="conn-bi">↔ פלטפורמות — Technology Standards</span>
+        <span class="conn-bi">↔ כל ליבה — Architecture Governance</span>
+        <span class="conn-in">→ CISO — Security Architecture</span>
+      </div>
+    </div>
+
+    <!-- CORE: LT -->
+    <div class="unit-card" style="border-top-color:#2e7d32;">
+      <div class="unit-name" style="color:#2e7d32;">ליבת חיסכון ארוך טווח</div>
+      <div class="unit-tagline">חיים, פנסיה וחיסכון — בית מקצועי עמוק</div>
+      <div class="unit-mission">
+        System Ownership מלא על מערכות חיים ופנסיה. מממשת שינויים שמגיעים ממוצר, רגולציה ו-BAU. מבצעת Modernization הדרגתי — לא Big Bang.
+      </div>
+      <div class="unit-connections-label">חיבורים</div>
+      <div class="connection-row">
+        <span class="conn-in">← מקבל דרישות ממוצר ולקוח</span>
+        <span class="conn-out">← משתמש ב-Platform Services</span>
+        <span class="conn-bi">↔ CTO — Architecture שינויים גדולים</span>
+        <span class="conn-in">← מטה — תיעדוף Capacity</span>
+      </div>
+    </div>
+
+    <!-- CORE: PC -->
+    <div class="unit-card" style="border-top-color:#e65100;">
+      <div class="unit-name" style="color:#e65100;">ליבת אלמנטר P&amp;C</div>
+      <div class="unit-tagline">אלמנטר, רכב, ביטוח כללי</div>
+      <div class="unit-mission">
+        System Ownership על מערכות אלמנטר. Modernization הדרגתי תוך מתן Capacity ליוזמות רוחביות. מביאה עומק מקצועי ביטוחי שאין לאף צוות אחר.
+      </div>
+      <div class="unit-connections-label">חיבורים</div>
+      <div class="connection-row">
+        <span class="conn-in">← מקבל דרישות ממוצר ולקוח</span>
+        <span class="conn-out">← משתמש ב-Platform Services</span>
+        <span class="conn-bi">↔ CTO — Architecture</span>
+        <span class="conn-in">← מטה — תיעדוף</span>
+      </div>
+    </div>
+
+    <!-- CORE: INV -->
+    <div class="unit-card" style="border-top-color:#6a1b9a;">
+      <div class="unit-name" style="color:#6a1b9a;">ליבת השקעות וכספים</div>
+      <div class="unit-tagline">Investments, Finance, Capital Management</div>
+      <div class="unit-mission">
+        System Ownership על מערכות השקעות, פיננסים וניהול הון. עמידה בדרישות רגולציה מחמירות. Capacity ליוזמות cross-domain.
+      </div>
+      <div class="unit-connections-label">חיבורים</div>
+      <div class="connection-row">
+        <span class="conn-in">← מקבל דרישות ממוצר ולקוח</span>
+        <span class="conn-out">← משתמש ב-Platform Services</span>
+        <span class="conn-bi">↔ CTO — Architecture</span>
+        <span class="conn-bi">↔ CISO — Compliance</span>
+      </div>
+    </div>
+
+    <!-- PLATFORMS -->
+    <div class="unit-card" style="border-top-color:#00838f;">
+      <div class="unit-name" style="color:#00695c;">פלטפורמות טכנולוגיות ותשתיות</div>
+      <div class="unit-tagline">BUILD — מה שכולם צורכים, אחד בונה</div>
+      <div class="unit-mission">
+        Cloud, DevOps, Integration, Data Platform, Forms, Workflow, ותשתית CRM ודיגיטל. מספקת שירות לכל יחידות הפיתוח — מקטינה עלות שינוי ומגדילה מהירות.
+      </div>
+      <div class="unit-connections-label">חיבורים</div>
+      <div class="connection-row">
+        <span class="conn-in">← מקבל Platform Requirements מכולם</span>
+        <span class="conn-out">← מספק Services לכל יחידה</span>
+        <span class="conn-bi">↔ CTO — Technology Standards</span>
+        <span class="conn-in">← תפעול — Handover לייצור</span>
+      </div>
+    </div>
+
+    <!-- TECH OPS -->
+    <div class="unit-card" style="border-top-color:#455a64;">
+      <div class="unit-name" style="color:#455a64;">תפעול טכנולוגי ושירותי IT</div>
+      <div class="unit-tagline">RUN — שומרים שהכל עובד, כולל QA E2E</div>
+      <div class="unit-mission">
+        SRE, NOC, IT Services, תחזוקה ובינוי, IT Security Ops ו-QA מקצועי. מפעילה ומחזיקה מה שנבנה — לא בונה חדש. כולל QA E2E חוצה-מערכות ו-Release Gates.
+      </div>
+      <div class="unit-connections-label">חיבורים</div>
+      <div class="connection-row">
+        <span class="conn-in">← מקבל Handover מכל יחידות הפיתוח</span>
+        <span class="conn-out">← Escalation לפלטפורמות ולליבות</span>
+        <span class="conn-bi">↔ CISO — Security Ops</span>
+        <span class="conn-out">← QA Gates לפני כל Release</span>
+      </div>
+    </div>
+
+    <!-- MATTE -->
+    <div class="unit-card" style="border-top-color:#f57f17;">
+      <div class="unit-name" style="color:#e65100;">מטה — ניהול פרויקטים רוחביים</div>
+      <div class="unit-tagline">Portfolio, PMO, Budget, Governance</div>
+      <div class="unit-mission">
+        ניהול תיק הפרויקטים הרוחבי, תקציב, Capacity Planning ו-Dependency Management. יד ימינו של ראש החטיבה — לא מחליט על Priorities, מוודא שהן מתבצעות.
+      </div>
+      <div class="unit-connections-label">חיבורים</div>
+      <div class="connection-row">
+        <span class="conn-in">← מקבל Priorities ממוצר ולקוח</span>
+        <span class="conn-out">← מנהל Dependencies בין כל היחידות</span>
+        <span class="conn-bi">↔ ראש החטיבה — Reporting</span>
+        <span class="conn-bi">↔ כל יחידה — Capacity Commitment</span>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+</div>
+
+<!-- ================================================================ -->
+<!-- SLIDE 6: PRODUCT DEEP DIVE -->
+<!-- ================================================================ -->
+<div id="s6" class="slide">
+<div class="slide-inner">
+
+  <div class="slide-label">יחידת מוצר ולקוח — מתודולוגיה</div>
+  <div class="slide-title">למה שילוב פיתוח לקוח עם מוצר ביחידה אחת — ומה היתרונות</div>
+  <div class="slide-sub">הצגת מודל העבודה המלא של יחידת מוצר ולקוח — איך היא מחברת חשיבת מוצר עם Delivery אמיתי ל-Frontend של הלקוח</div>
+
+  <!-- WHY THIS UNIT -->
+  <div class="section-label">הבעיה שהיחידה פותרת</div>
+  <div style="display:flex;gap:12px;margin-bottom:20px;">
+    <div style="flex:1;background:#fef2f2;border-radius:10px;padding:14px;border-right:3px solid #ef4444;">
+      <div style="font-size:12px;font-weight:700;color:#ef4444;margin-bottom:6px;">המצב הנוכחי — מפוצל</div>
+      <div style="font-size:10.5px;color:#555;line-height:1.6;">
+        מוצר יושב בצד אחד ומגדיר דרישות. Digital וCRM יושבים בצד שני ומממשים את הפרונט. הליבות יושבות בצד שלישי. <strong>אף אחד לא רואה את הלקוח ברמת E2E.</strong>
+      </div>
+    </div>
+    <div style="flex:1;background:#f0fdf4;border-radius:10px;padding:14px;border-right:3px solid #22c55e;">
+      <div style="font-size:12px;font-weight:700;color:#16a34a;margin-bottom:6px;">המודל החדש — אחוד</div>
+      <div style="font-size:10.5px;color:#555;line-height:1.6;">
+        מוצר, Digital ו-CRM יושבים תחת ראש אחד. <strong>כל ממשק לקוח מנוהל ממקום אחד</strong> — מה שיוצר E2E Journey אמיתי מהגדרת הצורך ועד חוויית הלקוח בפועל.
+      </div>
+    </div>
+  </div>
+
+  <!-- 3 VERTICALS -->
+  <div class="section-label">שלושה בתים ארגוניים — מקצועיות + Delivery</div>
+  <div class="verticals-row">
+    <div class="vertical-box" style="background:#fff5f5;border-top:3px solid #c62828;">
+      <div class="vb-title" style="color:#c62828;">מוצר — Product Management</div>
+      <div class="vb-item">Product Managers לפי Domain/Journey</div>
+      <div class="vb-item">PM עם התמחות AI — מגדיר מה ולמה</div>
+      <div class="vb-item">Product / Solution Analysts</div>
+      <div class="vb-item">UX / Product Designers</div>
+      <div class="vb-item">KPI &amp; Outcome Ownership</div>
+    </div>
+    <div class="vertical-box" style="background:#fff8e1;border-top:3px solid #f57f17;">
+      <div class="vb-title" style="color:#e65100;">הנדסה — Solution Engineering</div>
+      <div class="vb-item">E2E Technical Delivery Leads</div>
+      <div class="vb-item">AI / GenAI Engineers — בונים, לא מגדירים</div>
+      <div class="vb-item">Digital / Frontend Engineers</div>
+      <div class="vb-item">CRM Engineers — Salesforce</div>
+      <div class="vb-item">Customer Journey Builders</div>
+      <div class="vb-item">Solution / Application Engineers</div>
+    </div>
+    <div class="vertical-box" style="background:#e0f7fa;border-top:3px solid #00838f;">
+      <div class="vb-title" style="color:#00695c;">דאטה — Data Products &amp; Analytics</div>
+      <div class="vb-item">Data Product Managers</div>
+      <div class="vb-item">Data Scientists &amp; Analytics Engineers</div>
+      <div class="vb-item">ML Engineers — תמחור, חיתום, Fraud</div>
+      <div class="vb-item">Business Intelligence</div>
+      <div class="vb-item">Data Governance — צד עסקי</div>
+    </div>
+  </div>
+
+  <!-- METHODOLOGY STEPS -->
+  <div class="section-label">מתודולוגיית העבודה — 5 שלבים</div>
+  <div class="method-steps">
+    <div class="method-step">
+      <div class="ms-num">01</div>
+      <div class="ms-title">Outcome Discovery</div>
+      <div class="ms-item">איזה תהליך לשפר?</div>
+      <div class="ms-item">מה ה-Friction ללקוח?</div>
+      <div class="ms-item">מה ה-KPI להצלחה?</div>
+      <div class="ms-item">E2E Journey Mapping</div>
+    </div>
+    <div class="method-step">
+      <div class="ms-num">02</div>
+      <div class="ms-title">Solution Shaping</div>
+      <div class="ms-item">Product + Architecture יחד</div>
+      <div class="ms-item">Build / Buy / Configure</div>
+      <div class="ms-item">מה נדרש מהליבות?</div>
+      <div class="ms-item">Platform vs. Custom?</div>
+    </div>
+    <div class="method-step">
+      <div class="ms-num">03</div>
+      <div class="ms-title">Squad Formation</div>
+      <div class="ms-item">Capacity Commitment מוקדם</div>
+      <div class="ms-item">PM Lead + Tech Lead</div>
+      <div class="ms-item">Cross-functional Squad</div>
+      <div class="ms-item">Core SMEs לפי צורך</div>
+    </div>
+    <div class="method-step">
+      <div class="ms-num">04</div>
+      <div class="ms-title">Delivery — E2E</div>
+      <div class="ms-item">Sprint iterations</div>
+      <div class="ms-item">Digital + CRM + Core בפרלל</div>
+      <div class="ms-item">QA E2E לפני Release</div>
+      <div class="ms-item">Customer facing = אחוד</div>
+    </div>
+    <div class="method-step">
+      <div class="ms-num">05</div>
+      <div class="ms-title">Measure &amp; Iterate</div>
+      <div class="ms-item">מודדים KPI — לא Features</div>
+      <div class="ms-item">לקוחות → מדדים → שיפור</div>
+      <div class="ms-item">A/B Testing</div>
+      <div class="ms-item">Iteration מהיר</div>
+    </div>
+  </div>
+
+  <!-- HOLISTIC TEAMS -->
+  <div class="section-label">צוותים הוליסטיים — ה-Delivery לפי ורטיקל עסקי</div>
+  <div class="holistic-row" style="margin-bottom:20px;">
+
+    <div class="holistic-team" style="border-color:#2e7d32;">
+      <div class="ht-header" style="background:#2e7d32;">חיים, פנסיה וחיסכון</div>
+      <div class="ht-leads">
+        <div class="ht-lead"><strong style="color:#c62828;">מנהל צוות מוצר</strong>Journey · KPI</div>
+        <div class="ht-lead"><strong style="color:#e65100;">מנהל צוות טכני</strong>Arch · Risk</div>
+      </div>
+      <div class="ht-squads">
+        <div class="ht-squad">הצטרפות דיגיטלית — פנסיה</div>
+        <div class="ht-squad">שירות עצמי ושינויי פוליסה</div>
+        <div class="ht-squad">AI תביעות חיים</div>
+      </div>
+    </div>
+
+    <div class="holistic-team" style="border-color:#e65100;">
+      <div class="ht-header" style="background:#e65100;">אלמנטר ורכב</div>
+      <div class="ht-leads">
+        <div class="ht-lead"><strong style="color:#c62828;">מנהל צוות מוצר</strong>Journey · KPI</div>
+        <div class="ht-lead"><strong style="color:#e65100;">מנהל צוות טכני</strong>Arch · Risk</div>
+      </div>
+      <div class="ht-squads">
+        <div class="ht-squad">רכישת פוליסה דיגיטלית</div>
+        <div class="ht-squad">תביעות אלמנטר + AI</div>
+        <div class="ht-squad">חיתום ותמחור דיגיטלי</div>
+      </div>
+    </div>
+
+    <div class="holistic-team" style="border-color:#0277bd;">
+      <div class="ht-header" style="background:#0277bd;">שירות לקוחות והפצה</div>
+      <div class="ht-leads">
+        <div class="ht-lead"><strong style="color:#c62828;">מנהל צוות מוצר</strong>Journey · KPI</div>
+        <div class="ht-lead"><strong style="color:#e65100;">מנהל צוות טכני</strong>Arch · Risk</div>
+      </div>
+      <div class="ht-squads">
+        <div class="ht-squad">Self Service &amp; Agent Portal</div>
+        <div class="ht-squad">CX AI — שירות אוטומטי</div>
+        <div class="ht-squad">הפצה וסוכנים דיגיטל</div>
+      </div>
+    </div>
+
+    <div class="holistic-team" style="border-color:#00838f;">
+      <div class="ht-header" style="background:#00838f;">דאטה ו-AI רוחבי</div>
+      <div class="ht-leads">
+        <div class="ht-lead"><strong style="color:#c62828;">מנהל צוות מוצר</strong>Data Products</div>
+        <div class="ht-lead"><strong style="color:#e65100;">מנהל צוות טכני</strong>ML Platform</div>
+      </div>
+      <div class="ht-squads">
+        <div class="ht-squad">Fraud Detection &amp; Risk AI</div>
+        <div class="ht-squad">Pricing &amp; Underwriting Models</div>
+        <div class="ht-squad">Customer Data &amp; Analytics</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BENEFITS -->
+  <div class="section-label">למה זה עובד — 6 יתרונות מרכזיים</div>
+  <div class="benefit-grid">
+
+    <div class="benefit-card" style="border-top:3px solid #c62828;">
+      <div style="font-size:26px;margin-bottom:8px;">🎯</div>
+      <div class="benefit-title">בעלות E2E אמיתית</div>
+      <div class="benefit-desc">גורם אחד אחראי על כל מסע הלקוח — מהגדרת הצורך ועד חוויית הלקוח בדיגיטל ובCRM. לא עוד "זה לא שלי".</div>
+    </div>
+
+    <div class="benefit-card" style="border-top:3px solid #0277bd;">
+      <div style="font-size:26px;margin-bottom:8px;">⚡</div>
+      <div class="benefit-title">Delivery מהיר יותר</div>
+      <div class="benefit-desc">כשמוצר, Digital וCRM ישבים תחת אותו ראש — אין "העברה בין יחידות" לשינוי פרונט. החלטה ויישום יושבים קרוב.</div>
+    </div>
+
+    <div class="benefit-card" style="border-top:3px solid #00838f;">
+      <div style="font-size:26px;margin-bottom:8px;">📊</div>
+      <div class="benefit-title">מדידה על Outcome</div>
+      <div class="benefit-desc">כשמוצר, דאטה ו-Engineering ביחד — קל לשים KPI על תוצאה עסקית ולמדוד אותה. לא "שחררנו גרסה" אלא "הקטנו Churn ב-12%".</div>
+    </div>
+
+    <div class="benefit-card" style="border-top:3px solid #6a1b9a;">
+      <div style="font-size:26px;margin-bottom:8px;">🤝</div>
+      <div class="benefit-title">שיתוף פעולה פנימי</div>
+      <div class="benefit-desc">PM, Digital Engineer ו-Data Scientist יושבים בבית אחד — הם מכירים, בונים אמון ועובדים בשפה משותפת. פחות ישיבות תיאום.</div>
+    </div>
+
+    <div class="benefit-card" style="border-top:3px solid #e65100;">
+      <div style="font-size:26px;margin-bottom:8px;">🔗</div>
+      <div class="benefit-title">חיבור ברור לליבות</div>
+      <div class="benefit-desc">יחידה אחת פונה לליבות — לא ה-Digital בנפרד, לא ה-CRM בנפרד, לא ה-Product בנפרד. פחות בלבול, עדיפויות ברורות.</div>
+    </div>
+
+    <div class="benefit-card" style="border-top:3px solid #2e7d32;">
+      <div style="font-size:26px;margin-bottom:8px;">🏠</div>
+      <div class="benefit-title">בית מקצועי + Delivery</div>
+      <div class="benefit-desc">עובד גדל מקצועית בבית (מוצר / הנדסה / דאטה) ומספק Delivery בסקואד. לא מתפשר — גם עומק מקצועי וגם תוצאות.</div>
+    </div>
+
+  </div>
+
+  <div class="quote-dark">
+    מוצר ולקוח היא לא עוד "מחלקת IT" — היא ה-change engine של הארגון.<br>
+    היא מחזיקה בבעלות על ה-Outcome, על ה-Journey ועל הכלים לממש.<br>
+    <span style="font-size:11px;opacity:0.6;">כך בנינו אותה — ולכן היא עובדת.</span>
+  </div>
+
+</div>
+</div>
+
+<script>
+  function showSlide(id, btn) {
+    document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    btn.classList.add('active');
+  }
+</script>
+
+</body>
+</html>

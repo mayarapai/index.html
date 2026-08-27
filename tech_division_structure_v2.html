@@ -1,0 +1,3045 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מבנה חטיבה טכנולוגית – מודל הפעלה</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f0f2f6;
+    color: #1a1a2e;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* ===== TABS ===== */
+  .tab-bar {
+    background: #1a1a2e;
+    display: flex;
+    gap: 2px;
+    padding: 12px 28px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .tab-btn {
+    padding: 10px 20px;
+    border: none;
+    background: rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.65);
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+
+  .tab-btn:hover { background: rgba(255,255,255,0.18); color: white; }
+  .tab-btn.active { background: #f0f2f6; color: #1a1a2e; }
+
+  .tab-content { display: none; padding: 28px; }
+  .tab-content.active { display: block; }
+
+  /* ===== SHARED ===== */
+  .page-title {
+    font-size: 19px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 3px;
+  }
+  .page-sub {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 28px;
+  }
+
+  .section-heading {
+    font-size: 12px;
+    font-weight: 700;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+    margin-top: 32px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #dde1e9;
+  }
+
+  /* ===== ORG CHART ===== */
+  .org-top {
+    background: #1a1a2e;
+    color: white;
+    border-radius: 10px;
+    padding: 11px 20px;
+    text-align: center;
+    width: 240px;
+    margin: 0 auto;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .org-top .role { font-size: 10px; font-weight: 400; opacity: 0.7; margin-top: 2px; }
+
+  .v-conn { width: 2px; background: #c4c8d4; height: 18px; margin: 0 auto; }
+
+  /* Staff row */
+  .staff-row {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 0;
+    position: relative;
+  }
+
+  .staff-row::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: calc(50% - 1px - 150px);
+    left: calc(50% + 1px - 150px);
+    height: 2px;
+    background: #c4c8d4;
+    width: 300px;
+    transform: translateX(-50%);
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 312px;
+  }
+
+  .staff-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 150px;
+  }
+
+  /* Line row (horizontal connector across delivery units) */
+  .line-connector {
+    height: 2px;
+    background: #c4c8d4;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  /* Delivery row */
+  .delivery-row {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    position: relative;
+  }
+
+  .delivery-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    max-width: 136px;
+  }
+
+  .org-v { width: 2px; background: #c4c8d4; height: 16px; }
+
+  .org-box {
+    border-radius: 8px;
+    padding: 8px 10px;
+    text-align: center;
+    font-size: 10.5px;
+    font-weight: 600;
+    width: 100%;
+    line-height: 1.3;
+    border-top: 3px solid transparent;
+  }
+
+  .box-sub { font-weight: 400; font-size: 9.5px; color: #666; margin-top: 2px; }
+
+  /* staff style */
+  .s-staff { background: #fafafa; border-top-color: #455a64; color: #1a1a2e; }
+  .s-ciso  { background: #fce4ec; border-top-color: #ad1457; color: #1a1a2e; }
+  .s-matte { background: #fff8e1; border-top-color: #f57f17; color: #1a1a2e; }
+  /* delivery units */
+  .c-arch  { background: #e8f0fe; border-top-color: #3b5bdb; }
+  .c-prod  { background: #fce4ec; border-top-color: #c62828; }
+  .c-dig   { background: #e3f2fd; border-top-color: #0277bd; }
+  .c-lt    { background: #e8f5e9; border-top-color: #2e7d32; }
+  .c-inv   { background: #f3e5f5; border-top-color: #6a1b9a; }
+  .c-pc    { background: #fff3e0; border-top-color: #e65100; }
+  .c-plat  { background: #e0f7fa; border-top-color: #00838f; }
+  .c-ops   { background: #fafafa; border-top-color: #616161; }
+
+  /* ===== MISSION CARDS ===== */
+  .mission-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+
+  .mission-card {
+    background: white;
+    border-radius: 10px;
+    padding: 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    border-top: 3px solid transparent;
+  }
+
+  .mission-card.c-arch-b  { border-top-color: #3b5bdb; }
+  .mission-card.c-prod-b  { border-top-color: #c62828; }
+  .mission-card.c-dig-b   { border-top-color: #0277bd; }
+  .mission-card.c-lt-b    { border-top-color: #2e7d32; }
+  .mission-card.c-inv-b   { border-top-color: #6a1b9a; }
+  .mission-card.c-pc-b    { border-top-color: #e65100; }
+  .mission-card.c-plat-b  { border-top-color: #00838f; }
+  .mission-card.c-ops-b   { border-top-color: #616161; }
+  .mission-card.c-ciso-b  { border-top-color: #ad1457; }
+  .mission-card.c-matte-b { border-top-color: #f57f17; }
+
+  .mc-title { font-size: 11.5px; font-weight: 700; margin-bottom: 7px; }
+  .mc-owns-label { font-size: 9.5px; font-weight: 700; color: #888; text-transform: uppercase; margin-bottom: 3px; margin-top: 6px; }
+
+  .tag-list { display: flex; flex-wrap: wrap; gap: 3px; }
+  .tag {
+    font-size: 9.5px;
+    padding: 2px 6px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+  .tag.owns { background: #e8f0fe; color: #2c4ecb; }
+  .tag.not  { background: #fce4ec; color: #c62828; text-decoration: line-through; opacity: 0.7; }
+
+  /* ===== FLOW ===== */
+  .flow-container {
+    background: white;
+    border-radius: 12px;
+    padding: 18px 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  }
+
+  .flow-steps { display: flex; align-items: stretch; gap: 0; }
+
+  .flow-step { flex: 1; text-align: center; }
+
+  .flow-box {
+    background: #f4f6f9;
+    border-radius: 8px;
+    padding: 9px 7px;
+    font-size: 11px;
+    font-weight: 700;
+    height: 100%;
+  }
+
+  .flow-box .fsub { font-size: 9.5px; font-weight: 400; color: #666; margin-top: 3px; }
+
+  .flow-arrow-col { display: flex; align-items: center; padding: 0 5px; color: #bbb; font-size: 16px; }
+
+  .flow-owner-row { display: flex; gap: 0; margin-top: 8px; }
+
+  .flow-owner {
+    flex: 1;
+    text-align: center;
+    font-size: 9.5px;
+    padding: 3px 4px;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+
+  .fo-prod { background: #fce4ec; color: #c62828; }
+  .fo-arch { background: #e8f0fe; color: #3b5bdb; }
+  .fo-eng  { background: #e8f5e9; color: #2e7d32; }
+  .fo-plat { background: #e0f7fa; color: #00838f; }
+  .fo-gap  { flex: 0 0 26px; }
+
+  /* ===== THREE TIERS ===== */
+  .tiers-row { display: flex; gap: 12px; }
+
+  .tier-card {
+    flex: 1;
+    background: white;
+    border-radius: 12px;
+    padding: 14px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    border-top: 4px solid;
+  }
+  .tier-card.t1 { border-top-color: #c62828; }
+  .tier-card.t2 { border-top-color: #0277bd; }
+  .tier-card.t3 { border-top-color: #616161; }
+
+  .tier-label { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.6; }
+  .tier-title { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+  .tier-chars { font-size: 10.5px; color: #555; margin-bottom: 8px; padding-right: 12px; }
+  .tier-chars li { margin-bottom: 2px; }
+
+  .tier-model {
+    background: #f8faff;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 10.5px;
+  }
+  .tier-model .tm-label { font-weight: 700; color: #555; margin-bottom: 3px; font-size: 9.5px; }
+
+  .squad-member-row { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 5px; }
+  .squad-member {
+    font-size: 9.5px;
+    padding: 2px 7px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+  .sm-prod { background: #fce4ec; color: #c62828; }
+  .sm-dig  { background: #e3f2fd; color: #0277bd; }
+  .sm-core { background: #fff3e0; color: #e65100; }
+  .sm-plat { background: #e0f7fa; color: #00838f; }
+  .sm-data { background: #f3e5f5; color: #6a1b9a; }
+  .sm-qa   { background: #e8f5e9; color: #2e7d32; }
+
+  /* ===== DATA SPLIT ===== */
+  .data-row { display: flex; gap: 10px; }
+
+  .data-card {
+    flex: 1;
+    background: white;
+    border-radius: 10px;
+    padding: 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  }
+
+  .data-card .dc-title { font-size: 11.5px; font-weight: 700; margin-bottom: 4px; }
+  .data-card .dc-home {
+    font-size: 9.5px; font-weight: 600;
+    padding: 2px 8px; border-radius: 20px;
+    display: inline-block; margin-bottom: 6px;
+  }
+  .dc-home.prod  { background: #fce4ec; color: #c62828; }
+  .dc-home.plat  { background: #e0f7fa; color: #00838f; }
+  .dc-home.arch  { background: #e8f0fe; color: #3b5bdb; }
+  .data-card .dc-items { font-size: 10.5px; color: #555; padding-right: 12px; }
+  .data-card .dc-items li { margin-bottom: 2px; }
+
+  /* ===== AI SDLC ===== */
+  .sdlc-row {
+    display: flex;
+    gap: 0;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  }
+
+  .sdlc-step {
+    flex: 1;
+    padding: 11px 8px;
+    text-align: center;
+    border-left: 1px solid #eee;
+    font-size: 10.5px;
+  }
+  .sdlc-step:last-child { border-left: none; }
+  .sdlc-step:nth-child(odd) { background: #fafbfd; }
+
+  .sdlc-step .ss-name { font-weight: 700; font-size: 11px; margin-bottom: 5px; }
+  .sdlc-step .ss-item { color: #666; font-size: 9.5px; margin-bottom: 2px; }
+  .sdlc-step .ss-ai {
+    background: #fff8e1; color: #7a5c00;
+    font-size: 9.5px; padding: 2px 5px;
+    border-radius: 20px; display: inline-block;
+    margin-top: 4px; font-weight: 600;
+  }
+
+  /* ===== PRINCIPLES ===== */
+  .principles-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .principle-card {
+    background: #1a1a2e;
+    color: white;
+    border-radius: 10px;
+    padding: 13px 14px;
+  }
+
+  .principle-card .pc-text {
+    font-size: 11.5px;
+    font-style: italic;
+    line-height: 1.55;
+    opacity: 0.95;
+  }
+
+  /* ===== TAB 2: PRODUCT UNIT ===== */
+  .prod-unit-top {
+    background: #c62828;
+    color: white;
+    border-radius: 10px;
+    padding: 12px 20px;
+    text-align: center;
+    width: 320px;
+    margin: 0 auto;
+    font-weight: 700;
+    font-size: 14px;
+  }
+  .prod-unit-top .role { font-size: 11px; font-weight: 400; opacity: 0.8; margin-top: 2px; }
+
+  .prod-sub-row {
+    display: flex;
+    gap: 14px;
+    margin-top: 0;
+    align-items: flex-start;
+  }
+
+  .prod-sub-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .prod-sub-box {
+    border-radius: 10px;
+    padding: 14px;
+    width: 100%;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+
+  .psb-title {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(0,0,0,0.07);
+  }
+
+  .psb-item {
+    font-size: 11px;
+    color: #444;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .psb-item .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    margin-top: 4px;
+    flex-shrink: 0;
+  }
+
+  /* sub unit colors */
+  .pu-pm       { background: #fff5f5; border-top: 3px solid #c62828; }
+  .pu-delivery { background: #fff8e1; border-top: 3px solid #f57f17; }
+  .pu-ai       { background: #f3e5f5; border-top: 3px solid #6a1b9a; }
+  .pu-data     { background: #e0f7fa; border-top: 3px solid #00838f; }
+
+  .dot-pm       { background: #c62828; }
+  .dot-delivery { background: #f57f17; }
+  .dot-ai       { background: #6a1b9a; }
+  .dot-data     { background: #00838f; }
+
+  .delivery-highlight {
+    background: #fffbf0;
+    border: 1.5px dashed #f57f17;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-top: 28px;
+  }
+
+  .dh-title { font-size: 13px; font-weight: 700; color: #e65100; margin-bottom: 8px; }
+  .dh-row { display: flex; gap: 12px; }
+
+  .dh-col {
+    flex: 1;
+    background: white;
+    border-radius: 8px;
+    padding: 11px 12px;
+    font-size: 11px;
+  }
+
+  .dh-col .dh-col-title { font-weight: 700; margin-bottom: 6px; font-size: 11.5px; }
+  .dh-col li { margin-right: 12px; margin-bottom: 3px; color: #444; }
+
+  .boundary-note {
+    margin-top: 16px;
+    background: #e8f5e9;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 11.5px;
+    color: #2e7d32;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .boundary-note-neg {
+    margin-top: 10px;
+    background: #fce4ec;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 11.5px;
+    color: #c62828;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .info-box {
+    background: white;
+    border-radius: 10px;
+    padding: 14px 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    margin-top: 16px;
+    font-size: 12px;
+  }
+
+  .info-box h4 { font-size: 13px; margin-bottom: 8px; color: #1a1a2e; }
+
+  .analyst-row { display: flex; gap: 12px; margin-top: 16px; }
+  .analyst-card {
+    flex: 1;
+    background: white;
+    border-radius: 10px;
+    padding: 14px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  }
+
+  .analyst-card h4 { font-size: 12px; font-weight: 700; margin-bottom: 6px; padding-bottom: 4px; border-bottom: 1px solid #eee; }
+  .analyst-card h4.blue { color: #3b5bdb; }
+  .analyst-card h4.orange { color: #e65100; }
+  .analyst-card li { font-size: 11px; color: #555; margin-right: 12px; margin-bottom: 3px; }
+
+  .quote-box {
+    background: #1a1a2e;
+    color: white;
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 12.5px;
+    font-style: italic;
+    line-height: 1.6;
+    margin-top: 16px;
+    text-align: center;
+    opacity: 0.95;
+  }
+
+</style>
+</head>
+<body>
+
+<!-- ===== TAB BAR ===== -->
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="showTab('tab1', this)">מבנה כללי</button>
+  <button class="tab-btn" onclick="showTab('tab2', this)">מוצר ולקוח — מבנה פנימי</button>
+  <button class="tab-btn" onclick="showTab('tab3', this)">פלטפורמות טכנולוגיות — מבנה פנימי</button>
+  <button class="tab-btn" onclick="showTab('tab4', this)">CTO וארכיטקטורה — מבנה פנימי</button>
+  <button class="tab-btn" onclick="showTab('tab5', this)">מטה החטיבה — מבנה פנימי</button>
+  <button class="tab-btn" onclick="showTab('tab6', this)">יחידות פיתוח ליבה — מבנה פנימי</button>
+  <button class="tab-btn" onclick="showTab('tab7', this)">תפעול טכנולוגי ושירותי IT</button>
+</div>
+
+<!-- ================================================================ -->
+<!-- TAB 1: MAIN STRUCTURE -->
+<!-- ================================================================ -->
+<div id="tab1" class="tab-content active">
+
+<div class="page-title">חטיבה טכנולוגית — מודל הפעלה (גרסה 2)</div>
+<div class="page-sub">מבנה היברידי: עומק הנדסי קלאסי + חשיבת מוצר E2E + עבודת Squad לפי outcome | גרסה 2 — מוצר ולקוח כ-Frontend אחיד</div>
+
+<!-- ORG CHART -->
+<div class="section-heading">מבנה יחידות</div>
+
+<div class="org-top">
+  ראש החטיבה הטכנולוגית / מנמ"ר
+  <div class="role">CIO / Head of Technology</div>
+</div>
+<div class="v-conn"></div>
+
+<!-- STAFF ROW -->
+<div class="staff-row">
+  <div class="staff-col">
+    <div class="org-v"></div>
+    <div class="org-box s-staff">
+      CTO<br>ארכיטקטורה ואסטרטגיה טכנולוגית
+      <div class="box-sub">Enterprise Architecture · Standards · Future Tech</div>
+    </div>
+  </div>
+  <div class="staff-col">
+    <div class="org-v"></div>
+    <div class="org-box s-matte">
+      מטה וניהול פרויקטים רוחביים
+      <div class="box-sub">PMO · Portfolio Management · Budget · Governance</div>
+    </div>
+  </div>
+  <div class="staff-col">
+    <div class="org-v"></div>
+    <div class="org-box s-ciso">
+      CISO — אבטחת מידע
+      <div class="box-sub">Cyber · Privacy · Risk · Compliance · IAM</div>
+    </div>
+  </div>
+</div>
+
+<div style="height:18px;"></div>
+<div style="text-align:center;font-size:10px;color:#aaa;margin-bottom:4px;">יחידות Delivery</div>
+
+<!-- DELIVERY ROW -->
+<div class="delivery-row">
+  <div class="delivery-col" style="max-width:160px;">
+    <div class="org-v"></div>
+    <div class="org-box c-prod">
+      מוצר ולקוח
+      <div class="box-sub">Product · Digital · CRM · AI · Data</div>
+    </div>
+  </div>
+  <div class="delivery-col">
+    <div class="org-v"></div>
+    <div class="org-box c-lt">
+      ליבת חיסכון ארוך טווח
+      <div class="box-sub">חיים · פנסיה · Core Eng</div>
+    </div>
+  </div>
+  <div class="delivery-col">
+    <div class="org-v"></div>
+    <div class="org-box c-inv">
+      ליבת השקעות וכספים
+      <div class="box-sub">Investments · Finance</div>
+    </div>
+  </div>
+  <div class="delivery-col">
+    <div class="org-v"></div>
+    <div class="org-box c-pc">
+      ליבת אלמנטר
+      <div class="box-sub">P&amp;C · General Insurance</div>
+    </div>
+  </div>
+  <div class="delivery-col">
+    <div class="org-v"></div>
+    <div class="org-box c-plat">
+      פלטפורמות טכנולוגיות ותשתיות
+      <div class="box-sub">Cloud · Integration · Data Platform · Forms · Workflow</div>
+    </div>
+  </div>
+  <div class="delivery-col">
+    <div class="org-v"></div>
+    <div class="org-box c-ops">
+      תפעול טכנולוגי ושירותי IT
+      <div class="box-sub">Tech Ops · SRE · NOC · IT Services</div>
+    </div>
+  </div>
+</div>
+
+<!-- MISSION CARDS -->
+<div class="section-heading">מה כל יחידה מחזיקה ומה לא</div>
+<div class="mission-grid">
+
+  <div class="mission-card" style="border-top-color:#455a64;">
+    <div class="mc-title">CTO — ארכיטקטורה ואסטרטגיה</div>
+    <div class="mc-owns-label">מחזיק</div>
+    <div class="tag-list">
+      <span class="tag owns">Enterprise Architecture</span>
+      <span class="tag owns">Solution Architecture</span>
+      <span class="tag owns">Target Architecture</span>
+      <span class="tag owns">Technology Standards</span>
+      <span class="tag owns">Technology Strategy</span>
+      <span class="tag owns">Future Technologies</span>
+      <span class="tag owns">עקרונות Reuse</span>
+    </div>
+    <div class="mc-owns-label">לא מחזיק</div>
+    <div class="tag-list">
+      <span class="tag not">Product Priorities</span>
+      <span class="tag not">ניהול Delivery שוטף</span>
+    </div>
+  </div>
+
+  <div class="mission-card" style="border-top-color:#f57f17;">
+    <div class="mc-title">מטה וניהול פרויקטים רוחביים</div>
+    <div class="mc-owns-label">מחזיק</div>
+    <div class="tag-list">
+      <span class="tag owns">Portfolio Management</span>
+      <span class="tag owns">Capacity Planning</span>
+      <span class="tag owns">Cross-Unit Governance</span>
+      <span class="tag owns">Budget &amp; Reporting</span>
+      <span class="tag owns">PMO</span>
+      <span class="tag owns">Dependency Management</span>
+      <span class="tag owns">תכנית עבודה חטיבתית</span>
+    </div>
+    <div class="mc-owns-label">לא מחזיק</div>
+    <div class="tag-list">
+      <span class="tag not">Product Priorities</span>
+      <span class="tag not">Technical Decisions</span>
+    </div>
+  </div>
+
+  <div class="mission-card" style="border-top-color:#ad1457;">
+    <div class="mc-title">CISO — אבטחת מידע</div>
+    <div class="mc-owns-label">מחזיק</div>
+    <div class="tag-list">
+      <span class="tag owns">Cybersecurity Strategy</span>
+      <span class="tag owns">Security Architecture</span>
+      <span class="tag owns">Threat &amp; Risk Management</span>
+      <span class="tag owns">Privacy &amp; GDPR</span>
+      <span class="tag owns">IAM</span>
+      <span class="tag owns">Compliance &amp; Audit</span>
+      <span class="tag owns">SOC / SIEM</span>
+      <span class="tag owns">Security Review Gates</span>
+    </div>
+    <div class="mc-owns-label">לא מחזיק</div>
+    <div class="tag-list">
+      <span class="tag not">Product Delivery</span>
+      <span class="tag not">Technical Architecture כללי</span>
+    </div>
+  </div>
+
+  <div class="mission-card c-prod-b">
+    <div class="mc-title">מוצר ולקוח</div>
+    <div class="mc-owns-label">מחזיק</div>
+    <div class="tag-list">
+      <span class="tag owns">Product Management</span>
+      <span class="tag owns">E2E Customer Journeys</span>
+      <span class="tag owns">Digital Engineering (Web/App)</span>
+      <span class="tag owns">CRM &amp; Salesforce Dev</span>
+      <span class="tag owns">AI Products</span>
+      <span class="tag owns">Data Products &amp; Analytics</span>
+      <span class="tag owns">Solution Delivery Leads</span>
+      <span class="tag owns">מדדי Outcome</span>
+    </div>
+    <div class="mc-owns-label">לא מחזיק</div>
+    <div class="tag-list">
+      <span class="tag not">מערכות ליבה</span>
+      <span class="tag not">Digital Infrastructure</span>
+      <span class="tag not">CRM Infrastructure</span>
+      <span class="tag not">Data Platform</span>
+    </div>
+  </div>
+
+  <div class="mission-card c-lt-b">
+    <div class="mc-title">ליבת חיסכון ארוך טווח</div>
+    <div class="mc-owns-label">מחזיק</div>
+    <div class="tag-list">
+      <span class="tag owns">System Ownership</span>
+      <span class="tag owns">Development</span>
+      <span class="tag owns">Core Analysis</span>
+      <span class="tag owns">Modernization</span>
+      <span class="tag owns">Regulatory Changes</span>
+      <span class="tag owns">Capacity ליוזמות</span>
+    </div>
+    <div class="mc-owns-label">לא מחזיק</div>
+    <div class="tag-list">
+      <span class="tag not">Product Ownership</span>
+      <span class="tag not">מסע לקוח E2E</span>
+    </div>
+  </div>
+
+  <div class="mission-card c-inv-b">
+    <div class="mc-title">ליבת השקעות וכספים</div>
+    <div class="mc-owns-label">מחזיק</div>
+    <div class="tag-list">
+      <span class="tag owns">System Ownership</span>
+      <span class="tag owns">Development &amp; Maintenance</span>
+      <span class="tag owns">Core Expertise</span>
+      <span class="tag owns">Regulatory Work</span>
+      <span class="tag owns">Capacity ליוזמות</span>
+    </div>
+    <div class="mc-owns-label">לא מחזיק</div>
+    <div class="tag-list">
+      <span class="tag not">הגדרת מוצר עסקי</span>
+      <span class="tag not">מסעות לקוח</span>
+    </div>
+  </div>
+
+  <div class="mission-card c-pc-b">
+    <div class="mc-title">ליבת אלמנטר P&amp;C</div>
+    <div class="mc-owns-label">מחזיק</div>
+    <div class="tag-list">
+      <span class="tag owns">System Ownership</span>
+      <span class="tag owns">Engineering &amp; Maintenance</span>
+      <span class="tag owns">Modernization</span>
+      <span class="tag owns">Regulatory Work</span>
+      <span class="tag owns">Capacity ליוזמות</span>
+    </div>
+    <div class="mc-owns-label">לא מחזיק</div>
+    <div class="tag-list">
+      <span class="tag not">Product Ownership E2E</span>
+      <span class="tag not">בעלות על Journey</span>
+    </div>
+  </div>
+
+  <div class="mission-card c-plat-b">
+    <div class="mc-title">פלטפורמות טכנולוגיות ותשתיות</div>
+    <div class="mc-owns-label">מחזיק</div>
+    <div class="tag-list">
+      <span class="tag owns">Cloud / DevOps</span>
+      <span class="tag owns">Integration &amp; API</span>
+      <span class="tag owns">Data Platform</span>
+      <span class="tag owns">Forms &amp; Documents</span>
+      <span class="tag owns">Workflow / BPM</span>
+      <span class="tag owns">RPA / Automation</span>
+      <span class="tag owns">MDM Technology</span>
+      <span class="tag owns">Messaging &amp; Notifications</span>
+      <span class="tag owns">Digital Infrastructure (Web/App)</span>
+      <span class="tag owns">CRM / Salesforce Infrastructure</span>
+    </div>
+    <div class="mc-owns-label">לא מחזיק</div>
+    <div class="tag-list">
+      <span class="tag not">Digital / CRM Development</span>
+      <span class="tag not">Data Product Roadmap</span>
+      <span class="tag not">Production Operations</span>
+    </div>
+  </div>
+
+  <div class="mission-card c-ops-b">
+    <div class="mc-title">תפעול טכנולוגי ושירותי IT</div>
+    <div class="mc-owns-label">מחזיק</div>
+    <div class="tag-list">
+      <span class="tag owns">Tech Ops &amp; SRE</span>
+      <span class="tag owns">NOC &amp; Production Ops</span>
+      <span class="tag owns">Monitoring</span>
+      <span class="tag owns">Incident &amp; Problem Mgmt</span>
+      <span class="tag owns">IT Services &amp; Workplace</span>
+    </div>
+    <div class="mc-owns-label">לא מחזיק</div>
+    <div class="tag-list">
+      <span class="tag not">Product Roadmap</span>
+      <span class="tag not">Solution Architecture</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- 3 LAYER FRAMING -->
+<div class="section-heading">שלוש שכבות — איך המבנה עובד</div>
+<div style="background:white;border-radius:14px;padding:18px 20px;box-shadow:0 1px 4px rgba(0,0,0,0.07);margin-bottom:28px;">
+  <p style="font-size:11.5px;color:#555;margin-bottom:16px;line-height:1.6;">
+    כל יוזמה מתחילה תמיד ממוצר ולקוח ומתפזרת לשאר היחידות. המטרה: ערך ללקוח (פנימי או חיצוני), בית מקצועי ברור, ואחריות שקופה.
+  </p>
+  <div style="display:flex;gap:0;align-items:stretch;">
+
+    <!-- LAYER 1: PRODUCT & CUSTOMER -->
+    <div style="flex:2;background:#fff5f5;border:2px solid #c62828;border-radius:12px 0 0 12px;padding:16px 18px;">
+      <div style="font-size:10px;font-weight:700;color:#c62828;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">שכבה 1 — Customer-Facing</div>
+      <div style="font-size:14px;font-weight:700;color:#c62828;margin-bottom:8px;">מוצר ולקוח</div>
+      <div style="font-size:11px;color:#444;line-height:1.6;">
+        כאן מנוהלות <strong>כל דרישות הלקוח</strong> וכל <strong>ממשקי הלקוח</strong>.<br>
+        פיתוח דיגיטל, CRM ומסעות לקוח בסיילספורס נמצאים כאן — בהובלת הגורם הטכנולוגי.<br><br>
+        <span style="background:#fce4ec;color:#c62828;font-size:9.5px;padding:2px 7px;border-radius:10px;font-weight:600;">Product Management</span>
+        <span style="background:#fce4ec;color:#c62828;font-size:9.5px;padding:2px 7px;border-radius:10px;font-weight:600;">Digital Engineering</span>
+        <span style="background:#fce4ec;color:#c62828;font-size:9.5px;padding:2px 7px;border-radius:10px;font-weight:600;">CRM &amp; Salesforce Dev</span>
+        <span style="background:#fce4ec;color:#c62828;font-size:9.5px;padding:2px 7px;border-radius:10px;font-weight:600;">AI Products</span>
+        <span style="background:#fce4ec;color:#c62828;font-size:9.5px;padding:2px 7px;border-radius:10px;font-weight:600;">Data Products</span>
+      </div>
+    </div>
+
+    <!-- ARROW -->
+    <div style="display:flex;align-items:center;padding:0 8px;color:#bbb;font-size:22px;background:#f0f2f6;">⟵</div>
+
+    <!-- LAYER 2: CORE -->
+    <div style="flex:1.5;background:#e8f5e9;border-top:2px solid #2e7d32;border-bottom:2px solid #2e7d32;padding:16px 14px;">
+      <div style="font-size:10px;font-weight:700;color:#2e7d32;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">שכבה 2 — Core Systems</div>
+      <div style="font-size:13px;font-weight:700;color:#2e7d32;margin-bottom:8px;">יחידות ליבה</div>
+      <div style="font-size:11px;color:#444;line-height:1.6;">
+        המערכות הביטוחיות — מתועדכנות לפי דרישה ממוצר ולקוח.
+      </div>
+      <div style="margin-top:8px;">
+        <span style="background:#e8f5e9;color:#2e7d32;font-size:9.5px;padding:2px 7px;border-radius:10px;font-weight:600;display:inline-block;margin:2px 0;">חיים ופנסיה</span>
+        <span style="background:#fff3e0;color:#e65100;font-size:9.5px;padding:2px 7px;border-radius:10px;font-weight:600;display:inline-block;margin:2px 0;">אלמנטר</span>
+        <span style="background:#f3e5f5;color:#6a1b9a;font-size:9.5px;padding:2px 7px;border-radius:10px;font-weight:600;display:inline-block;margin:2px 0;">השקעות</span>
+      </div>
+    </div>
+
+    <!-- ARROW -->
+    <div style="display:flex;align-items:center;padding:0 8px;color:#bbb;font-size:22px;background:#f0f2f6;">⟵</div>
+
+    <!-- LAYER 3: PLATFORMS & INFRA -->
+    <div style="flex:2;background:#e0f7fa;border:2px solid #00838f;border-radius:0 12px 12px 0;padding:16px 14px;">
+      <div style="font-size:10px;font-weight:700;color:#00838f;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">שכבה 3 — Infrastructure</div>
+      <div style="font-size:13px;font-weight:700;color:#00695c;margin-bottom:8px;">פלטפורמות ותשתיות</div>
+      <div style="font-size:11px;color:#444;line-height:1.6;">
+        כולל תשתית CRM ותשתית דיגיטל — מנוהלות וממותגות כאן, בעוד הפיתוח עצמו ב"מוצר ולקוח".
+      </div>
+      <div style="margin-top:8px;">
+        <span style="background:#e0f7fa;color:#00695c;font-size:9.5px;padding:2px 7px;border-radius:10px;font-weight:600;display:inline-block;margin:2px 0;">Cloud &amp; DevOps</span>
+        <span style="background:#e0f7fa;color:#00695c;font-size:9.5px;padding:2px 7px;border-radius:10px;font-weight:600;display:inline-block;margin:2px 0;">Digital Infra</span>
+        <span style="background:#e0f7fa;color:#00695c;font-size:9.5px;padding:2px 7px;border-radius:10px;font-weight:600;display:inline-block;margin:2px 0;">CRM Infra</span>
+        <span style="background:#e0f7fa;color:#00695c;font-size:9.5px;padding:2px 7px;border-radius:10px;font-weight:600;display:inline-block;margin:2px 0;">Integration</span>
+        <span style="background:#e0f7fa;color:#00695c;font-size:9.5px;padding:2px 7px;border-radius:10px;font-weight:600;display:inline-block;margin:2px 0;">Data Platform</span>
+        <span style="background:#e0f7fa;color:#00695c;font-size:9.5px;padding:2px 7px;border-radius:10px;font-weight:600;display:inline-block;margin:2px 0;">Forms &amp; Workflow</span>
+      </div>
+    </div>
+
+  </div>
+  <div style="text-align:center;margin-top:12px;font-size:11px;color:#888;font-style:italic;">
+    תהליך העבודה תמיד מתחיל ממוצר ולקוח ומתפזר לשאר יחידות הפיתוח
+  </div>
+</div>
+
+<!-- FLOW -->
+<div class="section-heading">איך יוזמה עוברת מרעיון למוצר</div>
+<div class="flow-container">
+  <div class="flow-steps">
+    <div class="flow-step">
+      <div class="flow-box">Discovery &amp; Product Definition<div class="fsub">מחקר לקוח · Outcome · E2E Journey · KPI</div></div>
+    </div>
+    <div class="flow-arrow-col">&#x2190;</div>
+    <div class="flow-step">
+      <div class="flow-box">Product + Architecture Shaping<div class="fsub">תרגום לפתרון · מניעת כפילויות · Build/Buy</div></div>
+    </div>
+    <div class="flow-arrow-col">&#x2190;</div>
+    <div class="flow-step">
+      <div class="flow-box">Delivery &amp; Resource Shaping<div class="fsub">Resource Map · Capacity Commitment</div></div>
+    </div>
+    <div class="flow-arrow-col">&#x2190;</div>
+    <div class="flow-step">
+      <div class="flow-box">Engineering Delivery<div class="fsub">Design · Dev · QA · Release</div></div>
+    </div>
+    <div class="flow-arrow-col">&#x2190;</div>
+    <div class="flow-step">
+      <div class="flow-box">Measure Outcome<div class="fsub">KPI · Business Value · Iteration</div></div>
+    </div>
+  </div>
+  <div class="flow-owner-row">
+    <div class="flow-owner fo-prod">Product</div>
+    <div class="fo-gap"></div>
+    <div class="flow-owner fo-arch">Product + Architecture</div>
+    <div class="fo-gap"></div>
+    <div class="flow-owner fo-prod">Product + מטה</div>
+    <div class="fo-gap"></div>
+    <div class="flow-owner fo-eng">Engineering Units</div>
+    <div class="fo-gap"></div>
+    <div class="flow-owner fo-prod">Product</div>
+  </div>
+</div>
+
+<!-- THREE TIERS -->
+<div class="section-heading">שלוש רמות עבודה</div>
+<div class="tiers-row">
+  <div class="tier-card t1">
+    <div class="tier-label">Tier 1</div>
+    <div class="tier-title">יוזמה אסטרטגית / E2E</div>
+    <ul class="tier-chars">
+      <li>חוצה מספר יחידות</li>
+      <li>Outcome עסקי משמעותי</li>
+      <li>Capacity committed מראש</li>
+    </ul>
+    <div class="tier-model">
+      <div class="tm-label">מודל</div>
+      Product Lead + E2E Technical Delivery Lead + Cross-functional Squad
+      <div class="squad-member-row">
+        <span class="squad-member sm-prod">Product Lead</span>
+        <span class="squad-member sm-prod">Delivery Lead</span>
+        <span class="squad-member sm-dig">Digital Dev</span>
+        <span class="squad-member sm-core">Core Analyst/Dev</span>
+        <span class="squad-member sm-plat">Integration</span>
+        <span class="squad-member sm-data">AI / Data</span>
+        <span class="squad-member sm-qa">QA</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tier-card t2">
+    <div class="tier-label">Tier 2</div>
+    <div class="tier-title">Feature / שינוי משמעותי</div>
+    <ul class="tier-chars">
+      <li>שינוי בינוני · 1–2 מערכות</li>
+      <li>לא מצדיק Squad ייעודי</li>
+    </ul>
+    <div class="tier-model">
+      <div class="tm-label">מודל</div>
+      PM + צוותים קיימים + מומחים רלוונטיים
+      <div class="squad-member-row">
+        <span class="squad-member sm-prod">Product Manager</span>
+        <span class="squad-member sm-core">מומחי מערכת</span>
+        <span class="squad-member sm-dig">Digital (אם נדרש)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tier-card t3">
+    <div class="tier-label">Tier 3</div>
+    <div class="tier-title">BAU / שינוי קטן / רגולציה</div>
+    <ul class="tier-chars">
+      <li>תחזוקה, תקלות, רגולציה</li>
+      <li>עשרות שינויים במקביל</li>
+    </ul>
+    <div class="tier-model">
+      <div class="tm-label">מודל</div>
+      Backlog קבוע של היחידה · Capacity שמור
+      <div style="font-size:9.5px;color:#555;margin-top:5px;">אין פרויקט · אין Squad · אין תיאום cross-unit</div>
+    </div>
+  </div>
+</div>
+
+<!-- DATA SPLIT -->
+<div class="section-heading">Data — חלוקת בעלויות</div>
+<div class="data-row">
+  <div class="data-card">
+    <div class="dc-title">Data שמייצר מוצר / החלטה</div>
+    <div class="dc-home prod">מוצר, AI ופתרונות דאטה</div>
+    <ul class="dc-items">
+      <li>Data Product</li>
+      <li>Analytics &amp; Data Science</li>
+      <li>ML &amp; AI Use Cases</li>
+      <li>Business Data Governance</li>
+    </ul>
+  </div>
+  <div class="data-card">
+    <div class="dc-title">Data שמייצר תשתית</div>
+    <div class="dc-home plat">פלטפורמות טכנולוגיות</div>
+    <ul class="dc-items">
+      <li>Data Platform</li>
+      <li>Ingestion · Storage · Processing</li>
+      <li>Platform Tooling &amp; MDM Tech</li>
+    </ul>
+  </div>
+  <div class="data-card">
+    <div class="dc-title">Data Architecture</div>
+    <div class="dc-home arch">CTO / ארכיטקטורה</div>
+    <ul class="dc-items">
+      <li>Target Data Architecture</li>
+      <li>Standards &amp; Integration Principles</li>
+      <li>Architecture Governance</li>
+    </ul>
+  </div>
+</div>
+
+<!-- AI SDLC -->
+<div class="section-heading">AI SDLC — שיטת עבודה של כל החטיבה</div>
+<div class="sdlc-row">
+  <div class="sdlc-step">
+    <div class="ss-name">Discover</div>
+    <div class="ss-item">האם AI הוא הפתרון?</div>
+    <div class="ss-item">מה הערך?</div>
+    <div class="ss-item">מה הסיכון?</div>
+    <div><span class="ss-ai">AI: research</span></div>
+  </div>
+  <div class="sdlc-step">
+    <div class="ss-name">Shape</div>
+    <div class="ss-item">Data availability</div>
+    <div class="ss-item">Buy vs Build</div>
+    <div class="ss-item">Cost · Security</div>
+    <div><span class="ss-ai">AI: exploration</span></div>
+  </div>
+  <div class="sdlc-step">
+    <div class="ss-name">Design</div>
+    <div class="ss-item">System/Prompt design</div>
+    <div class="ss-item">Human-in-the-loop</div>
+    <div class="ss-item">Fallback</div>
+    <div><span class="ss-ai">AI: spec, mapping</span></div>
+  </div>
+  <div class="sdlc-step">
+    <div class="ss-name">Build</div>
+    <div class="ss-item">Development</div>
+    <div class="ss-item">Eval dataset</div>
+    <div class="ss-item">Integration</div>
+    <div><span class="ss-ai">AI: code gen</span></div>
+  </div>
+  <div class="sdlc-step">
+    <div class="ss-name">Validate</div>
+    <div class="ss-item">Accuracy · Bias</div>
+    <div class="ss-item">Hallucination</div>
+    <div class="ss-item">Security · Privacy</div>
+    <div><span class="ss-ai">AI: test gen</span></div>
+  </div>
+  <div class="sdlc-step">
+    <div class="ss-name">Release</div>
+    <div class="ss-item">Approval gates</div>
+    <div class="ss-item">Rollout + Fallback</div>
+    <div class="ss-item">Monitoring setup</div>
+    <div><span class="ss-ai">AI: code review</span></div>
+  </div>
+  <div class="sdlc-step">
+    <div class="ss-name">Run &amp; Measure</div>
+    <div class="ss-item">Quality · Drift</div>
+    <div class="ss-item">User feedback</div>
+    <div class="ss-item">Business Outcome</div>
+    <div><span class="ss-ai">AI: monitoring</span></div>
+  </div>
+</div>
+
+<!-- PRINCIPLES -->
+<div class="section-heading">משפטי המפתח</div>
+<div class="principles-grid">
+  <div class="principle-card"><div class="pc-text">Product leads the demand. Architecture shapes the solution. Engineering delivers it. Platforms enable it.</div></div>
+  <div class="principle-card"><div class="pc-text">Product owns the change engine, not the technology estate.</div></div>
+  <div class="principle-card"><div class="pc-text">Squads are a delivery model, not the organizational structure.</div></div>
+  <div class="principle-card"><div class="pc-text">Organizational units are homes of expertise; cross-functional squads deliver outcomes.</div></div>
+  <div class="principle-card"><div class="pc-text">Engineering units commit capacity to prioritized outcomes — not simply receive requirements.</div></div>
+  <div class="principle-card"><div class="pc-text">Data Product owns the value and roadmap; Data Platform owns the technology.</div></div>
+  <div class="principle-card"><div class="pc-text">Customer work starts at Product &amp; Customer. Core systems execute. Platforms enable. Every initiative exits through customer value.</div></div>
+  <div class="principle-card"><div class="pc-text">Digital and CRM development live in Product. Digital and CRM infrastructure lives in Platforms. Clear home, clear accountability.</div></div>
+</div>
+
+</div><!-- end tab1 -->
+
+<!-- ================================================================ -->
+<!-- TAB 2: PRODUCT UNIT DEEP DIVE -->
+<!-- ================================================================ -->
+<div id="tab2" class="tab-content">
+
+<div class="page-title">יחידת מוצר ולקוח — מבנה פנימי</div>
+<div class="page-sub">ה-Frontend האחיד של החטיבה — מנהלת את כל דרישות הלקוח, ממשקי הלקוח, פיתוח דיגיטל ו-CRM, ומחברת מול יחידות הליבה</div>
+
+<!-- TOP BOX -->
+<div class="section-heading">ראש היחידה ומה תחתיו</div>
+
+<div class="prod-unit-top">
+  ראש יחידת מוצר ולקוח
+  <div class="role">Head of Product &amp; Customer</div>
+</div>
+<div class="v-conn" style="background:#c62828;"></div>
+
+<!-- AI Transformation note -->
+<div style="text-align:center;margin-bottom:12px;">
+  <span style="background:#1a1a2e;color:white;font-size:10.5px;font-weight:600;padding:4px 14px;border-radius:20px;">AI Transformation — אחריות רוחבית של ראש היחידה, לא ורטיקל נפרד</span>
+</div>
+
+<!-- WHAT THIS UNIT OWNS - CUSTOMER LAYER CALLOUT -->
+<div style="background:#fff5f5;border:1.5px solid #c62828;border-radius:10px;padding:14px 18px;margin-bottom:22px;">
+  <div style="font-size:13px;font-weight:700;color:#c62828;margin-bottom:10px;">היחידה מנהלת את כל ה-Frontend של הלקוח במקום אחד</div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;">
+    <div style="background:white;border-radius:8px;padding:10px 12px;flex:1;min-width:140px;border-right:3px solid #c62828;">
+      <div style="font-size:11px;font-weight:700;color:#c62828;margin-bottom:4px;">דרישות לקוח</div>
+      <div style="font-size:10.5px;color:#555;">Product Management · Journey Definition · Outcome Ownership · KPI</div>
+    </div>
+    <div style="background:white;border-radius:8px;padding:10px 12px;flex:1;min-width:140px;border-right:3px solid #0277bd;">
+      <div style="font-size:11px;font-weight:700;color:#0277bd;margin-bottom:4px;">ממשקי לקוח דיגיטליים</div>
+      <div style="font-size:10.5px;color:#555;">Web · App · Digital Engineering · UX</div>
+    </div>
+    <div style="background:white;border-radius:8px;padding:10px 12px;flex:1;min-width:140px;border-right:3px solid #1565c0;">
+      <div style="font-size:11px;font-weight:700;color:#1565c0;margin-bottom:4px;">מסעות לקוח ב-CRM</div>
+      <div style="font-size:10.5px;color:#555;">Salesforce · Customer Journeys · Agent Portal · CRM Dev</div>
+    </div>
+    <div style="background:white;border-radius:8px;padding:10px 12px;flex:1;min-width:140px;border-right:3px solid #6a1b9a;">
+      <div style="font-size:11px;font-weight:700;color:#6a1b9a;margin-bottom:4px;">מוצרי AI ודאטה</div>
+      <div style="font-size:10.5px;color:#555;">AI Products · Data Products · Analytics · ML Models</div>
+    </div>
+  </div>
+  <div style="margin-top:10px;background:#fce4ec;border-radius:6px;padding:8px 12px;font-size:11px;color:#c62828;">
+    <strong>חיבור מול יחידות הליבה:</strong> היחידה מגדירה מה נדרש מהליבה לפרויקטים רוחביים ומנהלת את התיאום. הליבה מממשת בתוך המערכות שלה.
+  </div>
+</div>
+
+<div class="prod-sub-row" style="gap:18px;">
+
+  <!-- VERTICAL 1: PRODUCT -->
+  <div class="prod-sub-col">
+    <div class="org-v" style="background:#c62828;"></div>
+    <div class="prod-sub-box pu-pm">
+      <div class="psb-title" style="color:#c62828;font-size:14px;">מוצר</div>
+      <div style="font-size:10px;color:#888;margin-bottom:8px;font-weight:600;text-transform:uppercase;">Product Management</div>
+
+      <div style="font-size:10px;font-weight:700;color:#c62828;margin:6px 0 3px;">ניהול מוצר</div>
+      <div class="psb-item"><span class="dot dot-pm"></span>Product Managers — לפי Journey/Domain</div>
+      <div class="psb-item"><span class="dot dot-pm"></span>Product Managers עם התמחות AI<br><span style="font-size:9.5px;color:#888;padding-right:13px;">מגדירים מה המוצר יעשה, לא בונים אותו</span></div>
+      <div class="psb-item"><span class="dot dot-pm"></span>Product Portfolio &amp; Priorities</div>
+      <div class="psb-item"><span class="dot dot-pm"></span>KPI &amp; Outcome Ownership</div>
+
+      <div style="font-size:10px;font-weight:700;color:#c62828;margin:8px 0 3px;">ניתוח מוצר ותהליך</div>
+      <div class="psb-item"><span class="dot dot-pm"></span>Product / Solution Analysts</div>
+      <div class="psb-item"><span class="dot dot-pm"></span>Business Process &amp; Journey Analysts</div>
+      <div class="psb-item"><span class="dot dot-pm"></span>Customer &amp; Business Discovery</div>
+
+      <div style="font-size:10px;font-weight:700;color:#c62828;margin:8px 0 3px;">עיצוב חוויה</div>
+      <div class="psb-item"><span class="dot dot-pm"></span>UX / Product Designers (Shared)</div>
+    </div>
+  </div>
+
+  <!-- VERTICAL 2: ENGINEERING -->
+  <div class="prod-sub-col">
+    <div class="org-v" style="background:#f57f17;"></div>
+    <div class="prod-sub-box pu-delivery">
+      <div class="psb-title" style="color:#e65100;font-size:14px;">הנדסה</div>
+      <div style="font-size:10px;color:#888;margin-bottom:8px;font-weight:600;text-transform:uppercase;">Solution Engineering</div>
+
+      <div style="font-size:10px;font-weight:700;color:#e65100;margin:6px 0 3px;">הובלת Delivery</div>
+      <div class="psb-item"><span class="dot dot-delivery"></span>E2E Technical Delivery Leads<br><span style="font-size:9.5px;color:#888;padding-right:13px;">How · Plan · Dependencies · Release</span></div>
+      <div class="psb-item"><span class="dot dot-delivery"></span>Solution Architects (בתוך מוצר)</div>
+
+      <div style="font-size:10px;font-weight:700;color:#e65100;margin:8px 0 3px;">פיתוח מוצרי</div>
+      <div class="psb-item"><span class="dot dot-delivery"></span>Solution / Application Engineers</div>
+      <div class="psb-item"><span class="dot dot-delivery"></span>Orchestration &amp; New Services<br><span style="font-size:9.5px;color:#888;padding-right:13px;">שירותים שלא שייכים לאף ליבה קיימת</span></div>
+      <div class="psb-item"><span class="dot dot-delivery"></span>Integration &amp; API Design</div>
+
+      <div style="font-size:10px;font-weight:700;color:#e65100;margin:8px 0 3px;">הנדסת AI</div>
+      <div class="psb-item"><span class="dot dot-delivery"></span>AI / GenAI Engineers<br><span style="font-size:9.5px;color:#888;padding-right:13px;">בונים את המוצר — לא מגדירים אותו</span></div>
+      <div class="psb-item"><span class="dot dot-delivery"></span>Prompt &amp; System Engineers</div>
+      <div class="psb-item"><span class="dot dot-delivery"></span>AI Evaluation &amp; Quality</div>
+
+      <div style="font-size:10px;font-weight:700;color:#0277bd;margin:10px 0 3px;padding-top:8px;border-top:1px dashed #e0e0e0;">פיתוח דיגיטל ו-CRM</div>
+      <div style="font-size:9.5px;color:#888;margin-bottom:5px;">פיתוח נמצא כאן · תשתית בפלטפורמות</div>
+      <div class="psb-item"><span class="dot" style="background:#0277bd;"></span>Digital / Frontend Engineers (Web &amp; App)</div>
+      <div class="psb-item"><span class="dot" style="background:#0277bd;"></span>CRM Engineers — Salesforce</div>
+      <div class="psb-item"><span class="dot" style="background:#0277bd;"></span>Customer Journey Builders</div>
+      <div class="psb-item"><span class="dot" style="background:#0277bd;"></span>UX Engineers &amp; Interaction Design</div>
+    </div>
+  </div>
+
+  <!-- VERTICAL 3: DATA -->
+  <div class="prod-sub-col">
+    <div class="org-v" style="background:#00838f;"></div>
+    <div class="prod-sub-box pu-data">
+      <div class="psb-title" style="color:#00695c;font-size:14px;">דאטה</div>
+      <div style="font-size:10px;color:#888;margin-bottom:8px;font-weight:600;text-transform:uppercase;">Data Products &amp; Analytics</div>
+
+      <div style="font-size:10px;font-weight:700;color:#00695c;margin:6px 0 3px;">ניהול מוצרי דאטה</div>
+      <div class="psb-item"><span class="dot dot-data"></span>Data Product Managers</div>
+      <div class="psb-item"><span class="dot dot-data"></span>Data Governance — Business Side</div>
+      <div class="psb-item"><span class="dot dot-data"></span>Data Roadmap &amp; Priorities</div>
+
+      <div style="font-size:10px;font-weight:700;color:#00695c;margin:8px 0 3px;">מדע ואנליטיקה</div>
+      <div class="psb-item"><span class="dot dot-data"></span>Data Scientists</div>
+      <div class="psb-item"><span class="dot dot-data"></span>Analytics Engineers</div>
+      <div class="psb-item"><span class="dot dot-data"></span>Business Intelligence</div>
+
+      <div style="font-size:10px;font-weight:700;color:#00695c;margin:8px 0 3px;">הנדסת מודלים</div>
+      <div class="psb-item"><span class="dot dot-data"></span>ML Engineers<br><span style="font-size:9.5px;color:#888;padding-right:13px;">מודלים עסקיים — תמחור, חיתום, fraud</span></div>
+      <div class="psb-item"><span class="dot dot-data"></span>Model Monitoring &amp; Drift</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- AI ROLE SPLIT CALLOUT -->
+<div style="background:#f8faff;border:1.5px solid #c4cfe8;border-radius:10px;padding:14px 18px;margin-top:20px;">
+  <div style="font-size:12px;font-weight:700;color:#1a1a2e;margin-bottom:10px;">פיזור תפקידי AI בין הורטיקלים — לפי סקיל, לא לפי נושא</div>
+  <div style="display:flex;gap:12px;">
+    <div style="flex:1;background:white;border-radius:8px;padding:10px 12px;border-right:3px solid #c62828;">
+      <div style="font-size:11px;font-weight:700;color:#c62828;margin-bottom:4px;">מוצר — מגדיר מה ולמה</div>
+      <div style="font-size:10.5px;color:#555;">PM עם התמחות AI — מגדיר את מוצר ה-AI, מה הוא צריך לעשות, מה ה-KPI, מה ה-Acceptance Criteria. לא כותב Prompt, לא בונה מודל.</div>
+    </div>
+    <div style="flex:1;background:white;border-radius:8px;padding:10px 12px;border-right:3px solid #f57f17;">
+      <div style="font-size:11px;font-weight:700;color:#e65100;margin-bottom:4px;">הנדסה — בונה ומפעיל</div>
+      <div style="font-size:10.5px;color:#555;">AI Engineer / GenAI Engineer — בונה את הפתרון. כותב Prompts, מממש RAG, מחבר ל-LLM, בונה Evaluation. ה-Skill הוא הנדסי.</div>
+    </div>
+    <div style="flex:1;background:white;border-radius:8px;padding:10px 12px;border-right:3px solid #00838f;">
+      <div style="font-size:11px;font-weight:700;color:#00695c;margin-bottom:4px;">דאטה — מודלים ומדידה</div>
+      <div style="font-size:10.5px;color:#555;">ML Engineer / Data Scientist — בונה מודלים עסקיים (תמחור, חיתום, fraud detection). עוסק ב-Feature Engineering, Model Training, Monitoring.</div>
+    </div>
+  </div>
+</div>
+
+<!-- DELIVERY HIGHLIGHT -->
+<div class="delivery-highlight">
+  <div class="dh-title">ורטיקל הנדסה — מה הוא עושה ומה לא</div>
+  <p style="font-size:11.5px;color:#555;margin-bottom:14px;">זו יכולת הביצוע הייחודית של יחידת המוצר. היא מאפשרת למוצר לא להישאר רק "מגדיר דרישות" — אלא לקחת בעלות טכנית אמיתית על פתרון E2E. ה-E2E Technical Delivery Lead הוא ה-"How" לעומת ה-PM שהוא ה-"Why ו-What".</p>
+  <div class="dh-row">
+    <div class="dh-col">
+      <div class="dh-col-title" style="color:#2e7d32;">כן עושה</div>
+      <ul>
+        <li>מוביל את ה-Delivery הטכני E2E בין יחידות</li>
+        <li>בונה Orchestration layers ושירותים חדשים שאינם שייכים לליבה קיימת</li>
+        <li>מממש מוצרי AI end-to-end</li>
+        <li>מחבר API בין מערכות ומגדיר Interfaces</li>
+        <li>מנהל Technical Delivery Plan</li>
+        <li>תכנון Dependencies, Risks ו-Release</li>
+      </ul>
+    </div>
+    <div class="dh-col">
+      <div class="dh-col-title" style="color:#c62828;">לא עושה</div>
+      <ul>
+        <li>לא מפתח ב-Core Systems (פנסיה, אלמנטר, השקעות)</li>
+        <li>לא מחזיק תשתית Digital / CRM (זה בפלטפורמות)</li>
+        <li>לא מחזיק Data Platform ותשתית</li>
+        <li>לא מחזיק Cloud / DevOps / Integration Platform</li>
+        <li>לא מחליף את ה-Core Engineers</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- HOLISTIC TEAMS -->
+<div class="section-heading">צוותים הוליסטיים — שכבת ה-Delivery לפי ורטיקלים עסקיים</div>
+
+<div style="background:white;border-radius:14px;padding:20px;box-shadow:0 1px 6px rgba(0,0,0,0.09);">
+
+  <!-- EXPLANATION -->
+  <p style="font-size:11.5px;color:#555;margin-bottom:18px;line-height:1.6;">
+    שלושת הורטיקלים (מוצר / הנדסה / דאטה) הם <strong>בתים ארגוניים</strong> — בהם חי כל עובד מקצועית. ורטיקל הנדסה כולל כעת גם מפתחי Digital ו-CRM. ה-Delivery נעשה דרך <strong>צוותים הוליסטיים</strong> שמאורגנים לפי ורטיקל עסקי E2E. כל צוות מוביל זוג: <strong>מנהל צוות מוצר</strong> ולצידו <strong>מנהל צוות טכני</strong>, ותחתם סקואדים לפי יוזמות. הסקואד צורך גם כוח אדם מיחידות ליבה לפי צורך.
+  </p>
+
+  <!-- ORG HOMES ROW -->
+  <div style="display:flex;gap:8px;justify-content:center;margin-bottom:6px;">
+    <div style="background:#fff5f5;border:1.5px solid #c62828;border-radius:8px;padding:6px 18px;font-size:11px;font-weight:700;color:#c62828;">מוצר</div>
+    <div style="background:#fff8f0;border:1.5px solid #f57f17;border-radius:8px;padding:6px 18px;font-size:11px;font-weight:700;color:#e65100;">הנדסה</div>
+    <div style="background:#f0fafa;border:1.5px solid #00838f;border-radius:8px;padding:6px 18px;font-size:11px;font-weight:700;color:#00695c;">דאטה</div>
+  </div>
+  <div style="text-align:center;font-size:10px;color:#aaa;margin-bottom:4px;">בתים ארגוניים — ניהול מקצועי, career, standards</div>
+  <div style="text-align:center;font-size:20px;color:#ccc;margin-bottom:4px;">↓</div>
+  <div style="text-align:center;font-size:10.5px;font-weight:700;color:#555;background:#f0f2f6;border-radius:6px;padding:5px;margin-bottom:14px;">
+    אנשים מה-3 ורטיקלים משובצים בצוותים הוליסטיים לפי ורטיקל עסקי
+  </div>
+
+  <!-- HOLISTIC TEAMS GRID -->
+  <div style="display:flex;gap:10px;align-items:flex-start;">
+
+    <!-- TEAM: LIFE & PENSION -->
+    <div style="flex:1;border:2px solid #2e7d32;border-radius:12px;overflow:hidden;">
+      <div style="background:#2e7d32;color:white;padding:8px 12px;font-size:11.5px;font-weight:700;text-align:center;">
+        חיים, פנסיה וחיסכון
+      </div>
+      <!-- dual leads -->
+      <div style="display:flex;gap:0;border-bottom:1px solid #e0e0e0;">
+        <div style="flex:1;background:#e8f5e9;padding:8px 10px;text-align:center;border-left:1px solid #e0e0e0;">
+          <div style="font-size:10px;font-weight:700;color:#c62828;">מנהל צוות מוצר</div>
+          <div style="font-size:9.5px;color:#555;margin-top:2px;">Journey · Outcome · Priority</div>
+        </div>
+        <div style="flex:1;background:#e8f5e9;padding:8px 10px;text-align:center;">
+          <div style="font-size:10px;font-weight:700;color:#e65100;">מנהל צוות טכני</div>
+          <div style="font-size:9.5px;color:#555;margin-top:2px;">Architecture · Delivery · Risk</div>
+        </div>
+      </div>
+      <!-- squads -->
+      <div style="padding:8px 10px;background:#f9fdf9;">
+        <div style="font-size:9.5px;font-weight:700;color:#888;margin-bottom:5px;text-transform:uppercase;">סקואדים</div>
+        <div style="background:white;border-radius:6px;padding:5px 8px;font-size:10px;color:#444;margin-bottom:4px;border-right:2px solid #2e7d32;">
+          הצטרפות דיגיטלית — פנסיה וגמל
+        </div>
+        <div style="background:white;border-radius:6px;padding:5px 8px;font-size:10px;color:#444;margin-bottom:4px;border-right:2px solid #2e7d32;">
+          שירות עצמי ושינויי פוליסה
+        </div>
+        <div style="background:white;border-radius:6px;padding:5px 8px;font-size:10px;color:#444;border-right:2px solid #2e7d32;">
+          AI תביעות חיים
+        </div>
+      </div>
+      <!-- squad composition -->
+      <div style="padding:6px 10px 8px;background:#f9fdf9;border-top:1px dashed #c8e6c9;">
+        <div style="font-size:9px;color:#888;margin-bottom:3px;">הרכב כל סקואד — מהבתים הארגוניים:</div>
+        <div style="display:flex;flex-wrap:wrap;gap:3px;">
+          <span style="background:#fff5f5;color:#c62828;font-size:9px;padding:1px 6px;border-radius:10px;font-weight:600;">PM</span>
+          <span style="background:#fff5f5;color:#c62828;font-size:9px;padding:1px 6px;border-radius:10px;font-weight:600;">Analyst</span>
+          <span style="background:#fff8f0;color:#e65100;font-size:9px;padding:1px 6px;border-radius:10px;font-weight:600;">Delivery Lead</span>
+          <span style="background:#fff8f0;color:#e65100;font-size:9px;padding:1px 6px;border-radius:10px;font-weight:600;">Engineer</span>
+          <span style="background:#fff8f0;color:#e65100;font-size:9px;padding:1px 6px;border-radius:10px;font-weight:600;">AI Eng</span>
+          <span style="background:#f0fafa;color:#00695c;font-size:9px;padding:1px 6px;border-radius:10px;font-weight:600;">Data</span>
+          <span style="background:#fff8f0;color:#e65100;font-size:9px;padding:1px 6px;border-radius:10px;font-weight:600;">Digital/CRM Eng</span>
+          <span style="background:#eceff1;color:#455a64;font-size:9px;padding:1px 6px;border-radius:10px;font-weight:600;">Core (חיצוני)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEAM: P&C -->
+    <div style="flex:1;border:2px solid #e65100;border-radius:12px;overflow:hidden;">
+      <div style="background:#e65100;color:white;padding:8px 12px;font-size:11.5px;font-weight:700;text-align:center;">
+        אלמנטר ורכב
+      </div>
+      <div style="display:flex;gap:0;border-bottom:1px solid #e0e0e0;">
+        <div style="flex:1;background:#fff3e0;padding:8px 10px;text-align:center;border-left:1px solid #e0e0e0;">
+          <div style="font-size:10px;font-weight:700;color:#c62828;">מנהל צוות מוצר</div>
+          <div style="font-size:9.5px;color:#555;margin-top:2px;">Journey · Outcome · Priority</div>
+        </div>
+        <div style="flex:1;background:#fff3e0;padding:8px 10px;text-align:center;">
+          <div style="font-size:10px;font-weight:700;color:#e65100;">מנהל צוות טכני</div>
+          <div style="font-size:9.5px;color:#555;margin-top:2px;">Architecture · Delivery · Risk</div>
+        </div>
+      </div>
+      <div style="padding:8px 10px;background:#fffaf5;">
+        <div style="font-size:9.5px;font-weight:700;color:#888;margin-bottom:5px;text-transform:uppercase;">סקואדים</div>
+        <div style="background:white;border-radius:6px;padding:5px 8px;font-size:10px;color:#444;margin-bottom:4px;border-right:2px solid #e65100;">
+          רכישת פוליסה דיגיטלית
+        </div>
+        <div style="background:white;border-radius:6px;padding:5px 8px;font-size:10px;color:#444;margin-bottom:4px;border-right:2px solid #e65100;">
+          תביעות אלמנטר + AI
+        </div>
+        <div style="background:white;border-radius:6px;padding:5px 8px;font-size:10px;color:#444;border-right:2px solid #e65100;">
+          חיתום ותמחור דיגיטלי
+        </div>
+      </div>
+      <div style="padding:6px 10px 8px;background:#fffaf5;border-top:1px dashed #ffccbc;">
+        <div style="font-size:9px;color:#888;margin-bottom:3px;">הרכב כל סקואד:</div>
+        <div style="display:flex;flex-wrap:wrap;gap:3px;">
+          <span style="background:#fff5f5;color:#c62828;font-size:9px;padding:1px 6px;border-radius:10px;font-weight:600;">PM</span>
+          <span style="background:#fff5f5;color:#c62828;font-size:9px;padding:1px 6px;border-radius:10px;font-weight:600;">Analyst</span>
+          <span style="background:#fff8f0;color:#e65100;font-size:9px;padding:1px 6px;border-radius:10px;font-weight:600;">Delivery Lead</span>
+          <span style="background:#fff8f0;color:#e65100;font-size:9px;padding:1px 6px;border-radius:10px;font-weight:600;">Engineer</span>
+          <span style="background:#fff8f0;color:#e65100;font-size:9px;padding:1px 6px;border-radius:10px;font-weight:600;">AI Eng</span>
+          <span style="background:#f0fafa;color:#00695c;font-size:9px;padding:1px 6px;border-radius:10px;font-weight:600;">Data</span>
+          <span style="background:#fff8f0;color:#e65100;font-size:9px;padding:1px 6px;border-radius:10px;font-weight:600;">Digital/CRM Eng</span>
+          <span style="background:#eceff1;color:#455a64;font-size:9px;padding:1px 6px;border-radius:10px;font-weight:600;">Core (חיצוני)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEAM: SERVICE & DISTRIBUTION -->
+    <div style="flex:1;border:2px solid #0277bd;border-radius:12px;overflow:hidden;">
+      <div style="background:#0277bd;color:white;padding:8px 12px;font-size:11.5px;font-weight:700;text-align:center;">
+        שירות לקוחות והפצה
+      </div>
+      <div style="display:flex;gap:0;border-bottom:1px solid #e0e0e0;">
+        <div style="flex:1;background:#e3f2fd;padding:8px 10px;text-align:center;border-left:1px solid #e0e0e0;">
+          <div style="font-size:10px;font-weight:700;color:#c62828;">מנהל צוות מוצר</div>
+          <div style="font-size:9.5px;color:#555;margin-top:2px;">Journey · Outcome · Priority</div>
+        </div>
+        <div style="flex:1;background:#e3f2fd;padding:8px 10px;text-align:center;">
+          <div style="font-size:10px;font-weight:700;color:#e65100;">מנהל צוות טכני</div>
+          <div style="font-size:9.5px;color:#555;margin-top:2px;">Architecture · Delivery · Risk</div>
+        </div>
+      </div>
+      <div style="padding:8px 10px;background:#f5faff;">
+        <div style="font-size:9.5px;font-weight:700;color:#888;margin-bottom:5px;text-transform:uppercase;">סקואדים</div>
+        <div style="background:white;border-radius:6px;padding:5px 8px;font-size:10px;color:#444;margin-bottom:4px;border-right:2px solid #0277bd;">
+          Self Service &amp; Agent Portal
+        </div>
+        <div style="background:white;border-radius:6px;padding:5px 8px;font-size:10px;color:#444;margin-bottom:4px;border-right:2px solid #0277bd;">
+          CX AI — שירות אוטומטי
+        </div>
+        <div style="background:white;border-radius:6px;padding:5px 8px;font-size:10px;color:#444;border-right:2px solid #0277bd;">
+          הפצה וסוכנים דיגיטלי
+        </div>
+      </div>
+      <div style="padding:6px 10px 8px;background:#f5faff;border-top:1px dashed #bbdefb;">
+        <div style="font-size:9px;color:#888;margin-bottom:3px;">הרכב כל סקואד:</div>
+        <div style="display:flex;flex-wrap:wrap;gap:3px;">
+          <span style="background:#fff5f5;color:#c62828;font-size:9px;padding:1px 6px;border-radius:10px;font-weight:600;">PM</span>
+          <span style="background:#fff5f5;color:#c62828;font-size:9px;padding:1px 6px;border-radius:10px;font-weight:600;">Analyst</span>
+          <span style="background:#fff8f0;color:#e65100;font-size:9px;padding:1px 6px;border-radius:10px;font-weight:600;">Delivery Lead</span>
+          <span style="background:#fff8f0;color:#e65100;font-size:9px;padding:1px 6px;border-radius:10px;font-weight:600;">Engineer</span>
+          <span style="background:#fff8f0;color:#e65100;font-size:9px;padding:1px 6px;border-radius:10px;font-weight:600;">AI Eng</span>
+          <span style="background:#f0fafa;color:#00695c;font-size:9px;padding:1px 6px;border-radius:10px;font-weight:600;">Data</span>
+          <span style="background:#fff8f0;color:#e65100;font-size:9px;padding:1px 6px;border-radius:10px;font-weight:600;">Digital/CRM Eng</span>
+          <span style="background:#eceff1;color:#455a64;font-size:9px;padding:1px 6px;border-radius:10px;font-weight:600;">Core (חיצוני)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEAM: DATA & AI CROSS -->
+    <div style="flex:1;border:2px solid #00838f;border-radius:12px;overflow:hidden;">
+      <div style="background:#00838f;color:white;padding:8px 12px;font-size:11.5px;font-weight:700;text-align:center;">
+        דאטה ו-AI רוחבי
+      </div>
+      <div style="display:flex;gap:0;border-bottom:1px solid #e0e0e0;">
+        <div style="flex:1;background:#e0f7fa;padding:8px 10px;text-align:center;border-left:1px solid #e0e0e0;">
+          <div style="font-size:10px;font-weight:700;color:#c62828;">מנהל צוות מוצר</div>
+          <div style="font-size:9.5px;color:#555;margin-top:2px;">Data Products · AI Outcomes</div>
+        </div>
+        <div style="flex:1;background:#e0f7fa;padding:8px 10px;text-align:center;">
+          <div style="font-size:10px;font-weight:700;color:#e65100;">מנהל צוות טכני</div>
+          <div style="font-size:9.5px;color:#555;margin-top:2px;">ML Platform · AI Engineering</div>
+        </div>
+      </div>
+      <div style="padding:8px 10px;background:#f5fefe;">
+        <div style="font-size:9.5px;font-weight:700;color:#888;margin-bottom:5px;text-transform:uppercase;">סקואדים</div>
+        <div style="background:white;border-radius:6px;padding:5px 8px;font-size:10px;color:#444;margin-bottom:4px;border-right:2px solid #00838f;">
+          Fraud Detection &amp; Risk AI
+        </div>
+        <div style="background:white;border-radius:6px;padding:5px 8px;font-size:10px;color:#444;margin-bottom:4px;border-right:2px solid #00838f;">
+          Pricing &amp; Underwriting Models
+        </div>
+        <div style="background:white;border-radius:6px;padding:5px 8px;font-size:10px;color:#444;border-right:2px solid #00838f;">
+          Customer Data &amp; Analytics
+        </div>
+      </div>
+      <div style="padding:6px 10px 8px;background:#f5fefe;border-top:1px dashed #b2dfdb;">
+        <div style="font-size:9px;color:#888;margin-bottom:3px;">הרכב כל סקואד:</div>
+        <div style="display:flex;flex-wrap:wrap;gap:3px;">
+          <span style="background:#fff5f5;color:#c62828;font-size:9px;padding:1px 6px;border-radius:10px;font-weight:600;">Data PM</span>
+          <span style="background:#fff8f0;color:#e65100;font-size:9px;padding:1px 6px;border-radius:10px;font-weight:600;">AI Eng</span>
+          <span style="background:#fff8f0;color:#e65100;font-size:9px;padding:1px 6px;border-radius:10px;font-weight:600;">Delivery Lead</span>
+          <span style="background:#f0fafa;color:#00695c;font-size:9px;padding:1px 6px;border-radius:10px;font-weight:600;">Data Scientist</span>
+          <span style="background:#f0fafa;color:#00695c;font-size:9px;padding:1px 6px;border-radius:10px;font-weight:600;">ML Eng</span>
+          <span style="background:#eceff1;color:#455a64;font-size:9px;padding:1px 6px;border-radius:10px;font-weight:600;">Core SME</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end teams grid -->
+
+  <!-- KEY PRINCIPLES OF THIS MODEL -->
+  <div style="margin-top:16px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+    <div style="background:#f8faff;border-radius:8px;padding:10px 12px;font-size:11px;color:#555;border-right:3px solid #c62828;">
+      <strong>מנהל צוות מוצר</strong> — אחראי על ה-Why, ה-What, ה-Outcome ו-ה-KPI של הורטיקל. מחזיק את הידע על מסע הלקוח E2E.
+    </div>
+    <div style="background:#f8faff;border-radius:8px;padding:10px 12px;font-size:11px;color:#555;border-right:3px solid #e65100;">
+      <strong>מנהל צוות טכני</strong> — אחראי על ה-How, ה-Architecture בתוך הורטיקל, ניהול תלויות בין סקואדים ו-Release Readiness.
+    </div>
+    <div style="background:#f8faff;border-radius:8px;padding:10px 12px;font-size:11px;color:#555;border-right:3px solid #455a64;">
+      <strong>סקואד</strong> — יחידת ביצוע זמנית ל-Initiative ספציפי. אנשים מגיעים מהבתים הארגוניים, עובדים יחד על Outcome אחד, וחוזרים לביתם.
+    </div>
+  </div>
+
+</div>
+
+<!-- ANALYST SPLIT -->
+<div class="section-heading">מנתחים — מי עובר למוצר ומי נשאר בליבה</div>
+<div class="analyst-row">
+  <div class="analyst-card">
+    <h4 class="blue">Product / Solution Analyst — עובר למוצר</h4>
+    <ul>
+      <li>מבין צורך עסקי ומסע לקוח E2E</li>
+      <li>מגדיר Process ו-Journey ברמת כלל-מערכתית</li>
+      <li>עובד חוצה מערכות ויחידות</li>
+      <li>מגדיר capability ו-Product Requirement</li>
+      <li>יודע לכתוב User Stories ו-Acceptance Criteria</li>
+    </ul>
+  </div>
+  <div class="analyst-card">
+    <h4 class="orange">System / Core Analyst — נשאר בליבה</h4>
+    <ul>
+      <li>מכיר לעומק את החוקיות של המערכת הספציפית</li>
+      <li>יודע Data Structures, Interfaces, Dependencies</li>
+      <li>עושה Impact Analysis לשינויים</li>
+      <li>יודע Batch Processes ו-Core Design</li>
+      <li>מממש דרישה בתוך המערכת שלו</li>
+    </ul>
+  </div>
+</div>
+
+<div class="quote-box">
+  Product Analyst מבין את התהליך והצורך<br>
+  Core/System Analyst מבין כיצד לממש אותו במערכת הספציפית
+</div>
+
+<!-- HOW PRODUCT TEAM WORKS LIKE LEMONADE -->
+<div class="section-heading">איך הצוות עובד — חשיבת Lemonade בתוך מבנה מסורתי</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+
+  <div class="info-box">
+    <h4>שלב 1 — מתחילים מ-Outcome, לא מ-Feature</h4>
+    <ul style="font-size:11px;color:#555;padding-right:14px;">
+      <li>איזה תהליך רוצים לשפר? מה ה-friction?</li>
+      <li>איזו החלטה רוצים לשפר?</li>
+      <li>מה שיעור הפעולות שניתן לבצע ללא מגע אנושי?</li>
+      <li>מה חייב להישאר תחת פיקוח אנושי?</li>
+      <li>כיצד מודדים ערך?</li>
+    </ul>
+  </div>
+
+  <div class="info-box">
+    <h4>שלב 2 — מפרקים את התהליך שלב-שלב</h4>
+    <ul style="font-size:11px;color:#555;padding-right:14px;">
+      <li>בכל שלב: האם ניתן לאוטומציה?</li>
+      <li>איזה מידע נדרש? מה רמת הסיכון?</li>
+      <li>מה Confidence Score המינימלי?</li>
+      <li>מתי חייבים לערב אדם?</li>
+      <li>מה קורה אם המערכת טועה?</li>
+    </ul>
+  </div>
+
+  <div class="info-box">
+    <h4>שלב 3 — בונים על פלטפורמות, לא מאפס</h4>
+    <ul style="font-size:11px;color:#555;padding-right:14px;">
+      <li>הצוות לא בונה מחדש Forms, Workflow, Notifications</li>
+      <li>הוא צורך מהפלטפורמות וממקד עצמו בלוגיקה עסקית</li>
+      <li>כל שינוי בשאלון = configuration, לא פרויקט</li>
+      <li>כל תהליך חדש = בנוי על Workflow Platform</li>
+    </ul>
+  </div>
+
+  <div class="info-box">
+    <h4>שלב 4 — מודדים Outcome, לא Delivery</h4>
+    <ul style="font-size:11px;color:#555;padding-right:14px;">
+      <li>לא: "שחררנו 10 פיצ'רים" — כן: "הקטנו זמן תביעה ב-40%"</li>
+      <li>לא: "עמדנו בתכנית" — כן: "שיפרנו Conversion ב-15%"</li>
+      <li>ה-PM אחראי על KPI — לא רק על Backlog</li>
+      <li>ה-Squad נמדד על תוצאה עסקית</li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- HUMAN IN THE LOOP -->
+<div class="section-heading">Human-in-the-Loop — גם כאן, לא רק ב-Lemonade</div>
+<div style="display:flex;gap:12px;">
+  <div style="flex:1;background:white;border-radius:10px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,0.07);border-right:3px solid #2e7d32;">
+    <div style="font-size:12px;font-weight:700;color:#2e7d32;margin-bottom:6px;">מקרה פשוט + Confidence גבוה</div>
+    <div style="font-size:11px;color:#444;">אוטומציה מלאה — אין צורך בהתערבות אנושית</div>
+  </div>
+  <div style="flex:1;background:white;border-radius:10px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,0.07);border-right:3px solid #f57f17;">
+    <div style="font-size:12px;font-weight:700;color:#e65100;margin-bottom:6px;">מקרה בינוני / מידע חסר</div>
+    <div style="font-size:11px;color:#444;">Assisted — מערכת מציגה המלצה, אדם מאשר</div>
+  </div>
+  <div style="flex:1;background:white;border-radius:10px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,0.07);border-right:3px solid #c62828;">
+    <div style="font-size:12px;font-weight:700;color:#c62828;margin-bottom:6px;">מקרה מורכב / רגיש / חריג</div>
+    <div style="font-size:11px;color:#444;">מומחה ביטוח / מנהל תביעות — החלטה אנושית מלאה</div>
+  </div>
+</div>
+
+<div class="quote-box" style="margin-top:24px;">
+  Product leads the demand. Architecture shapes the solution. Engineering delivers it. Platforms enable it.<br>
+  <span style="font-size:11px;opacity:0.75;">— המשפט המנחה של מודל ההפעלה</span>
+</div>
+
+</div><!-- end tab2 -->
+
+<!-- ================================================================ -->
+<!-- TAB 3: PLATFORMS UNIT DEEP DIVE -->
+<!-- ================================================================ -->
+<div id="tab3" class="tab-content">
+
+<div class="page-title">פלטפורמות טכנולוגיות ותשתיות — מבנה פנימי</div>
+<div class="page-sub">התשתית שמאפשרת לכל החטיבה לבנות מהר, אחיד ו-reusable — בלי לבנות מחדש כל פעם</div>
+
+<!-- TOP BOX -->
+<div class="section-heading">ראש היחידה ומה תחתיו</div>
+
+<div class="prod-unit-top" style="background:#00838f;width:340px;">
+  ראש יחידת פלטפורמות טכנולוגיות ותשתיות
+  <div class="role">Head of Technology Platforms &amp; Infrastructure</div>
+</div>
+<div class="v-conn" style="background:#00838f;"></div>
+
+<!-- 5 SUB-UNITS ROW -->
+<div class="prod-sub-row" style="gap:10px;">
+
+  <!-- CLOUD & INFRA -->
+  <div class="prod-sub-col">
+    <div class="org-v" style="background:#0277bd;"></div>
+    <div class="prod-sub-box" style="background:#e3f2fd;border-top:3px solid #0277bd;">
+      <div class="psb-title" style="color:#0277bd;">Cloud ותשתית</div>
+      <div class="psb-item"><span class="dot" style="background:#0277bd;"></span>Cloud Platform (AWS/Azure/GCP)</div>
+      <div class="psb-item"><span class="dot" style="background:#0277bd;"></span>Networking &amp; Security Infra</div>
+      <div class="psb-item"><span class="dot" style="background:#0277bd;"></span>Compute, Storage, Environments</div>
+      <div class="psb-item"><span class="dot" style="background:#0277bd;"></span>Cost Management &amp; FinOps</div>
+      <div class="psb-item"><span class="dot" style="background:#0277bd;"></span>Disaster Recovery</div>
+      <div class="psb-item"><span class="dot" style="background:#0277bd;"></span>Workplace Technology</div>
+    </div>
+  </div>
+
+  <!-- DEVOPS -->
+  <div class="prod-sub-col">
+    <div class="org-v" style="background:#2e7d32;"></div>
+    <div class="prod-sub-box" style="background:#e8f5e9;border-top:3px solid #2e7d32;">
+      <div class="psb-title" style="color:#2e7d32;">DevOps &amp; Developer Platform</div>
+      <div class="psb-item"><span class="dot" style="background:#2e7d32;"></span>CI/CD Pipelines</div>
+      <div class="psb-item"><span class="dot" style="background:#2e7d32;"></span>Developer Tooling &amp; IDEs</div>
+      <div class="psb-item"><span class="dot" style="background:#2e7d32;"></span>Testing Infrastructure</div>
+      <div class="psb-item"><span class="dot" style="background:#2e7d32;"></span>Environment Management</div>
+      <div class="psb-item"><span class="dot" style="background:#2e7d32;"></span>Observability &amp; Monitoring Tooling</div>
+      <div class="psb-item"><span class="dot" style="background:#2e7d32;"></span>Release Engineering</div>
+    </div>
+  </div>
+
+  <!-- INTEGRATION & API -->
+  <div class="prod-sub-col">
+    <div class="org-v" style="background:#e65100;"></div>
+    <div class="prod-sub-box" style="background:#fff3e0;border-top:3px solid #e65100;">
+      <div class="psb-title" style="color:#e65100;">Integration &amp; API Platform</div>
+      <div class="psb-item"><span class="dot" style="background:#e65100;"></span>API Gateway</div>
+      <div class="psb-item"><span class="dot" style="background:#e65100;"></span>ESB / Integration Bus</div>
+      <div class="psb-item"><span class="dot" style="background:#e65100;"></span>Event Streaming (Kafka/etc)</div>
+      <div class="psb-item"><span class="dot" style="background:#e65100;"></span>Adapters למערכות Legacy &amp; צד ג'</div>
+      <div class="psb-item"><span class="dot" style="background:#e65100;"></span>API Standards &amp; Catalog</div>
+      <div class="psb-item"><span class="dot" style="background:#e65100;"></span>Partner Integrations</div>
+    </div>
+  </div>
+
+  <!-- DATA PLATFORM -->
+  <div class="prod-sub-col">
+    <div class="org-v" style="background:#6a1b9a;"></div>
+    <div class="prod-sub-box" style="background:#f3e5f5;border-top:3px solid #6a1b9a;">
+      <div class="psb-title" style="color:#6a1b9a;">Data Platform</div>
+      <div class="psb-item"><span class="dot" style="background:#6a1b9a;"></span>Data Warehouse &amp; Data Lake</div>
+      <div class="psb-item"><span class="dot" style="background:#6a1b9a;"></span>Data Ingestion &amp; Pipelines</div>
+      <div class="psb-item"><span class="dot" style="background:#6a1b9a;"></span>Data Processing &amp; Serving</div>
+      <div class="psb-item"><span class="dot" style="background:#6a1b9a;"></span>MDM Technology</div>
+      <div class="psb-item"><span class="dot" style="background:#6a1b9a;"></span>Data Quality &amp; Catalog Tools</div>
+      <div class="psb-item"><span class="dot" style="background:#6a1b9a;"></span>ML Infrastructure (Serving)</div>
+    </div>
+  </div>
+
+  <!-- SHARED APP SERVICES -->
+  <div class="prod-sub-col">
+    <div class="org-v" style="background:#00838f;"></div>
+    <div class="prod-sub-box" style="background:#e0f7fa;border-top:3px solid #00838f;">
+      <div class="psb-title" style="color:#00695c;">שירותים רוחביים משותפים<br><span style="font-size:10px;font-weight:400;">Shared Application Services</span></div>
+      <div class="psb-item"><span class="dot" style="background:#00838f;"></span>Forms &amp; Documents Platform</div>
+      <div class="psb-item"><span class="dot" style="background:#00838f;"></span>Workflow / BPM Engine</div>
+      <div class="psb-item"><span class="dot" style="background:#00838f;"></span>RPA &amp; Automation</div>
+      <div class="psb-item"><span class="dot" style="background:#00838f;"></span>Messaging &amp; Notifications</div>
+      <div class="psb-item"><span class="dot" style="background:#00838f;"></span>Digital Signature</div>
+      <div class="psb-item"><span class="dot" style="background:#00838f;"></span>Document Archive</div>
+      <div class="psb-item"><span class="dot" style="background:#00838f;"></span>Print &amp; PDF Generation</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- DIGITAL & CRM INFRA CALLOUT -->
+<div style="background:#e3f2fd;border:1.5px dashed #0277bd;border-radius:10px;padding:14px 18px;margin-top:24px;margin-bottom:12px;">
+  <div style="font-size:13px;font-weight:700;color:#0277bd;margin-bottom:8px;">תשתית דיגיטל ו-CRM — מנוהלת כאן, מפותחת ב"מוצר ולקוח"</div>
+  <p style="font-size:11.5px;color:#555;margin-bottom:12px;line-height:1.6;">
+    הפיתוח של Digital ו-CRM / Salesforce ישב ביחידת מוצר ולקוח. אבל <strong>התשתית</strong> — הסביבה, הגרסאות, ה-Hosting, ה-CI/CD הייחודי, ה-Licensing ו-Integrations — מנוהלת ומתוחזקת כאן בפלטפורמות. כך יש בית מקצועי ברור ואחריות שקופה.
+  </p>
+  <div style="display:flex;gap:12px;">
+    <div style="flex:1;background:white;border-radius:8px;padding:12px 14px;border-right:3px solid #0277bd;">
+      <div style="font-size:11.5px;font-weight:700;color:#0277bd;margin-bottom:8px;">תשתית דיגיטל — Web &amp; App</div>
+      <div style="font-size:10.5px;color:#555;padding-right:10px;">
+        <div style="margin-bottom:3px;">• Hosting Environment (CDN, Cloud Serving)</div>
+        <div style="margin-bottom:3px;">• CI/CD לפרויקטי Frontend</div>
+        <div style="margin-bottom:3px;">• Browser Compatibility &amp; Testing Infra</div>
+        <div style="margin-bottom:3px;">• Web Performance Monitoring</div>
+        <div style="margin-bottom:3px;">• Design System Infrastructure</div>
+        <div style="margin-bottom:3px;">• Analytics Tracking Infrastructure</div>
+      </div>
+    </div>
+    <div style="flex:1;background:white;border-radius:8px;padding:12px 14px;border-right:3px solid #1565c0;">
+      <div style="font-size:11.5px;font-weight:700;color:#1565c0;margin-bottom:8px;">תשתית CRM / Salesforce</div>
+      <div style="font-size:10.5px;color:#555;padding-right:10px;">
+        <div style="margin-bottom:3px;">• Salesforce Org Management &amp; Governance</div>
+        <div style="margin-bottom:3px;">• Release &amp; Deployment Pipeline ל-Salesforce</div>
+        <div style="margin-bottom:3px;">• Integrations עם מערכות ליבה</div>
+        <div style="margin-bottom:3px;">• Licensing &amp; User Management</div>
+        <div style="margin-bottom:3px;">• Security &amp; Compliance בתוך ה-CRM</div>
+        <div style="margin-bottom:3px;">• Data Sync ו-Master Data</div>
+      </div>
+    </div>
+    <div style="flex:1;background:#f0f4ff;border-radius:8px;padding:12px 14px;border-right:3px solid #455a64;">
+      <div style="font-size:11.5px;font-weight:700;color:#455a64;margin-bottom:8px;">חלוקת אחריות ברורה</div>
+      <div style="font-size:10.5px;color:#555;padding-right:10px;">
+        <div style="margin-bottom:3px;">• <strong>מה</strong> לבנות — מוצר ולקוח</div>
+        <div style="margin-bottom:3px;">• <strong>איך</strong> לבנות — מוצר ולקוח (הנדסה)</div>
+        <div style="margin-bottom:3px;">• <strong>על מה</strong> לבנות — פלטפורמות (תשתית)</div>
+        <div style="margin-bottom:3px;">• <strong>זמינות &amp; Reliability</strong> — תפעול</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SHARED APP SERVICES CALLOUT -->
+<div class="delivery-highlight" style="border-color:#00838f;">
+  <div class="dh-title" style="color:#00695c;">שירותים רוחביים משותפים — למה זה כאן ולא בדומיין</div>
+  <p style="font-size:11.5px;color:#555;margin-bottom:14px;">
+    אלו שירותים שכל יחידה בחטיבה צורכת — כל דומיין, כל מערכת ליבה, כל פרויקט. הם אינם שייכים לאף תהליך עסקי ספציפי. הם תשתית כמו Cloud ו-API. הדוגמה הישירה: Forms &amp; Documents Platform — שינוי שאלון צריך לקחת ימים ולא חודשים.
+  </p>
+  <div class="dh-row">
+    <div class="dh-col">
+      <div class="dh-col-title" style="color:#00695c;">מה Platform מספק לדומיינים</div>
+      <ul>
+        <li>Forms &amp; Documents — הגדרה בלי פרויקט</li>
+        <li>Workflow — תהליך חדש בלי לבנות מנוע</li>
+        <li>Notifications — שליחה בכל ערוץ ע"י API</li>
+        <li>Archive — תיוק ואחזור מסמכים אחיד</li>
+        <li>Signature — חתימה דיגיטלית כשירות</li>
+        <li>RPA — אוטומציה ידנית לתהליכים ישנים</li>
+      </ul>
+    </div>
+    <div class="dh-col">
+      <div class="dh-col-title" style="color:#00695c;">מה Platform לא עושה</div>
+      <ul>
+        <li>לא מגדיר את התהליך העסקי — זה Product</li>
+        <li>לא מחליט מה בשאלון — זה הדומיין</li>
+        <li>לא מחזיק את ה-Data Roadmap — זה Data Product</li>
+        <li>לא מנהל Production Operations — זה Ops</li>
+        <li>לא מגדיר Architecture — זה CTO</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- HOW PLATFORM SERVES DOMAINS -->
+<div class="section-heading">כיצד Platform משרת את שאר החטיבה</div>
+
+<div style="background:white;border-radius:12px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
+  <!-- consumers row -->
+  <div style="display:flex;gap:8px;justify-content:center;margin-bottom:10px;">
+    <div style="background:#fce4ec;border-radius:8px;padding:7px 12px;font-size:11px;font-weight:600;color:#c62828;">יחידת מוצר</div>
+    <div style="background:#e3f2fd;border-radius:8px;padding:7px 12px;font-size:11px;font-weight:600;color:#0277bd;">פלטפורמות דיגיטל</div>
+    <div style="background:#e8f5e9;border-radius:8px;padding:7px 12px;font-size:11px;font-weight:600;color:#2e7d32;">ליבת חיסכון</div>
+    <div style="background:#f3e5f5;border-radius:8px;padding:7px 12px;font-size:11px;font-weight:600;color:#6a1b9a;">ליבת השקעות</div>
+    <div style="background:#fff3e0;border-radius:8px;padding:7px 12px;font-size:11px;font-weight:600;color:#e65100;">ליבת אלמנטר</div>
+  </div>
+
+  <!-- arrows down -->
+  <div style="text-align:center;font-size:20px;color:#ccc;margin:4px 0;">↓ ↓ ↓ ↓ ↓</div>
+  <div style="text-align:center;font-size:10.5px;color:#999;margin-bottom:8px;">צורכים שירותים דרך APIs מוגדרות</div>
+
+  <!-- platform services -->
+  <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:10px;">
+    <div style="background:#e0f7fa;border-radius:8px;padding:7px 14px;font-size:11px;font-weight:600;color:#00695c;">Forms &amp; Documents API</div>
+    <div style="background:#e0f7fa;border-radius:8px;padding:7px 14px;font-size:11px;font-weight:600;color:#00695c;">Workflow API</div>
+    <div style="background:#e0f7fa;border-radius:8px;padding:7px 14px;font-size:11px;font-weight:600;color:#00695c;">Notification API</div>
+    <div style="background:#e0f7fa;border-radius:8px;padding:7px 14px;font-size:11px;font-weight:600;color:#00695c;">Integration / Adapters</div>
+    <div style="background:#e0f7fa;border-radius:8px;padding:7px 14px;font-size:11px;font-weight:600;color:#00695c;">Data Platform APIs</div>
+    <div style="background:#e0f7fa;border-radius:8px;padding:7px 14px;font-size:11px;font-weight:600;color:#00695c;">Archive &amp; Signature API</div>
+  </div>
+
+  <!-- arrow down -->
+  <div style="text-align:center;font-size:20px;color:#ccc;margin:4px 0;">↓</div>
+
+  <!-- legacy systems -->
+  <div style="display:flex;gap:8px;justify-content:center;">
+    <div style="background:#fee2e2;border-radius:8px;padding:7px 14px;font-size:11px;font-weight:600;color:#991b1b;">מערכות Legacy</div>
+    <div style="background:#fee2e2;border-radius:8px;padding:7px 14px;font-size:11px;font-weight:600;color:#991b1b;">מערכות צד ג'</div>
+    <div style="background:#fee2e2;border-radius:8px;padding:7px 14px;font-size:11px;font-weight:600;color:#991b1b;">BPR</div>
+    <div style="background:#fee2e2;border-radius:8px;padding:7px 14px;font-size:11px;font-weight:600;color:#991b1b;">ספקים חיצוניים</div>
+  </div>
+  <div style="text-align:center;font-size:10.5px;color:#999;margin-top:6px;">Platform מבודד את החטיבה מהמורכבות של מערכות ישנות</div>
+</div>
+
+<!-- FORMS & DOCS FOCUS -->
+<div class="section-heading">מוקד — Forms &amp; Documents Platform כדוגמה לשירות רוחבי</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+
+  <div class="info-box">
+    <h4>מה Platform מנהל</h4>
+    <ul style="font-size:11px;color:#555;padding-right:14px;">
+      <li>ספריית שאלות ורכיבי תוכן</li>
+      <li>הגדרת טפסים, שאלונים, הצהרות</li>
+      <li>Rules &amp; Versioning</li>
+      <li>שמירת State ו-Draft</li>
+      <li>יצירת PDF דינמית</li>
+      <li>Audit Trail</li>
+      <li>אינטגרציה לחתימה דיגיטלית</li>
+      <li>APIs למערכות הפצה ולדומיינים</li>
+    </ul>
+  </div>
+
+  <div class="info-box">
+    <h4>לפני ואחרי — Cost of Change</h4>
+    <div style="display:flex;gap:10px;margin-top:6px;">
+      <div style="flex:1;background:#fee2e2;border-radius:8px;padding:10px;font-size:11px;">
+        <div style="font-weight:700;color:#c62828;margin-bottom:4px;">לפני — כיום</div>
+        <div style="color:#555;">שינוי שאלון = 600K ש"ח</div>
+        <div style="color:#555;">חצי שנה · מספר מערכות</div>
+        <div style="color:#555;">בדיקות E2E · תלויות</div>
+        <div style="color:#555;">הסטת Capacity מפרויקטים</div>
+      </div>
+      <div style="flex:1;background:#e8f5e9;border-radius:8px;padding:10px;font-size:11px;">
+        <div style="font-weight:700;color:#2e7d32;margin-bottom:4px;">אחרי — עם Platform</div>
+        <div style="color:#555;">שינוי שאלון = Configuration</div>
+        <div style="color:#555;">ימים, לא חודשים</div>
+        <div style="color:#555;">ללא תלויות cross-system</div>
+        <div style="color:#555;">Capacity נשאר לפרויקטים</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- INTEGRATION FOCUS -->
+<div class="section-heading">מוקד — Integration &amp; API Platform כשכבת בידוד</div>
+<div style="background:white;border-radius:12px;padding:18px 20px;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
+  <p style="font-size:11.5px;color:#555;margin-bottom:14px;">
+    הפלטפורמה בונה שכבת Adapters שמבדילה בין יחידות פיתוח חדשות לבין מערכות Legacy וספקים חיצוניים. כל שינוי בצד אחד לא מחייב שינוי בצד השני.
+  </p>
+  <div style="display:flex;gap:0;align-items:center;">
+    <div style="flex:2;background:#e8f5e9;border-radius:8px;padding:10px;font-size:11px;text-align:center;">
+      <div style="font-weight:700;color:#2e7d32;margin-bottom:4px;">יחידות חדשות</div>
+      מוצר · Digital · ליבות · Data
+    </div>
+    <div style="flex:0 0 30px;text-align:center;font-size:18px;color:#ccc;">↔</div>
+    <div style="flex:1.5;background:#fff8e1;border-radius:8px;padding:10px;font-size:11px;text-align:center;border:1.5px dashed #f57f17;">
+      <div style="font-weight:700;color:#e65100;margin-bottom:4px;">API / Adapter Layer</div>
+      Integration Platform
+    </div>
+    <div style="flex:0 0 30px;text-align:center;font-size:18px;color:#ccc;">↔</div>
+    <div style="flex:2;background:#fee2e2;border-radius:8px;padding:10px;font-size:11px;text-align:center;">
+      <div style="font-weight:700;color:#c62828;margin-bottom:4px;">מערכות קיימות</div>
+      Legacy · BPR · צד ג' · ספקים
+    </div>
+  </div>
+  <div style="display:flex;gap:10px;margin-top:12px;">
+    <div style="flex:1;background:#f8faff;border-radius:8px;padding:8px 10px;font-size:10.5px;color:#555;">
+      <strong>API Gateway:</strong> חשיפת APIs אחידה לכלל החטיבה, עם אבטחה, Rate Limiting ותיעוד
+    </div>
+    <div style="flex:1;background:#f8faff;border-radius:8px;padding:8px 10px;font-size:10.5px;color:#555;">
+      <strong>Event Streaming:</strong> אירועים בזמן אמת בין מערכות, בלי coupling ישיר
+    </div>
+    <div style="flex:1;background:#f8faff;border-radius:8px;padding:8px 10px;font-size:10.5px;color:#555;">
+      <strong>Adapters:</strong> כל מערכת Legacy או ספק חיצוני מקבל Adapter אחד — לא חיבורים ישירים מכל מקום
+    </div>
+  </div>
+</div>
+
+<!-- DATA PLATFORM FOCUS -->
+<div class="section-heading">מוקד — Data Platform ו-MDM</div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+  <div class="info-box" style="background:#faf5ff;">
+    <h4 style="color:#6a1b9a;">Technology Ownership</h4>
+    <ul style="font-size:11px;color:#555;padding-right:14px;">
+      <li>MDM Tools &amp; Deployment</li>
+      <li>Data Ingestion &amp; Pipelines</li>
+      <li>Storage &amp; Processing</li>
+      <li>Platform Tooling &amp; SLA</li>
+      <li>Permissions &amp; Technical Maintenance</li>
+    </ul>
+  </div>
+  <div class="info-box" style="background:#fef9e7;">
+    <h4 style="color:#e65100;">Product Ownership (→ יחידת מוצר)</h4>
+    <ul style="font-size:11px;color:#555;padding-right:14px;">
+      <li>Roadmap &amp; Business Use Cases</li>
+      <li>Prioritization &amp; Consumers</li>
+      <li>Data Product Value</li>
+      <li>Analytics &amp; Data Science</li>
+    </ul>
+  </div>
+  <div class="info-box" style="background:#eaf4fb;">
+    <h4 style="color:#3b5bdb;">Governance &amp; Architecture (→ CTO)</h4>
+    <ul style="font-size:11px;color:#555;padding-right:14px;">
+      <li>Golden Record &amp; Business Definitions</li>
+      <li>Source of Truth &amp; Data Quality</li>
+      <li>Target Data Architecture</li>
+      <li>Standards &amp; Integration Principles</li>
+    </ul>
+  </div>
+</div>
+
+<!-- WHAT PLATFORM IS NOT -->
+<div class="boundary-note" style="margin-top:20px;">
+  <span style="font-size:16px;">✓</span>
+  <span><strong>כל מערכת reusable היא Platform</strong> — לא כל מערכת רוחבית היא "IT". יכולת שמספר יחידות צורכות ושמשפיעה על Cost of Change צריכה להיות Platform / Shared Application Service, עם Product Owner, Roadmap ו-SLA.</span>
+</div>
+<div class="boundary-note-neg" style="margin-top:8px;">
+  <span style="font-size:16px;">✗</span>
+  <span><strong>Platform לא מגדיר מה בונים</strong> — הוא מספק יכולת. מי שמחליט מה לבנות ומה לתעדף הוא יחידת המוצר ו-Product Portfolio. Platform מגיב לביקוש, לא מנהיג אותו.</span>
+</div>
+
+<div class="quote-box" style="margin-top:24px;">
+  Data Platform בונה את היכולת הטכנולוגית — Data Product מגדיר את הערך והמה.<br>
+  Integration Platform מבדיל בין ישן לחדש — ומאפשר לכל יחידה לנוע מהר בלי לשבור שאר החטיבה.
+</div>
+
+</div><!-- end tab3 -->
+
+<!-- ================================================================ -->
+<!-- TAB 4: CTO & ARCHITECTURE UNIT DEEP DIVE -->
+<!-- ================================================================ -->
+<div id="tab4" class="tab-content">
+
+<div class="page-title">CTO — ארכיטקטורה, אסטרטגיה טכנולוגית וטכנולוגיות עתיד</div>
+<div class="page-sub">מגדיר לאן הטכנולוגיה הולכת ואיך בונים נכון לאורך זמן — guardrails שמאפשרים לחטיבה לנוע מהר בבטחה</div>
+
+<!-- TOP BOX -->
+<div class="section-heading">ראש היחידה ומה תחתיו</div>
+
+<div class="prod-unit-top" style="background:#3b5bdb;width:320px;">
+  CTO — ארכיטקטורה ואסטרטגיה טכנולוגית
+  <div class="role">Chief Technology Officer</div>
+</div>
+<div class="v-conn" style="background:#3b5bdb;"></div>
+
+<!-- 4 SUB-UNITS ROW -->
+<div class="prod-sub-row" style="gap:12px;">
+
+  <!-- ENTERPRISE ARCHITECTURE -->
+  <div class="prod-sub-col">
+    <div class="org-v" style="background:#3b5bdb;"></div>
+    <div class="prod-sub-box" style="background:#e8f0fe;border-top:3px solid #3b5bdb;">
+      <div class="psb-title" style="color:#3b5bdb;">Enterprise Architecture</div>
+      <div class="psb-item"><span class="dot" style="background:#3b5bdb;"></span>Enterprise Architects</div>
+      <div class="psb-item"><span class="dot" style="background:#3b5bdb;"></span>Target Architecture</div>
+      <div class="psb-item"><span class="dot" style="background:#3b5bdb;"></span>Architecture Principles &amp; Standards</div>
+      <div class="psb-item"><span class="dot" style="background:#3b5bdb;"></span>Architecture Review Board (ARB)</div>
+      <div class="psb-item"><span class="dot" style="background:#3b5bdb;"></span>Capability Map ארגוני</div>
+      <div class="psb-item"><span class="dot" style="background:#3b5bdb;"></span>Reuse Catalog</div>
+      <div class="psb-item"><span class="dot" style="background:#3b5bdb;"></span>Technical Debt Oversight</div>
+    </div>
+  </div>
+
+  <!-- SOLUTION ARCHITECTURE -->
+  <div class="prod-sub-col">
+    <div class="org-v" style="background:#1565c0;"></div>
+    <div class="prod-sub-box" style="background:#e3f2fd;border-top:3px solid #1565c0;">
+      <div class="psb-title" style="color:#1565c0;">Solution Architecture<br><span style="font-size:10px;font-weight:400;">(עובדים עם הצוותים)</span></div>
+      <div class="psb-item"><span class="dot" style="background:#1565c0;"></span>Solution Architects — משובצים ב-Shaping</div>
+      <div class="psb-item"><span class="dot" style="background:#1565c0;"></span>תרגום צורך עסקי לפתרון טכנולוגי</div>
+      <div class="psb-item"><span class="dot" style="background:#1565c0;"></span>זיהוי Reuse מול בנייה חדשה</div>
+      <div class="psb-item"><span class="dot" style="background:#1565c0;"></span>מניעת כפילויות בין יחידות</div>
+      <div class="psb-item"><span class="dot" style="background:#1565c0;"></span>Architecture Review לפרויקטים</div>
+      <div class="psb-item"><span class="dot" style="background:#1565c0;"></span>הגדרת Interfaces ו-API Design</div>
+    </div>
+  </div>
+
+  <!-- DATA & INTEGRATION ARCHITECTURE -->
+  <div class="prod-sub-col">
+    <div class="org-v" style="background:#6a1b9a;"></div>
+    <div class="prod-sub-box" style="background:#f3e5f5;border-top:3px solid #6a1b9a;">
+      <div class="psb-title" style="color:#6a1b9a;">ארכיטקטורת Data ואינטגרציה</div>
+      <div class="psb-item"><span class="dot" style="background:#6a1b9a;"></span>Target Data Architecture</div>
+      <div class="psb-item"><span class="dot" style="background:#6a1b9a;"></span>Data Standards &amp; Definitions</div>
+      <div class="psb-item"><span class="dot" style="background:#6a1b9a;"></span>Integration Architecture Principles</div>
+      <div class="psb-item"><span class="dot" style="background:#6a1b9a;"></span>API Standards &amp; Design Guidelines</div>
+      <div class="psb-item"><span class="dot" style="background:#6a1b9a;"></span>MDM Architecture</div>
+      <div class="psb-item"><span class="dot" style="background:#6a1b9a;"></span>Event Architecture</div>
+    </div>
+  </div>
+
+  <!-- TECH STRATEGY & FUTURE -->
+  <div class="prod-sub-col">
+    <div class="org-v" style="background:#00695c;"></div>
+    <div class="prod-sub-box" style="background:#e0f2f1;border-top:3px solid #00695c;">
+      <div class="psb-title" style="color:#00695c;">אסטרטגיה וטכנולוגיות עתיד</div>
+      <div class="psb-item"><span class="dot" style="background:#00695c;"></span>Technology Strategy &amp; Roadmap</div>
+      <div class="psb-item"><span class="dot" style="background:#00695c;"></span>Emerging Technologies Research</div>
+      <div class="psb-item"><span class="dot" style="background:#00695c;"></span>Proof of Concept &amp; Innovation</div>
+      <div class="psb-item"><span class="dot" style="background:#00695c;"></span>Vendor &amp; Technology Evaluation</div>
+      <div class="psb-item"><span class="dot" style="background:#00695c;"></span>Build / Buy / Partner Guidance</div>
+      <div class="psb-item"><span class="dot" style="background:#00695c;"></span>AI Architecture &amp; Governance</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- HOW ARCHITECTS WORK — NOT A GATE -->
+<div class="delivery-highlight" style="border-color:#3b5bdb;margin-top:28px;">
+  <div class="dh-title" style="color:#3b5bdb;">הארכיטקטים — שותף בתהליך, לא שוטר בסוף</div>
+  <p style="font-size:11.5px;color:#555;margin-bottom:14px;">
+    הסיכון הקלאסי: ארכיטקטורה הופכת ל"וועדת אישור" שמעכבת delivery. המודל המוצע הפוך — ה-Solution Architect משובץ <strong>בשלב ה-Shaping</strong>, לפני שמתחילים לבנות. זה מונע טעויות, מונע כפילויות, ומאפשר ל-Squads לנוע מהר בבטחה.
+  </p>
+  <div class="dh-row">
+    <div class="dh-col">
+      <div class="dh-col-title" style="color:#3b5bdb;">מה ארכיטקט עושה ב-Shaping</div>
+      <ul>
+        <li>מבין את הצורך העסקי יחד עם ה-PM</li>
+        <li>מזהה אילו יכולות כבר קיימות — לא בונים מחדש</li>
+        <li>מגדיר את ה-Solution Design ברמה גבוהה</li>
+        <li>מזהה מערכות משתתפות ותלויות</li>
+        <li>מחליט Build / Buy / Reuse</li>
+        <li>מגדיר Interfaces בין יחידות</li>
+        <li>מזהה סיכונים טכנולוגיים מוקדם</li>
+      </ul>
+    </div>
+    <div class="dh-col">
+      <div class="dh-col-title" style="color:#c62828;">מה ארכיטקט לא עושה</div>
+      <ul>
+        <li>לא מחליט על Product Priorities</li>
+        <li>לא מנהל את ה-Delivery השוטף</li>
+        <li>לא מאשר כל שורת קוד</li>
+        <li>לא חוסם release בגלל בירוקרטיה</li>
+        <li>לא "בעל הבית" של כל מערכת</li>
+        <li>לא מחליף את ה-Core Engineers בידע מערכתי</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ARCHITECTURE IN THE FLOW -->
+<div class="section-heading">איפה ארכיטקטורה נכנסת ל-Flow</div>
+<div style="background:white;border-radius:12px;padding:18px 20px;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
+  <div style="display:flex;align-items:stretch;gap:0;">
+
+    <div style="flex:1;text-align:center;">
+      <div style="background:#fce4ec;border-radius:8px;padding:9px 7px;font-size:11px;font-weight:700;">
+        Discovery<div style="font-size:9.5px;font-weight:400;color:#666;margin-top:2px;">Product מוביל</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;padding:0 5px;color:#bbb;font-size:16px;">←</div>
+
+    <div style="flex:1;text-align:center;position:relative;">
+      <div style="background:#e8f0fe;border-radius:8px;padding:9px 7px;font-size:11px;font-weight:700;border:2px solid #3b5bdb;">
+        Shaping<div style="font-size:9.5px;font-weight:400;color:#3b5bdb;margin-top:2px;">Product + Architecture יחד</div>
+      </div>
+      <div style="font-size:9.5px;color:#3b5bdb;margin-top:4px;font-weight:600;">← נקודת הכניסה של ארכיטקטורה</div>
+    </div>
+    <div style="display:flex;align-items:center;padding:0 5px;color:#bbb;font-size:16px;">←</div>
+
+    <div style="flex:1;text-align:center;">
+      <div style="background:#f4f6f9;border-radius:8px;padding:9px 7px;font-size:11px;font-weight:700;">
+        Resource Shaping<div style="font-size:9.5px;font-weight:400;color:#666;margin-top:2px;">Product + מטה</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;padding:0 5px;color:#bbb;font-size:16px;">←</div>
+
+    <div style="flex:1;text-align:center;">
+      <div style="background:#f4f6f9;border-radius:8px;padding:9px 7px;font-size:11px;font-weight:700;">
+        Engineering<div style="font-size:9.5px;font-weight:400;color:#666;margin-top:2px;">יחידות Engineering</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;padding:0 5px;color:#bbb;font-size:16px;">←</div>
+
+    <div style="flex:1;text-align:center;">
+      <div style="background:#f4f6f9;border-radius:8px;padding:9px 7px;font-size:11px;font-weight:700;">
+        Measure<div style="font-size:9.5px;font-weight:400;color:#666;margin-top:2px;">Product</div>
+      </div>
+    </div>
+
+  </div>
+  <div style="margin-top:14px;background:#e8f0fe;border-radius:8px;padding:10px 14px;font-size:11px;color:#3b5bdb;">
+    <strong>במהלך ה-Shaping</strong> — ארכיטקט יושב עם ה-PM, מבין את הצורך, ומגדיר יחד: Solution Design · מערכות משתתפות · Reuse · Interfaces · Risk. לאחר ה-Shaping — Architecture Review פורמלי (קצר) שנותן אישור לפני תחילת Engineering.
+  </div>
+</div>
+
+<!-- ARB -->
+<div class="section-heading">Architecture Review Board — איך עובד בפועל</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+
+  <div class="info-box">
+    <h4>מה ARB בוחן</h4>
+    <ul style="font-size:11px;color:#555;padding-right:14px;">
+      <li>עמידה ב-Architecture Principles</li>
+      <li>מניעת כפילויות ו-Reuse של יכולות קיימות</li>
+      <li>תאימות ל-Target Architecture</li>
+      <li>בחינת Buy/Build/Reuse</li>
+      <li>הגדרת Interfaces ו-API Design</li>
+      <li>סיכונים טכנולוגיים ו-Technical Debt</li>
+      <li>תאימות לסטנדרטי אבטחה ו-Privacy</li>
+    </ul>
+  </div>
+
+  <div class="info-box">
+    <h4>מה ARB לא עושה</h4>
+    <ul style="font-size:11px;color:#555;padding-right:14px;">
+      <li>לא מחליט על Product Priority</li>
+      <li>לא מאשר כל feature קטן — רק יוזמות Tier 1 ופלטפורמות חדשות</li>
+      <li>לא חוסם delivery בשלבים מאוחרים — הכניסה היא ב-Shaping</li>
+      <li>לא מחליף שיקול דעת של מוביל טכני בשטח</li>
+    </ul>
+    <div style="margin-top:10px;background:#e8f5e9;border-radius:6px;padding:8px;font-size:10.5px;color:#2e7d32;">
+      <strong>כלל אצבע:</strong> Tier 1 = ARB חובה · Tier 2 = Architecture Consultation · Tier 3 = לפי צורך בלבד
+    </div>
+  </div>
+
+</div>
+
+<!-- REUSE CATALOG -->
+<div class="section-heading">Reuse Catalog — הכלי המרכזי למניעת כפילויות</div>
+<div style="background:white;border-radius:12px;padding:18px 20px;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
+  <p style="font-size:11.5px;color:#555;margin-bottom:14px;">
+    ארכיטקטורה מנהלת קטלוג של יכולות קיימות שניתן לצרוך — Platform Services, Core Capabilities, APIs. לפני שיוזמה חדשה מתחילה לבנות, ה-Solution Architect בודק: האם זה כבר קיים?
+  </p>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;">
+    <div style="background:#e0f7fa;border-radius:8px;padding:8px 12px;font-size:11px;font-weight:600;color:#00695c;">Forms &amp; Documents API ✓</div>
+    <div style="background:#e0f7fa;border-radius:8px;padding:8px 12px;font-size:11px;font-weight:600;color:#00695c;">Workflow Engine API ✓</div>
+    <div style="background:#e0f7fa;border-radius:8px;padding:8px 12px;font-size:11px;font-weight:600;color:#00695c;">Notification Service ✓</div>
+    <div style="background:#e0f7fa;border-radius:8px;padding:8px 12px;font-size:11px;font-weight:600;color:#00695c;">Customer Data API ✓</div>
+    <div style="background:#e0f7fa;border-radius:8px;padding:8px 12px;font-size:11px;font-weight:600;color:#00695c;">Integration Adapters ✓</div>
+    <div style="background:#e0f7fa;border-radius:8px;padding:8px 12px;font-size:11px;font-weight:600;color:#00695c;">Auth &amp; IAM ✓</div>
+    <div style="background:#e0f7fa;border-radius:8px;padding:8px 12px;font-size:11px;font-weight:600;color:#00695c;">Digital Signature ✓</div>
+    <div style="background:#e0f7fa;border-radius:8px;padding:8px 12px;font-size:11px;font-weight:600;color:#00695c;">Archive API ✓</div>
+    <div style="background:#f4f6f9;border-radius:8px;padding:8px 12px;font-size:11px;font-weight:600;color:#aaa;border:1px dashed #ccc;">Pricing Engine — בבנייה</div>
+    <div style="background:#f4f6f9;border-radius:8px;padding:8px 12px;font-size:11px;font-weight:600;color:#aaa;border:1px dashed #ccc;">AI Decision Service — בתכנון</div>
+  </div>
+  <div style="margin-top:10px;font-size:10.5px;color:#888;">
+    כל יכולת בקטלוג כוללת: מי הבעלים · SLA · API Docs · דרישות שימוש · פניה ל-Solution Architect שאחראי
+  </div>
+</div>
+
+<!-- TECH STRATEGY -->
+<div class="section-heading">אסטרטגיה טכנולוגית וטכנולוגיות עתיד — מה זה אומר בפועל</div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+
+  <div class="info-box">
+    <h4>Technology Radar</h4>
+    <p style="font-size:11px;color:#555;margin-top:4px;">הגדרה שנתית של:</p>
+    <ul style="font-size:11px;color:#555;padding-right:14px;margin-top:4px;">
+      <li><strong>Adopt</strong> — טכנולוגיות שאנחנו בונים עליהן</li>
+      <li><strong>Trial</strong> — בוחנים ב-POC</li>
+      <li><strong>Assess</strong> — עוקבים אחרי</li>
+      <li><strong>Hold</strong> — לא להשתמש בחדש</li>
+    </ul>
+    <p style="font-size:10.5px;color:#888;margin-top:6px;">מונע "Wild West" של טכנולוגיות שונות בכל יחידה</p>
+  </div>
+
+  <div class="info-box">
+    <h4>AI Architecture &amp; Governance</h4>
+    <ul style="font-size:11px;color:#555;padding-right:14px;margin-top:4px;">
+      <li>מודל סיכון ל-AI (Responsible AI)</li>
+      <li>הנחיות לבחירת מודלים</li>
+      <li>ארכיטקטורת RAG / Agents</li>
+      <li>Human-in-the-loop Standards</li>
+      <li>Privacy ו-Data Residency ל-AI</li>
+      <li>Model Risk Framework</li>
+    </ul>
+  </div>
+
+  <div class="info-box">
+    <h4>Build / Buy / Partner</h4>
+    <ul style="font-size:11px;color:#555;padding-right:14px;margin-top:4px;">
+      <li>מסגרת החלטה לכל יוזמה חדשה</li>
+      <li>הערכת ספקים וטכנולוגיות SaaS</li>
+      <li>ניהול Technical Due Diligence</li>
+      <li>הגדרת קריטריוני Buy vs Build</li>
+      <li>ניהול Vendor Architecture Risk</li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- RELATIONSHIPS WITH OTHER UNITS -->
+<div class="section-heading">יחסי העבודה עם שאר החטיבה</div>
+<div style="display:flex;gap:12px;flex-wrap:wrap;">
+
+  <div style="flex:1;min-width:200px;background:white;border-radius:10px;padding:12px;box-shadow:0 1px 4px rgba(0,0,0,0.07);border-right:3px solid #c62828;">
+    <div style="font-size:11.5px;font-weight:700;color:#c62828;margin-bottom:5px;">מול יחידת מוצר</div>
+    <div style="font-size:10.5px;color:#555;">Solution Architect משתתף ב-Shaping של כל יוזמה Tier 1. מגדיר Solution Design יחד עם ה-PM לפני שמתחילים לבנות.</div>
+  </div>
+
+  <div style="flex:1;min-width:200px;background:white;border-radius:10px;padding:12px;box-shadow:0 1px 4px rgba(0,0,0,0.07);border-right:3px solid #00838f;">
+    <div style="font-size:11.5px;font-weight:700;color:#00695c;margin-bottom:5px;">מול פלטפורמות</div>
+    <div style="font-size:10.5px;color:#555;">CTO מגדיר את Target Architecture ואת סטנדרט ה-APIs. Platform מממש אותם. Architecture מבטיחה שהפלטפורמות לא הופכות ל-silos עצמאיים.</div>
+  </div>
+
+  <div style="flex:1;min-width:200px;background:white;border-radius:10px;padding:12px;box-shadow:0 1px 4px rgba(0,0,0,0.07);border-right:3px solid #2e7d32;">
+    <div style="font-size:11.5px;font-weight:700;color:#2e7d32;margin-bottom:5px;">מול ליבות Core</div>
+    <div style="font-size:10.5px;color:#555;">CTO מגדיר Modernization Strategy לכל ליבה. Solution Architect מלווה בחינת Encapsulate vs. Replace, ומגדיר Adapters ו-Abstraction Layers.</div>
+  </div>
+
+  <div style="flex:1;min-width:200px;background:white;border-radius:10px;padding:12px;box-shadow:0 1px 4px rgba(0,0,0,0.07);border-right:3px solid #ad1457;">
+    <div style="font-size:11.5px;font-weight:700;color:#ad1457;margin-bottom:5px;">מול CISO</div>
+    <div style="font-size:10.5px;color:#555;">Security Architecture נבנית יחד עם CISO. Security Requirements משולבות ב-Architecture Standards כך שהן חלק מהדיזיין, לא בדיקה בסוף.</div>
+  </div>
+
+  <div style="flex:1;min-width:200px;background:white;border-radius:10px;padding:12px;box-shadow:0 1px 4px rgba(0,0,0,0.07);border-right:3px solid #6a1b9a;">
+    <div style="font-size:11.5px;font-weight:700;color:#6a1b9a;margin-bottom:5px;">מול Data Platform</div>
+    <div style="font-size:10.5px;color:#555;">CTO מגדיר Target Data Architecture, MDM Architecture ו-Integration Principles. Data Platform מממש. Data Product (מוצר) צורך. Governance מגדיר הגדרות ובעלויות.</div>
+  </div>
+
+</div>
+
+<!-- WHAT CTO IS NOT -->
+<div class="boundary-note" style="margin-top:20px;">
+  <span style="font-size:16px;">✓</span>
+  <span><strong>ארכיטקטורה כ-Enabler</strong> — מסגרת שמאפשרת לצוותים לנוע מהר ובאופן עצמאי, בידיעה שהפתרון שלהם תואם לאסטרטגיה, לא יוצר כפילות, ולא ייצור Technical Debt כבד.</span>
+</div>
+<div class="boundary-note-neg" style="margin-top:8px;">
+  <span style="font-size:16px;">✗</span>
+  <span><strong>ארכיטקטורה כ-Gatekeeper</strong> — מודל שבו כל שינוי עובר דרך ועדה שמחליטה לאט, מנותקת מהשטח, ומעכבת delivery. זה בדיוק מה שאנחנו לא רוצים.</span>
+</div>
+
+<div class="quote-box" style="margin-top:24px;">
+  Product leads the demand. <strong>Architecture shapes the solution.</strong> Engineering delivers it. Platforms enable it.<br>
+  <span style="font-size:11px;opacity:0.75;">ה-Architecture Shaping קורה לפני Engineering — כך שהצוות יכול לרוץ מהר ובבטחה</span>
+</div>
+
+</div><!-- end tab4 -->
+
+<!-- ================================================================ -->
+<!-- TAB 5: STAFF / CHIEF OF STAFF UNIT DEEP DIVE -->
+<!-- ================================================================ -->
+<div id="tab5" class="tab-content">
+
+<div class="page-title">מטה החטיבה — ניהול, תקציב, פרויקטים ו-FinOps</div>
+<div class="page-sub">יד ימינו של מנהל החטיבה — מאפשר לו להוביל אסטרטגיה בזמן שהמטה מחזיק את ניהול הפנים</div>
+
+<!-- TOP BOX -->
+<div class="section-heading">ראש המטה ומה תחתיו</div>
+
+<div class="prod-unit-top" style="background:#f57f17;width:320px;">
+  מטה החטיבה
+  <div class="role">Chief of Staff / ראש מטה</div>
+</div>
+<div class="v-conn" style="background:#f57f17;"></div>
+
+<!-- 4 SUB-UNITS ROW -->
+<div class="prod-sub-row" style="gap:12px;">
+
+  <!-- CHIEF OF STAFF / EXECUTIVE OFFICE -->
+  <div class="prod-sub-col">
+    <div class="org-v" style="background:#f57f17;"></div>
+    <div class="prod-sub-box" style="background:#fff8e1;border-top:3px solid #f57f17;">
+      <div class="psb-title" style="color:#e65100;">לשכה ו-Chief of Staff</div>
+      <div class="psb-item"><span class="dot" style="background:#f57f17;"></span>יד ימינו של המנמ"ר — מנהל אג'נדה ועדיפויות</div>
+      <div class="psb-item"><span class="dot" style="background:#f57f17;"></span>הכנת חומרי הנהלה ודירקטוריון</div>
+      <div class="psb-item"><span class="dot" style="background:#f57f17;"></span>מעקב אחרי החלטות הנהלה ויישומן</div>
+      <div class="psb-item"><span class="dot" style="background:#f57f17;"></span>ניהול פגישות הנהלת חטיבה</div>
+      <div class="psb-item"><span class="dot" style="background:#f57f17;"></span>תקשורת חטיבתית פנימית וחיצונית</div>
+      <div class="psb-item"><span class="dot" style="background:#f57f17;"></span>ניהול סיכונים ודיווחי Governance</div>
+      <div class="psb-item"><span class="dot" style="background:#f57f17;"></span>HR Liaison — גיוס, קידום, היערכות ארגונית</div>
+    </div>
+  </div>
+
+  <!-- PMO -->
+  <div class="prod-sub-col">
+    <div class="org-v" style="background:#5c6bc0;"></div>
+    <div class="prod-sub-box" style="background:#e8eaf6;border-top:3px solid #5c6bc0;">
+      <div class="psb-title" style="color:#3949ab;">PMO — ניהול פורטפוליו ופרויקטים רוחביים</div>
+      <div class="psb-item"><span class="dot" style="background:#5c6bc0;"></span>Portfolio Planning &amp; Tracking</div>
+      <div class="psb-item"><span class="dot" style="background:#5c6bc0;"></span>Capacity Planning — תהליך הקצאת משאבים</div>
+      <div class="psb-item"><span class="dot" style="background:#5c6bc0;"></span>ניהול תלויות Cross-unit</div>
+      <div class="psb-item"><span class="dot" style="background:#5c6bc0;"></span>Steering Committees</div>
+      <div class="psb-item"><span class="dot" style="background:#5c6bc0;"></span>Risk &amp; Issue Management</div>
+      <div class="psb-item"><span class="dot" style="background:#5c6bc0;"></span>דיווח להנהלה ולדירקטוריון</div>
+      <div class="psb-item"><span class="dot" style="background:#5c6bc0;"></span>מדידת Portfolio Progress</div>
+    </div>
+  </div>
+
+  <!-- BUDGET & FINOPS -->
+  <div class="prod-sub-col">
+    <div class="org-v" style="background:#2e7d32;"></div>
+    <div class="prod-sub-box" style="background:#e8f5e9;border-top:3px solid #2e7d32;">
+      <div class="psb-title" style="color:#2e7d32;">תקציב ו-FinOps<br><span style="font-size:10px;font-weight:400;">עבר מיחידת הפלטפורמות לכאן</span></div>
+      <div class="psb-item"><span class="dot" style="background:#2e7d32;"></span>Budget Planning &amp; Forecasting</div>
+      <div class="psb-item"><span class="dot" style="background:#2e7d32;"></span>Budget Tracking &amp; Variance Reporting</div>
+      <div class="psb-item"><span class="dot" style="background:#2e7d32;"></span>Cloud Cost Management (FinOps)</div>
+      <div class="psb-item"><span class="dot" style="background:#2e7d32;"></span>Cost Allocation per יחידה ופרויקט</div>
+      <div class="psb-item"><span class="dot" style="background:#2e7d32;"></span>Showback / Chargeback לעסק</div>
+      <div class="psb-item"><span class="dot" style="background:#2e7d32;"></span>ROI Tracking ליוזמות</div>
+      <div class="psb-item"><span class="dot" style="background:#2e7d32;"></span>Cost Optimization Recommendations</div>
+    </div>
+  </div>
+
+  <!-- VENDOR & PROCUREMENT -->
+  <div class="prod-sub-col">
+    <div class="org-v" style="background:#6d4c41;"></div>
+    <div class="prod-sub-box" style="background:#efebe9;border-top:3px solid #6d4c41;">
+      <div class="psb-title" style="color:#4e342e;">ניהול ספקים ורכש</div>
+      <div class="psb-item"><span class="dot" style="background:#6d4c41;"></span>Vendor Relationship Management</div>
+      <div class="psb-item"><span class="dot" style="background:#6d4c41;"></span>Contract Management &amp; Renewal</div>
+      <div class="psb-item"><span class="dot" style="background:#6d4c41;"></span>License Management</div>
+      <div class="psb-item"><span class="dot" style="background:#6d4c41;"></span>Procurement &amp; Tender Coordination</div>
+      <div class="psb-item"><span class="dot" style="background:#6d4c41;"></span>Vendor Performance &amp; SLA Oversight</div>
+      <div class="psb-item"><span class="dot" style="background:#6d4c41;"></span>SaaS Portfolio Management</div>
+      <div class="psb-item"><span class="dot" style="background:#6d4c41;"></span>תיאום מול כספים ורכש מרכזי</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FINOPS CALLOUT -->
+<div class="delivery-highlight" style="border-color:#2e7d32;margin-top:28px;">
+  <div class="dh-title" style="color:#2e7d32;">FinOps — למה הוא שייך למטה ולא לפלטפורמות</div>
+  <p style="font-size:11.5px;color:#555;margin-bottom:14px;">
+    FinOps הוא בעיקרו <strong>תפקיד ניהולי-כלכלי</strong>, לא תפקיד הנדסי. הוא שואל: כמה עולה לנו Cloud? מי צורך כמה? האם ההוצאה מוצדקת? מה ניתן לצמצם? שאלות אלו שייכות לתקציב החטיבה — לא לצוות שמתחזק את ה-Cloud.
+  </p>
+  <div class="dh-row">
+    <div class="dh-col">
+      <div class="dh-col-title" style="color:#2e7d32;">מה FinOps עושה (במטה)</div>
+      <ul>
+        <li>מעקב עלויות Cloud בזמן אמת לפי יחידה/פרויקט</li>
+        <li>Showback — כל יחידה רואה מה היא "מוציאה" ב-Cloud</li>
+        <li>Rightsizing &amp; Waste Elimination — המלצות לפלטפורמות</li>
+        <li>תקציב Cloud vs. Actual — דיווח חודשי להנהלה</li>
+        <li>Cost Forecasting לפרויקטים חדשים</li>
+        <li>ניהול Commitments ו-Reserved Instances</li>
+      </ul>
+    </div>
+    <div class="dh-col">
+      <div class="dh-col-title" style="color:#0277bd;">מה Cloud Engineering עושה (בפלטפורמות)</div>
+      <ul>
+        <li>תשתית Cloud — Networking, Compute, Storage</li>
+        <li>מימוש המלצות Rightsizing של FinOps</li>
+        <li>Tagging Strategy — לצורך Cost Allocation</li>
+        <li>Auto-scaling ו-Spot/Reserved config</li>
+        <li>Disaster Recovery &amp; Environments</li>
+      </ul>
+    </div>
+  </div>
+  <div style="margin-top:12px;background:#f1f8e9;border-radius:8px;padding:10px 14px;font-size:11px;color:#33691e;">
+    <strong>כלל פשוט:</strong> FinOps <em>מחליט</em> ומודד. Cloud Engineering <em>מממש</em>. FinOps לא נוגע בשרתים — הוא עוקב אחרי כסף.
+  </div>
+</div>
+
+<!-- CHIEF OF STAFF ROLE -->
+<div class="section-heading">Chief of Staff — תפקיד שלעתים לא מוגדר מספיק</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+
+  <div class="info-box">
+    <h4>מה CoS עושה ביום-יום</h4>
+    <ul style="font-size:11px;color:#555;padding-right:14px;">
+      <li><strong>מסנן ומתעדף</strong> — מה מגיע למנמ"ר ומה מטופל ישירות</li>
+      <li><strong>מכין</strong> — כל ישיבת הנהלה, דירקטוריון, ועדת היגוי מגיעה מוכנה</li>
+      <li><strong>עוקב</strong> — כל החלטה שהתקבלה מקבלת Owner ו-Due Date</li>
+      <li><strong>מחבר</strong> — יודע מה קורה בכל יחידה, מזהה friction שלא מדווח</li>
+      <li><strong>מגשר</strong> — בין יחידות שיש ביניהן חיכוך על משאבים/עדיפויות</li>
+      <li><strong>מכין ירידה</strong> — כשהמנמ"ר לא זמין, הדברים ממשיכים</li>
+    </ul>
+  </div>
+
+  <div class="info-box">
+    <h4>PMO — מה מבדיל PMO טוב מרע</h4>
+    <ul style="font-size:11px;color:#555;padding-right:14px;">
+      <li><strong>טוב:</strong> מקל על ה-Squads — מנהל תלויות, מזהה בעיות מוקדם</li>
+      <li><strong>רע:</strong> מוסיף בירוקרטיה — דוחות לשם דוחות, status updates שלא מובילים להחלטה</li>
+      <li><strong>טוב:</strong> Portfolio Commitment — Capacity בפועל מוקצה מראש</li>
+      <li><strong>רע:</strong> "תור דרישות" — כל יחידה מקבלת דרישה וממתינה</li>
+      <li><strong>הכלל:</strong> PMO מנהל את המסגרת, לא את ה-Delivery</li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- CAPACITY PLANNING PROCESS -->
+<div class="section-heading">Capacity Planning — תהליך שה-PMO מוביל (לא הייטק)</div>
+<div style="background:white;border-radius:12px;padding:18px 20px;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
+  <div style="display:flex;align-items:center;gap:0;">
+    <div style="flex:1;text-align:center;">
+      <div style="background:#fce4ec;border-radius:8px;padding:9px 7px;font-size:11px;font-weight:700;">Product מגדיר Outcomes<div style="font-size:9.5px;font-weight:400;color:#666;margin-top:2px;">מה רוצים להשיג בשנה הקרובה</div></div>
+    </div>
+    <div style="padding:0 5px;color:#bbb;font-size:16px;">←</div>
+    <div style="flex:1;text-align:center;">
+      <div style="background:#e8f0fe;border-radius:8px;padding:9px 7px;font-size:11px;font-weight:700;">Architecture Shaping<div style="font-size:9.5px;font-weight:400;color:#666;margin-top:2px;">Resource Map ותלויות</div></div>
+    </div>
+    <div style="padding:0 5px;color:#bbb;font-size:16px;">←</div>
+    <div style="flex:1;text-align:center;">
+      <div style="background:#e8eaf6;border-radius:8px;padding:9px 7px;font-size:11px;font-weight:700;border:2px solid #5c6bc0;">PMO — Capacity Planning<div style="font-size:9.5px;font-weight:400;color:#3949ab;margin-top:2px;">מי מתחייב לכמה, מתי</div></div>
+    </div>
+    <div style="padding:0 5px;color:#bbb;font-size:16px;">←</div>
+    <div style="flex:1;text-align:center;">
+      <div style="background:#f4f6f9;border-radius:8px;padding:9px 7px;font-size:11px;font-weight:700;">הנהלה מאשרת Portfolio<div style="font-size:9.5px;font-weight:400;color:#666;margin-top:2px;">Priority + תקציב</div></div>
+    </div>
+    <div style="padding:0 5px;color:#bbb;font-size:16px;">←</div>
+    <div style="flex:1;text-align:center;">
+      <div style="background:#e8f5e9;border-radius:8px;padding:9px 7px;font-size:11px;font-weight:700;">יחידות מתחייבות<div style="font-size:9.5px;font-weight:400;color:#666;margin-top:2px;">Digital · Core · Platform</div></div>
+    </div>
+  </div>
+  <div style="margin-top:12px;font-size:11px;color:#555;background:#f8faff;border-radius:8px;padding:10px 14px;">
+    <strong>השינוי המרכזי:</strong> יחידות Engineering לא "מקבלות דרישות לתור" — הן <strong>מתחייבות ל-Capacity</strong> עבור Outcomes מתועדפים. ה-PMO מנהל את ה-Commitment הזה, לא רק את לוח הזמנים.
+  </div>
+</div>
+
+<!-- WHAT STAFF IS NOT -->
+<div class="section-heading">מה המטה לא עושה — גבולות חשובים</div>
+<div style="display:flex;gap:12px;">
+  <div style="flex:1;background:white;border-radius:10px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
+    <div style="font-size:12px;font-weight:700;color:#c62828;margin-bottom:8px;">לא מחליט על Product Priority</div>
+    <div style="font-size:11px;color:#555;">מה לבנות ומה לתעדף — זו החלטה של יחידת המוצר ושל ההנהלה. ה-PMO מנהל את המסגרת, לא מחליט על התוכן.</div>
+  </div>
+  <div style="flex:1;background:white;border-radius:10px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
+    <div style="font-size:12px;font-weight:700;color:#c62828;margin-bottom:8px;">לא מנהל את ה-Delivery</div>
+    <div style="font-size:11px;color:#555;">ה-E2E Technical Delivery Lead מנהל את ה-Squad ואת ה-delivery. ה-PMO עוקב אחרי Portfolio ולא מתערב בניהול היומיומי.</div>
+  </div>
+  <div style="flex:1;background:white;border-radius:10px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
+    <div style="font-size:12px;font-weight:700;color:#c62828;margin-bottom:8px;">לא גוף בירוקרטי</div>
+    <div style="font-size:11px;color:#555;">מטה שמייצר דוחות לשם דוחות, status calls שלא מובילים להחלטה, ותהליכי אישור מיותרים — הורס מהירות. המטה קיים כדי לפנות למנמ"ר, לא להכביד.</div>
+  </div>
+</div>
+
+<div class="quote-box" style="margin-top:24px;">
+  המטה הוא עיניים, אוזניים וזיכרון של מנהל החטיבה.<br>
+  <span style="font-size:11px;opacity:0.75;">מאפשר לו לנהל אסטרטגיה — בזמן שהמטה מחזיק את ניהול הפנים, התקציב, הפורטפוליו והספקים</span>
+</div>
+
+</div><!-- end tab5 -->
+
+<!-- ================================================================ -->
+<!-- TAB 6: CORE UNITS DEEP DIVE -->
+<!-- ================================================================ -->
+<div id="tab6" class="tab-content">
+
+<div class="page-title">יחידות פיתוח הליבה — מבנה ותפקידים</div>
+<div class="page-sub">בתי מומחיות הנדסיים — מחזיקים עומק מערכתי, מתחייבים ל-Capacity ל-Squads, ומוסיפים ערך לאורך זמן</div>
+
+<!-- THREE CORES SIDE BY SIDE -->
+<div class="section-heading">שלוש יחידות הליבה — תחומי האחריות</div>
+<div style="display:flex;gap:14px;">
+
+  <!-- LONG TERM SAVINGS -->
+  <div style="flex:1;background:white;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.08);border-top:4px solid #2e7d32;">
+    <div style="font-size:13px;font-weight:700;color:#2e7d32;margin-bottom:4px;">ליבת חיסכון ארוך טווח ופיננסי</div>
+    <div style="font-size:10px;color:#888;margin-bottom:10px;">Long-Term Savings &amp; Financial Core</div>
+    <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px;">
+      <span style="background:#e8f5e9;color:#2e7d32;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;">ביטוח חיים</span>
+      <span style="background:#e8f5e9;color:#2e7d32;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;">פנסיה</span>
+      <span style="background:#e8f5e9;color:#2e7d32;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;">גמל</span>
+      <span style="background:#e8f5e9;color:#2e7d32;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;">ביטוח מנהלים</span>
+      <span style="background:#e8f5e9;color:#2e7d32;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;">קרנות פנסיה</span>
+      <span style="background:#e8f5e9;color:#2e7d32;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;">חיסכון לטווח ארוך</span>
+    </div>
+    <div style="font-size:10.5px;color:#555;">
+      <div style="font-weight:700;color:#2e7d32;margin-bottom:4px;">מאפייני המערכת</div>
+      <ul style="padding-right:14px;">
+        <li>לוגיקה אקטוארית מורכבת ורב-שנתית</li>
+        <li>חישובי ריבית, תשואה ו-Projection</li>
+        <li>אינטגרציות עם גמלאות ורשויות</li>
+        <li>רגולציה של רשות שוק ההון</li>
+        <li>מחזורי חיים ארוכים של פוליסות (עשורים)</li>
+        <li>עיבוד Batch מורכב — ריביות, זכויות, מס</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- INVESTMENTS & FINANCE -->
+  <div style="flex:1;background:white;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.08);border-top:4px solid #6a1b9a;">
+    <div style="font-size:13px;font-weight:700;color:#6a1b9a;margin-bottom:4px;">ליבת השקעות וכספים</div>
+    <div style="font-size:10px;color:#888;margin-bottom:10px;">Investments &amp; Finance Core</div>
+    <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px;">
+      <span style="background:#f3e5f5;color:#6a1b9a;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;">ניהול השקעות</span>
+      <span style="background:#f3e5f5;color:#6a1b9a;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;">פורטפוליו</span>
+      <span style="background:#f3e5f5;color:#6a1b9a;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;">חשבונאות</span>
+      <span style="background:#f3e5f5;color:#6a1b9a;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;">דיווח כספי</span>
+      <span style="background:#f3e5f5;color:#6a1b9a;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;">General Ledger</span>
+      <span style="background:#f3e5f5;color:#6a1b9a;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;">ניהול נזילות</span>
+    </div>
+    <div style="font-size:10.5px;color:#555;">
+      <div style="font-weight:700;color:#6a1b9a;margin-bottom:4px;">מאפייני המערכת</div>
+      <ul style="padding-right:14px;">
+        <li>Mission Critical — אפס tolerance לתקלות</li>
+        <li>Real-time pricing ו-Market Data</li>
+        <li>אינטגרציות לשווקים פיננסיים חיצוניים</li>
+        <li>דיווחים רגולטוריים לרשות ניירות ערך</li>
+        <li>IFRS / GAAP Compliance</li>
+        <li>End-of-day Processing ו-Reconciliation</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- P&C / GENERAL INSURANCE -->
+  <div style="flex:1;background:white;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.08);border-top:4px solid #e65100;">
+    <div style="font-size:13px;font-weight:700;color:#e65100;margin-bottom:4px;">ליבת אלמנטר — P&amp;C</div>
+    <div style="font-size:10px;color:#888;margin-bottom:10px;">General Insurance Core</div>
+    <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px;">
+      <span style="background:#fff3e0;color:#e65100;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;">ביטוח רכב</span>
+      <span style="background:#fff3e0;color:#e65100;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;">דירה ורכוש</span>
+      <span style="background:#fff3e0;color:#e65100;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;">עסקים</span>
+      <span style="background:#fff3e0;color:#e65100;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;">בריאות</span>
+      <span style="background:#fff3e0;color:#e65100;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;">נסיעות לחו"ל</span>
+      <span style="background:#fff3e0;color:#e65100;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;">חבויות</span>
+    </div>
+    <div style="font-size:10.5px;color:#555;">
+      <div style="font-weight:700;color:#e65100;margin-bottom:4px;">מאפייני המערכת</div>
+      <ul style="padding-right:14px;">
+        <li>מחזורי פוליסה קצרים (שנתי)</li>
+        <li>תמחור דינמי לפי סיכון</li>
+        <li>מנגנוני תביעה מורכבים</li>
+        <li>אינטגרציות חיצוניות — מוסכים, בתי חולים, שמאים</li>
+        <li>רגולציה של המפקח על הביטוח</li>
+        <li>Fraud Detection Integration</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<!-- COMMON INTERNAL STRUCTURE -->
+<div class="section-heading">המבנה הפנימי המשותף — חל על כל יחידת ליבה</div>
+<div class="prod-sub-row" style="gap:12px;margin-top:0;">
+
+  <!-- ANALYSIS -->
+  <div class="prod-sub-col">
+    <div class="org-v" style="background:#455a64;"></div>
+    <div class="prod-sub-box" style="background:#eceff1;border-top:3px solid #455a64;">
+      <div class="psb-title" style="color:#37474f;">Analysis &amp; System Design</div>
+      <div class="psb-item"><span class="dot" style="background:#455a64;"></span>Core / System Analysts — עומק מערכתי</div>
+      <div class="psb-item"><span class="dot" style="background:#455a64;"></span>Domain SMEs — מומחי עסק ומערכת</div>
+      <div class="psb-item"><span class="dot" style="background:#455a64;"></span>Impact Analysis לכל שינוי</div>
+      <div class="psb-item"><span class="dot" style="background:#455a64;"></span>Functional Specifications</div>
+      <div class="psb-item"><span class="dot" style="background:#455a64;"></span>Data Structures &amp; Interfaces</div>
+      <div class="psb-item"><span class="dot" style="background:#455a64;"></span>תמיכה ב-Product Analysts של מוצר</div>
+    </div>
+  </div>
+
+  <!-- DEVELOPMENT -->
+  <div class="prod-sub-col">
+    <div class="org-v" style="background:#1565c0;"></div>
+    <div class="prod-sub-box" style="background:#e3f2fd;border-top:3px solid #1565c0;">
+      <div class="psb-title" style="color:#1565c0;">Development &amp; Engineering</div>
+      <div class="psb-item"><span class="dot" style="background:#1565c0;"></span>Core Developers — מפתחי הליבה</div>
+      <div class="psb-item"><span class="dot" style="background:#1565c0;"></span>Technical Leads</div>
+      <div class="psb-item"><span class="dot" style="background:#1565c0;"></span>Code Review &amp; Quality</div>
+      <div class="psb-item"><span class="dot" style="background:#1565c0;"></span>Batch &amp; Integration Engineering</div>
+      <div class="psb-item"><span class="dot" style="background:#1565c0;"></span>Technical Debt Management</div>
+      <div class="psb-item"><span class="dot" style="background:#1565c0;"></span>QA מערכתי ובדיקות ליבה</div>
+    </div>
+  </div>
+
+  <!-- MODERNIZATION -->
+  <div class="prod-sub-col">
+    <div class="org-v" style="background:#f57f17;"></div>
+    <div class="prod-sub-box" style="background:#fff8e1;border-top:3px solid #f57f17;">
+      <div class="psb-title" style="color:#e65100;">Modernization</div>
+      <div class="psb-item"><span class="dot" style="background:#f57f17;"></span>Encapsulate &amp; Evolve — לא Big Bang</div>
+      <div class="psb-item"><span class="dot" style="background:#f57f17;"></span>API Wrapping של לוגיקה קיימת</div>
+      <div class="psb-item"><span class="dot" style="background:#f57f17;"></span>Adapter Layer לכל שירות חדש</div>
+      <div class="psb-item"><span class="dot" style="background:#f57f17;"></span>מיגרציה הדרגתית של מודולים</div>
+      <div class="psb-item"><span class="dot" style="background:#f57f17;"></span>Platform Adoption — Forms, Workflow</div>
+      <div class="psb-item"><span class="dot" style="background:#f57f17;"></span>Technical Roadmap — לאן הליבה הולכת</div>
+    </div>
+  </div>
+
+  <!-- REGULATORY -->
+  <div class="prod-sub-col">
+    <div class="org-v" style="background:#ad1457;"></div>
+    <div class="prod-sub-box" style="background:#fce4ec;border-top:3px solid #ad1457;">
+      <div class="psb-title" style="color:#ad1457;">Regulatory &amp; Compliance</div>
+      <div class="psb-item"><span class="dot" style="background:#ad1457;"></span>Dedicated Capacity לרגולציה</div>
+      <div class="psb-item"><span class="dot" style="background:#ad1457;"></span>מעקב דרישות רגולטוריות</div>
+      <div class="psb-item"><span class="dot" style="background:#ad1457;"></span>תיאום מול Legal &amp; Compliance</div>
+      <div class="psb-item"><span class="dot" style="background:#ad1457;"></span>דיווחים רגולטוריים</div>
+      <div class="psb-item"><span class="dot" style="background:#ad1457;"></span>SOX / IFRS / רגולציה ביטוחית</div>
+      <div class="psb-item"><span class="dot" style="background:#ad1457;"></span>Audit Trail &amp; Evidence</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- CAPACITY MODEL -->
+<div class="section-heading">כיצד הליבה מחלקת את ה-Capacity שלה</div>
+<div style="background:white;border-radius:12px;padding:18px 20px;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
+  <p style="font-size:11.5px;color:#555;margin-bottom:16px;">
+    הליבה מפוצלת ל-3 "תאים" של זמן — ה-split המדויק משתנה בין יחידות ובין תקופות, אך העיקרון קבוע: לא הכל Strategic, לא הכל BAU.
+  </p>
+  <div style="display:flex;gap:0;border-radius:10px;overflow:hidden;height:52px;">
+    <div style="flex:3;background:#c62828;display:flex;align-items:center;justify-content:center;text-align:center;color:white;font-size:11px;font-weight:700;">
+      ~30%<br><span style="font-size:9.5px;font-weight:400;">Strategic Squads (Tier 1)</span>
+    </div>
+    <div style="flex:3;background:#0277bd;display:flex;align-items:center;justify-content:center;text-align:center;color:white;font-size:11px;font-weight:700;">
+      ~30%<br><span style="font-size:9.5px;font-weight:400;">Features &amp; Changes (Tier 2)</span>
+    </div>
+    <div style="flex:2;background:#ad1457;display:flex;align-items:center;justify-content:center;text-align:center;color:white;font-size:11px;font-weight:700;">
+      ~20%<br><span style="font-size:9.5px;font-weight:400;">רגולציה</span>
+    </div>
+    <div style="flex:2;background:#616161;display:flex;align-items:center;justify-content:center;text-align:center;color:white;font-size:11px;font-weight:700;">
+      ~20%<br><span style="font-size:9.5px;font-weight:400;">BAU &amp; Maintenance</span>
+    </div>
+  </div>
+  <div style="display:flex;gap:10px;margin-top:12px;">
+    <div style="flex:1;background:#fff5f5;border-radius:8px;padding:9px 10px;font-size:10.5px;color:#555;border-right:3px solid #c62828;">
+      <strong>Strategic (Tier 1):</strong> מתחייב מראש ל-Squad רוחבי. ה-Core Analyst/Developer משובץ בצוות ומנוהל ע"י ה-Delivery Lead.
+    </div>
+    <div style="flex:1;background:#f0f8ff;border-radius:8px;padding:9px 10px;font-size:10.5px;color:#555;border-right:3px solid #0277bd;">
+      <strong>Features (Tier 2):</strong> שינויים בינוניים ב-Backlog של הליבה. PM מתאם, Core מבצע בתוך ה-Backlog הרגיל שלו.
+    </div>
+    <div style="flex:1;background:#fff0f5;border-radius:8px;padding:9px 10px;font-size:10.5px;color:#555;border-right:3px solid #ad1457;">
+      <strong>רגולציה:</strong> Capacity שמור מראש. לא נלקח מ-Strategic. רגולציה שמגיעה נכנסת לתא הייעודי.
+    </div>
+    <div style="flex:1;background:#f5f5f5;border-radius:8px;padding:9px 10px;font-size:10.5px;color:#555;border-right:3px solid #616161;">
+      <strong>BAU (Tier 3):</strong> תחזוקה, תקלות, שינויים קטנים — מנוהל ב-Backlog קבוע, ללא פרויקט, ללא Squad.
+    </div>
+  </div>
+</div>
+
+<!-- ANALYST DETAIL -->
+<div class="section-heading">Core Analyst — הלב של יחידת הליבה</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+
+  <div class="info-box">
+    <h4>מה Core Analyst יודע שאחרים לא</h4>
+    <ul style="font-size:11px;color:#555;padding-right:14px;">
+      <li><strong>חוקיות המערכת</strong> — כיצד כל חוק עסקי מיושם בקוד</li>
+      <li><strong>Data Model</strong> — מבנה הטבלאות, שדות, מפתחות, קשרים</li>
+      <li><strong>Batch Processes</strong> — אילו תהליכים רצים ומתי, ובאיזה סדר</li>
+      <li><strong>Interfaces</strong> — כיצד המערכת מדברת עם מערכות אחרות</li>
+      <li><strong>Impact Analysis</strong> — שינוי שם שדה אחד — מה נשבר?</li>
+      <li><strong>היסטוריה</strong> — למה הדברים נבנו כך ולא אחרת</li>
+      <li><strong>Edge Cases</strong> — מקרי קצה שנצברו מ-20 שנה</li>
+    </ul>
+  </div>
+
+  <div class="info-box">
+    <h4>כיצד Core Analyst עובד עם יחידת המוצר</h4>
+    <ul style="font-size:11px;color:#555;padding-right:14px;">
+      <li><strong>Product Analyst</strong> מגדיר את התהליך E2E והצורך העסקי</li>
+      <li><strong>Core Analyst</strong> מתרגם: מה זה אומר במערכת שלו ספציפית</li>
+      <li><strong>Impact Analysis</strong> — Core Analyst בודק מה ייפגע</li>
+      <li><strong>Design ב-Shaping</strong> — Solution Architect + Core Analyst יחד</li>
+      <li><strong>ב-Squad</strong> — Core Analyst/Dev משובץ כחלק מהצוות</li>
+    </ul>
+    <div style="margin-top:8px;background:#e8f0fe;border-radius:6px;padding:8px;font-size:10.5px;color:#3b5bdb;">
+      <strong>כלל:</strong> Product Analyst מבין את <em>מה ולמה</em> — Core Analyst מבין את <em>כיצד לממש</em> במערכת הספציפית
+    </div>
+  </div>
+
+</div>
+
+<!-- MODERNIZATION APPROACH -->
+<div class="section-heading">גישת המודרניזציה — Encapsulate &amp; Evolve, לא Big Bang</div>
+<div style="background:white;border-radius:12px;padding:18px 20px;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
+  <p style="font-size:11.5px;color:#555;margin-bottom:14px;">
+    לא מחליפים מערכת ליבה ביום אחד. הגישה: כל יוזמה חדשה בונה דרך Layer, עוטפת לוגיקה קיימת ב-API, ולאורך זמן — הליבה מתרוקנת מלוגיקה לאט.
+  </p>
+  <div style="display:flex;gap:14px;align-items:stretch;">
+
+    <div style="flex:1;background:#e8f5e9;border-radius:10px;padding:14px;">
+      <div style="font-size:12px;font-weight:700;color:#2e7d32;margin-bottom:8px;">שלב 1 — Encapsulate</div>
+      <ul style="font-size:11px;color:#555;padding-right:14px;">
+        <li>עוטפים לוגיקה קיימת ב-API</li>
+        <li>לא שוברים שום דבר</li>
+        <li>מערכת ישנה ממשיכה לעבוד</li>
+        <li>שירותים חדשים קוראים ל-API</li>
+      </ul>
+    </div>
+
+    <div style="display:flex;align-items:center;font-size:22px;color:#ccc;padding:0 6px;">→</div>
+
+    <div style="flex:1;background:#fff8e1;border-radius:10px;padding:14px;">
+      <div style="font-size:12px;font-weight:700;color:#e65100;margin-bottom:8px;">שלב 2 — Evolve</div>
+      <ul style="font-size:11px;color:#555;padding-right:14px;">
+        <li>מודול אחד עובר ל-Microservice</li>
+        <li>Adapter מנתב בין ישן לחדש</li>
+        <li>Parallel Run — ישן וחדש יחד</li>
+        <li>Cutover הדרגתי לפי סוג עסקה</li>
+      </ul>
+    </div>
+
+    <div style="display:flex;align-items:center;font-size:22px;color:#ccc;padding:0 6px;">→</div>
+
+    <div style="flex:1;background:#e3f2fd;border-radius:10px;padding:14px;">
+      <div style="font-size:12px;font-weight:700;color:#0277bd;margin-bottom:8px;">שלב 3 — Retire</div>
+      <ul style="font-size:11px;color:#555;padding-right:14px;">
+        <li>מודול ישן כבוי</li>
+        <li>לוגיקה חיה בשירות החדש</li>
+        <li>Platform Services מטפלים ב-Forms, Workflow</li>
+        <li>הליבה מתמקדת בלוגיקה עסקית בלבד</li>
+      </ul>
+    </div>
+
+  </div>
+  <div style="margin-top:12px;background:#fff3e0;border-radius:8px;padding:10px 14px;font-size:11px;color:#e65100;">
+    <strong>דוגמה קונקרטית:</strong> Forms &amp; Documents Platform מחליף את מנגנון יצירת ה-PDF שחי בתוך מערכת הליבה. הליבה קוראת ל-API של הפלטפורמה — ומיום זה שינוי שאלון הוא Configuration ולא פרויקט.
+  </div>
+</div>
+
+<!-- WHAT CORE UNITS OWN vs DON'T -->
+<div class="section-heading">גבולות ברורים — מה הליבה מחזיקה ומה לא</div>
+<div style="display:flex;gap:14px;">
+
+  <div style="flex:1;background:white;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
+    <div style="font-size:12px;font-weight:700;color:#2e7d32;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #eee;">מחזיקה</div>
+    <ul style="font-size:11px;color:#555;padding-right:14px;">
+      <li>System Ownership — הבית של המערכת</li>
+      <li>עומק הנדסי ומומחיות מערכתית</li>
+      <li>Core Analysis &amp; Impact Assessment</li>
+      <li>Technical Roadmap של המערכת</li>
+      <li>Maintenance, Reliability, Performance</li>
+      <li>Regulatory Changes בתחום שלה</li>
+      <li>Knowledge Retention לאורך זמן</li>
+      <li>Capacity Commitment לפי Portfolio</li>
+    </ul>
+  </div>
+
+  <div style="flex:1;background:white;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
+    <div style="font-size:12px;font-weight:700;color:#c62828;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #eee;">לא מחזיקה</div>
+    <ul style="font-size:11px;color:#555;padding-right:14px;">
+      <li>Product Ownership — בעלות על Journey או Outcome</li>
+      <li>תיעדוף כלל-ארגוני — זה Portfolio</li>
+      <li>הגדרת מה לבנות — זה Product</li>
+      <li>ארכיטקטורה ארגונית — זה CTO</li>
+      <li>Digital / UX / CRM — זה Digital</li>
+      <li>Data Platform &amp; Pipelines — זה Platform</li>
+      <li>Forms, Workflow, Notifications — זה Shared Services</li>
+    </ul>
+  </div>
+
+  <div style="flex:1;background:white;border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
+    <div style="font-size:12px;font-weight:700;color:#0277bd;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #eee;">כיצד תורמת ל-Squad</div>
+    <ul style="font-size:11px;color:#555;padding-right:14px;">
+      <li>מתחייבת ל-% Capacity מוגדר מראש</li>
+      <li>Core Analyst/Dev משובץ ב-Squad</li>
+      <li>Technical Delivery Lead של ה-Squad מנהל — לא מנהל הליבה</li>
+      <li>Core מספקת את ה-System Knowledge</li>
+      <li>בסיום Squad — הקוד חוזר לבית הליבה</li>
+    </ul>
+  </div>
+
+</div>
+
+<div class="quote-box" style="margin-top:24px;">
+  יחידות הליבה הן בתי מומחיות — לא "ספקים פנימיים" שמקבלים תור.<br>
+  <span style="font-size:11px;opacity:0.75;">הן מתחייבות ל-Capacity עבור Outcomes מתועדפים — ומביאות את העומק המערכתי שאף אחד אחר לא יכול להחליף</span>
+</div>
+
+</div><!-- end tab6 -->
+
+<!-- ================================================================ -->
+<!-- TAB 7: TECH OPS & IT SERVICES -->
+<!-- ================================================================ -->
+<div id="tab7" class="tab-content">
+
+<div class="page-title">תפעול טכנולוגי ושירותי IT — מבנה פנימי</div>
+<div class="page-sub">שומרים שהכל רץ — Production, תשתיות פיזיות, תחזוקה ובינוי, ושירות לעובדים ולמשתמשים</div>
+
+<!-- TOP BOX -->
+<div class="section-heading">ראש היחידה ומה תחתיו</div>
+
+<div class="prod-unit-top" style="background:#455a64;width:340px;">
+  תפעול טכנולוגי ושירותי IT
+  <div class="role">Head of Technology Operations &amp; IT Services</div>
+</div>
+<div class="v-conn" style="background:#455a64;"></div>
+
+<!-- 5 SUB-UNITS -->
+<div class="prod-sub-row" style="gap:10px;">
+
+  <!-- SRE & PRODUCTION OPS -->
+  <div class="prod-sub-col">
+    <div class="org-v" style="background:#1565c0;"></div>
+    <div class="prod-sub-box" style="background:#e3f2fd;border-top:3px solid #1565c0;">
+      <div class="psb-title" style="color:#1565c0;">SRE &amp; Production Operations</div>
+      <div class="psb-item"><span class="dot" style="background:#1565c0;"></span>Site Reliability Engineers</div>
+      <div class="psb-item"><span class="dot" style="background:#1565c0;"></span>Production Monitoring &amp; Alerting</div>
+      <div class="psb-item"><span class="dot" style="background:#1565c0;"></span>Incident Management</div>
+      <div class="psb-item"><span class="dot" style="background:#1565c0;"></span>Problem Management &amp; Root Cause</div>
+      <div class="psb-item"><span class="dot" style="background:#1565c0;"></span>Change Management (Production)</div>
+      <div class="psb-item"><span class="dot" style="background:#1565c0;"></span>On-Call &amp; Escalation</div>
+      <div class="psb-item"><span class="dot" style="background:#1565c0;"></span>SLA &amp; Availability Reporting</div>
+    </div>
+  </div>
+
+  <!-- NOC -->
+  <div class="prod-sub-col">
+    <div class="org-v" style="background:#00838f;"></div>
+    <div class="prod-sub-box" style="background:#e0f7fa;border-top:3px solid #00838f;">
+      <div class="psb-title" style="color:#00695c;">NOC — ניהול רשת ותקשורת</div>
+      <div class="psb-item"><span class="dot" style="background:#00838f;"></span>Network Operations Center</div>
+      <div class="psb-item"><span class="dot" style="background:#00838f;"></span>ניטור רשת 24/7</div>
+      <div class="psb-item"><span class="dot" style="background:#00838f;"></span>LAN / WAN / VPN</div>
+      <div class="psb-item"><span class="dot" style="background:#00838f;"></span>Connectivity לסניפים וספקים</div>
+      <div class="psb-item"><span class="dot" style="background:#00838f;"></span>Firewall &amp; Network Security Ops</div>
+      <div class="psb-item"><span class="dot" style="background:#00838f;"></span>Bandwidth &amp; Traffic Management</div>
+      <div class="psb-item"><span class="dot" style="background:#00838f;"></span>Network Incident Response</div>
+    </div>
+  </div>
+
+  <!-- IT SERVICES -->
+  <div class="prod-sub-col">
+    <div class="org-v" style="background:#6a1b9a;"></div>
+    <div class="prod-sub-box" style="background:#f3e5f5;border-top:3px solid #6a1b9a;">
+      <div class="psb-title" style="color:#6a1b9a;">IT Services &amp; Workplace</div>
+      <div class="psb-item"><span class="dot" style="background:#6a1b9a;"></span>Service Desk &amp; Helpdesk</div>
+      <div class="psb-item"><span class="dot" style="background:#6a1b9a;"></span>Desktop &amp; Laptop Support</div>
+      <div class="psb-item"><span class="dot" style="background:#6a1b9a;"></span>Onboarding &amp; Offboarding IT</div>
+      <div class="psb-item"><span class="dot" style="background:#6a1b9a;"></span>Mobile Device Management</div>
+      <div class="psb-item"><span class="dot" style="background:#6a1b9a;"></span>Workplace Technology</div>
+      <div class="psb-item"><span class="dot" style="background:#6a1b9a;"></span>ניהול רישיונות משתמש (Office, M365)</div>
+      <div class="psb-item"><span class="dot" style="background:#6a1b9a;"></span>Video Conferencing &amp; AV</div>
+    </div>
+  </div>
+
+  <!-- MAINTENANCE & FACILITIES -->
+  <div class="prod-sub-col">
+    <div class="org-v" style="background:#e65100;"></div>
+    <div class="prod-sub-box" style="background:#fff3e0;border-top:3px solid #e65100;">
+      <div class="psb-title" style="color:#e65100;">תחזוקה ובינוי — תשתיות פיזיות</div>
+      <div class="psb-item"><span class="dot" style="background:#e65100;"></span>Data Center Operations</div>
+      <div class="psb-item"><span class="dot" style="background:#e65100;"></span>Server Rooms — קירור, UPS, חשמל</div>
+      <div class="psb-item"><span class="dot" style="background:#e65100;"></span>Hardware Lifecycle Management</div>
+      <div class="psb-item"><span class="dot" style="background:#e65100;"></span>Cabling &amp; Physical Infrastructure</div>
+      <div class="psb-item"><span class="dot" style="background:#e65100;"></span>בינוי IT בסניפים ומשרדים חדשים</div>
+      <div class="psb-item"><span class="dot" style="background:#e65100;"></span>Physical Security Systems (CCTV, Access)</div>
+      <div class="psb-item"><span class="dot" style="background:#e65100;"></span>Disaster Recovery Sites</div>
+    </div>
+  </div>
+
+  <!-- IT SECURITY OPS -->
+  <div class="prod-sub-col">
+    <div class="org-v" style="background:#ad1457;"></div>
+    <div class="prod-sub-box" style="background:#fce4ec;border-top:3px solid #ad1457;">
+      <div class="psb-title" style="color:#ad1457;">IT Security Ops<br><span style="font-size:10px;font-weight:400;">(עובד בהנחיית CISO)</span></div>
+      <div class="psb-item"><span class="dot" style="background:#ad1457;"></span>SOC — Security Operations Center</div>
+      <div class="psb-item"><span class="dot" style="background:#ad1457;"></span>Endpoint Protection</div>
+      <div class="psb-item"><span class="dot" style="background:#ad1457;"></span>Patch Management</div>
+      <div class="psb-item"><span class="dot" style="background:#ad1457;"></span>Vulnerability Scanning</div>
+      <div class="psb-item"><span class="dot" style="background:#ad1457;"></span>IAM Operations</div>
+      <div class="psb-item"><span class="dot" style="background:#ad1457;"></span>Security Incident Response</div>
+      <div class="psb-item"><span class="dot" style="background:#ad1457;"></span>מדיניות: CISO — ביצוע: Ops</div>
+    </div>
+  </div>
+
+  <!-- QA & ENVIRONMENTS -->
+  <div class="prod-sub-col">
+    <div class="org-v" style="background:#2e7d32;"></div>
+    <div class="prod-sub-box" style="background:#e8f5e9;border-top:3px solid #2e7d32;">
+      <div class="psb-title" style="color:#2e7d32;">QA מקצועי וניהול סביבות</div>
+
+      <div style="font-size:10px;font-weight:700;color:#2e7d32;margin:6px 0 3px;">בדיקות E2E</div>
+      <div class="psb-item"><span class="dot" style="background:#2e7d32;"></span>E2E Test Suite — חוצה מערכות ליבה</div>
+      <div class="psb-item"><span class="dot" style="background:#2e7d32;"></span>מומחי QA לפי דומיין<br><span style="font-size:9.5px;color:#888;padding-right:13px;">QA שמכיר עמוק חיים / אלמנטר / השקעות</span></div>
+      <div class="psb-item"><span class="dot" style="background:#2e7d32;"></span>Regression Testing לפני Release</div>
+      <div class="psb-item"><span class="dot" style="background:#2e7d32;"></span>Integration Testing בין מערכות</div>
+
+      <div style="font-size:10px;font-weight:700;color:#2e7d32;margin:8px 0 3px;">ניהול סביבות</div>
+      <div class="psb-item"><span class="dot" style="background:#2e7d32;"></span>סביבות פיתוח, טסט ו-Staging</div>
+      <div class="psb-item"><span class="dot" style="background:#2e7d32;"></span>Data Masking לסביבות לא-ייצור</div>
+      <div class="psb-item"><span class="dot" style="background:#2e7d32;"></span>Release Gates — שחרור לייצור</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- QA CALLOUT -->
+<div class="delivery-highlight" style="border-color:#2e7d32;margin-top:28px;">
+  <div class="dh-title" style="color:#2e7d32;">QA מקצועי וניהול סביבות — למה זה שונה מ-QA בסקואד</div>
+  <p style="font-size:11.5px;color:#555;margin-bottom:14px;">
+    כל סקואד בודק את הפיצ'ר שלו — אבל אף סקואד לא יכול לבדוק E2E תהליך שעובר דרך ליבת חיים, ליבת אלמנטר, CRM ודיגיטל יחד. זה דורש מומחה שמכיר לעומק <strong>כמה מערכות</strong> — לא מישהו שבנה Feature אחד. הצוות הזה שומר שהחטיבה כולה יכולה לשחרר גרסה בביטחון.
+  </p>
+  <div class="dh-row">
+    <div class="dh-col">
+      <div class="dh-col-title" style="color:#2e7d32;">מה הצוות עושה</div>
+      <ul>
+        <li>בודק תהליכים מקצה לקצה — חוצה כל המערכות</li>
+        <li>לכל מערכת ליבה יש מומחה QA ייעודי שמכיר אותה לעומק</li>
+        <li>מנהל סביבות פרה-פרודקשן — כולן זמינות ומעודכנות</li>
+        <li>מאשר Release — שום גרסה לא יוצאת בלי חתימה</li>
+        <li>מייצר תרחישי Regression אחרי כל שינוי ליבה</li>
+      </ul>
+    </div>
+    <div class="dh-col">
+      <div class="dh-col-title" style="color:#2e7d32;">מה הצוות לא עושה</div>
+      <ul>
+        <li>לא מחליף Unit Testing בתוך הסקואד — זה נשאר שם</li>
+        <li>לא מגדיר דרישות — זה מוצר ולקוח</li>
+        <li>לא מפתח Automation Framework — זה פלטפורמות</li>
+        <li>לא אחראי על SLA ייצור — זה SRE</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- MAINTENANCE & CONSTRUCTION CALLOUT -->
+<div class="delivery-highlight" style="border-color:#e65100;margin-top:28px;">
+  <div class="dh-title" style="color:#e65100;">תחזוקה ובינוי — מה זה כולל בפועל</div>
+  <p style="font-size:11.5px;color:#555;margin-bottom:14px;">
+    תחזוקה ובינוי היא לא רק "תיקון שרתים". זו אחריות מלאה על הסביבה הפיזית של ה-IT — מחדר השרתים הראשי, דרך סניפים, ועד פרויקטי בינוי של משרדים חדשים. כשנפתח סניף או משרד חדש — יחידה זו מתכננת, בונה ומתחזקת את כל התשתית הפיזית.
+  </p>
+  <div class="dh-row">
+    <div class="dh-col">
+      <div class="dh-col-title" style="color:#e65100;">תחזוקה שוטפת</div>
+      <ul>
+        <li>Data Center — קירור, UPS, גנרטורים, חשמל</li>
+        <li>Hardware Lifecycle — החלפת שרתים, Storage, Networking לפני כשל</li>
+        <li>Cabling — תקינות ומיפוי תשתיות כבלים</li>
+        <li>Physical Security — CCTV, גישה, אזעקות</li>
+        <li>Backup Sites — DR Site תקין ומעודכן</li>
+        <li>רישויים וביקורות על Data Center</li>
+      </ul>
+    </div>
+    <div class="dh-col">
+      <div class="dh-col-title" style="color:#e65100;">פרויקטי בינוי</div>
+      <ul>
+        <li>פתיחת משרד/סניף חדש — תכנון IT מלא</li>
+        <li>הגדרת תשתית רשת, Rack, Patch Panels</li>
+        <li>הטמעת Workplace Technology</li>
+        <li>חדרי ישיבות — AV, מסכים, מצלמות</li>
+        <li>שיפוצים — העתקת תשתיות IT בתוך בניין</li>
+        <li>תיאום מול קבלנים, ספקי תקשורת ובעלי נכסים</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- RUN vs BUILD BOUNDARY -->
+<div class="section-heading">הגבול בין Ops לבין Platform — Run vs. Build</div>
+<div style="background:white;border-radius:12px;padding:18px 20px;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
+  <p style="font-size:11.5px;color:#555;margin-bottom:14px;">
+    הבלבול הנפוץ ביותר: מה ה-Ops עושה ומה ה-Platform עושה? הכלל פשוט: <strong>Platform בונה ומאפשר — Ops מפעיל ומחזיק את מה שנבנה.</strong>
+  </p>
+  <div style="display:flex;gap:0;border-radius:10px;overflow:hidden;">
+    <div style="flex:1;background:#e3f2fd;padding:14px;">
+      <div style="font-weight:700;color:#0277bd;font-size:12px;margin-bottom:8px;">Platform (Cloud &amp; DevOps) — BUILD</div>
+      <ul style="font-size:11px;color:#555;padding-right:14px;">
+        <li>בונה את ה-Cloud Infrastructure</li>
+        <li>בונה CI/CD Pipelines</li>
+        <li>בונה Monitoring Tools</li>
+        <li>בונה ומתחזק Shared Services (Forms, Workflow)</li>
+        <li>מגדיר Standards לסביבות</li>
+        <li>מממש המלצות FinOps</li>
+      </ul>
+    </div>
+    <div style="flex:0 0 2px;background:#dde1e9;"></div>
+    <div style="flex:1;background:#eceff1;padding:14px;">
+      <div style="font-weight:700;color:#455a64;font-size:12px;margin-bottom:8px;">Tech Ops — RUN</div>
+      <ul style="font-size:11px;color:#555;padding-right:14px;">
+        <li>מפעיל Production — ניטור, התראות</li>
+        <li>מגיב לתקלות ומנהל Incidents</li>
+        <li>מחזיק את התשתית הפיזית (Data Center)</li>
+        <li>מספק שירות לעובדים (Helpdesk)</li>
+        <li>מנהל רשת פיזית ו-NOC</li>
+        <li>מבצע Patch &amp; Endpoint Protection</li>
+      </ul>
+    </div>
+  </div>
+  <div style="margin-top:10px;background:#fff8e1;border-radius:8px;padding:10px 14px;font-size:11px;color:#7a5c00;">
+    <strong>דוגמה:</strong> Cloud Platform <em>בונה</em> את ה-Kubernetes Cluster ומגדיר Alerting. Tech Ops <em>מגיב</em> להתראות, מנהל Incidents ומדווח. שניהם צריכים לעבוד קרוב — אבל האחריות שונה.
+  </div>
+</div>
+
+<!-- INCIDENT MANAGEMENT FLOW -->
+<div class="section-heading">מחזור ניהול תקלה — מ-Alert ועד סגירה</div>
+<div style="background:white;border-radius:12px;padding:18px 20px;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
+  <div style="display:flex;align-items:stretch;gap:0;">
+    <div style="flex:1;text-align:center;">
+      <div style="background:#fee2e2;border-radius:8px;padding:9px 7px;font-size:11px;font-weight:700;height:100%;">
+        Alert / Detection
+        <div style="font-size:9.5px;font-weight:400;color:#666;margin-top:3px;">Monitoring · NOC · משתמש מדווח</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;padding:0 5px;color:#bbb;font-size:16px;">←</div>
+    <div style="flex:1;text-align:center;">
+      <div style="background:#fff3e0;border-radius:8px;padding:9px 7px;font-size:11px;font-weight:700;height:100%;">
+        Triage &amp; Priority
+        <div style="font-size:9.5px;font-weight:400;color:#666;margin-top:3px;">P1/P2/P3 · War Room אם P1</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;padding:0 5px;color:#bbb;font-size:16px;">←</div>
+    <div style="flex:1;text-align:center;">
+      <div style="background:#fff8e1;border-radius:8px;padding:9px 7px;font-size:11px;font-weight:700;height:100%;">
+        Resolution
+        <div style="font-size:9.5px;font-weight:400;color:#666;margin-top:3px;">SRE + Core + Platform לפי הצורך</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;padding:0 5px;color:#bbb;font-size:16px;">←</div>
+    <div style="flex:1;text-align:center;">
+      <div style="background:#e8f5e9;border-radius:8px;padding:9px 7px;font-size:11px;font-weight:700;height:100%;">
+        Post-Mortem
+        <div style="font-size:9.5px;font-weight:400;color:#666;margin-top:3px;">Root Cause · Actions · Prevention</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;padding:0 5px;color:#bbb;font-size:16px;">←</div>
+    <div style="flex:1;text-align:center;">
+      <div style="background:#e8f0fe;border-radius:8px;padding:9px 7px;font-size:11px;font-weight:700;height:100%;">
+        Problem Management
+        <div style="font-size:9.5px;font-weight:400;color:#666;margin-top:3px;">מניעת חזרה · שיפור מתמיד</div>
+      </div>
+    </div>
+  </div>
+  <div style="display:flex;gap:10px;margin-top:12px;">
+    <div style="flex:1;background:#f8faff;border-radius:8px;padding:8px 10px;font-size:10.5px;color:#555;">
+      <strong>P1 (Critical):</strong> War Room מיידי, מנמ"ר מעודכן, תקשורת עדכנית כל 30 דק', SLA: זמינות 99.9%
+    </div>
+    <div style="flex:1;background:#f8faff;border-radius:8px;padding:8px 10px;font-size:10.5px;color:#555;">
+      <strong>P2 (High):</strong> טיפול תוך שעות, מנהל יחידה מעודכן, תיקון ביום העסקים
+    </div>
+    <div style="flex:1;background:#f8faff;border-radius:8px;padding:8px 10px;font-size:10.5px;color:#555;">
+      <strong>P3 (Normal):</strong> ב-Queue הרגיל, SLA לפי הסכמה, ניתן לתכנן
+    </div>
+  </div>
+</div>
+
+<!-- IT SERVICES DETAIL -->
+<div class="section-heading">IT Services — שירות לעובדים ולמשתמשים</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+
+  <div class="info-box">
+    <h4>Service Desk — נקודת הכניסה היחידה</h4>
+    <ul style="font-size:11px;color:#555;padding-right:14px;">
+      <li><strong>Single Point of Contact</strong> — עובד לא יודע למי לפנות? Service Desk</li>
+      <li>Ticket Routing אוטומטי לפי סוג הבעיה</li>
+      <li>L1 — פתרון מיידי (סיסמה, הרשאה, תוכנה)</li>
+      <li>L2 — מעבר לטכנאי מומחה</li>
+      <li>L3 — מעבר ליחידה הטכנית הרלוונטית</li>
+      <li>SLA: L1 — 4 שעות · L2 — יום עסקים</li>
+    </ul>
+  </div>
+
+  <div class="info-box">
+    <h4>Onboarding &amp; Offboarding IT</h4>
+    <ul style="font-size:11px;color:#555;padding-right:14px;">
+      <li>עובד חדש מקבל ביום הראשון: מחשב, רשת, גישות, דוא"ל</li>
+      <li>תיאום עם HR על תאריכי קליטה</li>
+      <li>Provisioning אוטומטי לפי תפקיד</li>
+      <li>עזיבה: ביטול גישות מיידי ב-Zero Trust</li>
+      <li>החזרת ציוד ותיעוד</li>
+      <li>תיאום עם IAM (CISO) על הרשאות</li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- WHAT OPS DOESN'T OWN -->
+<div class="section-heading">גבולות — מה Ops לא עושה</div>
+<div style="display:flex;gap:12px;">
+  <div style="flex:1;background:white;border-radius:10px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,0.07);border-right:3px solid #c62828;">
+    <div style="font-size:12px;font-weight:700;color:#c62828;margin-bottom:6px;">לא בונה תשתית Cloud חדשה</div>
+    <div style="font-size:11px;color:#555;">Cloud Architecture ו-DevOps — Platform. Ops מפעיל מה שנבנה שם.</div>
+  </div>
+  <div style="flex:1;background:white;border-radius:10px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,0.07);border-right:3px solid #c62828;">
+    <div style="font-size:12px;font-weight:700;color:#c62828;margin-bottom:6px;">לא מגדיר מדיניות אבטחה</div>
+    <div style="font-size:11px;color:#555;">CISO מגדיר מדיניות ואסטרטגיה. Ops מבצע: Patch, Endpoint, IAM Ops.</div>
+  </div>
+  <div style="flex:1;background:white;border-radius:10px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,0.07);border-right:3px solid #c62828;">
+    <div style="font-size:12px;font-weight:700;color:#c62828;margin-bottom:6px;">לא מפתח מערכות</div>
+    <div style="font-size:11px;color:#555;">Ops לא כותב קוד עסקי. בעיה שדורשת פיתוח עוברת ל-Core / Digital / Platform.</div>
+  </div>
+  <div style="flex:1;background:white;border-radius:10px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,0.07);border-right:3px solid #c62828;">
+    <div style="font-size:12px;font-weight:700;color:#c62828;margin-bottom:6px;">לא מנהל FinOps / תקציב</div>
+    <div style="font-size:11px;color:#555;">FinOps נמצא במטה. Ops מדווח על Capacity ועלויות לפי דרישה, לא מנהל את התקציב.</div>
+  </div>
+</div>
+
+<div class="quote-box" style="margin-top:24px;">
+  Tech Ops הוא לא "מי שמתקן כשמשהו נשבר".<br>
+  <span style="font-size:11px;opacity:0.75;">הוא מי שמבטיח שהדברים לא נשברים — ומי שמגיב הכי מהר ומסודר כשהם כן נשברים</span>
+</div>
+
+</div><!-- end tab7 -->
+
+<script>
+  function showTab(tabId, btn) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    btn.classList.add('active');
+  }
+</script>
+
+</body>
+</html>
