@@ -1,0 +1,1462 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>הטמעת AI במגדל — תכנית ביצוע</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:   #020140;
+  --blue:  #3c65e3;
+  --green: #a2eb9a;
+  --paper: #fbfbfd;
+  --mist:  #f3f6fb;
+  --line:  #d4ddec;
+  --s400:  #9aa3bd;
+  --s600:  #5b658a;
+  --pad-x: 100px;
+  --pad-y: 68px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#111;font-family:'Heebo',sans-serif;display:flex;flex-direction:column;align-items:center;gap:20px;padding:20px}
+
+.slide-wrap{width:100%;max-width:1920px;position:relative;border-radius:4px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.55);}
+.slide-inner{position:absolute;top:0;left:0;width:1920px;height:1080px;transform-origin:top left;}
+
+/* BASE SLIDE */
+.slide{position:absolute;inset:0;background:var(--paper);display:flex;flex-direction:column;padding:var(--pad-y) var(--pad-x);overflow:hidden;}
+.slide.dark{background:var(--ink);}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;flex:none;margin-bottom:44px;}
+.eyebrow{display:flex;align-items:center;gap:12px;font-size:21px;font-weight:700;letter-spacing:.14em;color:var(--blue);}
+.eyebrow::before{content:"";width:11px;height:11px;background:var(--green);border-radius:3px;transform:rotate(45deg);flex:none;}
+.eyebrow.w{color:#fff;}
+.lockup-name{font-size:19px;font-weight:800;color:var(--ink);letter-spacing:.01em;}
+.lockup-name span{color:var(--blue);}
+.lockup-name.w{color:#fff;}
+.lockup-name.w span{color:var(--green);}
+
+/* FOOTER */
+.footer{position:absolute;left:var(--pad-x);right:var(--pad-x);bottom:36px;display:flex;align-items:center;justify-content:space-between;font-size:17px;letter-spacing:.04em;color:var(--s400);font-weight:500;}
+.footer.d{color:rgba(255,255,255,.3);}
+.seg{color:var(--s600);font-weight:600;}
+.footer.d .seg{color:rgba(255,255,255,.55);}
+
+/* TYPE */
+.sh2{font-size:50px;font-weight:800;line-height:1.06;letter-spacing:-.01em;color:var(--ink);}
+.sh2 .acc{color:var(--blue);}
+.sh2.w{color:#fff;}
+.kicker{font-size:21px;font-weight:700;letter-spacing:.18em;color:var(--green);margin-bottom:14px;}
+
+/* HELPERS */
+.spacer{flex:1 1 auto;}
+.row{display:flex;}
+.col{display:flex;flex-direction:column;}
+
+/* ── SLIDE 1: COVER ── */
+.cover-bg{position:absolute;inset:0;background:var(--ink);background-image:radial-gradient(ellipse 80% 70% at 90% 10%,rgba(60,101,227,.35) 0%,transparent 58%),radial-gradient(ellipse 60% 50% at 5% 95%,rgba(162,235,154,.18) 0%,transparent 52%);}
+.cover-content{position:absolute;inset:0;padding:var(--pad-y) var(--pad-x);display:flex;flex-direction:column;color:#fff;}
+.cover-display{font-size:108px;font-weight:800;line-height:1.02;letter-spacing:-.025em;color:#fff;}
+.cover-display .acc{color:var(--green);}
+.cover-sub{font-size:36px;font-weight:400;color:rgba(255,255,255,.6);margin-top:22px;}
+.cover-meta{display:flex;gap:40px;font-size:19px;color:rgba(255,255,255,.4);letter-spacing:.04em;}
+.cover-meta strong{color:rgba(255,255,255,.7);font-weight:600;}
+
+/* ── SLIDE 2: LAYERS ── */
+.layer-row{display:flex;align-items:center;gap:24px;border-radius:14px;padding:28px 32px;border:1.5px solid var(--line);background:#fff;position:relative;overflow:hidden;flex:1;}
+.layer-row::before{content:"";position:absolute;right:0;top:0;bottom:0;width:6px;border-radius:0 14px 14px 0;}
+.l1::before{background:var(--blue);}
+.l2::before{background:var(--green);}
+.l3::before{background:#7c6ff7;}
+.layer-num{font-size:68px;font-weight:800;color:var(--mist);line-height:1;flex:none;width:80px;text-align:center;}
+.layer-body{flex:1;}
+.layer-title{font-size:28px;font-weight:800;color:var(--ink);margin-bottom:8px;}
+.layer-desc{font-size:21px;color:var(--s600);line-height:1.4;}
+.tags{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
+.tag{padding:5px 15px;border-radius:999px;font-size:18px;font-weight:600;background:var(--mist);color:var(--s600);border:1px solid var(--line);}
+.tag.b{background:#e8edfc;color:var(--blue);border-color:#c5d1f8;}
+.tag.g{background:#eafbe8;color:#2f7d56;border-color:#b6e8b2;}
+.tag.p{background:#f0eeff;color:#5a4fcf;border-color:#c8c2f5;}
+
+/* ── SLIDE 3: AMBASSADOR ── */
+.amb-wrap{display:flex;gap:0;flex:1;align-items:flex-start;margin-top:4px;}
+.amb-step{flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 14px;position:relative;}
+.amb-step:not(:last-child)::after{content:"◀";position:absolute;left:-16px;top:42px;font-size:26px;color:var(--line);}
+.amb-icon{width:84px;height:84px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;background:var(--mist);border:2px solid var(--line);flex:none;margin-bottom:14px;}
+.amb-icon.b{background:var(--blue);border-color:var(--blue);}
+.amb-icon.n{background:var(--ink);border-color:var(--ink);}
+.amb-icon.g{background:var(--green);border-color:var(--green);}
+.amb-step-title{font-size:21px;font-weight:800;color:var(--ink);margin-bottom:8px;line-height:1.2;}
+.amb-step-desc{font-size:17px;color:var(--s600);line-height:1.4;}
+.ripple-box{margin-top:36px;background:var(--mist);border-radius:14px;border:1.5px solid var(--line);padding:24px 32px;display:flex;align-items:center;gap:28px;}
+.ripple-title{font-size:22px;font-weight:800;color:var(--ink);flex:none;}
+.ripple-arr{font-size:26px;color:var(--blue);flex:none;}
+.ripple-items{display:flex;gap:14px;flex-wrap:wrap;}
+.ripple-item{padding:9px 20px;border-radius:10px;font-size:18px;font-weight:600;background:#fff;border:1.5px solid var(--line);color:var(--ink);}
+
+/* ── SLIDE 4: PHASES ── */
+.phases{display:flex;gap:20px;flex:1;align-items:stretch;}
+.phase-card{flex:1;border-radius:14px;border:1.5px solid var(--line);background:#fff;padding:28px 24px;display:flex;flex-direction:column;position:relative;overflow:hidden;}
+.phase-bg-num{font-size:76px;font-weight:800;color:var(--mist);line-height:1;position:absolute;top:16px;left:20px;}
+.phase-badge{padding:5px 14px;border-radius:999px;font-size:16px;font-weight:700;background:var(--mist);color:var(--s600);width:fit-content;margin-bottom:10px;position:relative;z-index:1;}
+.phase-badge.b{background:#e8edfc;color:var(--blue);}
+.phase-badge.g{background:#eafbe8;color:#2f7d56;}
+.phase-title{font-size:26px;font-weight:800;color:var(--ink);margin-bottom:12px;position:relative;z-index:1;}
+.phase-list{list-style:none;display:flex;flex-direction:column;gap:8px;position:relative;z-index:1;}
+.phase-list li{font-size:18px;color:var(--s600);line-height:1.4;display:flex;gap:9px;align-items:flex-start;}
+.phase-list li::before{content:"—";color:var(--blue);font-weight:700;flex:none;}
+.phase-dur{margin-top:auto;padding-top:16px;font-size:17px;font-weight:700;color:var(--s400);letter-spacing:.04em;}
+
+/* ── SLIDE 5: PILOT CARDS ── */
+.pilot-cards{display:flex;gap:22px;flex:1;}
+.pilot-card{flex:1;border-radius:14px;border:1.5px solid var(--line);background:#fff;padding:26px 22px;display:flex;flex-direction:column;}
+.pc-head{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.pc-dot{width:14px;height:14px;border-radius:50%;flex:none;}
+.pc-dot.g{background:#2f7d56;}
+.pc-dot.b{background:var(--blue);}
+.pc-name{font-size:26px;font-weight:800;color:var(--ink);}
+.pc-sub{font-size:18px;color:var(--s600);margin-bottom:14px;}
+.criteria{display:flex;flex-direction:column;gap:9px;margin-top:16px;}
+.crit-row{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.crit-lbl{font-size:17px;color:var(--s600);}
+.stars{display:flex;gap:4px;}
+.star{width:16px;height:16px;border-radius:3px;background:var(--line);}
+.star.on{background:var(--blue);}
+.star.on.g{background:#2f7d56;}
+
+/* ── SLIDES 6,8,10,14: UNIT CARD ── */
+.unit-layout{display:flex;gap:36px;flex:1;}
+.unit-left{flex:1.3;display:flex;flex-direction:column;gap:20px;}
+.unit-right{flex:1;display:flex;flex-direction:column;gap:20px;}
+.info-card{border-radius:12px;border:1.5px solid var(--line);background:#fff;padding:22px 26px;}
+.ic-title{font-size:18px;font-weight:700;color:var(--s400);letter-spacing:.08em;margin-bottom:12px;}
+.pain-list,.uc-list{list-style:none;display:flex;flex-direction:column;gap:8px;}
+.pain-list li,.uc-list li{font-size:19px;color:var(--ink);line-height:1.4;display:flex;gap:9px;align-items:flex-start;}
+.pain-list li::before{content:"•";color:#cf6b73;font-size:21px;flex:none;line-height:1.2;}
+.uc-list li::before{content:"✓";color:#2f7d56;font-size:19px;flex:none;line-height:1.3;}
+.tool-tags{display:flex;flex-wrap:wrap;gap:9px;}
+.tt{padding:7px 16px;border-radius:9px;font-size:17px;font-weight:600;background:var(--mist);color:var(--ink);border:1.5px solid var(--line);}
+.mat-bar{display:flex;flex-direction:column;gap:9px;}
+.bar-row{display:flex;align-items:center;gap:12px;}
+.bar-lbl{font-size:17px;color:var(--s600);width:140px;flex:none;}
+.bar-track{flex:1;height:11px;border-radius:999px;background:var(--mist);}
+.bar-fill{height:100%;border-radius:999px;background:var(--blue);}
+.bar-fill.g{background:#2f7d56;}
+.bar-fill.a{background:#d2a534;}
+.roi-box{border-radius:12px;background:var(--ink);padding:22px 26px;color:#fff;}
+.roi-title{font-size:18px;font-weight:700;color:var(--green);margin-bottom:9px;}
+.roi-val{font-size:36px;font-weight:800;line-height:1.1;}
+.roi-desc{font-size:17px;color:rgba(255,255,255,.55);margin-top:8px;line-height:1.4;}
+
+/* ── SLIDES 7,9,11,15: DEEP PLAN TABLE ── */
+.plan-table{width:100%;border-collapse:collapse;flex:1;}
+.plan-table th{font-size:19px;font-weight:700;color:var(--s600);padding:13px 18px;text-align:right;background:var(--mist);border-bottom:2px solid var(--line);letter-spacing:.04em;}
+.plan-table td{font-size:18px;color:var(--ink);padding:17px 18px;vertical-align:top;line-height:1.45;border-bottom:1px solid var(--line);}
+.plan-table tr:hover td{background:#fafbfe;}
+.tier{display:inline-flex;align-items:center;gap:7px;padding:5px 14px;border-radius:7px;font-size:17px;font-weight:700;}
+.tier.m1{background:#eafbe8;color:#2f7d56;}
+.tier.m2{background:#e8edfc;color:var(--blue);}
+.tier.m3{background:rgba(2,1,64,.07);color:var(--ink);}
+.dur{display:inline-block;padding:3px 11px;border-radius:5px;font-size:16px;font-weight:600;background:var(--mist);color:var(--s600);}
+
+/* ── SLIDE 12,20: MATRIX ── */
+.matrix{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:22px;flex:1;}
+.mc{border-radius:14px;border:1.5px solid var(--line);background:#fff;padding:26px 28px;display:flex;flex-direction:column;position:relative;overflow:hidden;}
+.mc.best{background:linear-gradient(135deg,#f5fff5,#fff);}
+.mc-badge{display:inline-block;padding:5px 13px;border-radius:6px;font-size:16px;font-weight:700;margin-bottom:12px;}
+.mc-badge.done{background:#e9f4ed;color:#2f7d56;}
+.mc-badge.prog{background:#f7f0dc;color:#a07b22;}
+.mc-badge.plan{background:#e8edfc;color:var(--blue);}
+.mc-name{font-size:36px;font-weight:800;color:var(--ink);}
+.mc-sub{font-size:18px;color:var(--s600);margin-top:5px;}
+.mc-stats{display:flex;gap:22px;margin-top:auto;padding-top:14px;}
+.mc-stat .val{font-size:30px;font-weight:800;color:var(--ink);}
+.mc-stat .lbl{font-size:16px;color:var(--s400);}
+
+/* ── SLIDE 13: DARK DIVIDER ── */
+.dark-div{position:absolute;inset:0;background:var(--ink);background-image:radial-gradient(ellipse 70% 60% at 85% 15%,rgba(60,101,227,.32) 0%,transparent 55%),radial-gradient(ellipse 55% 45% at 10% 90%,rgba(162,235,154,.15) 0%,transparent 50%);display:flex;flex-direction:column;padding:var(--pad-y) var(--pad-x);color:#fff;}
+.big-num{font-size:230px;font-weight:800;line-height:.9;color:rgba(255,255,255,.05);letter-spacing:-.04em;position:absolute;left:70px;bottom:50px;}
+
+/* ── SLIDE 16: SDD BLITZ ── */
+.blitz-layout{display:flex;gap:34px;flex:1;}
+.blitz-left{flex:1;display:flex;flex-direction:column;gap:18px;}
+.blitz-right{flex:1.1;display:flex;flex-direction:column;gap:16px;}
+.blitz-hero{border-radius:14px;background:var(--ink);padding:28px 32px;color:#fff;display:flex;flex-direction:column;gap:6px;}
+.blitz-before{font-size:50px;font-weight:800;color:rgba(255,255,255,.35);text-decoration:line-through;line-height:1.1;}
+.blitz-after{font-size:62px;font-weight:800;color:var(--green);line-height:1.1;}
+.blitz-lbl{font-size:19px;color:rgba(255,255,255,.5);margin-top:4px;}
+.blitz-stats{display:flex;gap:14px;}
+.blitz-stat{flex:1;border-radius:10px;border:1.5px solid var(--line);padding:18px 20px;background:#fff;text-align:center;}
+.blitz-stat .val{font-size:38px;font-weight:800;color:var(--ink);}
+.blitz-stat .val.b{color:var(--blue);}
+.blitz-stat .val.g{color:#2f7d56;}
+.blitz-stat .lbl{font-size:16px;color:var(--s600);margin-top:3px;}
+.blitz-steps{list-style:none;display:flex;flex-direction:column;gap:9px;}
+.blitz-step{display:flex;align-items:flex-start;gap:12px;padding:13px 16px;border-radius:9px;background:#fff;border:1.5px solid var(--line);}
+.bsn{width:32px;height:32px;border-radius:7px;background:var(--blue);color:#fff;font-size:16px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:none;}
+.bst{font-size:18px;color:var(--ink);line-height:1.4;}
+.blitz-quote{border-right:5px solid var(--green);background:var(--mist);border-radius:0 12px 12px 0;padding:18px 24px;font-size:21px;font-weight:600;color:var(--ink);line-height:1.5;}
+
+/* ── SLIDE 17: KPIs ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;flex:1;}
+.kpi-card{border-radius:12px;border:1.5px solid var(--line);background:#fff;padding:24px 22px;display:flex;flex-direction:column;}
+.kpi-domain{font-size:16px;font-weight:700;color:var(--s400);letter-spacing:.08em;margin-bottom:8px;}
+.kpi-title{font-size:23px;font-weight:800;color:var(--ink);margin-bottom:7px;}
+.kpi-val{font-size:46px;font-weight:800;color:var(--blue);line-height:1.1;}
+.kpi-desc{font-size:17px;color:var(--s600);margin-top:9px;line-height:1.4;}
+.kpi-bar{height:7px;border-radius:999px;background:var(--mist);margin-top:auto;padding-top:12px;}
+.kpi-bar-fill{height:7px;border-radius:999px;background:var(--blue);}
+
+/* ── SLIDE 18: RISKS ── */
+.risk-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;flex:1;}
+.risk-card{border-radius:12px;border:1.5px solid var(--line);background:#fff;padding:24px 26px;}
+.risk-badge{display:inline-block;padding:4px 13px;border-radius:5px;font-size:16px;font-weight:700;margin-bottom:10px;}
+.risk-badge.crit{background:#f7e7e8;color:#b0505a;}
+.risk-badge.high{background:#f7f0dc;color:#a07b22;}
+.risk-badge.med{background:#e8edfc;color:var(--blue);}
+.risk-badge.low{background:#eafbe8;color:#2f7d56;}
+.risk-title{font-size:23px;font-weight:800;color:var(--ink);margin-bottom:7px;}
+.risk-desc{font-size:18px;color:var(--s600);line-height:1.45;}
+.risk-mit{margin-top:12px;padding-top:12px;border-top:1px solid var(--line);font-size:17px;color:var(--ink);}
+.risk-mit strong{color:var(--blue);}
+
+/* ── SLIDE 19: TIMELINE ── */
+.tl-wrap{flex:1;display:flex;flex-direction:column;gap:16px;margin-top:6px;}
+.tl-months{display:flex;gap:10px;padding-right:200px;}
+.tl-month{width:138px;flex:none;font-size:17px;font-weight:700;color:var(--s400);letter-spacing:.04em;text-align:center;}
+.tl-row{display:flex;gap:0;align-items:center;}
+.tl-lbl{width:200px;flex:none;font-size:19px;font-weight:700;color:var(--s600);padding-left:14px;}
+.tl-track{flex:1;display:flex;gap:10px;align-items:center;}
+.tl-cell{height:50px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;flex:none;}
+.tl-cell.empty{background:transparent;border:1.5px dashed var(--line);width:138px;}
+.tl-cell.active{background:var(--blue);color:#fff;}
+.tl-cell.light{background:#e8edfc;color:var(--blue);}
+.tl-cell.done{background:#eafbe8;color:#2f7d56;border:1.5px solid #b6e8b2;}
+.w1{width:138px;}
+.w2{width:286px;}
+.w3{width:434px;}
+.w4{width:582px;}
+
+/* CONTROLS */
+#controls{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);display:flex;gap:10px;z-index:999;}
+#controls button{padding:9px 20px;border-radius:7px;border:none;cursor:pointer;font-family:'Heebo',sans-serif;font-size:15px;font-weight:600;background:rgba(255,255,255,.12);color:#fff;backdrop-filter:blur(8px);transition:background .2s;}
+#controls button:hover{background:rgba(255,255,255,.22);}
+#edit-btn.on{background:rgba(162,235,154,.3);color:#a2eb9a;}
+.slide-num{position:fixed;bottom:18px;right:18px;background:rgba(0,0,0,.5);color:rgba(255,255,255,.65);padding:7px 14px;border-radius:7px;font-family:'Heebo',sans-serif;font-size:15px;backdrop-filter:blur(8px);z-index:999;}
+[contenteditable="true"]{outline:2px dashed rgba(162,235,154,.6);border-radius:3px;}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 1 — COVER
+══════════════════════════════════════════════ -->
+<div class="slide-wrap" id="s1">
+<div class="slide-inner">
+<div class="cover-bg"></div>
+<div class="cover-content">
+  <div class="topbar" style="margin-bottom:0;">
+    <div class="eyebrow w">הטמעת AI במגדל</div>
+    <div class="lockup-name w">מגדל <span>AI</span></div>
+  </div>
+  <div class="spacer"></div>
+  <div class="cover-display">הטמעת <span class="acc">AI</span><br>במגדל</div>
+  <div class="cover-sub">תכנית ביצוע — מודל שגרירים, פיילוטים וגלי הדף</div>
+  <div class="spacer"></div>
+  <div class="cover-meta">
+    <span><strong>גרסה:</strong> 2.0</span>
+    <span><strong>תאריך:</strong> אוגוסט 2026</span>
+    <span><strong>סיווג:</strong> פנימי</span>
+  </div>
+  <div class="footer d" style="position:static;margin-top:32px;">
+    <span>מגדל — חסוי</span><span class="seg">1 / 20</span>
+  </div>
+</div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 2 — PREVIOUS DISCUSSION SUMMARY
+══════════════════════════════════════════════ -->
+<div class="slide-wrap" id="s2">
+<div class="slide-inner">
+<div class="slide">
+  <div class="topbar">
+    <div class="eyebrow">סיכום דיון קודם</div>
+    <div class="lockup-name">מגדל <span>AI</span></div>
+  </div>
+  <div class="sh2" style="margin-bottom:32px;">מה הוצג — ומה <span class="acc">התבקשנו</span></div>
+  <div class="row" style="gap:32px;flex:1;align-items:stretch;">
+
+    <!-- LEFT: what was shown -->
+    <div class="col" style="flex:1;gap:20px;">
+      <div style="font-size:19px;font-weight:700;color:var(--s400);letter-spacing:.08em;margin-bottom:4px;">מה הוצג בדיון הקודם</div>
+      <div class="info-card" style="flex:none;">
+        <div class="ic-title">תכנית ברמת-על — 3 שכבות</div>
+        <ul class="uc-list">
+          <li>כלל החברה — Copilot Web + וובינרים</li>
+          <li>יחידות פיילוט — 3 יחידות נבחרות</li>
+        </ul>
+      </div>
+      <div class="info-card" style="flex:none;">
+        <div class="ic-title">מה הוצג לגבי הפיילוטים</div>
+        <ul class="uc-list">
+          <li>זיהוי 3 יחידות: אקטואריה, כספים, משפטית</li>
+          <li>קריטריוני בחירה ראשוניים</li>
+          <li>כיוון כללי לתכנית העבודה</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- CENTER: divider -->
+    <div style="width:2px;background:var(--line);flex:none;border-radius:2px;"></div>
+
+    <!-- RIGHT: CEO request + today's goal -->
+    <div class="col" style="flex:1;gap:20px;">
+      <div style="font-size:19px;font-weight:700;color:var(--s400);letter-spacing:.08em;margin-bottom:4px;">מה התבקשנו</div>
+      <div style="border-radius:12px;background:#f7f0dc;border:1.5px solid #e8d49a;padding:22px 26px;">
+        <div style="font-size:20px;font-weight:800;color:#a07b22;margin-bottom:10px;">בקשה לרמת פירוט גבוהה יותר</div>
+        <div style="font-size:20px;color:#7a5c1a;line-height:1.55;">
+          התכנית הוצגה ברמה גבוהה —<br>
+          התבקשנו לפרט <strong>איך בדיוק</strong> מטמיעים<br>
+          בכל יחידה: מתודה, שלבים, כלים, ROI
+        </div>
+      </div>
+      <div style="border-radius:12px;background:var(--ink);padding:22px 26px;color:#fff;">
+        <div style="font-size:19px;font-weight:700;color:var(--green);margin-bottom:10px;">מטרת הדיון הנוכחי</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:9px;">
+          <li style="font-size:20px;color:rgba(255,255,255,.85);display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--green);flex:none;">→</span>להציג את מתודולוגיית ההטמעה — מודל השגרירים</li>
+          <li style="font-size:20px;color:rgba(255,255,255,.85);display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--green);flex:none;">→</span>לפרט כרטיס יחידה + תכנית עומק לכל פיילוט</li>
+          <li style="font-size:20px;color:rgba(255,255,255,.85);display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--green);flex:none;">→</span>להציג דוגמה מוכחת: SDD Blitz בטכנולוגיה</li>
+          <li style="font-size:20px;color:rgba(255,255,255,.85);display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--green);flex:none;">→</span>לקבל החלטה — מנדט + תקציב להמשך</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>מגדל — חסוי</span><span class="seg">2 / 21</span></div>
+</div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 3 — 3 LAYERS MODEL
+══════════════════════════════════════════════ -->
+<div class="slide-wrap" id="s2">
+<div class="slide-inner">
+<div class="slide">
+  <div class="topbar">
+    <div class="eyebrow">מודל ההפעלה</div>
+    <div class="lockup-name">מגדל <span>AI</span></div>
+  </div>
+  <div class="sh2" style="margin-bottom:32px;">שלוש שכבות — מכלל החברה <span class="acc">עד תהליך עסקי</span></div>
+  <div class="col" style="gap:22px;flex:1;">
+    <div class="layer-row l1">
+      <div class="layer-num">1</div>
+      <div class="layer-body">
+        <div class="layer-title">כלל החברה — רמת המודעות</div>
+        <div class="layer-desc">גישה לכל עובד, כלים קיימים, שימוש מיידי בלי תיאום מיוחד</div>
+        <div class="tags"><span class="tag b">Copilot Web</span><span class="tag b">וובינרים</span><span class="tag b">ניוזלטר AI</span><span class="tag b">גלריית Use Cases</span><span class="tag b">אזור תוכן ללמידה ושיתוף</span></div>
+      </div>
+    </div>
+    <div class="layer-row l2">
+      <div class="layer-num">2</div>
+      <div class="layer-body">
+        <div class="layer-title">יחידות הפיילוט — רמת ההטמעה</div>
+        <div class="layer-desc">4 יחידות נבחרות, תכנית עומק, שגרירים, מדידת ROI בפועל</div>
+        <div class="tags"><span class="tag g">אקטואריה</span><span class="tag g">כספים</span><span class="tag g">משפטית</span><span class="tag g">טכנולוגיה</span><span class="tag" style="color:var(--s400);border-color:var(--line);background:var(--mist);">משאבי אנוש</span><span class="tag" style="color:var(--s400);border-color:var(--line);background:var(--mist);">מטה מנכ"ל</span></div>
+      </div>
+    </div>
+    <div class="layer-row l3">
+      <div class="layer-num">3</div>
+      <div class="layer-body">
+        <div class="layer-title">חטיבה טכנולוגית — רמת הייצור</div>
+        <div class="layer-desc">250 מפתחים, Developer Program, SDD — spec-first לכל פיצ׳ר</div>
+        <div class="tags"><span class="tag p">Developer Program</span><span class="tag p">SDD Blitz</span><span class="tag p">AI Platform (LiteLLM)</span><span class="tag p">הרצאות וסדנאות</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>מגדל — חסוי</span><span class="seg">2 / 20</span></div>
+</div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 3 — AMBASSADOR METHODOLOGY
+══════════════════════════════════════════════ -->
+<div class="slide-wrap" id="s3">
+<div class="slide-inner">
+<div class="slide">
+  <div class="topbar">
+    <div class="eyebrow">מתודולוגיית ההטמעה</div>
+    <div class="lockup-name">מגדל <span>AI</span></div>
+  </div>
+  <div class="sh2" style="margin-bottom:6px;">מודל השגרירים <span class="acc">וגלי ההדף</span></div>
+  <div style="font-size:21px;color:var(--s600);margin-bottom:34px;">כל יחידה שמאמצת הופכת לגל שמוביל את הבאה אחריה</div>
+  <div class="amb-wrap">
+    <div class="amb-step">
+      <div class="amb-icon">🏢</div>
+      <div class="amb-step-title">חטיבה עם<br>מנהל מחויב</div>
+      <div class="amb-step-desc">ההתחלה — מנהל החטיבה מסכים ומחויב לתהליך. ללא זה, אין הטמעה</div>
+    </div>
+    <div class="amb-step">
+      <div class="amb-icon b">👥</div>
+      <div class="amb-step-title">זיהוי<br>מאמצים ראשוניים</div>
+      <div class="amb-step-desc">בתוך החטיבה מזהים קבוצה שכבר פתוחה לשינוי ומוכנה לנסות</div>
+    </div>
+    <div class="amb-step">
+      <div class="amb-icon n">⭐</div>
+      <div class="amb-step-title">בחירת<br>שגריר מוביל</div>
+      <div class="amb-step-desc">מתוך הקבוצה בוחרים שגריר אחד — הכי נלהב, בעל אמינות אצל הצוות</div>
+    </div>
+    <div class="amb-step">
+      <div class="amb-icon b">🚀</div>
+      <div class="amb-step-title">קבוצת<br>שגרירים</div>
+      <div class="amb-step-desc">השגריר בונה קבוצה שמקבלת הדרכה, כלים ותמיכה — והופכת לצוות חמים</div>
+    </div>
+    <div class="amb-step">
+      <div class="amb-icon g">🌊</div>
+      <div class="amb-step-title">גלי הדף לשאר<br>החטיבה</div>
+      <div class="amb-step-desc">הקבוצה מובילה את שאר החטיבה — peer-to-peer, לא top-down</div>
+    </div>
+  </div>
+  <div class="ripple-box">
+    <div class="ripple-title">גל הדף בין יחידות:</div>
+    <div class="ripple-arr">◀</div>
+    <div class="ripple-items">
+      <div class="ripple-item">כספים → ניתוח פיננסי / בקרה</div>
+      <div class="ripple-item">משפטית → יחידות רגולציה / מטה</div>
+      <div class="ripple-item">טכנולוגיה → צוותים דומים בחטיבה</div>
+      <div class="ripple-item">אקטואריה → מחקר ותמחור</div>
+    </div>
+  </div>
+  <div class="footer"><span>מגדל — חסוי</span><span class="seg">3 / 20</span></div>
+</div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 4 — PROGRAM STRUCTURE
+══════════════════════════════════════════════ -->
+<div class="slide-wrap" id="s4">
+<div class="slide-inner">
+<div class="slide">
+  <div class="topbar">
+    <div class="eyebrow">מבנה תכנית העבודה</div>
+    <div class="lockup-name">מגדל <span>AI</span></div>
+  </div>
+  <div class="sh2" style="margin-bottom:28px;">חמישה שלבים — מאבחון <span class="acc">עד עצמאות</span></div>
+  <div class="phases" style="gap:14px;">
+    <div class="phase-card">
+      <div class="phase-bg-num">1</div>
+      <div class="phase-badge">פאזה ראשונה</div>
+      <div class="phase-title">אבחון בסיס</div>
+      <ul class="phase-list">
+        <li>מיפוי תהליכים עסקיים ביחידה</li>
+        <li>אבחון רמת בשלות ל-AI</li>
+        <li>זיהוי מאמצים ראשוניים</li>
+        <li>בחירת שגריר מוביל</li>
+      </ul>
+      <div class="phase-dur">משך: 2–3 שבועות</div>
+    </div>
+    <div class="phase-card">
+      <div class="phase-bg-num">2</div>
+      <div class="phase-badge">פאזה שנייה</div>
+      <div class="phase-title">התנסות ראשונית</div>
+      <ul class="phase-list">
+        <li>מתן כלים ורישיונות לצוות</li>
+        <li>מפגשים שבועיים לשיתוף שימושים</li>
+        <li>זיהוי פערי ידע ופערי תשתית</li>
+      </ul>
+      <div class="phase-dur">משך: 3–4 שבועות</div>
+    </div>
+    <div class="phase-card">
+      <div class="phase-bg-num">3</div>
+      <div class="phase-badge">פאזה שלישית</div>
+      <div class="phase-title">סדנאות Use Case</div>
+      <ul class="phase-list">
+        <li>סדנת Use Case Discovery עם הצוות</li>
+        <li>תעדוף לפי מורכבות ואימפקט</li>
+        <li>הגדרת Quick Wins ל-90 יום</li>
+        <li>הכשרת שגרירים בכלים</li>
+      </ul>
+      <div class="phase-dur">משך: 2–3 שבועות</div>
+    </div>
+    <div class="phase-card">
+      <div class="phase-bg-num">4</div>
+      <div class="phase-badge b">פאזה רביעית</div>
+      <div class="phase-title">ספרינט Use Case מרכזי</div>
+      <ul class="phase-list">
+        <li>בחירת use case משמעותי מהסדנה</li>
+        <li>הגדרת ספרינט עבודה מדיד</li>
+        <li>יישום בפועל + מדידת תוצאות</li>
+        <li>בניית זרימות עבודה ב-AI</li>
+      </ul>
+      <div class="phase-dur">משך: 6–8 שבועות</div>
+    </div>
+    <div class="phase-card">
+      <div class="phase-bg-num">5</div>
+      <div class="phase-badge g">פאזה חמישית</div>
+      <div class="phase-title">העברה ועצמאות</div>
+      <ul class="phase-list">
+        <li>תיעוד שיטות עבודה מומלצות</li>
+        <li>הכשרת כלל הצוות</li>
+        <li>קביעת KPIs ומדדי הצלחה</li>
+        <li>גל הדף ליחידות שכנות</li>
+      </ul>
+      <div class="phase-dur">משך: 2–3 שבועות</div>
+    </div>
+  </div>
+  <div class="footer"><span>מגדל — חסוי</span><span class="seg">4 / 20</span></div>
+</div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 5 — PILOT SELECTION
+══════════════════════════════════════════════ -->
+<div class="slide-wrap" id="s5">
+<div class="slide-inner">
+<div class="slide">
+  <div class="topbar">
+    <div class="eyebrow">בחירת קבוצות פיילוט</div>
+    <div class="lockup-name">מגדל <span>AI</span></div>
+  </div>
+  <div class="sh2" style="margin-bottom:32px;">ארבע יחידות פיילוט + מטה מנכ"ל — נבחרו לפי <span class="acc">4 קריטריונים</span></div>
+  <div class="pilot-cards">
+    <div class="pilot-card">
+      <div class="pc-head"><div class="pc-dot g"></div><div class="pc-name">אקטואריה</div></div>
+      <div class="pc-sub">מודלים כמותיים, Excel מורכב, סיכון</div>
+      <div class="criteria">
+        <div class="crit-row"><span class="crit-lbl">מחויבות מנהל</span><div class="stars"><div class="star on g"></div><div class="star on g"></div><div class="star on g"></div><div class="star on g"></div><div class="star on g"></div></div></div>
+        <div class="crit-row"><span class="crit-lbl">בשלות טכנית</span><div class="stars"><div class="star on"></div><div class="star on"></div><div class="star"></div><div class="star"></div><div class="star"></div></div></div>
+        <div class="crit-row"><span class="crit-lbl">רמת אימוץ</span><div class="stars"><div class="star on"></div><div class="star on"></div><div class="star"></div><div class="star"></div><div class="star"></div></div></div>
+        <div class="crit-row"><span class="crit-lbl">אימפקט עסקי</span><div class="stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div></div>
+      </div>
+    </div>
+    <div class="pilot-card">
+      <div class="pc-head"><div class="pc-dot b"></div><div class="pc-name">כספים</div></div>
+      <div class="pc-sub">דוחות, ניתוח, תקצוב, Excel + Tableau</div>
+      <div class="criteria">
+        <div class="crit-row"><span class="crit-lbl">מחויבות מנהל</span><div class="stars"><div class="star on g"></div><div class="star on g"></div><div class="star on g"></div><div class="star on g"></div><div class="star on g"></div></div></div>
+        <div class="crit-row"><span class="crit-lbl">בשלות טכנית</span><div class="stars"><div class="star on"></div><div class="star on"></div><div class="star"></div><div class="star"></div><div class="star"></div></div></div>
+        <div class="crit-row"><span class="crit-lbl">רמת אימוץ</span><div class="stars"><div class="star on"></div><div class="star on"></div><div class="star"></div><div class="star"></div><div class="star"></div></div></div>
+        <div class="crit-row"><span class="crit-lbl">אימפקט עסקי</span><div class="stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div></div>
+      </div>
+    </div>
+    <div class="pilot-card">
+      <div class="pc-head"><div class="pc-dot b"></div><div class="pc-name">משפטית</div></div>
+      <div class="pc-sub">חוזים, רגולציה, חוות דעת</div>
+      <div class="criteria">
+        <div class="crit-row"><span class="crit-lbl">מחויבות מנהל</span><div class="stars"><div class="star on g"></div><div class="star on g"></div><div class="star on g"></div><div class="star on g"></div><div class="star on g"></div></div></div>
+        <div class="crit-row"><span class="crit-lbl">בשלות טכנית</span><div class="stars"><div class="star on"></div><div class="star on"></div><div class="star"></div><div class="star"></div><div class="star"></div></div></div>
+        <div class="crit-row"><span class="crit-lbl">רמת אימוץ</span><div class="stars"><div class="star on"></div><div class="star on"></div><div class="star"></div><div class="star"></div><div class="star"></div></div></div>
+        <div class="crit-row"><span class="crit-lbl">אימפקט עסקי</span><div class="stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div></div>
+      </div>
+    </div>
+    <div class="pilot-card">
+      <div class="pc-head"><div class="pc-dot g"></div><div class="pc-name">טכנולוגיה</div></div>
+      <div class="pc-sub">250 מפתחים, SDLC, SDD</div>
+      <div class="criteria">
+        <div class="crit-row"><span class="crit-lbl">מחויבות מנהל</span><div class="stars"><div class="star on g"></div><div class="star on g"></div><div class="star on g"></div><div class="star on g"></div><div class="star on g"></div></div></div>
+        <div class="crit-row"><span class="crit-lbl">בשלות טכנית</span><div class="stars"><div class="star on"></div><div class="star on"></div><div class="star on"></div><div class="star"></div><div class="star"></div></div></div>
+        <div class="crit-row"><span class="crit-lbl">רמת אימוץ</span><div class="stars"><div class="star on"></div><div class="star on"></div><div class="star"></div><div class="star"></div><div class="star"></div></div></div>
+        <div class="crit-row"><span class="crit-lbl">אימפקט עסקי</span><div class="stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div></div>
+      </div>
+    </div>
+    <div class="pilot-card" style="opacity:.72;border-style:dashed;border-color:rgba(2,1,64,.2);background:var(--mist);">
+      <div class="pc-head"><div class="pc-dot" style="background:rgba(2,1,64,.18);"></div><div class="pc-name" style="color:rgba(2,1,64,.6);">מטה מנכ"ל</div></div>
+      <div class="pc-sub" style="color:rgba(2,1,64,.5);">סוכנים ייעודיים — לא פיילוט אימוץ</div>
+      <div class="criteria" style="margin-top:14px;">
+        <div style="font-size:16px;color:rgba(2,1,64,.55);line-height:1.5;">סוכן מצגות שבועי וסוכן תחרות — נבנו לפי בקשה ישירה. אין תהליך טמעה — יש בנייה.</div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>מגדל — חסוי</span><span class="seg">5 / 22</span></div>
+</div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 6 — ACTUARIAL UNIT CARD
+══════════════════════════════════════════════ -->
+<div class="slide-wrap" id="s6">
+<div class="slide-inner">
+<div class="slide">
+  <div class="topbar">
+    <div class="eyebrow">יחידת פיילוט — אקטואריה</div>
+    <div class="lockup-name">מגדל <span>AI</span></div>
+  </div>
+  <div class="row" style="align-items:baseline;gap:18px;margin-bottom:24px;">
+    <div class="sh2">אקטואריה — <span class="acc">כרטיס יחידה</span></div>
+    <div style="padding:5px 16px;border-radius:7px;background:#eafbe8;color:#2f7d56;font-size:19px;font-weight:700;">מועמד מוביל</div>
+  </div>
+  <div class="unit-layout">
+    <div class="unit-left">
+      <div class="info-card">
+        <div class="ic-title">כלים בשימוש</div>
+        <div class="tool-tags"><span class="tt">Copilot Web</span><span class="tt">Copilot 365</span><span class="tt">Claude Code</span><span class="tt">Excel</span><span class="tt">R</span><span class="tt">SAS</span><span class="tt">מודלים אקטואריים</span></div>
+      </div>
+      <div class="info-card">
+        <div class="ic-title">נקודות כאב עיקריות</div>
+        <ul class="pain-list">
+          <li>ייעוץ חיצוני יקר לתחקור מודלים והוספת קוד</li>
+          <li>עבודה ידנית וחוזרת — דוחות רבעוניים ועיבודי אקסל</li>
+          <li>עומס מסמכים, מחקרים ודוחות מקצועיים</li>
+          <li>ניתוח חוזים ומסמכים מורכבים באנגלית</li>
+        </ul>
+      </div>
+      <div class="info-card">
+        <div class="ic-title">בשלות ל-AI</div>
+        <div class="mat-bar">
+          <div class="bar-row"><span class="bar-lbl">מחויבות מנהל</span><div class="bar-track"><div class="bar-fill g" style="width:100%"></div></div></div>
+          <div class="bar-row"><span class="bar-lbl">בשלות טכנית</span><div class="bar-track"><div class="bar-fill a" style="width:40%"></div></div></div>
+          <div class="bar-row"><span class="bar-lbl">רמת אימוץ</span><div class="bar-track"><div class="bar-fill" style="width:40%"></div></div></div>
+          <div class="bar-row"><span class="bar-lbl">אימפקט צפוי</span><div class="bar-track"><div class="bar-fill g" style="width:100%"></div></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="unit-right">
+      <div class="info-card">
+        <div class="ic-title">Use Cases — שלב ראשון</div>
+        <ul class="uc-list">
+          <li>בניית Skill לביצוע 2 בקרות SOX רבעוניות</li>
+          <li>מערכת לניהול הנחות אקטואריות</li>
+          <li>Code Review ותיעוד למודל האקטוארי</li>
+        </ul>
+      </div>
+      <div class="roi-box">
+        <div class="roi-title">הזדמנות עסקית</div>
+        <div class="roi-val">חיסכון + ערך</div>
+        <div class="roi-desc">שיפור תהליכים אקטואריים וניתוח נתונים מתקדם.<br>אוטומציה, הפחתת עבודה ידנית וחיסכון בעלויות ייעוץ חיצוני.</div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>מגדל — חסוי</span><span class="seg">6 / 20</span></div>
+</div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 7 — ACTUARIAL DEEP PLAN
+══════════════════════════════════════════════ -->
+<div class="slide-wrap" id="s7">
+<div class="slide-inner">
+<div class="slide">
+  <div class="topbar">
+    <div class="eyebrow">תכנית עומק — אקטואריה</div>
+    <div class="lockup-name">מגדל <span>AI</span></div>
+  </div>
+  <div class="sh2" style="margin-bottom:26px;">תכנית 3 שכבות — <span class="acc">מ1 עד מ3</span></div>
+  <table class="plan-table">
+    <thead><tr><th style="width:110px;">שכבה</th><th style="width:210px;">שם</th><th>תוכן ופעולות</th><th style="width:155px;">כלי AI</th><th style="width:125px;">משך</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="tier m1">מ1</span></td>
+        <td style="font-weight:700;">שימוש מיידי</td>
+        <td>• כתיבת קוד Python/R מתוך הנחות מילוליות<br>• סיכום ממצאי מודלים לפורמט מצגת<br>• תרגום דוחות בין עברית לאנגלית<br>• הסבר שגיאות קוד וניפוי באגים</td>
+        <td>Claude / ChatGPT<br>Copilot</td>
+        <td><span class="dur">0–4 שבועות</span></td>
+      </tr>
+      <tr>
+        <td><span class="tier m2">מ2</span></td>
+        <td style="font-weight:700;">אוטומציה חלקית</td>
+        <td>• תבניות prompt סטנדרטיות לכל מודל חוזר<br>• גנרטור דוחות אקטואריים חצי-אוטומטי<br>• בדיקת consistency אוטומטית בין גרסאות Excel<br>• AI Code Review לסקריפטים</td>
+        <td>Claude API<br>Python Scripts</td>
+        <td><span class="dur">4–10 שבועות</span></td>
+      </tr>
+      <tr>
+        <td><span class="tier m3">מ3</span></td>
+        <td style="font-weight:700;">תהליך מלא</td>
+        <td>• Pipeline אוטומטי: הנחות → קוד → בדיקה → דוח<br>• אינטגרציה עם מקורות נתונים פנימיים<br>• מערכת ניהול גרסאות למודלים<br>• Dashboard מעקב ROI בזמן אמת</td>
+        <td>LiteLLM<br>API מגדל</td>
+        <td><span class="dur">3–6 חודשים</span></td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="footer"><span>מגדל — חסוי</span><span class="seg">7 / 20</span></div>
+</div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 8 — FINANCE UNIT CARD
+══════════════════════════════════════════════ -->
+<div class="slide-wrap" id="s8">
+<div class="slide-inner">
+<div class="slide">
+  <div class="topbar">
+    <div class="eyebrow">יחידת פיילוט — כספים</div>
+    <div class="lockup-name">מגדל <span>AI</span></div>
+  </div>
+  <div class="row" style="align-items:baseline;gap:18px;margin-bottom:24px;">
+    <div class="sh2">כספים — <span class="acc">כרטיס יחידה</span></div>
+    <div style="padding:5px 16px;border-radius:7px;background:#e8edfc;color:var(--blue);font-size:19px;font-weight:700;">מועמד חזק</div>
+  </div>
+  <div class="unit-layout">
+    <div class="unit-left">
+      <div class="info-card">
+        <div class="ic-title">כלים בשימוש</div>
+        <div class="tool-tags"><span class="tt">Copilot Web</span><span class="tt">Copilot 365</span><span class="tt">Claude Code</span><span class="tt">Excel</span></div>
+      </div>
+      <div class="info-card">
+        <div class="ic-title">מוקדי צורך וכאב</div>
+        <ul class="pain-list">
+          <li>עבודה מרובה בקבצי אקסל</li>
+          <li>ידע מפוזר בין קבצים, מיילים וספריות</li>
+          <li>פעולות חישוביות וחזרתיות הגוזלות זמן</li>
+          <li>רגישות מידע וצורך בבקרת הרשאות ודיוק חישובי</li>
+        </ul>
+      </div>
+      <div class="info-card">
+        <div class="ic-title">פרופיל החטיבה</div>
+        <ul class="uc-list">
+          <li>רו"ח, הנה"ח, כלכלנים, אנליסטים</li>
+          <li>קניין רכש, משאבים ולוגיסטיקה</li>
+          <li>אוקלוסייה מגוונת — בשלות שונה לפי קבוצה</li>
+        </ul>
+      </div>
+    </div>
+    <div class="unit-right">
+      <div class="info-card">
+        <div class="ic-title">Use Cases — גל ראשון</div>
+        <ul class="uc-list">
+          <li>השוואת דוחות ומסמכים פיננסיים — איתור פערים וניתוח נתונים</li>
+          <li>ניתוח חברות, השוואת דוחות ובדיקת גרפים ווויזואליזציות</li>
+          <li>יצירת מצגות ובניית פרומפטים לשיפור תוצרים</li>
+        </ul>
+      </div>
+      <div class="roi-box">
+        <div class="roi-title">מדידת ROI</div>
+        <div class="roi-val">זמן + דיוק</div>
+        <div class="roi-desc">זמן הכנת דוח, הפחתת תיקונים, איכות חישובית.<br>מספר בקרות אוטומטיות, שימוש שבועי.</div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>מגדל — חסוי</span><span class="seg">8 / 20</span></div>
+</div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 9 — FINANCE DEEP PLAN
+══════════════════════════════════════════════ -->
+<div class="slide-wrap" id="s9">
+<div class="slide-inner">
+<div class="slide">
+  <div class="topbar">
+    <div class="eyebrow">תכנית עומק — כספים</div>
+    <div class="lockup-name">מגדל <span>AI</span></div>
+  </div>
+  <div class="sh2" style="margin-bottom:18px;">תכנית 3 גלים — <span class="acc">מהוכחת ערך עד הטמעה חטיבתית</span></div>
+  <div style="font-size:17px;color:var(--s600);margin-bottom:18px;">הוכחת ערך בצוותי הפיילוט ← הרחבה לתהליכים מובילים ← הטמעה כמודל עבודה חטיבתי</div>
+  <table class="plan-table">
+    <thead><tr><th style="width:100px;">גל</th><th style="width:200px;">מהות השלב</th><th style="width:230px;">אוקלוסייה</th><th>Use Cases — פעולות</th><th style="width:175px;">שער החלטה</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="tier m1">גל 1</span></td>
+        <td style="font-weight:700;">הוכחת ערך במשימות נבחרות<br><span style="font-weight:400;font-size:16px;color:var(--s600);">פיילוט ממוקד</span></td>
+        <td style="font-size:17px;">צוותי בקרה פיננסית<br>כלכלנים ואנליסטים<br>משתמשי Copilot פעילים</td>
+        <td>• השוואת דוחות, מצגות משקיעים ודירקטוריון<br>• איתור פערים וחריגות<br>• ביקורת גרפים ווויזואליזציות<br>• ניתוח חברות והשוואת דוחות<br>• יצירת מצגות וטיוב Prompts</td>
+        <td style="font-size:17px;">שיפור מדיד בזמן או באיכות<br>איתור פערים מהותיים<br>ללא פגיעה בדיוק החישובי</td>
+      </tr>
+      <tr>
+        <td><span class="tier m2">גל 2</span></td>
+        <td style="font-weight:700;">הרחבת שימוש לתהליכי עבודה<br><span style="font-weight:400;font-size:16px;color:var(--s600);">ממשימות לשגרה</span></td>
+        <td style="font-size:17px;">צוותים שהוכיחו ערך<br>רו"ח, הנה"ח, רכש<br>בעלי תפקידים התלויים בתוצר</td>
+        <td>• הרחבת השוואת מסמכים ודוחות<br>• תבניות בדיקה לפי מהותיות עסקית<br>• Prompt Library פיננסית<br>• סדנאות עבודה ממוקדות<br>• חיבור למחזורי דיווח ובקרה</td>
+        <td style="font-size:17px;">אימוץ עקבי<br>ירידה במספר סבבי ביקורות<br>איכות מבוקרת ובעלות ברורה</td>
+      </tr>
+      <tr>
+        <td><span class="tier m3">גל 3</span></td>
+        <td style="font-weight:700;">מיסוד AI כמודל עבודה<br><span style="font-weight:400;font-size:16px;color:var(--s600);">הטמעה חטיבתית</span></td>
+        <td style="font-size:17px;">כלל חטיבת הכספים<br>הנהלה ומנהלים<br>Champions ובעלי תהליכים</td>
+        <td>• הרחבה לפי פרופילי עבודה<br>• ממשל, הרשאות וסטנדרטים<br>• ניטור שימוש, עלות ואיכות<br>• קהילת ידע פיננסית<br>• תיעדוף שימושים לפי ערך</td>
+        <td style="font-size:17px;">ROI חטיבתי<br>עמידה בסיכון ובתקציב<br>החלטת הרחבה לתהליכים נוספים</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="footer"><span>מגדל — חסוי</span><span class="seg">9 / 20</span></div>
+</div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 10 — LEGAL UNIT CARD
+══════════════════════════════════════════════ -->
+<div class="slide-wrap" id="s10">
+<div class="slide-inner">
+<div class="slide">
+  <div class="topbar">
+    <div class="eyebrow">יחידת פיילוט — משפטית</div>
+    <div class="lockup-name">מגדל <span>AI</span></div>
+  </div>
+  <div class="row" style="align-items:baseline;gap:18px;margin-bottom:24px;">
+    <div class="sh2">משפטית — <span class="acc">כרטיס יחידה</span></div>
+    <div style="padding:5px 16px;border-radius:7px;background:#e8edfc;color:var(--blue);font-size:19px;font-weight:700;">מועמד חזק</div>
+  </div>
+  <div class="unit-layout">
+    <div class="unit-left">
+      <div class="info-card">
+        <div class="ic-title">כלים בשימוש</div>
+        <div class="tool-tags"><span class="tt">Copilot Web</span><span class="tt">Copilot 365</span><span class="tt">Claude</span><span class="tt">Claude Code</span><span class="tt">23 עובדים בחטיבה</span></div>
+      </div>
+      <div class="info-card">
+        <div class="ic-title">מוקדי צורך וכאב</div>
+        <ul class="pain-list">
+          <li>ידע מפוזר בין קבצים, מיילים וספריות</li>
+          <li>עבודה חוזרת על טיוטות, סעיפים וגרסאות</li>
+          <li>רגישות מידע וצורך בבקרת הרשאות</li>
+          <li>תהליכים בירוקרטיים שמסיתים משאבים מהעבודה המהותית</li>
+        </ul>
+      </div>
+      <div class="info-card">
+        <div class="ic-title">פרופיל החטיבה</div>
+        <ul class="uc-list">
+          <li>יעוץ משפטי — יצירה, סקירה, ניתוח ומחקר</li>
+          <li>מזכירות חברה — פרוטוקולים, חוות דעת, מסמכים</li>
+          <li>ציות ובקרה — ניתוחי רגולציה, בקרות</li>
+        </ul>
+      </div>
+    </div>
+    <div class="unit-right">
+      <div class="info-card">
+        <div class="ic-title">Use Cases — גל ראשון</div>
+        <ul class="uc-list">
+          <li>טיוב הסכמים — שיתוף עם הרכש, ניתוח רוחבי, תיקון והשוואה לתבנית</li>
+          <li>סיכון תסקיר השפעה על פרטיות (DPIA)</li>
+          <li>התראות תובענות ייצוגיות</li>
+          <li>סיכומי רגולציה ותכניות אכיפה</li>
+        </ul>
+      </div>
+      <div class="roi-box">
+        <div class="roi-title">מדידת ROI</div>
+        <div class="roi-val">זמן + איכות</div>
+        <div class="roi-desc">זמן סקירת מסמך, זמן טיוטה, הפחתת גרסאות.<br>משימות שחולצו, איכות ובקרה אנושית נשמרת.</div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>מגדל — חסוי</span><span class="seg">10 / 20</span></div>
+</div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 11 — LEGAL DEEP PLAN
+══════════════════════════════════════════════ -->
+<div class="slide-wrap" id="s11">
+<div class="slide-inner">
+<div class="slide">
+  <div class="topbar">
+    <div class="eyebrow">תכנית עומק — משפטית</div>
+    <div class="lockup-name">מגדל <span>AI</span></div>
+  </div>
+  <div class="sh2" style="margin-bottom:22px;">הוכחת ערך בצוותי פיילוט <span class="acc">→</span> הרחבה לתהליכים מובילים <span class="acc">→</span> הטמעה כמודל עבודה משפטי</div>
+  <table class="plan-table">
+    <thead><tr><th>גל</th><th>מהות השלב</th><th>אוקלוסייה</th><th>Use Cases — פעולות</th><th>שער החלטה</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="tier m1">גל 1</span></td>
+        <td>הוכחת ערך<br>בצוותים נבחרים</td>
+        <td>4–5 עורכי דין מובילים, מזכירות חברה, ציות ובקרה</td>
+        <td>• טיוב הסכמים<br>• התראות תובענות<br>• סיכומי רגולציה<br>• דוח כספי מכתבי תביעות<br>• Benchmark: Legal AI vs Copilot</td>
+        <td>שיפור מדיד בזמן / איכות, ללא פגיעה בדיוק המשפטי</td>
+      </tr>
+      <tr>
+        <td><span class="tier m2">גל 2</span></td>
+        <td>הרחבת שימוש<br>ומיסוד תהליכים</td>
+        <td>כלל עורכי הדין והמשפטנים, ציות ובקרה</td>
+        <td>• הרחבת טיוב הסכמים<br>• חיפוש בידע המשפטי ההיסטורי<br>• DPIA — ניתוח השפעת פרטיות<br>• Prompt Library משפטית<br>• תבניות עבודה וסטנדרטים</td>
+        <td>אימוץ עקבי ברוב הצוות, ירידה בזמן טיפול</td>
+      </tr>
+      <tr>
+        <td><span class="tier m3">גל 3</span></td>
+        <td>AI כחלק ממודל<br>העבודה המשפטי</td>
+        <td>כל היחידה — מנהלים, משפטנים, ציות ובקרה</td>
+        <td>• Governance והרשאות<br>• ניטור שימוש, עלויות ואיכות<br>• קהילת ידע משפטית<br>• ניהול סיכונים ובקרות<br>• KPI שוטפת</td>
+        <td>ערך ברמת המחלקה, עמידה בדרישות ציות ורגולציה</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="footer"><span>מגדל — חסוי</span><span class="seg">11 / 21</span></div>
+</div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 12 — STATUS OVERVIEW
+══════════════════════════════════════════════ -->
+<div class="slide-wrap" id="s12">
+<div class="slide-inner">
+<div class="slide">
+  <div class="topbar">
+    <div class="eyebrow">תמונת מצב כוללת</div>
+    <div class="lockup-name">מגדל <span>AI</span></div>
+  </div>
+  <div class="sh2" style="margin-bottom:28px;">ארבע יחידות — <span class="acc">מוכנות ואימפקט</span></div>
+  <div class="matrix">
+    <div class="mc best"><div class="mc-badge done">מוביל</div><div class="mc-name">אקטואריה</div><div class="mc-sub">מחויבות מלאה · בשלות גבוהה</div><div class="mc-stats"><div class="mc-stat"><div class="val">5/5</div><div class="lbl">מחויבות</div></div><div class="mc-stat"><div class="val">2/5</div><div class="lbl">בשלות</div></div><div class="mc-stat"><div class="val">30–50%</div><div class="lbl">ROI צפוי</div></div></div></div>
+    <div class="mc"><div class="mc-badge prog">בתהליך</div><div class="mc-name">כספים</div><div class="mc-sub">מחויבות גבוהה · בשלות בינונית</div><div class="mc-stats"><div class="mc-stat"><div class="val">4/5</div><div class="lbl">מחויבות</div></div><div class="mc-stat"><div class="val">2/5</div><div class="lbl">בשלות</div></div><div class="mc-stat"><div class="val">25–40%</div><div class="lbl">ROI צפוי</div></div></div></div>
+    <div class="mc"><div class="mc-badge prog">בתהליך</div><div class="mc-name">משפטית</div><div class="mc-sub">מחויבות גבוהה · בשלות נמוכה</div><div class="mc-stats"><div class="mc-stat"><div class="val">5/5</div><div class="lbl">מחויבות</div></div><div class="mc-stat"><div class="val">2/5</div><div class="lbl">בשלות</div></div><div class="mc-stat"><div class="val">20–35%</div><div class="lbl">ROI צפוי</div></div></div></div>
+    <div class="mc best"><div class="mc-badge done">ROI מוכח</div><div class="mc-name">טכנולוגיה</div><div class="mc-sub">מחויבות מלאה · בשלות מקסימלית</div><div class="mc-stats"><div class="mc-stat"><div class="val">5/5</div><div class="lbl">מחויבות</div></div><div class="mc-stat"><div class="val">5/5</div><div class="lbl">בשלות</div></div><div class="mc-stat"><div class="val">60–70%</div><div class="lbl">ROI מוכח</div></div></div></div>
+  </div>
+  <!-- נתוני Copilot בפועל -->
+  <div style="margin-top:22px;background:var(--paper);border:1.5px solid rgba(2,1,64,.1);border-radius:14px;padding:16px 28px;display:flex;align-items:center;gap:0;">
+    <div style="font-size:13px;font-weight:700;color:var(--ink);opacity:.5;text-transform:uppercase;letter-spacing:.06em;min-width:130px;">נתוני Copilot בפועל</div>
+    <div style="flex:1;display:flex;gap:0;border-right:1.5px solid rgba(2,1,64,.1);padding-right:24px;margin-right:24px;">
+      <div style="display:flex;flex-direction:column;gap:6px;flex:1;">
+        <div style="font-size:11px;color:rgba(2,1,64,.5);">Copilot Chat</div>
+        <div style="height:8px;background:rgba(2,1,64,.07);border-radius:4px;overflow:hidden;"><div style="height:100%;width:72%;background:var(--blue);border-radius:4px;"></div></div>
+        <div style="font-size:11px;font-weight:700;color:var(--blue);">3,988 שעות · $287K</div>
+      </div>
+      <div style="width:1px;background:rgba(2,1,64,.08);margin:0 16px;"></div>
+      <div style="display:flex;flex-direction:column;gap:6px;flex:1;">
+        <div style="font-size:11px;color:rgba(2,1,64,.5);">Meetings</div>
+        <div style="height:8px;background:rgba(2,1,64,.07);border-radius:4px;overflow:hidden;"><div style="height:100%;width:23%;background:var(--green);border-radius:4px;"></div></div>
+        <div style="font-size:11px;font-weight:700;color:#2f7d56;">1,254 שעות · $90K</div>
+      </div>
+      <div style="width:1px;background:rgba(2,1,64,.08);margin:0 16px;"></div>
+      <div style="display:flex;flex-direction:column;gap:6px;flex:1;">
+        <div style="font-size:11px;color:rgba(2,1,64,.5);">Email + Documents</div>
+        <div style="height:8px;background:rgba(2,1,64,.07);border-radius:4px;overflow:hidden;"><div style="height:100%;width:5%;background:#f59e0b;border-radius:4px;"></div></div>
+        <div style="font-size:11px;font-weight:700;color:#92400e;">299 שעות · $21K</div>
+      </div>
+    </div>
+    <div style="text-align:center;min-width:140px;">
+      <div style="font-size:34px;font-weight:800;color:var(--ink);line-height:1;">5,546</div>
+      <div style="font-size:11px;color:rgba(2,1,64,.5);margin-top:2px;">שעות סיוע סה"כ</div>
+      <div style="font-size:18px;font-weight:700;color:var(--blue);margin-top:6px;">$399K ערך מוכח</div>
+    </div>
+  </div>
+  <div class="footer"><span>מגדל — חסוי</span><span class="seg">12 / 22</span></div>
+</div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 13 — CEO HQ AGENTS
+══════════════════════════════════════════════ -->
+<div class="slide-wrap" id="s13">
+<div class="slide-inner">
+<div class="slide">
+  <div class="topbar">
+    <div class="eyebrow">מטה מנכ"ל — סוכנים ייעודיים</div>
+    <div class="lockup-name">מגדל <span>AI</span></div>
+  </div>
+  <div class="sh2" style="margin-bottom:8px;">התבקשנו לבנות סוכנים ייעודיים — <span class="acc">לא פיילוט אימוץ, אלא בנייה</span></div>
+  <div style="font-size:19px;color:rgba(2,1,64,.55);margin-bottom:32px;">הסוכנים נבנים בהתאמה אישית למטה המנכ"ל ולא עוברים תהליך הטמעה רגיל</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:28px;flex:1;">
+
+    <!-- Agent 1 -->
+    <div style="background:var(--paper);border:1.5px solid rgba(2,1,64,.1);border-radius:18px;padding:32px;display:flex;flex-direction:column;gap:18px;">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#3c65e3,#020140);display:flex;align-items:center;justify-content:center;font-size:22px;">🤖</div>
+        <div>
+          <div style="font-size:22px;font-weight:800;color:var(--ink);">סוכן ניהול מצגות שבועי</div>
+          <div style="font-size:15px;color:rgba(2,1,64,.5);margin-top:2px;">בנייה בתהליך</div>
+        </div>
+      </div>
+      <div style="height:1.5px;background:rgba(2,1,64,.08);"></div>
+      <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:12px;">
+        <li style="display:flex;gap:10px;align-items:flex-start;font-size:18px;color:var(--ink);"><span style="color:var(--blue);font-weight:700;flex:none;">01</span>איסוף מצגות יום חמישי אחה"צ באופן אוטומטי</li>
+        <li style="display:flex;gap:10px;align-items:flex-start;font-size:18px;color:var(--ink);"><span style="color:var(--blue);font-weight:700;flex:none;">02</span>בדיקת תקינות ועמידה בסטנדרט הפורמט</li>
+        <li style="display:flex;gap:10px;align-items:flex-start;font-size:18px;color:var(--ink);"><span style="color:var(--blue);font-weight:700;flex:none;">03</span>השוואה לסיכומי הפגישות השבועיות</li>
+        <li style="display:flex;gap:10px;align-items:flex-start;font-size:18px;color:var(--ink);"><span style="color:var(--blue);font-weight:700;flex:none;">04</span>בניית סיכום סופש מרוכז למנכ"ל</li>
+      </ul>
+    </div>
+
+    <!-- Agent 2 -->
+    <div style="background:var(--paper);border:1.5px solid rgba(162,235,154,.6);border-radius:18px;padding:32px;display:flex;flex-direction:column;gap:18px;position:relative;overflow:hidden;">
+      <div style="position:absolute;top:16px;left:16px;background:var(--green);color:var(--ink);font-size:13px;font-weight:700;padding:4px 12px;border-radius:20px;">פיילוט פעיל ✓</div>
+      <div style="display:flex;align-items:center;gap:14px;margin-top:8px;">
+        <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#a2eb9a,#2f7d56);display:flex;align-items:center;justify-content:center;font-size:22px;">🎯</div>
+        <div>
+          <div style="font-size:22px;font-weight:800;color:var(--ink);">סוכן תחרות</div>
+          <div style="font-size:15px;color:rgba(2,1,64,.5);margin-top:2px;">מקבל פידבקים ומשתפר</div>
+        </div>
+      </div>
+      <div style="height:1.5px;background:rgba(2,1,64,.08);"></div>
+      <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:12px;">
+        <li style="display:flex;gap:10px;align-items:flex-start;font-size:18px;color:var(--ink);"><span style="color:#2f7d56;font-weight:700;flex:none;">✓</span>פיילוט פעיל — כבר עובד</li>
+        <li style="display:flex;gap:10px;align-items:flex-start;font-size:18px;color:var(--ink);"><span style="color:#2f7d56;font-weight:700;flex:none;">✓</span>מקבל פידבקים לדיוק הצרכים</li>
+        <li style="display:flex;gap:10px;align-items:flex-start;font-size:18px;color:var(--ink);"><span style="color:#2f7d56;font-weight:700;flex:none;">✓</span>מיפוי צרכי תחרות שוטף בזמן אמת</li>
+        <li style="display:flex;gap:10px;align-items:flex-start;font-size:18px;color:var(--ink);"><span style="color:rgba(2,1,64,.4);font-weight:700;flex:none;">→</span>בשלב כיוונון והתאמת דיוק</li>
+      </ul>
+    </div>
+
+  </div>
+  <div class="footer"><span>מגדל — חסוי</span><span class="seg">13 / 22</span></div>
+</div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 14 — DARK DIVIDER: TECH
+══════════════════════════════════════════════ -->
+<div class="slide-wrap" id="s13">
+<div class="slide-inner">
+<div class="dark-div">
+  <div class="topbar" style="margin-bottom:0;">
+    <div class="eyebrow w">חטיבה טכנולוגית — Deep Dive</div>
+    <div class="lockup-name w">מגדל <span>AI</span></div>
+  </div>
+  <div class="spacer"></div>
+  <div class="kicker">DEEP DIVE</div>
+  <div style="font-size:96px;font-weight:800;line-height:1.02;letter-spacing:-.025em;color:#fff;">חטיבה<br><span style="color:var(--green);">טכנולוגית</span></div>
+  <div style="font-size:34px;font-weight:400;color:rgba(255,255,255,.6);margin-top:20px;">250 מפתחים · SDD · Developer Program · AI Operating Model</div>
+  <div class="spacer"></div>
+  <div class="big-num">03</div>
+  <div class="footer d" style="position:static;margin-top:32px;"><span>מגדל — חסוי</span><span class="seg">14 / 22</span></div>
+</div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 14 — TECH UNIT CARD
+══════════════════════════════════════════════ -->
+<div class="slide-wrap" id="s14">
+<div class="slide-inner">
+<div class="slide">
+  <div class="topbar">
+    <div class="eyebrow">יחידת פיילוט — טכנולוגיה</div>
+    <div class="lockup-name">מגדל <span>AI</span></div>
+  </div>
+  <div class="row" style="align-items:baseline;gap:18px;margin-bottom:24px;">
+    <div class="sh2">חטיבה טכנולוגית — <span class="acc">כרטיס יחידה</span></div>
+    <div style="padding:5px 16px;border-radius:7px;background:#eafbe8;color:#2f7d56;font-size:19px;font-weight:700;">ROI מוכח</div>
+  </div>
+  <div class="unit-layout">
+    <div class="unit-left">
+      <div class="info-card">
+        <div class="ic-title">פרופיל הצוות</div>
+        <div class="tool-tags"><span class="tt">250 מפתחים</span><span class="tt">4 צוותי פיילוט</span><span class="tt">Copilot Web</span><span class="tt">Copilot 365</span><span class="tt">Claude Code</span><span class="tt">GitHub Copilot</span><span class="tt">Cursor</span><span class="tt">Amazon Q</span></div>
+      </div>
+      <div class="info-card">
+        <div class="ic-title">4 צוותי פיילוט שנבחרו</div>
+        <ul class="uc-list">
+          <li><strong>ביטוח חיים</strong> — בשלות גבוהה, מורכבות עסקית</li>
+          <li><strong>דיגיטל</strong> — פרונט-אנד, חוויית לקוח</li>
+          <li><strong>דאטה</strong> — ניתוח נתונים, ML Ops</li>
+          <li><strong>אימג׳</strong> — עיבוד תמונה, OCR, תביעות</li>
+        </ul>
+      </div>
+      <div class="info-card">
+        <div class="ic-title">בשלות ל-AI</div>
+        <div class="mat-bar">
+          <div class="bar-row"><span class="bar-lbl">מחויבות מנהל</span><div class="bar-track"><div class="bar-fill g" style="width:100%"></div></div></div>
+          <div class="bar-row"><span class="bar-lbl">בשלות טכנית</span><div class="bar-track"><div class="bar-fill" style="width:60%"></div></div></div>
+          <div class="bar-row"><span class="bar-lbl">רמת אימוץ</span><div class="bar-track"><div class="bar-fill" style="width:80%"></div></div></div>
+          <div class="bar-row"><span class="bar-lbl">אימפקט צפוי</span><div class="bar-track"><div class="bar-fill g" style="width:100%"></div></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="unit-right">
+      <div class="info-card">
+        <div class="ic-title">Use Cases מרכזיים</div>
+        <ul class="uc-list">
+          <li>SDD — Spec-Driven Development לכל פיצ׳ר</li>
+          <li>AI Code Review על כל diff לפני מיזוג</li>
+          <li>אוטומציה של כתיבת בדיקות (Unit/E2E)</li>
+          <li>ניפוי באגים מואץ עם Claude Code</li>
+          <li>תיעוד קוד אוטומטי וכתיבת README</li>
+          <li>מיגרציה ו-Refactoring של קוד ישן</li>
+        </ul>
+      </div>
+      <div class="roi-box">
+        <div class="roi-title">ROI — מוכח בפועל (SDD Blitz)</div>
+        <div class="roi-val">~60–70%</div>
+        <div class="roi-desc">קיצור זמן פיתוח: מ-2+ חודשים ל-~3 שבועות<br>אותו צוות, אותם שירותים — פחות זמן</div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>מגדל — חסוי</span><span class="seg">15 / 22</span></div>
+</div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 15 — TECH DEEP PLAN
+══════════════════════════════════════════════ -->
+<div class="slide-wrap" id="s15">
+<div class="slide-inner">
+<div class="slide">
+  <div class="topbar">
+    <div class="eyebrow">תכנית עומק — חטיבה טכנולוגית</div>
+    <div class="lockup-name">מגדל <span>AI</span></div>
+  </div>
+  <div class="sh2" style="margin-bottom:26px;">3 שכבות — <span class="acc">מ-Developer Productivity עד AI Operating Model</span></div>
+  <table class="plan-table">
+    <thead><tr><th style="width:110px;">שכבה</th><th style="width:230px;">שם</th><th>תוכן ופעולות</th><th style="width:155px;">כלי AI</th><th style="width:125px;">משך</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="tier m1">מ1</span></td>
+        <td style="font-weight:700;">Developer Productivity</td>
+        <td>• הכשרת 250 מפתחים — GitHub Copilot / Claude Code<br>• מיפוי לפי 3 רמות בשלות ותכנית הכשרה מותאמת<br>• הרצאות SDD — spec-first לכל feature<br>• Quick Wins: ניפוי באגים, כתיבת בדיקות, תיעוד</td>
+        <td>Copilot<br>Claude Code</td>
+        <td><span class="dur">0–6 שבועות</span></td>
+      </tr>
+      <tr>
+        <td><span class="tier m2">מ2</span></td>
+        <td style="font-weight:700;">SDLC Enablement</td>
+        <td>• SDD Blitz — 4 צוותי פיילוט בו-זמנית<br>• AI Code Review אוטומטי ב-CI/CD Pipeline<br>• Constitution לכל מוצר (guardrails, contracts, roadmap)<br>• מדידה: cycle time, bug rate, PR merge time</td>
+        <td>Claude Code<br>GitHub Actions</td>
+        <td><span class="dur">6–14 שבועות</span></td>
+      </tr>
+      <tr>
+        <td><span class="tier m3">מ3</span></td>
+        <td style="font-weight:700;">AI Operating Model</td>
+        <td>• LiteLLM — פלטפורמת AI מרכזית, Budget per Team<br>• מדיניות אבטחה ו-data governance לכל הכלים<br>• Dashboard מדדי ייצור: adoption, ROI, quality<br>• גל הדף — צוותים שסיימו מלמדים את הבאים</td>
+        <td>LiteLLM<br>מגדל Platform</td>
+        <td><span class="dur">3–9 חודשים</span></td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="footer"><span>מגדל — חסוי</span><span class="seg">16 / 22</span></div>
+</div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 16 — SDD BLITZ CASE STUDY
+══════════════════════════════════════════════ -->
+<div class="slide-wrap" id="s16">
+<div class="slide-inner">
+<div class="slide">
+  <div class="topbar">
+    <div class="eyebrow">ניצנוץ — הבליץ הראשון</div>
+    <div class="lockup-name">מגדל <span>AI</span></div>
+  </div>
+  <div class="sh2" style="margin-bottom:24px;">SDD Blitz — <span class="acc">מ-2 חודשים ל-3 שבועות</span></div>
+  <div class="blitz-layout">
+    <div class="blitz-left">
+      <div class="blitz-hero">
+        <div style="font-size:18px;color:rgba(255,255,255,.45);margin-bottom:6px;">זמן פיתוח — אותו צוות, אותם שירותים</div>
+        <div class="blitz-before">2+ חודשים</div>
+        <div style="font-size:30px;color:var(--green);line-height:1;margin:4px 0;">▼ 60–70% קיצור</div>
+        <div class="blitz-after">~3 שבועות</div>
+        <div class="blitz-lbl">קופת גמל להשקעה — Afiik 1</div>
+      </div>
+      <div class="blitz-stats">
+        <div class="blitz-stat"><div class="val b">17</div><div class="lbl">תיקיות spec</div></div>
+        <div class="blitz-stat"><div class="val b">16</div><div class="lbl">ספציפיקציות</div></div>
+        <div class="blitz-stat"><div class="val g">6</div><div class="lbl">קבצי Constitution</div></div>
+      </div>
+      <div class="blitz-quote">"אותו צוות, אותם שירותים — מחודשיים ומעלה לכ-3 שבועות"</div>
+    </div>
+    <div class="blitz-right">
+      <div style="font-size:19px;font-weight:700;color:var(--s600);letter-spacing:.04em;margin-bottom:10px;">5 שלבי הבליץ — spec-first לכל פיצ׳ר</div>
+      <ul class="blitz-steps">
+        <li class="blitz-step">
+          <div class="bsn">1</div>
+          <div class="bst"><strong>Constitution</strong> — guardrails.md (ה"חוקה"), principles, mission, tech-stack, contracts, roadmap. האבטחה היא הסמכות העליונה.</div>
+        </li>
+        <li class="blitz-step">
+          <div class="bsn">2</div>
+          <div class="bst"><strong>Spec Repository</strong> — 17 תיקיות spec, כל spec עם 3 מסמכים: requirements, design, tests. הכל לפני שורת קוד.</div>
+        </li>
+        <li class="blitz-step">
+          <div class="bsn">3</div>
+          <div class="bst"><strong>AI Agent Builds</strong> — Claude Code קורא את ה-spec ובונה. הצוות (דיגיטל + דאטה & AI) מנחה ומכוון.</div>
+        </li>
+        <li class="blitz-step">
+          <div class="bsn">4</div>
+          <div class="bst"><strong>Human Reviews Every Diff</strong> — כל שינוי קוד עובר Code Review אנושי. AI בונה, אדם מאשר. לא ההיפך.</div>
+        </li>
+        <li class="blitz-step">
+          <div class="bsn">5</div>
+          <div class="bst"><strong>North Star:</strong> "כל פיצ׳ר spec-תחילה, נבנה ב-AI, נולד תואם, נסקר על כל diff"</div>
+        </li>
+      </ul>
+      <div style="padding:14px 18px;border-radius:9px;background:var(--mist);border:1.5px solid var(--line);font-size:17px;color:var(--s600);line-height:1.4;">
+        <strong style="color:var(--ink);">שיתוף פעולה:</strong> Digital (Product + Dev ב-Claude Code) + Data &amp; AI (מתודולוגיה)
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>מגדל — חסוי</span><span class="seg">17 / 22</span></div>
+</div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 17 — KPIs
+══════════════════════════════════════════════ -->
+<div class="slide-wrap" id="s17">
+<div class="slide-inner">
+<div class="slide">
+  <div class="topbar">
+    <div class="eyebrow">KPIs שימדדו בתהליך</div>
+    <div class="lockup-name">מגדל <span>AI</span></div>
+  </div>
+  <div class="sh2" style="margin-bottom:28px;">מה נמדוד — <span class="acc">ולמה זה חשוב</span></div>
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-domain">יעילות פיתוח</div>
+      <div class="kpi-title">Cycle Time</div>
+      <div class="kpi-val">-40%</div>
+      <div class="kpi-desc">זמן ממחשבה עד deploy. מוכח: SDD Blitz הוריד מ-2 חודשים ל-3 שבועות</div>
+      <div class="kpi-bar"><div class="kpi-bar-fill" style="width:40%"></div></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-domain">יעילות פיתוח</div>
+      <div class="kpi-title">PR Merge Time</div>
+      <div class="kpi-val">-50%</div>
+      <div class="kpi-desc">זמן Code Review ואישור PR — AI מוצא בעיות מראש</div>
+      <div class="kpi-bar"><div class="kpi-bar-fill" style="width:50%"></div></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-domain">איכות</div>
+      <div class="kpi-title">Bug Rate</div>
+      <div class="kpi-val">-30%</div>
+      <div class="kpi-desc">מספר באגים ב-Production. Spec-first מביא לקוד "נולד תואם" מהיום הראשון</div>
+      <div class="kpi-bar"><div class="kpi-bar-fill" style="width:30%"></div></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-domain">אימוץ</div>
+      <div class="kpi-title">DAU כלי AI</div>
+      <div class="kpi-val">&gt;70%</div>
+      <div class="kpi-desc">אחוז מפתחים המשתמשים בכלי AI לפחות פעם ביום</div>
+      <div class="kpi-bar"><div class="kpi-bar-fill" style="width:70%"></div></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-domain">פרודוקטיביות</div>
+      <div class="kpi-title">זמן חסוך</div>
+      <div class="kpi-val">30–50%</div>
+      <div class="kpi-desc">חיסכון בשעות עבודה ידנית — מדידה לפני/אחרי בכל יחידת פיילוט</div>
+      <div class="kpi-bar"><div class="kpi-bar-fill" style="width:45%"></div></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-domain">עסקי</div>
+      <div class="kpi-title">ROI חצי-שנתי</div>
+      <div class="kpi-val">3x</div>
+      <div class="kpi-desc">יחס החזר השקעה בתוך 6 חודשים ממועד הפעלת הפיילוט</div>
+      <div class="kpi-bar"><div class="kpi-bar-fill" style="width:60%"></div></div>
+    </div>
+  </div>
+  <div class="footer"><span>מגדל — חסוי</span><span class="seg">18 / 22</span></div>
+</div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 18 — RISKS & FINDINGS
+══════════════════════════════════════════════ -->
+<div class="slide-wrap" id="s18">
+<div class="slide-inner">
+<div class="slide">
+  <div class="topbar">
+    <div class="eyebrow">מה אנחנו מזהים בתהליך</div>
+    <div class="lockup-name">מגדל <span>AI</span></div>
+  </div>
+  <div class="sh2" style="margin-bottom:28px;">סיכונים ואתגרים — <span class="acc">ואיך מתמודדים</span></div>
+  <div class="risk-grid">
+    <div class="risk-card">
+      <div class="risk-badge crit">קריטי</div>
+      <div class="risk-title">אבטחת מידע ופרטיות</div>
+      <div class="risk-desc">העברת נתוני לקוח ל-LLM חיצוני — סיכון רגולטורי ותדמיתי גבוה</div>
+      <div class="risk-mit"><strong>מענה:</strong> LiteLLM עם Data Masking + אפשרות On-Premise. guardrails.md הוא הסמכות העליונה.</div>
+    </div>
+    <div class="risk-card">
+      <div class="risk-badge high">גבוה</div>
+      <div class="risk-title">התנגדות ל-Change</div>
+      <div class="risk-desc">חשש מהחלפת עבודה, ספקנות לגבי אמינות AI, העדפת שגרה קיימת</div>
+      <div class="risk-mit"><strong>מענה:</strong> מודל שגרירים מלמטה למעלה. לא top-down. ה-AI הוא עוזר — לא מחליף.</div>
+    </div>
+    <div class="risk-card">
+      <div class="risk-badge high">גבוה</div>
+      <div class="risk-title">איכות תוצאות AI</div>
+      <div class="risk-desc">הלוצינציות, תשובות שגויות שנראות נכונות — סיכון גדול במיוחד במשפטית ואקטואריה</div>
+      <div class="risk-mit"><strong>מענה:</strong> Human-in-the-loop בכל שלב. AI מציע — אדם מאשר. Code Review על כל diff.</div>
+    </div>
+    <div class="risk-card">
+      <div class="risk-badge med">בינוני</div>
+      <div class="risk-title">Shadow IT</div>
+      <div class="risk-desc">עובדים שמשתמשים בכלים לא מאושרים (ChatGPT חינמי) ומעלים נתוני חברה</div>
+      <div class="risk-mit"><strong>מענה:</strong> LiteLLM כפלטפורמה מרכזית — מביא כלים טובים יותר מהצללים. חינמי לעובד.</div>
+    </div>
+  </div>
+  <div class="footer"><span>מגדל — חסוי</span><span class="seg">19 / 22</span></div>
+</div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 19 — TIMELINE
+══════════════════════════════════════════════ -->
+<div class="slide-wrap" id="s19">
+<div class="slide-inner">
+<div class="slide">
+  <div class="topbar">
+    <div class="eyebrow">הצעדים הבאים</div>
+    <div class="lockup-name">מגדל <span>AI</span></div>
+  </div>
+  <div class="sh2" style="margin-bottom:28px;">תכנית עבודה ברמת-על — <span class="acc">12 חודשים</span></div>
+  <div class="tl-wrap">
+    <div class="tl-months">
+      <div class="tl-month">Q1 2026</div>
+      <div class="tl-month">Q2 2026</div>
+      <div class="tl-month">Q3 2026</div>
+      <div class="tl-month">Q4 2026</div>
+    </div>
+    <div class="tl-row">
+      <div class="tl-lbl">Copilot Web</div>
+      <div class="tl-track">
+        <div class="tl-cell done w2">הפעלה לכל החברה</div>
+        <div class="tl-cell light w2">וובינרים + תמיכה</div>
+        <div class="tl-cell light w2">Scale &amp; Measure</div>
+        <div class="tl-cell done w1">עצמאות</div>
+      </div>
+    </div>
+    <div class="tl-row">
+      <div class="tl-lbl">פיילוטים</div>
+      <div class="tl-track">
+        <div class="tl-cell active w1">סקן</div>
+        <div class="tl-cell active w2">סדנאות + ספרינטים</div>
+        <div class="tl-cell active w2">יישום + מדידה</div>
+        <div class="tl-cell done w2">גלי הדף</div>
+      </div>
+    </div>
+    <div class="tl-row">
+      <div class="tl-lbl">SDD Blitz</div>
+      <div class="tl-track">
+        <div class="tl-cell light w1">בליץ 1</div>
+        <div class="tl-cell active w2">בליץ 2 + 3</div>
+        <div class="tl-cell active w2">Scale — 4 צוותות</div>
+        <div class="tl-cell done w2">כלל הטכנולוגיה</div>
+      </div>
+    </div>
+    <div class="tl-row">
+      <div class="tl-lbl">LiteLLM</div>
+      <div class="tl-track">
+        <div class="tl-cell light w1">הקמה</div>
+        <div class="tl-cell active w1">פיילוט</div>
+        <div class="tl-cell active w2">חיבור יחידות פיילוט</div>
+        <div class="tl-cell done w3">Production — כלל החברה</div>
+      </div>
+    </div>
+    <div class="tl-row">
+      <div class="tl-lbl">KPIs</div>
+      <div class="tl-track">
+        <div class="tl-cell light w1">Baseline</div>
+        <div class="tl-cell active w1">מדידה ראשונה</div>
+        <div class="tl-cell active w2">ROI Report Q2</div>
+        <div class="tl-cell done w3">דוח שנתי לדירקטוריון</div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>מגדל — חסוי</span><span class="seg">20 / 22</span></div>
+</div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 20 — FINAL READINESS
+══════════════════════════════════════════════ -->
+<div class="slide-wrap" id="s20">
+<div class="slide-inner">
+<div class="slide">
+  <div class="topbar">
+    <div class="eyebrow">תמונת מצב כוללת</div>
+    <div class="lockup-name">מגדל <span>AI</span></div>
+  </div>
+  <div class="sh2" style="margin-bottom:26px;">מוכנות ואימפקט — <span class="acc">כלל היחידות</span></div>
+  <div class="matrix" style="flex:1;">
+    <div class="mc best">
+      <div class="mc-badge done">מוכן להתחיל</div>
+      <div class="mc-name" style="font-size:38px;">אקטואריה</div>
+      <div class="mc-sub">הכי בשל — מתחילים ראשון</div>
+      <div style="margin-top:16px;font-size:19px;color:var(--s600);line-height:1.6;">שגריר מוביל זוהה ✓<br>Use Cases מוגדרים ✓<br>תחילת עבודה: מיידי ✓</div>
+    </div>
+    <div class="mc">
+      <div class="mc-badge prog">שלב תכנון</div>
+      <div class="mc-name" style="font-size:38px;">כספים</div>
+      <div class="mc-sub">מחויבות גבוהה — דרוש הכשרה טכנית</div>
+      <div style="margin-top:16px;font-size:19px;color:var(--s600);line-height:1.6;">בחירת שגריר — בתהליך<br>Use Cases — הוגדרו<br>תחילת עבודה: שבוע 3–4</div>
+    </div>
+    <div class="mc">
+      <div class="mc-badge prog">שלב אבחון</div>
+      <div class="mc-name" style="font-size:38px;">משפטית</div>
+      <div class="mc-sub">מחויבות חזקה — בשלות טכנית נמוכה</div>
+      <div style="margin-top:16px;font-size:19px;color:var(--s600);line-height:1.6;">מנהל מחויב ✓<br>בחירת שגריר — ממתין<br>תחילת עבודה: שבוע 5–6</div>
+    </div>
+    <div class="mc best">
+      <div class="mc-badge done">ROI מוכח</div>
+      <div class="mc-name" style="font-size:38px;">טכנולוגיה</div>
+      <div class="mc-sub">SDD Blitz — 60–70% קיצור זמן</div>
+      <div style="margin-top:16px;font-size:19px;color:var(--s600);line-height:1.6;">בליץ 1 — הושלם ✓<br>250 מפתחים — בתהליך<br>Scale — Q2 2026</div>
+    </div>
+  </div>
+  <div style="margin-top:20px;padding:18px 26px;border-radius:12px;background:var(--ink);color:#fff;display:flex;align-items:center;gap:22px;">
+    <div style="font-size:19px;font-weight:700;color:var(--green);flex:none;">הצעד הבא:</div>
+    <div style="font-size:20px;font-weight:600;">אישור תקציב ומנדט → בחירת שגרירים → קיק-אוף Q1 2026 עם כל 4 יחידות במקביל</div>
+    <div style="margin-right:auto;padding:9px 22px;border-radius:9px;background:var(--green);color:var(--ink);font-size:19px;font-weight:800;flex:none;">להחלטה עכשיו</div>
+  </div>
+  <div class="footer"><span>מגדל — חסוי</span><span class="seg">21 / 22</span></div>
+</div>
+</div>
+</div>
+
+<!-- CONTROLS -->
+<div id="controls">
+  <button onclick="nav(-1)">◀ קודם</button>
+  <button id="edit-btn" onclick="toggleEdit()">✏️ עריכה</button>
+  <button onclick="nav(1)">הבא ▶</button>
+</div>
+<div class="slide-num" id="ind">1 / 20</div>
+
+<script>
+(function(){
+  const N = 22;
+  let cur = 1, editOn = false;
+
+  function scale(){
+    document.querySelectorAll('.slide-wrap').forEach(w=>{
+      const i = w.querySelector('.slide-inner');
+      if(!i) return;
+      const s = w.offsetWidth / 1920;
+      i.style.transform = `scale(${s})`;
+      w.style.height = (1080*s)+'px';
+    });
+  }
+  window.addEventListener('resize', scale);
+  window.addEventListener('load', scale);
+  scale();
+
+  window.nav = function(d){
+    cur = Math.max(1, Math.min(N, cur+d));
+    document.getElementById('s'+cur).scrollIntoView({behavior:'smooth', block:'center'});
+    document.getElementById('ind').textContent = cur+' / '+N;
+  };
+
+  document.addEventListener('keydown', e=>{
+    if(e.key==='ArrowLeft'||e.key==='ArrowDown') nav(1);
+    if(e.key==='ArrowRight'||e.key==='ArrowUp') nav(-1);
+  });
+
+  const obs = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting && e.intersectionRatio>0.5){
+        const n = parseInt(e.target.id.replace('s',''));
+        if(!isNaN(n)){ cur=n; document.getElementById('ind').textContent=n+' / '+N; }
+      }
+    });
+  },{threshold:0.5});
+  for(let i=1;i<=N;i++){ const el=document.getElementById('s'+i); if(el) obs.observe(el); }
+
+  window.toggleEdit = function(){
+    editOn = !editOn;
+    document.querySelectorAll('.slide-inner *').forEach(el=>{
+      if(!el.children.length || ['TD','LI','DIV'].includes(el.tagName)){
+        el.contentEditable = editOn ? 'true' : 'false';
+      }
+    });
+    const btn = document.getElementById('edit-btn');
+    btn.textContent = editOn ? '✅ סיום עריכה' : '✏️ עריכה';
+    btn.classList.toggle('on', editOn);
+  };
+})();
+</script>
+</body>
+</html>
