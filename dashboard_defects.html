@@ -441,6 +441,57 @@ body {
   /* ribbon */
   .status-bar { height: 7px; margin-bottom: 12px; }
 }
+
+/* ─── STATUS SUMMARY BAR ─── */
+.status-summary {
+  background: #0f1b3d;
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.ss-label {
+  color: rgba(255,255,255,0.45);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-left: 6px;
+  white-space: nowrap;
+}
+.ss-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 20px;
+  padding: 4px 12px 4px 10px;
+  font-size: 12px;
+  white-space: nowrap;
+  cursor: default;
+}
+.ss-pill-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.ss-pill-name { color: rgba(255,255,255,0.7); font-weight: 600; }
+.ss-pill-count {
+  font-weight: 900;
+  font-size: 13px;
+  color: #fff;
+  margin-right: 2px;
+}
+.ss-divider {
+  width: 1px; height: 22px;
+  background: rgba(255,255,255,0.12);
+  margin: 0 4px;
+}
+@media (max-width: 540px) {
+  .status-summary { padding: 8px 14px; gap: 7px; }
+  .ss-pill { font-size: 11px; padding: 3px 9px 3px 8px; }
+}
 </style>
 </head>
 <body>
@@ -519,6 +570,9 @@ body {
       <div class="kpi-sub" id="kpi-avg-sub">—</div>
     </div>
   </div>
+
+  <!-- STATUS SUMMARY -->
+  <div class="status-summary" id="statusSummaryBar" style="border-radius:12px;margin-bottom:22px;padding:10px 18px;"></div>
 
   <!-- DOMAIN CARDS -->
   <div class="section-title">כמות תקלות פתוחות לפי תחום וצוות</div>
@@ -637,25 +691,25 @@ const RAW = [
   {id:'TK-029',project:'P-1201',env:'קדם', status:'פתוח', openDate:'2026-08-18',closeDate:null, severity:'בינונית', domain:'חסכון ארוך טווח', team:'פיתוח BPR NG תביעות', desc:'לבטל חובת סימון צ׳קבוקס למבוטח עם צו שיפוטי / חוב כאשר מבצעים דחיית תביעה', fixDate:'2026-08-18'},
 
   // ── ייצור — מאז עליה לאוויר 26.8.2026 ───────────────────────────────────────
-  {id:'TK-030',project:'P-1201',env:'ייצור', status:'בטיפול', statusLabel:'מאושר להעברה לייצור', openDate:'2026-08-26',closeDate:null,          severity:'בינונית', domain:'חסכון ארוך טווח', team:'פיתוח BPR NG תביעות',   desc:'הגשת תביעה משולחן עבודה לסוכן במסלול אדום ארעה שגיאת מערכת',          fixDate:null},
-  {id:'TK-032',project:'P-1201',env:'ייצור', status:'בטיפול', statusLabel:'מאושר להעברה לייצור', openDate:'2026-08-27',closeDate:null,          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'כפתור המשך לא מוצג ברזולוציה של 100',                                   fixDate:null},
+  {id:'TK-030',project:'P-1201',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-26',closeDate:'2026-08-30',          severity:'בינונית', domain:'חסכון ארוך טווח', team:'פיתוח BPR NG תביעות',   desc:'הגשת תביעה משולחן עבודה לסוכן במסלול אדום ארעה שגיאת מערכת',          fixDate:null},
+  {id:'TK-032',project:'P-1201',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-27',closeDate:'2026-08-30',          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'כפתור המשך לא מוצג ברזולוציה של 100',                                   fixDate:null},
   {id:'TK-034',project:'P-1201',env:'ייצור', status:'בטיפול', statusLabel:'בפיתוח',              openDate:'2026-08-27',closeDate:null,          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'בהזנקה משולחן עבודה - מבוטח מוביל שבוחר קטין, התהליך נכשל',           fixDate:null},
   {id:'TK-038',project:'P-1201',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-27',closeDate:'2026-08-27', severity:'בינונית', domain:'תשתיות',            team:'תשתיות חא"ט',           desc:'חזרת שגיאה מ-SLA לחוקה בגלל עומסים',                                   fixDate:null},
-  {id:'TK-039',project:'P-1201',env:'ייצור', status:'בטיפול', statusLabel:'מאושר להעברה לייצור', openDate:'2026-08-27',closeDate:null,          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'העלאת קובץ עם תוים מיוחדים - נכשל',                                    fixDate:null},
-  {id:'TK-040',project:'P-1201',env:'ייצור', status:'בטיפול', statusLabel:'מאושר להעברה לייצור', openDate:'2026-08-27',closeDate:null,          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'שו"ש - ביטול אפשרות BIT במקרה של סלולרי חסר',                           fixDate:null},
+  {id:'TK-039',project:'P-1201',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-27',closeDate:'2026-08-30',          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'העלאת קובץ עם תוים מיוחדים - נכשל',                                    fixDate:null},
+  {id:'TK-040',project:'P-1201',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-27',closeDate:'2026-08-30',          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'שו"ש - ביטול אפשרות BIT במקרה של סלולרי חסר',                           fixDate:null},
   {id:'TK-041',project:'P-1201',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-27',closeDate:'2026-08-27', severity:'בינונית', domain:'חסכון ארוך טווח', team:'פיתוח BPR NG תביעות',   desc:'שגיאה בתביעה - נעצר עקב תקלה במנגנון בקרה',                            fixDate:null},
-  {id:'TK-042',project:'P-1201',env:'ייצור', status:'בטיפול', statusLabel:'מאושר להעברה לייצור', openDate:'2026-08-27',closeDate:null,          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'סשן קצר של 15 דקות - לקוח מתנתק באמצע תהליך',                          fixDate:null},
-  {id:'TK-043',project:'P-1201',env:'ייצור', status:'בטיפול', statusLabel:'מאושר להעברה לייצור', openDate:'2026-08-27',closeDate:null,          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'לקוח התקדם בתהליך גם כאשר הקובץ לא זוהה באופן מלא',                   fixDate:null},
-  {id:'TK-044',project:'P-1201',env:'ייצור', status:'בטיפול', statusLabel:'מאושר להעברה לייצור', openDate:'2026-08-27',closeDate:null,          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'שר"ש - חסימה אפשרות הגשת תביעה ישירות מקטין דרך שולחן עבודה',          fixDate:null},
+  {id:'TK-042',project:'P-1201',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-27',closeDate:'2026-08-30',          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'סשן קצר של 15 דקות - לקוח מתנתק באמצע תהליך',                          fixDate:null},
+  {id:'TK-043',project:'P-1201',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-27',closeDate:'2026-08-30',          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'לקוח התקדם בתהליך גם כאשר הקובץ לא זוהה באופן מלא',                   fixDate:null},
+  {id:'TK-044',project:'P-1201',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-27',closeDate:'2026-08-30',          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'שר"ש - חסימה אפשרות הגשת תביעה ישירות מקטין דרך שולחן עבודה',          fixDate:null},
   {id:'TK-045',project:'P-1201',env:'ייצור', status:'פתוח',   statusLabel:'אפיון',               openDate:'2026-08-27',closeDate:null,          severity:'בינונית', domain:'דאטה ו-AI',        team:'מודל',                 desc:'הוספת לוגיקה של זיהוי שם בין שם פרטי ומשפחה ממקורות שונים',            fixDate:null},
 
   // ── ייצור — 30–31.8.2026 ──────────────────────────────────────────────────
-  {id:'TK-046',project:'P-1201',env:'ייצור', status:'בטיפול', statusLabel:'מאושר להעברה לייצור', openDate:'2026-08-30',closeDate:null,          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'במקרה של כישלון בשידור - המייל נשלח לתיבה לא נכונה',                   fixDate:null},
-  {id:'TK-047',project:'P-1201',env:'ייצור', status:'פתוח',   statusLabel:'ממתין לפיתוח',        openDate:'2026-08-30',closeDate:null,          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'לחיצה על כפתור אישור הצהרות לא מאופשרת',                               fixDate:null},
-  {id:'TK-048',project:'P-1201',env:'ייצור', status:'פתוח',   statusLabel:'ממתין לפיתוח',        openDate:'2026-08-30',closeDate:null,          severity:'בינונית', domain:'חסכון ארוך טווח', team:'פיתוח BPR NG תביעות',   desc:'תהליך משידור אדום לאחר פניה לחוקה - הכפלת שורת התשלום והסכום',         fixDate:null},
-  {id:'TK-049',project:'P-1201',env:'ייצור', status:'פתוח',   statusLabel:'ממתין לדרישה',        openDate:'2026-08-30',closeDate:null,          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'כאשר לא נשלח מהזנקה משולחן עבודה מספר טלפון - השידור נכשל',           fixDate:null},
-  {id:'TK-050',project:'P-1201',env:'ייצור', status:'פתוח',   statusLabel:'ממתין לדרישה',        openDate:'2026-08-30',closeDate:null,          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'שוש - כאשר לא כל מסמכי החובה עלו בהצלחה, לא יוצג הבאנר הירוק',        fixDate:null},
-  {id:'TK-053',project:'P-1201',env:'ייצור', status:'בטיפול', statusLabel:'מאושר להעברה לייצור', openDate:'2026-08-31',closeDate:null,          severity:'בינונית', domain:'דאטה ו-AI',        team:'VISION',               desc:'מספר קבלה חולץ עם אותיות',                                              fixDate:null},
+  {id:'TK-046',project:'P-1201',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-30',closeDate:'2026-08-30',          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'במקרה של כישלון בשידור - המייל נשלח לתיבה לא נכונה',                   fixDate:null},
+  {id:'TK-047',project:'P-1201',env:'ייצור', status:'בטיפול', statusLabel:'בפיתוח'             ,        openDate:'2026-08-30',closeDate:null,          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'לחיצה על כפתור אישור הצהרות לא מאופשרת',                               fixDate:null},
+  {id:'TK-048',project:'P-1201',env:'ייצור', status:'בטיפול', statusLabel:'בפיתוח'             ,        openDate:'2026-08-30',closeDate:null,          severity:'בינונית', domain:'חסכון ארוך טווח', team:'פיתוח BPR NG תביעות',   desc:'תהליך משידור אדום לאחר פניה לחוקה - הכפלת שורת התשלום והסכום',         fixDate:null},
+  {id:'TK-049',project:'P-1201',env:'ייצור', status:'בטיפול', statusLabel:'בפיתוח'             ,        openDate:'2026-08-30',closeDate:null,          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'כאשר לא נשלח מהזנקה משולחן עבודה מספר טלפון - השידור נכשל',           fixDate:null},
+  {id:'TK-050',project:'P-1201',env:'ייצור', status:'בטיפול', statusLabel:'בפיתוח'             ,        openDate:'2026-08-30',closeDate:null,          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'שוש - כאשר לא כל מסמכי החובה עלו בהצלחה, לא יוצג הבאנר הירוק',        fixDate:null},
+  {id:'TK-053',project:'P-1201',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-31',closeDate:'2026-08-31', severity:'בינונית', domain:'דאטה ו-AI',        team:'VISION',               desc:'מספר קבלה חולץ עם אותיות',                                              fixDate:null},
 ];
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
@@ -695,6 +749,26 @@ function render() {
   const closed = data.filter(r => r.status === 'סגור');
   const newToday = open.filter(r => r.openDate === TODAY);
   const highOpen = open.filter(r => r.severity === 'גבוהה');
+
+  // Status summary bar
+  const STATUS_DEFS = [
+    { key:'מאושר להעברה לייצור', label:'מאושר — ממתין לייצור', color:'#5ee8a0' },
+    { key:'בפיתוח',              label:'בפיתוח',               color:'#f59e0b' },
+    { key:'ממתין לפיתוח',       label:'ממתין לפיתוח',         color:'#fb923c' },
+    { key:'ממתין לדרישה',       label:'ממתין לדרישה',         color:'#a78bfa' },
+    { key:'אפיון',               label:'באפיון',               color:'#60a5fa' },
+    { key:'בעבודה',              label:'בעבודה',               color:'#f59e0b' },
+  ];
+  const closedCount = closed.length;
+  let ssHtml = '<span class="ss-label">סטטוס תקלות:</span>';
+  STATUS_DEFS.forEach(function(def) {
+    var cnt = data.filter(function(r){ return (r.statusLabel === def.key || r.status === def.key) && r.status !== 'סגור'; }).length;
+    if (cnt === 0) return;
+    ssHtml += '<div class="ss-pill"><span class="ss-pill-dot" style="background:' + def.color + '"></span><span class="ss-pill-name">' + def.label + '</span><span class="ss-pill-count">' + cnt + '</span></div>';
+  });
+  ssHtml += '<div class="ss-divider"></div>';
+  ssHtml += '<div class="ss-pill"><span class="ss-pill-dot" style="background:#94a3b8"></span><span class="ss-pill-name">נסגרו</span><span class="ss-pill-count">' + closedCount + '</span></div>';
+  document.getElementById('statusSummaryBar').innerHTML = ssHtml;
 
   // Avg resolution days
   const closedWithDays = closed.filter(r => r.closeDate);
