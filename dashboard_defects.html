@@ -653,6 +653,25 @@ body {
     </div>
   </div>
 
+  <!-- CLOSED DEFECTS LIST -->
+  <div class="card" style="margin-bottom:18px">
+    <div class="section-title">פרוט תקלות שנסגרו</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="text-align:right">תיאור</th>
+          <th>צוות</th>
+          <th>סביבה</th>
+          <th>נפתחה</th>
+          <th>נסגרה</th>
+          <th>ימי טיפול</th>
+          <th>סטטוס סגירה</th>
+        </tr>
+      </thead>
+      <tbody id="tbl-closed-list"></tbody>
+    </table>
+  </div>
+
   <div class="footer">
     דשבורד ניהול תקלות | מקור: מערכת מבט | נתוני דמו — יש לחבר למקור האמיתי
   </div>
@@ -931,6 +950,26 @@ function render() {
     </tr>`;
   });
   document.getElementById('tbl-avg').innerHTML = avgHtml;
+
+  // Closed defects list
+  const closedList = data.filter(r => r.status === 'סגור').sort((a,b) => (b.closeDate||'').localeCompare(a.closeDate||''));
+  let closedListHtml = '';
+  closedList.forEach(r => {
+    const days = r.closeDate ? daysBetween(r.openDate, r.closeDate) : '—';
+    const openFmt = r.openDate ? r.openDate.slice(8,10)+'.'+r.openDate.slice(5,7)+'.'+r.openDate.slice(0,4) : '—';
+    const closeFmt = r.closeDate ? r.closeDate.slice(8,10)+'.'+r.closeDate.slice(5,7)+'.'+r.closeDate.slice(0,4) : '—';
+    closedListHtml += '<tr>' +
+      '<td style="text-align:right;max-width:280px">' + (r.desc||'—') + '</td>' +
+      '<td style="font-size:12px;color:#4a5578">' + r.team + '</td>' +
+      '<td style="font-size:12px">' + r.env + '</td>' +
+      '<td style="font-size:12px;color:#6b7a99">' + openFmt + '</td>' +
+      '<td style="font-size:12px;font-weight:600;color:#2e7d52">' + closeFmt + '</td>' +
+      '<td class="' + (days===0?'num-low':days<=2?'num-low':days<=5?'num-mid':'num-high') + '">' + (days===0?'אותו יום':days+' י׳') + '</td>' +
+      '<td><span class="st-badge st-closed">' + (r.statusLabel||'נסגר') + '</span></td>' +
+    '</tr>';
+  });
+  if (!closedListHtml) closedListHtml = '<tr><td colspan="7" style="text-align:center;color:#aaa;padding:14px">אין תקלות סגורות</td></tr>';
+  document.getElementById('tbl-closed-list').innerHTML = closedListHtml;
 
   // Last refresh
   const now = new Date();
