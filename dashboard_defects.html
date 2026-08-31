@@ -492,6 +492,16 @@ body {
   .status-summary { padding: 8px 14px; gap: 7px; }
   .ss-pill { font-size: 11px; padding: 3px 9px 3px 8px; }
 }
+
+/* ─── STATUS LABEL COLORS ─── */
+.sl-ready    { background:#d1fae5; color:#065f46; }   /* מועד להעברה לקדם ייצור */
+.sl-dev      { background:#fef9c3; color:#854d0e; }   /* בפיתוח */
+.sl-wait-dev { background:#ffedd5; color:#9a3412; }   /* ממתין לפיתוח */
+.sl-wait-req { background:#ede9fe; color:#5b21b6; }   /* ממתין לדרישה */
+.sl-wait-qa  { background:#dbeafe; color:#1e40af; }   /* ממתין לבדיקות מסייה */
+.sl-spec     { background:#e0e7ff; color:#3730a3; }   /* באפיון / אפיון */
+.sl-closed   { background:#dcfce7; color:#166534; }   /* הסתיים */
+.sl-open     { background:#e8f0fe; color:#1a4fc4; }   /* פתוח */
 </style>
 </head>
 <body>
@@ -713,7 +723,7 @@ const RAW = [
   // ── ייצור — מאז עליה לאוויר 26.8.2026 ───────────────────────────────────────
   {id:'TK-030',project:'אמבולטורי',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-26',closeDate:'2026-08-30',          severity:'בינונית', domain:'חסכון ארוך טווח', team:'פיתוח BPR NG תביעות',   desc:'הגשת תביעה משולחן עבודה לסוכן במסלול אדום ארעה שגיאת מערכת',          fixDate:null},
   {id:'TK-032',project:'אמבולטורי',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-27',closeDate:'2026-08-30',          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'כפתור המשך לא מוצג ברזולוציה של 100',                                   fixDate:null},
-  {id:'TK-034',project:'אמבולטורי',env:'ייצור', status:'בטיפול', statusLabel:'בפיתוח',              openDate:'2026-08-27',closeDate:null,          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'בהזנקה משולחן עבודה - מבוטח מוביל שבוחר קטין, התהליך נכשל',           fixDate:null},
+  {id:'TK-034',project:'אמבולטורי',env:'ייצור', status:'בטיפול', statusLabel:'מועד להעברה לקדם ייצור', openDate:'2026-08-27',closeDate:null,          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'בהזנקה משולחן עבודה - מבוטח מוביל שבוחר קטין, התהליך נכשל',           fixDate:null},
   {id:'TK-038',project:'אמבולטורי',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-27',closeDate:'2026-08-27', severity:'בינונית', domain:'תשתיות',            team:'תשתיות חא"ט',           desc:'חזרת שגיאה מ-SLA לחוקה בגלל עומסים',                                   fixDate:null},
   {id:'TK-039',project:'אמבולטורי',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-27',closeDate:'2026-08-30',          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'העלאת קובץ עם תוים מיוחדים - נכשל',                                    fixDate:null},
   {id:'TK-040',project:'אמבולטורי',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-27',closeDate:'2026-08-30',          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'שו"ש - ביטול אפשרות BIT במקרה של סלולרי חסר',                           fixDate:null},
@@ -728,14 +738,18 @@ const RAW = [
   {id:'TK-047',project:'אמבולטורי',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-30',closeDate:'2026-08-31',          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'לחיצה על כפתור אישור הצהרות לא מאופשרת',                               fixDate:null},
   {id:'TK-048',project:'אמבולטורי',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-30',closeDate:'2026-08-31',          severity:'בינונית', domain:'חסכון ארוך טווח', team:'פיתוח BPR NG תביעות',   desc:'תהליך משידור אדום לאחר פניה לחוקה - הכפלת שורת התשלום והסכום',         fixDate:null},
   {id:'TK-049',project:'אמבולטורי',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-30',closeDate:'2026-08-31',          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'כאשר לא נשלח מהזנקה משולחן עבודה מספר טלפון - השידור נכשל',           fixDate:null},
-  {id:'TK-050',project:'אמבולטורי',env:'ייצור', status:'בטיפול', statusLabel:'בפיתוח'             ,        openDate:'2026-08-30',closeDate:null,          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'שוש - כאשר לא כל מסמכי החובה עלו בהצלחה, לא יוצג הבאנר הירוק',        fixDate:null},
+  {id:'TK-050',project:'אמבולטורי',env:'ייצור', status:'בטיפול', statusLabel:'מועד להעברה לקדם ייצור', openDate:'2026-08-30',closeDate:null,          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'שוש - כאשר לא כל מסמכי החובה עלו בהצלחה, לא יוצג הבאנר הירוק',        fixDate:null},
   {id:'TK-053',project:'אמבולטורי',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-31',closeDate:'2026-08-31', severity:'בינונית', domain:'דאטה ו-AI',        team:'VISION',               desc:'מספר קבלה חולץ עם אותיות',                                              fixDate:null},
   // ── אמבולטורי — תקלות חדשות 30–31.8.2026 ────────────────────────────────
   {id:'TK-051',project:'אמבולטורי',env:'ייצור', status:'בטיפול', statusLabel:'בפיתוח',              openDate:'2026-08-30',closeDate:null,          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'לחיצה על כפתור יציאה מהתהליך - מביאה למיקום של אותה נקודה בתהליך',    fixDate:null},
-  {id:'TK-052',project:'אמבולטורי',env:'ייצור', status:'פתוח',   statusLabel:'ממתין לפיתוח',        openDate:'2026-08-30',closeDate:null,          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'כאשר יש איטיות בהזנקה משולחן עבודה - הסוכן עובר למסך MY MIGDAL',      fixDate:null},
+  {id:'TK-052',project:'אמבולטורי',env:'ייצור', status:'בטיפול', statusLabel:'בפיתוח',              openDate:'2026-08-30',closeDate:null,          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'ניתוק סשן בעת הזנקה משולחן עבודה - הסוכן עובר למסך לוגי',      fixDate:null},
   {id:'TK-054',project:'אמבולטורי',env:'ייצור', status:'בטיפול', statusLabel:'בפיתוח',              openDate:'2026-08-30',closeDate:null,          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'שוש - עדכון פרטי התקשרות בשלוחין ובלובי תביעות יחייב לאוכף כל התהליך', fixDate:null},
-  {id:'TK-055',project:'אמבולטורי',env:'ייצור', status:'פתוח',   statusLabel:'ממתין לבדיקת מסייה', openDate:'2026-08-30',closeDate:null,          severity:'בינונית', domain:'חסכון ארוך טווח', team:'פיתוח BPR NG תביעות',   desc:'מציאת התעריף הנכון מבין 2 תעריפים זהים ולפי תאריכים',                  fixDate:null},
+  {id:'TK-055',project:'אמבולטורי',env:'ייצור', status:'פתוח',   statusLabel:'ממתין לבדיקות מסייה', openDate:'2026-08-30',closeDate:null,          severity:'בינונית', domain:'חסכון ארוך טווח', team:'פיתוח BPR NG תביעות',   desc:'מציאת התעריף הנכון מבין 2 תעריפים זהים ולפי תאריכים',                  fixDate:null},
 
+  // ── אמבולטורי — תקלות חדשות 31.8.2026 ──────────────────────────────────
+  {id:'TK-059',project:'אמבולטורי',env:'ייצור', status:'פתוח',   statusLabel:'ממתין לפיתוח',        openDate:'2026-08-31',closeDate:null, severity:'בינונית', domain:'דיגיטל',    team:'צוות פיתוח דיגיטל 6', desc:'שדה נותן טיפול אוטומטית ללקוח ללא בחינה שה-CONFIDENCE נמוך', fixDate:null},
+  {id:'TK-060',project:'אמבולטורי',env:'ייצור', status:'פתוח',   statusLabel:'ממתין לדרישה',        openDate:'2026-08-31',closeDate:null, severity:'בינונית', domain:'דיגיטל',    team:'צוות פיתוח דיגיטל 6', desc:'תקלה בעת העלאת מסמכים - בתחקור מול EFU',                     fixDate:null},
+  {id:'TK-061',project:'אמבולטורי',env:'ייצור', status:'פתוח',   statusLabel:'ממתין לפיתוח',        openDate:'2026-08-31',closeDate:null, severity:'בינונית', domain:'דאטה ו-AI', team:'מודל',                 desc:'duplicate receipt in same claim',                             fixDate:null},
   // ── טרקר אמבולטורי — 9743 ────────────────────────────────────────────────
   {id:'TK-056',project:'טרקר',     env:'ייצור', status:'פתוח',   statusLabel:'ממתין לדרישה',        openDate:'2026-08-27',closeDate:null,          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 3', desc:'בתביעה יצא מכתב תשלום, לא מוצג בטרקר',                                fixDate:null},
   {id:'TK-057',project:'טרקר',     env:'ייצור', status:'פתוח',   statusLabel:'ממתין לדרישה',        openDate:'2026-08-30',closeDate:null,          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 3', desc:'בכניסה דרך הדשבורד - מוצג שם ההורה ולא שם הילד',                      fixDate:null},
@@ -853,11 +867,27 @@ function render() {
   // Open defects list
   const ST_LABEL = {'פתוח':'פתוח','בטיפול':'בתיקון','סגור':'נסגר'};
   const ST_CSS   = {'פתוח':'st-open','בטיפול':'st-fixing','סגור':'st-closed'};
+  const SL_COLOR = {
+    'מועד להעברה לקדם ייצור':'sl-ready',
+    'בפיתוח':'sl-dev',
+    'ממתין לפיתוח':'sl-wait-dev',
+    'ממתין לדרישה':'sl-wait-req',
+    'ממתין לבדיקות מסייה':'sl-wait-qa',
+    'ממתין לבדיקת מסייה':'sl-wait-qa',
+    'באפיון':'sl-spec', 'אפיון':'sl-spec',
+    'הסתיים':'sl-closed','הסתיים - לא תקלה':'sl-closed',
+    'פתוח':'sl-open'
+  };
+  function statusBadge(r) {
+    var lbl = r.statusLabel || ST_LABEL[r.status] || r.status;
+    var cls = SL_COLOR[lbl] || (r.status==='סגור'?'sl-closed':r.status==='בטיפול'?'sl-dev':'sl-open');
+    return '<span class="st-badge ' + cls + '">' + lbl + '</span>';
+  }
   const SL_CSS   = {
     'ממתין לבדיקות':'st-open','ממתין לפיתוח':'st-open','ממתין לדרישה':'st-open',
     'בעבודה':'st-fixing','בפיתוח':'st-fixing','באפיון':'st-fixing','אפיון':'st-fixing',
     'מאושר להעברה לייצור':'st-fixing',
-    'הסתיים':'st-closed','הסתיים - לא תקלה':'st-closed','ממתין לבדיקת מסייה':'st-open'
+    'הסתיים':'st-closed','הסתיים - לא תקלה':'st-closed','ממתין לבדיקות מסייה':'st-open','מועד להעברה לקדם ייצור':'st-fixing'
   };
   const openList = data.filter(r => r.status !== 'סגור');
   let openListHtml = '';
@@ -870,7 +900,7 @@ function render() {
       <td style="font-size:12px">${r.env}</td>
       <td class="${age>=5?'num-high':age>=3?'num-mid':'num-gray'}">${age === 0 ? 'היום' : age + ' י׳'}</td>
       <td style="font-size:12px;color:#1a4fc4;font-weight:600">${r.fixDate ? r.fixDate.slice(8,10)+'.'+r.fixDate.slice(5,7) : '—'}</td>
-      <td><span class="st-badge ${r.statusLabel ? (SL_CSS[r.statusLabel]||'st-open') : (ST_CSS[r.status]||'st-open')}">${r.statusLabel || ST_LABEL[r.status] || r.status}</span></td>
+      <td>${statusBadge(r)}</td>
     </tr>`;
   });
   if (!openListHtml) openListHtml = '<tr><td colspan="7" style="text-align:center;color:#aaa;padding:14px">אין תקלות פתוחות</td></tr>';
@@ -976,7 +1006,7 @@ function render() {
       '<td style="font-size:12px;color:#6b7a99">' + openFmt + '</td>' +
       '<td style="font-size:12px;font-weight:600;color:#2e7d52">' + closeFmt + '</td>' +
       '<td class="' + (days===0?'num-low':days<=2?'num-low':days<=5?'num-mid':'num-high') + '">' + (days===0?'אותו יום':days+' י׳') + '</td>' +
-      '<td><span class="st-badge st-closed">' + (r.statusLabel||'נסגר') + '</span></td>' +
+      '<td>' + statusBadge(r) + '</td>' +
     '</tr>';
   });
   if (!closedListHtml) closedListHtml = '<tr><td colspan="7" style="text-align:center;color:#aaa;padding:14px">אין תקלות סגורות</td></tr>';
