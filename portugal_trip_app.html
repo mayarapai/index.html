@@ -1,69 +1,137 @@
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0f1229">
 <title>הטיול שלנו לפורטוגל</title>
 <style>
 :root{
-  --blue:#1e6091; --blue-dark:#14496b; --sand:#f4ede1; --card:#ffffff;
-  --algarve:#2a9d8f; --algarve-l:#e7f5f3;
-  --madeira:#e07a5f; --madeira-l:#fbebe6;
-  --lisbon:#e9b949; --lisbon-l:#fdf5e2;
-  --logistics:#6c757d; --logistics-l:#eef0f1;
-  --text:#2b2b2b; --muted:#767676; --border:#e3dccd;
-  --red:#d64545; --orange:#e8892b; --yellow:#d9b400; --green:#3aa15c; --gray:#9099a1;
+  --brand1:#6d28d9; --brand2:#06b6d4; --ink-header:#0f1229;
+  --bg:#eef1f8; --card:#ffffff;
+  --algarve:#0891b2; --algarve-l:#e0f7fa;
+  --madeira:#e11d48; --madeira-l:#ffe4e9;
+  --lisbon:#f59e0b; --lisbon-l:#fff3d9;
+  --logistics:#6366f1; --logistics-l:#e8e7fd;
+  --text:#181b2e; --muted:#6b7280; --border:#e2e6f2;
+  --red:#ef4444; --orange:#f97316; --yellow:#eab308; --green:#10b981; --gray:#94a3b8;
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
 body{
   font-family:"Segoe UI",Arial,Heebo,sans-serif;
-  background:var(--sand);
+  background:
+    radial-gradient(circle at 15% -10%, #ded6fb 0%, transparent 45%),
+    radial-gradient(circle at 100% 0%, #cdf3f9 0%, transparent 40%),
+    var(--bg);
+  background-attachment:fixed;
   color:var(--text);
   direction:rtl;
-  padding-bottom:60px;
+  padding-bottom:calc(78px + env(safe-area-inset-bottom));
+  -webkit-tap-highlight-color:transparent;
 }
 header.topbar{
-  background:linear-gradient(90deg,var(--blue),var(--blue-dark));
+  background:linear-gradient(120deg,var(--ink-header),var(--brand1) 55%,var(--brand2) 130%);
   color:#fff;
-  padding:14px 18px;
+  padding:calc(12px + env(safe-area-inset-top)) 16px 12px;
   position:sticky;
   top:0;
   z-index:50;
-  box-shadow:0 2px 8px rgba(0,0,0,.15);
+  box-shadow:0 4px 18px rgba(31,20,80,.25);
 }
-.topbar-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
-.topbar h1{margin:0;font-size:1.25rem}
-.topbar .sub{font-size:.78rem;opacity:.85;margin-top:2px}
-.topbar-actions{display:flex;gap:6px;flex-wrap:wrap}
-.topbar-actions button{
-  background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.35);color:#fff;
-  padding:6px 10px;border-radius:8px;font-size:.75rem;cursor:pointer;
+.topbar-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.topbar h1{margin:0;font-size:1.08rem;font-weight:800;letter-spacing:.2px}
+.topbar .sub{font-size:.72rem;opacity:.8;margin-top:2px}
+.menu-btn{
+  background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);color:#fff;
+  width:34px;height:34px;border-radius:11px;font-size:1.1rem;cursor:pointer;flex:0 0 auto;
+  display:flex;align-items:center;justify-content:center;
 }
-.topbar-actions button:hover{background:rgba(255,255,255,.28)}
-nav.tabs{
-  display:flex;gap:4px;overflow-x:auto;margin-top:12px;padding-bottom:2px;
+.menu-sheet{
+  position:fixed;inset:0;background:rgba(10,10,20,.45);z-index:150;display:none;
 }
-nav.tabs button{
-  flex:0 0 auto;
-  background:rgba(255,255,255,.1);
-  border:none;color:#fff;padding:8px 14px;border-radius:10px 10px 0 0;
-  cursor:pointer;font-size:.85rem;white-space:nowrap;opacity:.75;
+.menu-sheet.open{display:block}
+.menu-sheet-card{
+  position:absolute;top:calc(64px + env(safe-area-inset-top));inset-inline-start:12px;
+  background:var(--card);border-radius:16px;padding:8px;min-width:200px;
+  box-shadow:0 12px 32px rgba(20,10,60,.25);display:flex;flex-direction:column;gap:2px;
 }
-nav.tabs button.active{background:var(--sand);color:var(--blue-dark);opacity:1;font-weight:700}
-main{max-width:920px;margin:0 auto;padding:16px}
+.menu-sheet-card button{
+  background:none;border:none;text-align:right;padding:10px 12px;border-radius:10px;font-size:.85rem;
+  cursor:pointer;color:var(--text);
+}
+.menu-sheet-card button:hover{background:var(--bg)}
+main{max-width:640px;margin:0 auto;padding:14px 14px 4px}
 .tabpanel{display:none}
 .tabpanel.active{display:block}
 .toast{
-  position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
-  background:#2b2b2b;color:#fff;padding:8px 18px;border-radius:20px;font-size:.8rem;
+  position:fixed;bottom:calc(78px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);
+  background:var(--ink-header);color:#fff;padding:8px 18px;border-radius:20px;font-size:.8rem;
   opacity:0;pointer-events:none;transition:opacity .3s;z-index:200;
 }
-.toast.show{opacity:.92}
+.toast.show{opacity:.95}
+
+/* ---- Bottom app nav ---- */
+.bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;z-index:120;
+  display:flex;
+  background:rgba(15,18,41,.88);
+  -webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);
+  border-top:1px solid rgba(255,255,255,.08);
+  padding:5px 2px calc(4px + env(safe-area-inset-bottom));
+  box-shadow:0 -4px 20px rgba(10,5,40,.2);
+}
+.bottom-nav button{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  background:none;border:none;color:rgba(255,255,255,.5);padding:5px 1px;cursor:pointer;
+}
+.bottom-nav .icon-wrap{
+  width:30px;height:26px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+  font-size:1.05rem;transition:background .18s,transform .18s;
+}
+.bottom-nav button.active .icon-wrap{
+  background:linear-gradient(135deg,var(--brand1),var(--brand2));
+  transform:translateY(-1px) scale(1.06);
+  box-shadow:0 3px 10px rgba(109,40,217,.5);
+}
+.bottom-nav button.active{color:#fff}
+.bottom-nav .lbl{font-size:.55rem;line-height:1;max-height:0;opacity:0;transition:opacity .15s,max-height .15s}
+.bottom-nav button.active .lbl{max-height:10px;opacity:1}
 
 /* ---- Home ---- */
 .hero{
   background:var(--card);border-radius:16px;padding:20px;margin-bottom:16px;
   box-shadow:0 1px 4px rgba(0,0,0,.06);text-align:center;
 }
-.hero .countdown{font-size:2rem;font-weight:800;color:var(--blue)}
-.hero .dates{color:var(--muted);margin-top:4px;font-size:.9rem}
+.hero .countdown{font-size:1.7rem;font-weight:800;background:linear-gradient(135deg,var(--brand1),var(--brand2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero .dates{color:var(--muted);margin-top:10px;font-size:.85rem}
+.hourglass-inline{font-size:1.7rem;display:flex;align-items:center;animation:tilt 3.2s ease-in-out infinite;transform-origin:center}
+@keyframes tilt{0%,15%{transform:rotate(0deg)}50%{transform:rotate(180deg)}85%,100%{transform:rotate(180deg)}}
+.count-caption{color:var(--muted);font-size:.8rem;margin-top:4px}
+.count-row{display:flex;align-items:center;justify-content:center;gap:10px;margin:14px 0 2px}
+.count-box{background:linear-gradient(160deg,#181c33,#242a52);border-radius:14px;padding:10px 6px;min-width:64px;box-shadow:0 6px 18px rgba(30,20,80,.28)}
+.count-box .num{font-family:'Courier New',monospace;font-size:1.55rem;font-weight:800;background:linear-gradient(135deg,#a78bfa,var(--brand2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.count-box .lbl{font-size:.62rem;color:rgba(255,255,255,.6);margin-top:2px}
+.spotlight-card{
+  background:linear-gradient(160deg,#181c33,#242a52);color:#fff;border-radius:16px;margin-bottom:16px;overflow:hidden;
+  box-shadow:0 6px 20px rgba(30,20,80,.28);
+}
+.spotlight-head{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer}
+.spotlight-badge{width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex:0 0 auto}
+.spotlight-label{font-size:.7rem;color:rgba(255,255,255,.65)}
+.spotlight-title{font-weight:700;font-size:.95rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.spot-chevron{transition:transform .2s;opacity:.7}
+.spotlight-body{display:none;padding:0 16px 16px}
+.spotlight-body.open{display:block}
+.spotlight-head:has(+ .spotlight-body.open) .spot-chevron{transform:rotate(180deg)}
+.spot-track{margin-bottom:10px}
+.spot-track b{font-size:.82rem;color:#c4b5fd;display:block;margin-bottom:4px}
+.spot-act{display:flex;align-items:center;gap:10px;font-size:.82rem;padding:5px 0;border-bottom:1px dashed rgba(255,255,255,.1)}
+.spot-act .spot-time{color:#67e8f9;font-weight:700;min-width:78px;flex:0 0 auto}
+.spot-act-text{flex:1;min-width:0}
+.spot-waze{flex:0 0 auto;background:rgba(103,232,249,.15);border-radius:9px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:.9rem;text-decoration:none}
+.spot-tip{background:rgba(255,255,255,.08);border-radius:10px;padding:9px 11px;font-size:.8rem;margin-top:8px;line-height:1.5}
+.spot-link-btn{background:linear-gradient(135deg,var(--brand1),var(--brand2));color:#fff;border:none;border-radius:10px;padding:9px 14px;font-size:.8rem;margin-top:10px;width:100%;cursor:pointer}
 .world-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
 @media(max-width:560px){.world-grid{grid-template-columns:1fr}}
 .world-card{
@@ -74,10 +142,10 @@ main{max-width:920px;margin:0 auto;padding:16px}
 .world-card .icon{font-size:1.8rem}
 .world-card h3{margin:6px 0 2px;font-size:1.05rem}
 .world-card .meta{font-size:.78rem;opacity:.9}
-.wc-algarve{background:linear-gradient(135deg,var(--algarve),#1f7a70)}
-.wc-madeira{background:linear-gradient(135deg,var(--madeira),#b85138)}
-.wc-lisbon{background:linear-gradient(135deg,var(--lisbon),#c99420)}
-.wc-logistics{background:linear-gradient(135deg,var(--logistics),#4d5358)}
+.wc-algarve{background:linear-gradient(135deg,#22d3ee,var(--algarve) 60%,#0e4f6e)}
+.wc-madeira{background:linear-gradient(135deg,#fb7185,var(--madeira) 60%,#7f1d3a)}
+.wc-lisbon{background:linear-gradient(135deg,#fcd34d,var(--lisbon) 60%,#9a5b00)}
+.wc-logistics{background:linear-gradient(135deg,#a5b4fc,var(--logistics) 60%,#312e81)}
 .home-alert-banner{
   background:var(--card);border-radius:14px;padding:14px 16px;margin-bottom:16px;
   border-inline-start:5px solid var(--red);display:flex;justify-content:space-between;align-items:center;gap:10px;
@@ -122,7 +190,7 @@ main{max-width:920px;margin:0 auto;padding:16px}
 .day-body{padding:0 16px 16px 16px;display:none}
 .day-body.open{display:block}
 .activity-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;padding:6px 8px;background:#fbfaf6;border-radius:8px}
-.activity-row .time{flex:0 0 100px;font-size:.78rem;color:var(--accent,var(--blue));font-weight:700;outline:none;min-width:70px}
+.activity-row .time{flex:0 0 100px;font-size:.78rem;color:var(--accent,var(--brand1));font-weight:700;outline:none;min-width:70px}
 .activity-row .text{flex:1;font-size:.88rem;outline:none}
 .add-row-btn{
   background:none;border:1px dashed #c9c2ac;border-radius:8px;padding:6px 10px;font-size:.78rem;color:var(--muted);
@@ -139,7 +207,7 @@ main{max-width:920px;margin:0 auto;padding:16px}
 }
 .notes-label{font-size:.72rem;color:var(--muted);margin-top:8px;display:block}
 .links-row{margin-top:8px;font-size:.78rem}
-.links-row a{color:var(--blue);margin-inline-end:10px}
+.links-row a{color:var(--brand1);margin-inline-end:10px}
 .day-actions-bottom{display:flex;justify-content:space-between;margin-top:10px}
 .small-link-btn{background:none;border:none;color:var(--muted);font-size:.75rem;cursor:pointer;text-decoration:underline}
 .add-day-btn{
@@ -149,7 +217,7 @@ main{max-width:920px;margin:0 auto;padding:16px}
 
 /* ---- Attractions ---- */
 .attr-section{margin-top:26px}
-.attr-group-title{font-weight:700;margin:18px 0 8px;color:var(--accent,var(--blue));font-size:.95rem}
+.attr-group-title{font-weight:700;margin:18px 0 8px;color:var(--accent,var(--brand1));font-size:.95rem}
 .attr-card{
   background:var(--card);border-radius:12px;padding:10px 12px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.05);
   display:flex;gap:10px;align-items:flex-start;
@@ -216,12 +284,12 @@ main{max-width:920px;margin:0 auto;padding:16px}
 .alert-item .del{border:none;background:none;color:#c88;cursor:pointer}
 .add-alert-row{display:flex;gap:6px;margin-top:6px}
 .add-alert-row input{flex:1;padding:7px 10px;border-radius:8px;border:1px solid var(--border);font-family:inherit;font-size:.85rem}
-.add-alert-row button{border:none;background:var(--blue);color:#fff;border-radius:8px;padding:0 14px;cursor:pointer}
+.add-alert-row button{border:none;background:var(--brand1);color:#fff;border-radius:8px;padding:0 14px;cursor:pointer}
 
 /* ---- Info ---- */
 .info-card{background:var(--card);border-radius:14px;padding:14px 16px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
 .info-card h4{margin:0 0 8px;font-size:.95rem}
-.link-line a{display:block;font-size:.85rem;color:var(--blue);padding:3px 0}
+.link-line a{display:block;font-size:.85rem;color:var(--brand1);padding:3px 0}
 .emergency{background:#fdeeee;border-radius:12px;padding:14px 16px;text-align:center;margin-bottom:14px}
 .emergency .num{font-size:1.8rem;font-weight:800;color:var(--red)}
 [contenteditable]:focus{background:#fffce8;outline:1px dashed #ddd0a0;border-radius:4px}
@@ -230,19 +298,23 @@ main{max-width:920px;margin:0 auto;padding:16px}
 
 <header class="topbar">
   <div class="topbar-row">
+    <button class="menu-btn" onclick="toggleMenu()" title="תפריט">⋯</button>
     <div>
-      <h1>🇵🇹 הטיול שלנו לפורטוגל</h1>
+      <h1>🇵🇹 הטיול לפורטוגל</h1>
       <div class="sub">17–28 בספטמבר 2026 · אלגרבה · מדיירה · ליסבון</div>
     </div>
-    <div class="topbar-actions">
-      <button onclick="exportData()">⬇️ ייצוא גיבוי</button>
-      <button onclick="document.getElementById('importFile').click()">⬆️ ייבוא גיבוי</button>
-      <button onclick="resetToDefault()">↺ איפוס לתוכן מקורי</button>
-      <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importData(event)">
-    </div>
+    <button class="menu-btn back-btn" id="backBtn" onclick="switchTab('home')" title="חזרה" style="visibility:hidden">→</button>
   </div>
-  <nav class="tabs" id="tabsNav"></nav>
 </header>
+
+<div class="menu-sheet" id="menuSheet" onclick="if(event.target===this) toggleMenu()">
+  <div class="menu-sheet-card">
+    <button onclick="exportData();toggleMenu()">⬇️ ייצוא גיבוי</button>
+    <button onclick="document.getElementById('importFile').click()">⬆️ ייבוא גיבוי</button>
+    <button onclick="resetToDefault();toggleMenu()">↺ איפוס לתוכן מקורי</button>
+    <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importData(event)">
+  </div>
+</div>
 
 <main id="main">
   <section class="tabpanel" id="tab-home"></section>
@@ -253,6 +325,8 @@ main{max-width:920px;margin:0 auto;padding:16px}
   <section class="tabpanel" id="tab-alerts"></section>
   <section class="tabpanel" id="tab-info"></section>
 </main>
+
+<nav class="bottom-nav" id="bottomNav"></nav>
 
 <div class="toast" id="toast">נשמר ✓</div>
 
@@ -276,7 +350,7 @@ function DEFAULT_DATA(){ return {
           {time:'20:55–22:00',text:'איסוף מזוודות ואוכל מהיר, ביקורת גבולות'},
           {time:'22:00',text:'איסוף רכב Avis'},
           {time:'22:15–00:45',text:'נסיעה ללינה ב-Carvoeiro, כ-270 ק״מ וכ-2:30–2:45 שעות'},
-          {time:'00:45',text:'צ׳ק-אין ב-Tivoli וללון'}
+          {time:'00:45',text:'צ׳ק-אין ב-Tivoli וללון', waze:'Praia do Vale Covo, 8400-526 Carvoeiro, Portugal'}
          ],
          tip:'עדיף לאכול בשדה התעופה, לקחת מים וחטיפים ולנסוע ישירות. לא לתכנן מסעדה מאוחרת בדרך. אם מחליפים נהג: הוא חייב להיות רשום בחוזה ההשכרה — בטיחות קודמת למהירות.',
          links:[]},
@@ -494,10 +568,10 @@ function DEFAULT_DATA(){ return {
           {time:'12:00–12:30',text:'החזרת רכב RentX'},
           {time:'13:10',text:'פתיחת Bag Drop של easyJet'},
           {time:'15:10–16:55',text:'טיסת easyJet EJU7624: Funchal → Lisbon'},
-          {time:'17:30–18:00',text:'צ׳ק-אין ב-Look Living'},
-          {time:'18:30–20:00',text:'Cais do Sodré → Bica → Camões → Chiado'},
+          {time:'17:30–18:00',text:'צ׳ק-אין ב-Look Living', waze:'Look Living Lisbon Design Apartments'},
+          {time:'18:30–20:00',text:'Cais do Sodré → Bica → Camões → Chiado', waze:'Cais do Sodré, Lisbon'},
           {time:'20:30',text:'ארוחת ערב במרכז'},
-          {time:'22:30–00:00',text:'Bairro Alto / Príncipe Real'}
+          {time:'22:30–00:00',text:'Bairro Alto / Príncipe Real', waze:'Bairro Alto, Lisbon'}
          ],
          tip:'חשוב: חלון הצ׳ק-אין בדירה מסתיים ב-18:00 — יש ליצור קשר עם Look Living מראש לגבי הגעה מתוזמנת.',
          links:[]},
@@ -505,14 +579,14 @@ function DEFAULT_DATA(){ return {
          title:'Belém, ליסבון הקלאסית ופאדו', notes:'',
          activities:[
           {time:'08:00',text:'ארוחת בוקר'},
-          {time:'08:45–09:15',text:'נסיעה ל-Belém; מונית נוחה לחמישה'},
+          {time:'08:45–09:15',text:'נסיעה ל-Belém; מונית נוחה לחמישה', waze:'Torre de Belém, Lisboa'},
           {time:'09:15–10:00',text:'טיילת הנהר, Monument to the Discoveries ו-Belém Tower מבחוץ'},
-          {time:'10:00–11:30',text:'Jerónimos Monastery, כרטיסים לשעה מוגדרת'},
-          {time:'11:30–12:00',text:'Pastéis de Belém'},
-          {time:'12:15–13:00',text:'MAAT או LX Factory (טרם הוחלט)'},
+          {time:'10:00–11:30',text:'Jerónimos Monastery, כרטיסים לשעה מוגדרת', waze:'Mosteiro dos Jerónimos, Lisboa'},
+          {time:'11:30–12:00',text:'Pastéis de Belém', waze:'Pastéis de Belém, Lisboa'},
+          {time:'12:15–13:00',text:'MAAT או LX Factory (טרם הוחלט)', waze:'LX Factory, Lisboa'},
           {time:'13:15–14:30',text:'ארוחת צהריים'},
-          {time:'15:00–17:30',text:'Baixa, Rossio, Rua Augusta, Praça do Comércio ו-Chiado'},
-          {time:'17:30–18:30',text:'Avenida da Liberdade וקניות'},
+          {time:'15:00–17:30',text:'Baixa, Rossio, Rua Augusta, Praça do Comércio ו-Chiado', waze:'Praça do Comércio, Lisboa'},
+          {time:'17:30–18:30',text:'Avenida da Liberdade וקניות', waze:'Avenida da Liberdade, Lisboa'},
           {time:'20:00–22:15',text:'ארוחת פאדו — מוזמנת מראש (מקום ספציפי טרם נבחר)'}
          ],
          tip:'יש לבצע בדיקה נוספת סמוך למועד לגבי שעות בוקר ראשון והמוזיאונים. יש לשמור את Jerónimos כעוגן של הבוקר.',
@@ -522,14 +596,14 @@ function DEFAULT_DATA(){ return {
          activities:[
           {time:'08:00',text:'ארוחת בוקר ואריזה'},
           {time:'08:45',text:'צ׳ק-אאוט ואחסון מזוודות'},
-          {time:'09:00–10:30',text:'Alfama: Sé, Santa Luzia, Portas do Sol והסמטאות'},
-          {time:'10:30–12:00',text:'Castelo de São Jorge'},
+          {time:'09:00–10:30',text:'Alfama: Sé, Santa Luzia, Portas do Sol והסמטאות', waze:'Sé de Lisboa'},
+          {time:'10:30–12:00',text:'Castelo de São Jorge', waze:'Castelo de São Jorge, Lisboa'},
           {time:'12:00–12:45',text:'ירידה רגלית'},
-          {time:'13:00–14:30',text:'ארוחת צהריים ב-Taberna Sal Grosso'},
-          {time:'14:45–17:15',text:'קניות ב-Chiado וב-Avenida da Liberdade; Colombo כחלופה'},
+          {time:'13:00–14:30',text:'ארוחת צהריים ב-Taberna Sal Grosso', waze:'Taberna Sal Grosso, Lisboa'},
+          {time:'14:45–17:15',text:'קניות ב-Chiado וב-Avenida da Liberdade; Colombo כחלופה', waze:'Chiado, Lisboa'},
           {time:'17:30',text:'איסוף מזוודות'},
           {time:'18:00',text:'נשנוש/ארוחה משמעותית'},
-          {time:'18:45–19:00',text:'מונית לשדה התעופה'},
+          {time:'18:45–19:00',text:'מונית לשדה התעופה', waze:'Aeroporto Humberto Delgado, Lisboa'},
           {time:'22:15–05:25 (+1)',text:'טיסת EL AL LY376 חזרה לתל אביב'}
          ],
          tip:'המטרה היא להגיע לשדה סביב 19:30 ולהשאיר זמן מספיק לבידוק EL AL.',
@@ -714,21 +788,21 @@ function resetToDefault(){
 
 /* ===================== TABS ===================== */
 const TABS=[
-  {id:'home', label:'🏠 בית'},
-  {id:'algarve', label:'🌊 אלגרבה'},
-  {id:'madeira', label:'🏝️ מדיירה'},
-  {id:'lisbon', label:'🏛️ ליסבון'},
-  {id:'logistics', label:'✈️ לוגיסטיקה'},
-  {id:'alerts', label:'🔔 התראות'},
-  {id:'info', label:'ℹ️ מידע שימושי'}
+  {id:'home', icon:'🏠', label:'בית'},
+  {id:'logistics', icon:'✈️', label:'לוגיסטיקה'},
+  {id:'algarve', icon:'🌊', label:'אלגרבה'},
+  {id:'madeira', icon:'🏝️', label:'מדיירה'},
+  {id:'lisbon', icon:'🏛️', label:'ליסבון'},
+  {id:'alerts', icon:'🔔', label:'התראות'},
+  {id:'info', icon:'ℹ️', label:'מידע'}
 ];
 let activeTab='home';
 function renderTabs(){
-  const nav=document.getElementById('tabsNav');
+  const nav=document.getElementById('bottomNav');
   nav.innerHTML='';
   TABS.forEach(t=>{
     const b=document.createElement('button');
-    b.textContent=t.label;
+    b.innerHTML=`<span class="icon-wrap">${t.icon}</span><span class="lbl">${t.label}</span>`;
     if(t.id===activeTab) b.classList.add('active');
     b.onclick=()=>switchTab(t.id);
     nav.appendChild(b);
@@ -740,7 +814,11 @@ function switchTab(id){
   document.getElementById('tab-'+id).classList.add('active');
   renderTabs();
   renderTabContent(id);
+  document.getElementById('backBtn').style.visibility = id==='home' ? 'hidden' : 'visible';
   window.scrollTo({top:0,behavior:'smooth'});
+}
+function toggleMenu(){
+  document.getElementById('menuSheet').classList.toggle('open');
 }
 
 function renderAll(){
@@ -763,30 +841,42 @@ function esc(s){
 /* ===================== HOME ===================== */
 function renderHome(){
   const el=document.getElementById('tab-home');
-  const start=new Date('2026-09-17T00:00:00');
-  const end=new Date('2026-09-28T23:59:59');
+  const start=new Date('2026-09-17T16:55:00');
+  const end=new Date('2026-09-29T05:25:00');
   const now=new Date();
-  let countText, dateText='17–28 בספטמבר 2026';
+  let dateText='17–28 בספטמבר 2026';
+  let heroInner;
   if(now<start){
-    const days=Math.ceil((start-now)/86400000);
-    countText='עוד '+days+' ימים לטיסה! ✈️';
+    const diff=start-now;
+    const days=Math.floor(diff/86400000);
+    const hours=Math.floor((diff%86400000)/3600000);
+    const mins=Math.floor((diff%3600000)/60000);
+    heroInner=`
+      <div class="count-caption">עד הטיסה לפורטוגל</div>
+      <div class="count-row">
+        <div class="count-box"><div class="num">${String(mins).padStart(2,'0')}</div><div class="lbl">דקות</div></div>
+        <div class="count-box"><div class="num">${String(hours).padStart(2,'0')}</div><div class="lbl">שעות</div></div>
+        <div class="count-box"><div class="num">${days}</div><div class="lbl">ימים</div></div>
+        <span class="hourglass-inline">⏳</span>
+      </div>`;
   } else if(now>=start && now<=end){
-    const dayNum=Math.floor((now-start)/86400000)+1;
-    countText='אנחנו בטיול! יום '+dayNum+' מתוך 12 🎒';
+    const dayNum=Math.min(12,Math.floor((now-start)/86400000)+1);
+    heroInner=`<div class="countdown">אנחנו בטיול! יום ${dayNum} מתוך 12 🎒</div>`;
   } else {
-    countText='הטיול הסתיים — מקווים שהיה נהדר! 🇵🇹';
+    heroInner=`<div class="countdown">הטיול הסתיים — מקווים שהיה נהדר! 🇵🇹</div>`;
   }
   const openAlerts=DATA.alerts.filter(a=>!a.done && a.level==='red').length;
 
   el.innerHTML=`
     <div class="hero">
-      <div class="countdown">${countText}</div>
+      ${heroInner}
       <div class="dates">${dateText} · אלגרבה · מדיירה · ליסבון</div>
     </div>
     ${openAlerts>0?`<div class="home-alert-banner" onclick="switchTab('alerts')">
       <div>🔴 יש <b>${openAlerts}</b> פעולות דחופות שטרם סומנו כבוצעו</div>
       <div>לפתיחת ההתראות ›</div>
     </div>`:''}
+    ${renderSpotlightCard()}
     <div class="world-grid">
       <button class="world-card wc-algarve" onclick="switchTab('algarve')">
         <div class="icon">🌊</div><h3>אלגרבה</h3><div class="meta">17–21/9 · Carvoeiro, Benagil, Lagos</div>
@@ -803,6 +893,57 @@ function renderHome(){
     </div>
     <div class="section-note">💡 ניתן לגרור ימים כדי לשנות סדר, ללחוץ על כל טקסט כדי לערוך אותו, ולהוסיף הערות אישיות בכל כרטיסייה. כל שינוי נשמר אוטומטית בדפדפן הזה — מומלץ ללחוץ מדי פעם על "ייצוא גיבוי" בפינה העליונה כדי לשמור עותק.</div>
   `;
+}
+
+function getAllDaysFlat(){
+  const list=[];
+  ['algarve','madeira','lisbon'].forEach(w=>{
+    DATA.worlds[w].days.forEach((d,idx)=>{ if(d.isoDate) list.push({worldId:w, idx, day:d}); });
+  });
+  list.sort((a,b)=> a.day.isoDate.localeCompare(b.day.isoDate));
+  return list;
+}
+function findRelevantDay(){
+  const list=getAllDaysFlat();
+  if(!list.length) return null;
+  const todayStr=new Date().toISOString().slice(0,10);
+  const exact=list.find(x=>x.day.isoDate===todayStr);
+  if(exact) return {...exact, state:'today'};
+  if(todayStr<list[0].day.isoDate) return {...list[0], state:'upcoming'};
+  if(todayStr>list[list.length-1].day.isoDate) return {...list[list.length-1], state:'ended'};
+  let prev=list[0];
+  for(const item of list){ if(item.day.isoDate<=todayStr) prev=item; else break; }
+  return {...prev, state:'current'};
+}
+function renderSpotlightCard(){
+  const rel=findRelevantDay();
+  if(!rel) return '';
+  const meta=WORLD_META[rel.worldId];
+  const day=rel.day;
+  const labelMap={upcoming:'🔜 היום הקרוב בתוכנית', today:'📍 היום!', current:'📍 היום הפעיל בתוכנית', ended:'✅ הטיול הסתיים — היום האחרון'};
+  const spotActRow=a=>`<div class="spot-act"><span class="spot-time">${esc(a.time)}</span><span class="spot-act-text">${esc(a.text)}</span>${a.waze?`<a class="spot-waze" href="${wazeUrl(a.waze)}" target="_blank" rel="noopener" title="ניווט בוויז: ${esc(a.waze)}">🧭</a>`:''}</div>`;
+  let bodyHtml='';
+  if(day.tracks && day.tracks.length){
+    bodyHtml=day.tracks.map(tr=>`<div class="spot-track"><b>${esc(tr.label)}</b>${tr.activities.map(spotActRow).join('')}</div>`).join('');
+  } else if(day.activities){
+    bodyHtml=day.activities.map(spotActRow).join('');
+  }
+  return `
+  <div class="spotlight-card">
+    <div class="spotlight-head" onclick="this.parentElement.querySelector('.spotlight-body').classList.toggle('open')">
+      <div class="spotlight-badge" style="background:${meta.color}">${meta.icon}</div>
+      <div style="flex:1;min-width:0">
+        <div class="spotlight-label">${labelMap[rel.state]}</div>
+        <div class="spotlight-title">${esc(day.title)} · ${esc(day.date)}</div>
+      </div>
+      <span class="spot-chevron">▾</span>
+    </div>
+    <div class="spotlight-body">
+      ${bodyHtml}
+      ${day.tip?`<div class="spot-tip">💡 ${esc(day.tip)}</div>`:''}
+      <button class="spot-link-btn" onclick="switchTab('${rel.worldId}')">פתיחה לעריכה מלאה ב${meta.title} ←</button>
+    </div>
+  </div>`;
 }
 
 /* ===================== WORLDS ===================== */
@@ -1334,4 +1475,5 @@ function addPreTrip(){
 
 /* ===================== INIT ===================== */
 renderAll();
+setInterval(()=>{ if(activeTab==='home') renderHome(); }, 60000);
 </script>
