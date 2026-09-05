@@ -1,0 +1,1337 @@
+<meta charset="UTF-8">
+<title>הטיול שלנו לפורטוגל</title>
+<style>
+:root{
+  --blue:#1e6091; --blue-dark:#14496b; --sand:#f4ede1; --card:#ffffff;
+  --algarve:#2a9d8f; --algarve-l:#e7f5f3;
+  --madeira:#e07a5f; --madeira-l:#fbebe6;
+  --lisbon:#e9b949; --lisbon-l:#fdf5e2;
+  --logistics:#6c757d; --logistics-l:#eef0f1;
+  --text:#2b2b2b; --muted:#767676; --border:#e3dccd;
+  --red:#d64545; --orange:#e8892b; --yellow:#d9b400; --green:#3aa15c; --gray:#9099a1;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:"Segoe UI",Arial,Heebo,sans-serif;
+  background:var(--sand);
+  color:var(--text);
+  direction:rtl;
+  padding-bottom:60px;
+}
+header.topbar{
+  background:linear-gradient(90deg,var(--blue),var(--blue-dark));
+  color:#fff;
+  padding:14px 18px;
+  position:sticky;
+  top:0;
+  z-index:50;
+  box-shadow:0 2px 8px rgba(0,0,0,.15);
+}
+.topbar-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.topbar h1{margin:0;font-size:1.25rem}
+.topbar .sub{font-size:.78rem;opacity:.85;margin-top:2px}
+.topbar-actions{display:flex;gap:6px;flex-wrap:wrap}
+.topbar-actions button{
+  background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.35);color:#fff;
+  padding:6px 10px;border-radius:8px;font-size:.75rem;cursor:pointer;
+}
+.topbar-actions button:hover{background:rgba(255,255,255,.28)}
+nav.tabs{
+  display:flex;gap:4px;overflow-x:auto;margin-top:12px;padding-bottom:2px;
+}
+nav.tabs button{
+  flex:0 0 auto;
+  background:rgba(255,255,255,.1);
+  border:none;color:#fff;padding:8px 14px;border-radius:10px 10px 0 0;
+  cursor:pointer;font-size:.85rem;white-space:nowrap;opacity:.75;
+}
+nav.tabs button.active{background:var(--sand);color:var(--blue-dark);opacity:1;font-weight:700}
+main{max-width:920px;margin:0 auto;padding:16px}
+.tabpanel{display:none}
+.tabpanel.active{display:block}
+.toast{
+  position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
+  background:#2b2b2b;color:#fff;padding:8px 18px;border-radius:20px;font-size:.8rem;
+  opacity:0;pointer-events:none;transition:opacity .3s;z-index:200;
+}
+.toast.show{opacity:.92}
+
+/* ---- Home ---- */
+.hero{
+  background:var(--card);border-radius:16px;padding:20px;margin-bottom:16px;
+  box-shadow:0 1px 4px rgba(0,0,0,.06);text-align:center;
+}
+.hero .countdown{font-size:2rem;font-weight:800;color:var(--blue)}
+.hero .dates{color:var(--muted);margin-top:4px;font-size:.9rem}
+.world-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+@media(max-width:560px){.world-grid{grid-template-columns:1fr}}
+.world-card{
+  border-radius:16px;padding:18px;color:#fff;cursor:pointer;border:none;text-align:right;
+  box-shadow:0 2px 6px rgba(0,0,0,.1);transition:transform .15s;
+}
+.world-card:hover{transform:translateY(-2px)}
+.world-card .icon{font-size:1.8rem}
+.world-card h3{margin:6px 0 2px;font-size:1.05rem}
+.world-card .meta{font-size:.78rem;opacity:.9}
+.wc-algarve{background:linear-gradient(135deg,var(--algarve),#1f7a70)}
+.wc-madeira{background:linear-gradient(135deg,var(--madeira),#b85138)}
+.wc-lisbon{background:linear-gradient(135deg,var(--lisbon),#c99420)}
+.wc-logistics{background:linear-gradient(135deg,var(--logistics),#4d5358)}
+.home-alert-banner{
+  background:var(--card);border-radius:14px;padding:14px 16px;margin-bottom:16px;
+  border-inline-start:5px solid var(--red);display:flex;justify-content:space-between;align-items:center;gap:10px;
+  cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.06);
+}
+.home-alert-banner b{color:var(--red)}
+
+/* ---- Day cards ---- */
+.world-header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.world-header .badge{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;color:#fff}
+.world-header h2{margin:0;font-size:1.3rem}
+.day-card{
+  background:var(--card);border-radius:14px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.07);overflow:hidden;
+  border-inline-start:5px solid var(--accent,#999);
+}
+.day-card.dragging{opacity:.4}
+.split-badge{display:inline-block;background:#efe4fb;color:#7a49b8;border-radius:8px;padding:0 6px;font-size:.7rem;margin-inline-start:4px}
+.tracks-wrap{display:flex;flex-direction:column;gap:12px;margin-bottom:10px}
+.track-card{border:1px solid var(--border);border-radius:12px;padding:10px 12px;background:#fbfaf6}
+.track-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.track-label{font-weight:700;font-size:.92rem;outline:none;color:#5a3d85}
+.track-note{font-size:.8rem;color:var(--muted);margin:4px 0 8px;outline:none;line-height:1.5}
+.day-head{
+  display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;flex-wrap:wrap;
+}
+.day-num{
+  width:30px;height:30px;border-radius:50%;background:var(--accent,#999);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex:0 0 auto;
+}
+.day-titles{flex:1 1 auto;min-width:120px}
+.day-titles .dtitle{font-weight:700;font-size:1rem;outline:none}
+.day-titles .ddate{font-size:.78rem;color:var(--muted);outline:none}
+.day-controls{display:flex;gap:4px;align-items:center}
+.icon-btn{
+  border:none;background:#f1efe8;border-radius:8px;width:28px;height:28px;cursor:pointer;font-size:.85rem;
+  display:flex;align-items:center;justify-content:center;color:#555;
+}
+.icon-btn:hover{background:#e6e2d6}
+.icon-btn.drag-handle{cursor:grab}
+.icon-btn.waze-link{background:#dff0ff;color:#1567c4;text-decoration:none}
+.icon-btn.waze-add{opacity:.55}
+.day-body{padding:0 16px 16px 16px;display:none}
+.day-body.open{display:block}
+.activity-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;padding:6px 8px;background:#fbfaf6;border-radius:8px}
+.activity-row .time{flex:0 0 100px;font-size:.78rem;color:var(--accent,var(--blue));font-weight:700;outline:none;min-width:70px}
+.activity-row .text{flex:1;font-size:.88rem;outline:none}
+.add-row-btn{
+  background:none;border:1px dashed #c9c2ac;border-radius:8px;padding:6px 10px;font-size:.78rem;color:var(--muted);
+  cursor:pointer;width:100%;margin-top:4px;
+}
+.tip-box{
+  margin-top:10px;background:var(--tip-bg,#fff9e6);border-radius:10px;padding:10px 12px;font-size:.83rem;
+  outline:none;line-height:1.5;
+}
+.tip-box:before{content:"💡 ";}
+.notes-box{
+  margin-top:8px;width:100%;border:1px solid var(--border);border-radius:10px;padding:8px 10px;font-size:.83rem;
+  font-family:inherit;resize:vertical;min-height:44px;background:#fff;
+}
+.notes-label{font-size:.72rem;color:var(--muted);margin-top:8px;display:block}
+.links-row{margin-top:8px;font-size:.78rem}
+.links-row a{color:var(--blue);margin-inline-end:10px}
+.day-actions-bottom{display:flex;justify-content:space-between;margin-top:10px}
+.small-link-btn{background:none;border:none;color:var(--muted);font-size:.75rem;cursor:pointer;text-decoration:underline}
+.add-day-btn{
+  display:block;width:100%;padding:12px;border-radius:12px;border:2px dashed #c9c2ac;background:none;
+  color:var(--muted);cursor:pointer;font-size:.9rem;margin-top:6px;
+}
+
+/* ---- Attractions ---- */
+.attr-section{margin-top:26px}
+.attr-group-title{font-weight:700;margin:18px 0 8px;color:var(--accent,var(--blue));font-size:.95rem}
+.attr-card{
+  background:var(--card);border-radius:12px;padding:10px 12px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.05);
+  display:flex;gap:10px;align-items:flex-start;
+}
+.attr-stars{font-size:.85rem;flex:0 0 auto;padding-top:2px}
+.attr-main{flex:1;min-width:0}
+.attr-name{font-weight:700;font-size:.9rem;outline:none}
+.attr-note{font-size:.8rem;color:var(--muted);outline:none;margin-top:2px}
+.attr-book{font-size:.72rem;margin-top:4px;display:inline-block;padding:1px 8px;border-radius:8px;background:#eee}
+.attr-usernote{width:100%;margin-top:6px;border:1px solid var(--border);border-radius:8px;padding:5px 8px;font-size:.78rem;font-family:inherit;min-height:30px}
+.status-pill{
+  border:none;border-radius:14px;padding:4px 10px;font-size:.74rem;cursor:pointer;flex:0 0 auto;white-space:nowrap;color:#fff;
+}
+.status-undecided{background:var(--gray)}
+.status-planned{background:var(--green)}
+.status-maybe{background:var(--yellow);color:#4a3d00}
+.status-skip{background:#c7c7c7;color:#555}
+.attr-del{background:none;border:none;color:#c88;cursor:pointer;font-size:.9rem}
+.add-attr-btn{background:none;border:1px dashed #c9c2ac;border-radius:8px;padding:6px 10px;font-size:.78rem;color:var(--muted);cursor:pointer;width:100%;margin-top:2px}
+
+/* ---- Logistics ---- */
+.log-card{background:var(--card);border-radius:14px;padding:14px 16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.log-card h4{margin:0 0 8px;font-size:.95rem;color:var(--logistics)}
+.log-line{font-size:.87rem;padding:4px 0;outline:none;border-bottom:1px dashed #eee}
+.log-line:last-of-type{border-bottom:none}
+.privacy-note{font-size:.75rem;color:var(--red);background:#fdeeee;padding:8px 10px;border-radius:8px;margin-bottom:14px}
+.checklist-item{display:flex;align-items:flex-start;gap:8px;padding:6px 4px;font-size:.87rem}
+.checklist-item input[type=checkbox]{margin-top:3px}
+.checklist-item .txt{flex:1;outline:none}
+.checklist-item.done .txt{text-decoration:line-through;color:var(--muted)}
+
+.restau-region-title{font-weight:700;font-size:.88rem;margin:14px 0 8px}
+.restau-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:560px){.restau-grid{grid-template-columns:1fr}}
+.restau-card{border:1px solid var(--border);border-radius:12px;padding:10px 12px;background:#fbfaf6}
+.restau-head{display:flex;justify-content:space-between;align-items:flex-start;gap:6px}
+.restau-name{font-weight:700;font-size:.88rem;outline:none;flex:1}
+.restau-links{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.restau-link-chip{display:inline-flex;align-items:center;gap:4px;background:#eef3fb;color:#1567c4;border-radius:14px;padding:3px 10px;font-size:.75rem;text-decoration:none}
+.restau-link-chip .rm{color:#c88;cursor:pointer;margin-inline-start:2px}
+.add-restau-link{background:none;border:1px dashed #c9c2ac;border-radius:14px;padding:3px 10px;font-size:.75rem;color:var(--muted);cursor:pointer}
+.add-restau-btn{background:none;border:1px dashed #c9c2ac;border-radius:8px;padding:6px 10px;font-size:.78rem;color:var(--muted);cursor:pointer;width:100%;margin-top:2px}
+
+/* ---- Alerts ---- */
+.question-card{
+  background:#faf5ff;border-radius:10px;padding:10px 12px;margin-bottom:8px;border-inline-start:4px solid #9b6dd6;
+}
+.question-card.resolved{opacity:.55}
+.question-card .qtext{font-size:.86rem;font-weight:700;outline:none}
+.question-card.resolved .qtext{text-decoration:line-through}
+.question-card .qanswer{width:100%;margin-top:6px;border:1px solid var(--border);border-radius:8px;padding:6px 8px;font-size:.82rem;font-family:inherit;min-height:32px;background:#fff}
+.question-card .qrow{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.alert-group{margin-bottom:20px}
+.alert-group-title{display:flex;align-items:center;gap:8px;font-weight:700;margin-bottom:8px;font-size:.95rem}
+.alert-count{background:#eee;border-radius:10px;padding:0 8px;font-size:.75rem;color:#666}
+.alert-item{
+  display:flex;align-items:flex-start;gap:8px;background:var(--card);border-radius:10px;padding:9px 12px;margin-bottom:6px;
+  box-shadow:0 1px 3px rgba(0,0,0,.05);border-inline-start:4px solid var(--lvl,#999);
+}
+.alert-item.done{opacity:.5}
+.alert-item .txt{flex:1;font-size:.85rem;outline:none}
+.alert-item.done .txt{text-decoration:line-through}
+.alert-item .lvl-btn{border:none;background:none;font-size:1rem;cursor:pointer}
+.alert-item .del{border:none;background:none;color:#c88;cursor:pointer}
+.add-alert-row{display:flex;gap:6px;margin-top:6px}
+.add-alert-row input{flex:1;padding:7px 10px;border-radius:8px;border:1px solid var(--border);font-family:inherit;font-size:.85rem}
+.add-alert-row button{border:none;background:var(--blue);color:#fff;border-radius:8px;padding:0 14px;cursor:pointer}
+
+/* ---- Info ---- */
+.info-card{background:var(--card);border-radius:14px;padding:14px 16px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.info-card h4{margin:0 0 8px;font-size:.95rem}
+.link-line a{display:block;font-size:.85rem;color:var(--blue);padding:3px 0}
+.emergency{background:#fdeeee;border-radius:12px;padding:14px 16px;text-align:center;margin-bottom:14px}
+.emergency .num{font-size:1.8rem;font-weight:800;color:var(--red)}
+[contenteditable]:focus{background:#fffce8;outline:1px dashed #ddd0a0;border-radius:4px}
+.section-note{font-size:.78rem;color:var(--muted);margin-bottom:10px}
+</style>
+
+<header class="topbar">
+  <div class="topbar-row">
+    <div>
+      <h1>🇵🇹 הטיול שלנו לפורטוגל</h1>
+      <div class="sub">17–28 בספטמבר 2026 · אלגרבה · מדיירה · ליסבון</div>
+    </div>
+    <div class="topbar-actions">
+      <button onclick="exportData()">⬇️ ייצוא גיבוי</button>
+      <button onclick="document.getElementById('importFile').click()">⬆️ ייבוא גיבוי</button>
+      <button onclick="resetToDefault()">↺ איפוס לתוכן מקורי</button>
+      <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importData(event)">
+    </div>
+  </div>
+  <nav class="tabs" id="tabsNav"></nav>
+</header>
+
+<main id="main">
+  <section class="tabpanel" id="tab-home"></section>
+  <section class="tabpanel" id="tab-algarve"></section>
+  <section class="tabpanel" id="tab-madeira"></section>
+  <section class="tabpanel" id="tab-lisbon"></section>
+  <section class="tabpanel" id="tab-logistics"></section>
+  <section class="tabpanel" id="tab-alerts"></section>
+  <section class="tabpanel" id="tab-info"></section>
+</main>
+
+<div class="toast" id="toast">נשמר ✓</div>
+
+<script>
+/* ===================== DEFAULT DATA ===================== */
+const WORLD_META = {
+  algarve:{title:'אלגרבה', icon:'🌊', color:'var(--algarve)', light:'var(--algarve-l)'},
+  madeira:{title:'מדיירה', icon:'🏝️', color:'var(--madeira)', light:'var(--madeira-l)'},
+  lisbon:{title:'ליסבון', icon:'🏛️', color:'var(--lisbon)', light:'var(--lisbon-l)'}
+};
+
+function DEFAULT_DATA(){ return {
+  worlds:{
+    algarve:{
+      days:[
+        {id:'d1', isoDate:'2026-09-17', date:'17/9', weekday:'חמישי', dayNum:1,
+         title:'נסיעה דרומה והגעה', notes:'',
+         activities:[
+          {time:'13:30–14:00',text:'הגעה לנתב״ג'},
+          {time:'16:55–20:55',text:'טיסת EL AL LY375 ללגוטרופ (תל אביב → ליסבון)'},
+          {time:'20:55–22:00',text:'איסוף מזוודות ואוכל מהיר, ביקורת גבולות'},
+          {time:'22:00',text:'איסוף רכב Avis'},
+          {time:'22:15–00:45',text:'נסיעה ללינה ב-Carvoeiro, כ-270 ק״מ וכ-2:30–2:45 שעות'},
+          {time:'00:45',text:'צ׳ק-אין ב-Tivoli וללון'}
+         ],
+         tip:'עדיף לאכול בשדה התעופה, לקחת מים וחטיפים ולנסוע ישירות. לא לתכנן מסעדה מאוחרת בדרך. אם מחליפים נהג: הוא חייב להיות רשום בחוזה ההשכרה — בטיחות קודמת למהירות.',
+         links:[]},
+        {id:'d2', isoDate:'2026-09-18', date:'18/9', weekday:'שישי', dayNum:2,
+         title:'יום רגוע — Carvoeiro ו-Algar Seco', notes:'',
+         activities:[
+          {time:'09:30–10:30',text:'☕ ארוחת בוקר מאוחרת ב-Tivoli'},
+          {time:'10:30–15:30',text:'🏨🌊 בריכה, מלון, ים לפי החשק'},
+          {time:'15:30–17:30',text:'🏘️ Carvoeiro, קפה ושיטוט', waze:'Praia de Carvoeiro, Portugal'},
+          {time:'18:15–19:30',text:'🌅🚶 Algar Seco + Boardwalk בשעת הזהב', waze:'Estr. do Algar Sêco, 8400-531 Carvoeiro'},
+          {time:'20:00',text:'🍷 ארוחת ערב ב-Le Crô Wine & Tapas', waze:'Estr. do Farol 77 Lj 6, 8400-505 Carvoeiro'}
+         ],
+         tip:'יום גמיש ורגוע במיוחד — מצוין לספוג את הטיסה והנסיעה הלילית מאתמול לפני שני ימים אינטנסיביים יותר. ב-Algar Seco יש חניה בסביבה; משם יורדים לתצורות הסלע ו/או מתחברים ל-Carvoeiro Boardwalk (כ-570 מ׳) לכיוון הכנסייה שמעל Carvoeiro — בדיוק מתאים לגרסה הקלה בשעת הזהב, בלי צורך במסלול ארוך.',
+         links:[]},
+        {id:'d3', isoDate:'2026-09-19', date:'19/9', weekday:'שבת', dayNum:3,
+         title:'Benagil, Praia da Marinha ו-PR1 קצר', notes:'',
+         activities:[
+          {time:'08:15–09:00',text:'☕ ארוחת בוקר'},
+          {time:'09:10',text:'🚗 ארבעה יוצאים ל-Benagil, אמא נשארת במלון', waze:'Estr. de Benagil, Lagoa'},
+          {time:'09:30–11:15',text:'🚣 Benagil Kayak Tour'},
+          {time:'11:15–11:30',text:'🚗 חזרה ל-Tivoli ואיסוף אמא', waze:'Praia do Vale Covo, 8400-526 Carvoeiro'},
+          {time:'11:45–13:00',text:'🥾🌊 Praia da Marinha + PR1 קצר (טעימה של Seven Hanging Valleys לכיוון Benagil, כ-30–45 דק׳ הלוך-חזור)', waze:'Estr. da Marinha, Caramujeira, 8400-407 Lagoa'},
+          {time:'13:15–14:30',text:'🍽️ ארוחת צהריים'},
+          {time:'15:00–18:30',text:'🏨 בריכה ומנוחה ב-Tivoli'},
+          {time:'20:30',text:'🍽️ ארוחת ערב ב-Black Salt', waze:'Urbanização Monte Carvoeiro, Lote 4, Carvoeiro'}
+         ],
+         tip:'אין לבנות על נחיתה בחוף Benagil — הכניסה תלויה בתנאי הים, וחשוב להשתמש במפעיל מורשה. מי שלא משתתף בקאיקים נשאר במלון וכולם נפגשים שוב ב-11:15. יעד הניווט הנוכחי ל-Benagil (Estr. de Benagil, Lagoa) הוא זמני בלבד — ברגע שנבחר מפעיל קיאקים, יש להחליף אותו בנקודת המפגש המדויקת שהוא נותן.',
+         links:[{label:'Benagil — אתר התיירות הרשמי',url:'https://www.visitportugal.com/en/search/site/benagil'}]},
+        {id:'d4', isoDate:'2026-09-20', date:'20/9', weekday:'ראשון', dayNum:4,
+         title:'Lagos ו-Ponta da Piedade', notes:'',
+         activities:[
+          {time:'09:30',text:'🚗 יציאה ל-Lagos'},
+          {time:'10:15–11:45',text:'🌊🚶 Ponta da Piedade — טיילת ותצפיות (Passadiços/Boardwalk), בלי ירידה למטה ובלי שייט נוסף', waze:'Estr. da Ponta da Piedade, 8600-544 Lagos'},
+          {time:'12:00–13:00',text:'🏖️ Dona Ana או Camilo, אופציונלי — Dona Ana נוח יותר לגישה (ב-Camilo כ-200 מדרגות)', waze:'Praia Dona Ana, Lagos'},
+          {time:'13:15–14:45',text:'🍽️ ארוחת צהריים ב-Lagos'},
+          {time:'14:45–17:00',text:'🏘️ העיר העתיקה, חנויות, קרמיקה — מחנים פעם אחת ומשוטטים ברגל', waze:'Av. dos Descobrimentos, 8600-688 Lagos'},
+          {time:'17:00–18:00',text:'🚗 חזרה ל-Carvoeiro', waze:'Praia do Vale Covo, 8400-526 Carvoeiro'},
+          {time:'20:00',text:'🍷 ארוחת ערב אחרונה באזור — טרם נבחרה מסעדה'}
+         ],
+         tip:'יש לציית לדגלים ולהנחיות המצילים — הים האטלנטי יכול להיות חזק גם כשהחוף נראה רגוע. לא כדאי להיכנס עם הרכב לעיר העתיקה של Lagos — עדיף להחנות ב-Avenida dos Descobrimentos ולהמשיך ברגל.',
+         links:[]},
+        {id:'d5', isoDate:'2026-09-21', date:'21/9', weekday:'שני', dayNum:5,
+         title:'אלגרבה → מדיירה', notes:'',
+         activities:[
+          {time:'06:45',text:'השכמה ובדיקה אחרונה'},
+          {time:'07:00',text:'ארוחת בוקר'},
+          {time:'07:45–08:45',text:'נסיעה לשדה התעופה Faro'},
+          {time:'08:45–09:15',text:'החזרת רכב Avis'},
+          {time:'11:15–13:05',text:'טיסת TAP TP1717: Faro → Funchal'},
+          {time:'13:05',text:'✈️ נחיתה ב-Funchal'},
+          {time:'13:05–13:50',text:'🚗 מזוודות + איסוף רכב RentX', waze:'Aeroporto da Madeira'},
+          {time:'14:15–14:45',text:'🚗 נסיעה ל-Porto Mare', waze:'Hotel Porto Mare, Funchal'},
+          {time:'15:00–17:30',text:'🏨🟢 צ׳ק-אין, מנוחה, בריכה'},
+          {time:'18:00–19:30',text:'🏘️🟢 סיבוב היכרות קצר ב-Funchal', waze:'Funchal, Madeira'},
+          {time:'20:00',text:'🍽️ ארוחת ערב ב-Casal da Penha', waze:'Casal da Penha, Funchal'}
+         ],
+         tip:'נקודת תשומת לב חשובה: לתאם מראש עם RentX ולבקש אישור בכתב על שעת האיסוף המתוקנת (הרשומה 12:30 לא מתאימה לנחיתה ב-13:05, סביר סביב 13:40–13:50).',
+         links:[]}
+       ],
+       attractions:[
+        {group:'Carvoeiro / Lagoa', items:[
+          {stars:'⭐⭐⭐', name:'Praia do Carvoeiro', note:'חוף כפרי, טיילת ואווירה בערב', book:'הזמנה: לא', status:'undecided', userNote:''},
+          {stars:'⭐⭐⭐', name:'Algar Seco', note:'תצפיות ושבילי מצוק, תצורות סלע', book:'הזמנה: לא', status:'planned', userNote:''},
+          {stars:'⭐⭐⭐', name:'Benagil Cave / Praia de Benagil', note:'חוף ומערה מפורסמים בים — הגישה תלויה בתנאי הים', book:'מומלץ להזמין: סירה/קאיק', status:'planned', userNote:''},
+          {stars:'⭐⭐⭐', name:'Praia da Marinha', note:'חוף ותצפיות', book:'הזמנה: לא', status:'planned', userNote:''},
+          {stars:'⭐⭐', name:'Seven Hanging Valleys', note:'שביל מצוקים בין Vale de Centeanes ל-Marinha, כ-10 ק״מ הלוך-חזור', book:'לבדוק תנאי שביל', status:'undecided', userNote:''},
+          {stars:'⭐', name:'Vale de Centeanes', note:'נקודת גישה לשביל וחוף', book:'הזמנה: לא', status:'undecided', userNote:''}
+        ]},
+        {group:'Lagos', items:[
+          {stars:'⭐⭐⭐', name:'Ponta da Piedade', note:'מצוקים, תשתאות ומערות — שייט הוא אופציה בלבד', book:'הזמנה רק אם בוחרים שייט', status:'planned', userNote:''},
+          {stars:'⭐⭐⭐', name:'Praia do Camilo', note:'חוף מרשים עם כ-200 מדרגות', book:'הזמנה: לא', status:'planned', userNote:''},
+          {stars:'⭐⭐', name:'Praia Dona Ana', note:'חלופה נוחה יותר לקמילו', book:'הזמנה: לא', status:'undecided', userNote:''},
+          {stars:'⭐', name:'Meia Praia', note:'חוף ארוך ורחב', book:'הזמנה: לא', status:'undecided', userNote:''},
+          {stars:'⭐', name:'Praia dos Pinheiros', note:'מפרצון קטן ושקט יותר, גישה קשה', book:'הזמנה: לא', status:'undecided', userNote:''},
+          {stars:'⭐', name:'Porto de Mós / Praia da Luz', note:'חופים חלופיים', book:'הזמנה: לא', status:'undecided', userNote:''}
+        ]},
+        {group:'Sagres והחוף המערבי', items:[
+          {stars:'⭐⭐', name:'Fortaleza de Sagres', note:'אתר היסטורי ותצפיות', book:'מומלץ לבדוק שעות וכרטיסים', status:'skip', userNote:'ירד מהתוכנית בעדכון הלוז מ-18–20/9 (הוחלף ביום רגוע + Lagos)'},
+          {stars:'⭐⭐⭐', name:'Cabo de São Vicente', note:'מצוקים ומגדלור', book:'הזמנה: לא', status:'skip', userNote:''},
+          {stars:'⭐⭐', name:'Praia do Beliche', note:'חוף דרמטי', book:'הזמנה: לא', status:'skip', userNote:''},
+          {stars:'⭐⭐', name:'Praia do Martinhal', note:'אזור מוגן יחסית — חלופה טובה כשרוצים רגוע', book:'הזמנה: לא', status:'skip', userNote:''},
+          {stars:'⭐', name:'Vila do Bispo / Costa Vicentina', note:'אפשרות להרחבת היום', book:'הזמנה: לא', status:'skip', userNote:''}
+        ]}
+       ]
+    },
+    madeira:{
+      days:[
+        {id:'d6', isoDate:'2026-09-22', date:'22/9', weekday:'שלישי', dayNum:6,
+         title:'מערב מדיירה — Fanal, Porto Moniz ו-Seixal', notes:'',
+         activities:[
+          {time:'08:00–09:00',text:'☕ ארוחת בוקר 🟢'},
+          {time:'09:00',text:'🚗 יציאה מהמלון'},
+          {time:'10:00–11:15',text:'🌳🚶 Fanal Forest — יער עתיק, הליכה קלה 🟡🟢', waze:'Fanal, Madeira'},
+          {time:'11:15–12:00',text:'🚗 נסיעה ל-Porto Moniz'},
+          {time:'12:00–14:30',text:'🏊🌊 Porto Moniz — בריכות טבעיות + ארוחת צהריים 🟢', waze:'Piscinas Naturais do Porto Moniz'},
+          {time:'14:30–15:00',text:'🚗 נסיעה לכיוון Seixal'},
+          {time:'15:00–16:15',text:'🏖️ Seixal — החוף השחור / תצפיות 🟢', waze:'Praia do Seixal, Madeira'},
+          {time:'16:15–17:45',text:'🚗 חזרה לכיוון Funchal, עצירה נופית אם מתחשק', waze:'Hotel Porto Mare, Funchal'},
+          {time:'18:00–20:00',text:'🏨 מלון, מקלחת, בריכה, מנוחה 🟢'},
+          {time:'20:30',text:'🍽️ ארוחת ערב'}
+         ],
+         tip:'עדכון: ויתרנו לגמרי על PR6 (25 Fontes) כדי לא ליצור יום עמוס של טרק + Porto Moniz + Seixal. זה יום קליל בכוונה — יער → בריכות טבעיות → חוף שחור → נסיעה נופית. לבדוק פתיחה ותנאי ים ב-Porto Moniz לפני היציאה.',
+         links:[{label:'Visit Madeira — שבילי הליכה רשמיים',url:'https://visitmadeira.com/en/what-to-do/nature-seekers/activities/hiking/'}]},
+        {id:'d7', isoDate:'2026-09-23', date:'23/9', weekday:'רביעי', dayNum:7,
+         title:'Pico do Areeiro — יום עם שתי חלופות', notes:'',
+         activities:[],
+         tracks:[
+          {label:'חלופה 1 — כולם ביחד, PR1 מקוצר', note:'המטרה היא לקבל את ה-WOW של Pico do Areeiro והליכה אמיתית בהרים, בלי להפוך את היום לטרק של חמש שעות. יתרון: כולכם יחד, וההצי השני של היום חופשי לחלוטין.', activities:[
+            {time:'06:15',text:'⏰ השכמה'},
+            {time:'06:30',text:'☕ קפה / משהו קטן'},
+            {time:'06:45–07:30',text:'🚗 נסיעה ל-Pico do Areeiro', waze:'Pico do Areeiro, Madeira'},
+            {time:'07:30–09:30',text:'🥾🏔️ Pico do Areeiro → חזרה → Pedra Rija — הרים + הליכה + תצפיות', waze:'Pedra Rija, Madeira'},
+            {time:'09:30–10:00',text:'🌅☕ קפה / תצפיות'},
+            {time:'10:00–11:00',text:'🚗 חזרה למלון', waze:'Hotel Porto Mare, Funchal'},
+            {time:'11:00–12:00',text:'🍽️ ארוחת בוקר/ברנץ׳'},
+            {time:'12:00–18:30',text:'🏨 בריכה, מלון, ספא, מנוחה'},
+            {time:'18:30–19:30',text:'🍸 התארגנות / דרינק'},
+            {time:'20:00',text:'🍽️ ארוחת ערב מיוחדת — Avista', waze:'Avista Restaurant, Funchal'}
+          ]},
+          {label:'חלופה 2 — מתפצלים: קבוצת הטרק (PR1 מלא)', note:'בחלופה זו לא משתמשים ברכב השכור אלא בהסעת transfer, כדי שלא תהיה בעיה שהטרק מסתיים במקום אחר. זה יהיה הטרק הרציני היחיד בחופשה.', activities:[
+            {time:'05:45',text:'⏰ השכמה'},
+            {time:'06:00',text:'☕ ארוחת בוקר קלה / takeaway'},
+            {time:'06:20~',text:'🚐 איסוף מהמלון בהסעה'},
+            {time:'07:15~',text:'🏔️ הגעה ל-Pico do Areeiro', waze:'Pico do Areeiro, Madeira'},
+            {time:'07:30–12:30',text:'🥾 PR1: Pico do Areeiro → Pico Ruivo → Achada do Teixeira — טרק הררי משמעותי', waze:'Achada do Teixeira, Madeira'},
+            {time:'12:30–13:15',text:'🚐 איסוף מהסיום'},
+            {time:'14:30~–15:00',text:'🏨 חזרה ל-Porto Mare', waze:'Hotel Porto Mare, Funchal'},
+            {time:'15:00–19:00',text:'🏨 בריכה, מקלחת ומנוחה'},
+            {time:'20:00',text:'🍽️ Avista — עם כולם', waze:'Avista Restaurant, Funchal'}
+          ]},
+          {label:'חלופה 2 — מתפצלים: אמא + מי שלא עושה את הטרק', note:'אין צורך ברכב בכלל. כלומר אף אחד לא "תקוע" בחדר ומחכה לאחרים.', activities:[
+            {time:'08:30–09:30',text:'☕ ארוחת בוקר ארוכה'},
+            {time:'09:30–11:30',text:'🏨 בריכה / גנים / ספא ב-Porto Mare'},
+            {time:'11:30–12:30',text:'🚶🌊 טיילת ה-Lido — הליכה קלה', waze:'Lido, Funchal'},
+            {time:'12:30–14:00',text:'🍽️ ארוחת צהריים באזור'},
+            {time:'14:00–16:00',text:'🏨🛍️ אופציונלי: בריכה / קפה / Forum Madeira', waze:'Forum Madeira'},
+            {time:'16:00–19:00',text:'🏨 מנוחה והתארגנות'},
+            {time:'20:00',text:'🍽️ Avista — מפגש של כולם', waze:'Avista Restaurant, Funchal'}
+          ]}
+         ],
+         tip:'⚠️ זה היום היחיד שבו משאירים שתי תוכניות אפשריות ומחליטים קרוב למועד לפי מצב הרוח, הכושר ומזג האוויר. אם בוחרים בחלופה 2 — קבוצת הטרק נוסעת בהסעת transfer נפרדת (לא ברכב השכור) כי הטרק מסתיים במקום אחר, וכולם נפגשים שוב יחד בערב ב-Avista. יש לבדוק 24–48 שעות מראש את מצב השביל, מזג האוויר והוראות הכניסה.',
+         links:[{label:'PR1 — מצב שבילים, Visit Madeira',url:'https://visitmadeira.com/en/what-to-do/nature-seekers/activities/hiking/'}]},
+        {id:'d8', isoDate:'2026-09-24', date:'24/9', weekday:'חמישי', dayNum:8,
+         title:'לווייתנים ודולפינים ו-Funchal', notes:'',
+         activities:[
+          {time:'08:30–09:30',text:'☕ ארוחת בוקר מאוחרת 🟢'},
+          {time:'09:30',text:'🚶🚗 יציאה למרינה', waze:'Marina do Funchal'},
+          {time:'10:30–13:30',text:'🐬🏊 שיט לווייתנים ודולפינים 🟢'},
+          {time:'13:45–15:00',text:'🍽️ ארוחת צהריים 🟢'},
+          {time:'15:00–18:00',text:'🏙️🛍️ Funchal — Avenida Arriaga, Mercado dos Lavradores, Fernão de Ornelas והעיר העתיקה 🟢', waze:'Mercado dos Lavradores, Funchal'},
+          {time:'18:00–20:00',text:'🏨 חזרה למלון ומנוחה 🟢', waze:'Hotel Porto Mare, Funchal'},
+          {time:'20:30',text:'🍽️ ארוחת ערב ב-Dona Nina', waze:'Dona Nina Restaurant, Funchal'},
+          {time:'22:30',text:'🍸 Velvet Lounge Bar — חיי לילה, אופציונלי', waze:'Velvet Lounge Bar, Funchal'}
+         ],
+         tip:'יום שאני משאירה כמעט כמו שניר תכנן — הוא נותן שינוי קצב מצוין אחרי יום ההרים, וללא פעילות ספורטיבית בכלל. בחרו מפעיל מורשה לשיט שמכבד כללי צפייה בבעלי חיים ומציע מדיניות ביטול ברורה — תצפית אינה מובטחת. לא לנהוג אחרי שתייה; מונית למלון בשעה מאוחרת.',
+         links:[]},
+        {id:'d9', isoDate:'2026-09-25', date:'25/9', weekday:'שישי', dayNum:9,
+         title:'מדיירה מזרח — Balcões, Santana ו-São Lourenço', notes:'',
+         activities:[
+          {time:'08:00–09:00',text:'☕ ארוחת בוקר 🟢'},
+          {time:'09:00–09:45',text:'🚗 נסיעה ל-Ribeiro Frio', waze:'Ribeiro Frio, Madeira'},
+          {time:'09:45–11:00',text:'🚶🌳 Balcões viewpoint walk — הליכה קלה + Levada + תצפית 🟡🟢', waze:'Miradouro dos Balcões'},
+          {time:'11:00–11:30',text:'🚗 נסיעה ל-Santana'},
+          {time:'11:30–12:30',text:'🏘️ Santana והבתים המסורתיים — תרבות/שיטוט 🟢', waze:'Santana, Madeira'},
+          {time:'12:30–13:45',text:'🍽️ ארוחת צהריים 🟢'},
+          {time:'13:45–14:30',text:'🚗 נסיעה ל-Ponta de São Lourenço'},
+          {time:'14:30–16:00',text:'🥾🌊 קטע קצר של PR8 – São Lourenço — הליכה + מצוקים 🟡', waze:'Ponta de São Lourenço, Madeira'},
+          {time:'16:00–16:30',text:'🚗 נסיעה ל-Machico'},
+          {time:'16:30–17:30',text:'🏖️ Machico — טיילת, חוף וקפה 🟢', waze:'Machico, Madeira'},
+          {time:'17:30–18:15',text:'🚗 חזרה ל-Porto Mare', waze:'Hotel Porto Mare, Funchal'},
+          {time:'18:15–20:00',text:'🏨 מנוחה והתארגנות 🟢'},
+          {time:'20:30',text:'🍷 ארוחת ערב אחרונה במדיירה (מסעדה טרם נבחרה)'}
+         ],
+         tip:'עדכון: נשארים עם המקומות החשובים מהתוכנית המקורית, אבל PR8 הופך לקטע קצר וטעימה בלבד — לא טרק מלא. האזור חשוף לרוח ולשמש; אין צורך להשלים יותר מזה כדי ליהנות מהנוף.',
+         links:[]}
+       ],
+       attractions:[
+        {group:'שבילי טבע ונוף', items:[
+          {stars:'⭐⭐⭐', name:'PR1 Pico do Areeiro → Pico Ruivo', note:'השביל הקשה והמדגל ביותר — לבדוק סטטוס 24–48 שעות מראש. יש שתי חלופות ליום 23/9 (ראו כרטיסיית היום)', book:'חובה: הזמנה — לפי החלופה שתיבחר', status:'undecided', userNote:''},
+          {stars:'⭐⭐⭐', name:'PR6 Levada das 25 Fontes', note:'שביל מפלים ולבדה', book:'חובה: הזמנה', status:'skip', userNote:'ויתרנו לגמרי — כדי לא ליצור יום עמוס מדי עם Porto Moniz ו-Seixal (עדכון 22/9)'},
+          {stars:'⭐⭐', name:'PR6.1 Levada do Risco', note:'חלופה קצרה באזור Rabaçal', book:'חובה: הזמנה', status:'skip', userNote:''},
+          {stars:'⭐⭐⭐', name:'PR8 Ponta de São Lourenço', note:'חצי אי וולקני — הופך לקטע קצר וטעימה בלבד, לא טרק מלא (עדכון 25/9)', book:'חובה: הזמנה', status:'planned', userNote:''},
+          {stars:'⭐⭐', name:'Balcões', note:'תצפית קלה יחסית באזור Ribeiro Frio', book:'חובת הזמנה אם מוגדר כ-PR', status:'planned', userNote:''},
+          {stars:'⭐⭐⭐', name:'Fanal Forest', note:'יער Laurissilva עתיק ומיסטי', book:'הזמנה: לא', status:'planned', userNote:''},
+          {stars:'⭐', name:'Levada do Rei / dos Cedros / Lagoa do Vento', note:'חלופות מצוינות אם רוצים להחליף שביל PR', book:'נדרשת הזמנה', status:'undecided', userNote:''}
+        ]},
+        {group:'צפון ומערב', items:[
+          {stars:'⭐⭐⭐', name:'Porto Moniz Natural Pools', note:'בריכות טבעיות געשיות — לבדוק פתיחה ותנאי ים', book:'הזמנה: לא', status:'planned', userNote:''},
+          {stars:'⭐⭐⭐', name:'Seixal Beach', note:'חוף חול שחור ונוף הררי', book:'הזמנה: לא', status:'planned', userNote:''},
+          {stars:'⭐⭐', name:'Poças das Lesmas', note:'בריכות געשיות באזור Seixal', book:'הזמנה: לא', status:'undecided', userNote:''},
+          {stars:'⭐', name:'Ribeira da Janela', note:'תצפיות ונוף לצפון', book:'הזמנה: לא', status:'undecided', userNote:''},
+          {stars:'⭐⭐', name:'Achadas da Cruz Cable Car', note:'נוף דרמטי לחוף — לבדוק שעות וזמינות', book:'לבדוק תורים', status:'undecided', userNote:''},
+          {stars:'⭐', name:'Madeira Aquarium', note:'אפשרות טובה ליום גשם', book:'הזמנה: לא', status:'undecided', userNote:''}
+        ]},
+        {group:'Funchal והים', items:[
+          {stars:'⭐⭐⭐', name:'Whale & Dolphin Watching', note:'מומלץ מאוד — לבחור מפעיל מורשה ומדיניות ביטול ברורה', book:'הזמנה: כן', status:'planned', userNote:''},
+          {stars:'⭐⭐⭐', name:'Funchal Old Town', note:'דלתות מצוירות, סמטאות, חיי ערב ומסעדות', book:'הזמנה: לא', status:'planned', userNote:''},
+          {stars:'⭐', name:'Mercado dos Lavradores', note:'שוק מקומי', book:'הזמנה: לא', status:'undecided', userNote:''},
+          {stars:'⭐', name:'Sé Cathedral', note:'הקתדרלה המרכזית', book:'הזמנה: לא', status:'undecided', userNote:''},
+          {stars:'⭐', name:'Marina / Avenida Arriaga', note:'טיילת, חנויות ומסעדות', book:'הזמנה: לא', status:'undecided', userNote:''},
+          {stars:'⭐⭐', name:'Cabo Girão', note:'תצפית ומצוק — אפשר לשלב אם נשאר זמן', book:'הזמנה: לא', status:'maybe', userNote:''},
+          {stars:'⭐', name:'טעימות יין מדיירה', note:'מומלץ לחובבי יין', book:'עדיף להזמין סיור/טעימה', status:'undecided', userNote:''}
+        ]}
+       ]
+    },
+    lisbon:{
+      days:[
+        {id:'d10', isoDate:'2026-09-26', date:'26/9', weekday:'שבת', dayNum:10,
+         title:'מדיירה → ליסבון', notes:'',
+         activities:[
+          {time:'08:00',text:'ארוחת בוקר'},
+          {time:'09:00–10:30',text:'קפה/טיילת/בריכה'},
+          {time:'10:30',text:'אריזה וצ׳ק-אאוט'},
+          {time:'11:15–12:00',text:'נסיעה לשדה FNC'},
+          {time:'12:00–12:30',text:'החזרת רכב RentX'},
+          {time:'13:10',text:'פתיחת Bag Drop של easyJet'},
+          {time:'15:10–16:55',text:'טיסת easyJet EJU7624: Funchal → Lisbon'},
+          {time:'17:30–18:00',text:'צ׳ק-אין ב-Look Living'},
+          {time:'18:30–20:00',text:'Cais do Sodré → Bica → Camões → Chiado'},
+          {time:'20:30',text:'ארוחת ערב במרכז'},
+          {time:'22:30–00:00',text:'Bairro Alto / Príncipe Real'}
+         ],
+         tip:'חשוב: חלון הצ׳ק-אין בדירה מסתיים ב-18:00 — יש ליצור קשר עם Look Living מראש לגבי הגעה מתוזמנת.',
+         links:[]},
+        {id:'d11', isoDate:'2026-09-27', date:'27/9', weekday:'ראשון', dayNum:11,
+         title:'Belém, ליסבון הקלאסית ופאדו', notes:'',
+         activities:[
+          {time:'08:00',text:'ארוחת בוקר'},
+          {time:'08:45–09:15',text:'נסיעה ל-Belém; מונית נוחה לחמישה'},
+          {time:'09:15–10:00',text:'טיילת הנהר, Monument to the Discoveries ו-Belém Tower מבחוץ'},
+          {time:'10:00–11:30',text:'Jerónimos Monastery, כרטיסים לשעה מוגדרת'},
+          {time:'11:30–12:00',text:'Pastéis de Belém'},
+          {time:'12:15–13:00',text:'MAAT או LX Factory (טרם הוחלט)'},
+          {time:'13:15–14:30',text:'ארוחת צהריים'},
+          {time:'15:00–17:30',text:'Baixa, Rossio, Rua Augusta, Praça do Comércio ו-Chiado'},
+          {time:'17:30–18:30',text:'Avenida da Liberdade וקניות'},
+          {time:'20:00–22:15',text:'ארוחת פאדו — מוזמנת מראש (מקום ספציפי טרם נבחר)'}
+         ],
+         tip:'יש לבצע בדיקה נוספת סמוך למועד לגבי שעות בוקר ראשון והמוזיאונים. יש לשמור את Jerónimos כעוגן של הבוקר.',
+         links:[{label:'Visit Lisboa — אתר רשמי',url:'https://www.visitlisboa.com/en'}]},
+        {id:'d12', isoDate:'2026-09-28', date:'28/9', weekday:'שני', dayNum:12,
+         title:'Alfama, הריטה, קניות וטיסה הביתה', notes:'',
+         activities:[
+          {time:'08:00',text:'ארוחת בוקר ואריזה'},
+          {time:'08:45',text:'צ׳ק-אאוט ואחסון מזוודות'},
+          {time:'09:00–10:30',text:'Alfama: Sé, Santa Luzia, Portas do Sol והסמטאות'},
+          {time:'10:30–12:00',text:'Castelo de São Jorge'},
+          {time:'12:00–12:45',text:'ירידה רגלית'},
+          {time:'13:00–14:30',text:'ארוחת צהריים ב-Taberna Sal Grosso'},
+          {time:'14:45–17:15',text:'קניות ב-Chiado וב-Avenida da Liberdade; Colombo כחלופה'},
+          {time:'17:30',text:'איסוף מזוודות'},
+          {time:'18:00',text:'נשנוש/ארוחה משמעותית'},
+          {time:'18:45–19:00',text:'מונית לשדה התעופה'},
+          {time:'22:15–05:25 (+1)',text:'טיסת EL AL LY376 חזרה לתל אביב'}
+         ],
+         tip:'המטרה היא להגיע לשדה סביב 19:30 ולהשאיר זמן מספיק לבידוק EL AL.',
+         links:[]}
+       ],
+       attractions:[
+        {group:'Belém', items:[
+          {stars:'⭐⭐⭐', name:'Jerónimos Monastery', note:'אייקון של ליסבון — במיוחד ל-27/9', book:'חובה: הזמנה, כרטיסים לשעה מוגדרת', status:'planned', userNote:''},
+          {stars:'⭐⭐⭐', name:'Belém Tower', note:'אם נכנסים פנימה', book:'הזמנה: כן אם נכנסים', status:'maybe', userNote:''},
+          {stars:'⭐⭐', name:'Monument to the Discoveries', note:'אזור נהר ותצפית', book:'כרטיס רק אם עולים', status:'maybe', userNote:''},
+          {stars:'⭐⭐', name:'Pastéis de Belém', note:'עצירה קולינרית — ייתכן תור', book:'הזמנה: לא', status:'planned', userNote:''},
+          {stars:'⭐', name:'MAAT', note:'מוזיאון אמנות/ארכיטקטורה', book:'הזמנה: לא בדרך כלל', status:'maybe', userNote:''},
+          {stars:'⭐', name:'LX Factory', note:'חנויות, אוכל ואווירה', book:'הזמנה: לא', status:'maybe', userNote:''}
+        ]},
+        {group:'מרכז העיר', items:[
+          {stars:'⭐⭐⭐', name:'Baixa / Rua Augusta / Praça do Comércio', note:'חובה לטיול ראשון', book:'הזמנה: לא', status:'planned', userNote:''},
+          {stars:'⭐⭐', name:'Rossio', note:'כיכר מרכזית', book:'הזמנה: לא', status:'undecided', userNote:''},
+          {stars:'⭐⭐', name:'Chiado', note:'בתי קפה וקניות', book:'הזמנה: לא', status:'planned', userNote:''},
+          {stars:'⭐', name:'Santa Justa', note:'אם התור ארוך אפשר להסתפק במבט מבחוץ', book:'הזמנה: לא', status:'undecided', userNote:''},
+          {stars:'⭐⭐', name:'Avenida da Liberdade', note:'קניות ומותגים', book:'הזמנה: לא', status:'planned', userNote:''},
+          {stars:'⭐⭐', name:'Príncipe Real', note:'ברים, מסעדות ואווירה', book:'הזמנה: לא', status:'undecided', userNote:''}
+        ]},
+        {group:'Alfama והריטה', items:[
+          {stars:'⭐⭐⭐', name:'Alfama', note:'Sé, Santa Luzia, Portas do Sol והסמטאות', book:'הזמנה: לא', status:'planned', userNote:''},
+          {stars:'⭐⭐⭐', name:'Castelo de São Jorge', note:'מומלץ מאוד', book:'מומלץ בעומס: הזמנה', status:'planned', userNote:''},
+          {stars:'⭐⭐', name:'Miradouro das Portas do Sol', note:'תצפית', book:'הזמנה: לא', status:'undecided', userNote:''},
+          {stars:'⭐⭐', name:'Miradouro de Santa Luzia', note:'תצפית', book:'הזמנה: לא', status:'undecided', userNote:''},
+          {stars:'⭐⭐⭐', name:'Fado dinner', note:'מומלץ מאוד ל-27/9', book:'כמעט חובה מבחינת זמינות: הזמנה', status:'planned', userNote:''}
+        ]}
+       ]
+    }
+  },
+  logistics:{
+    flights:[
+      {label:'17/9 — הלוך', text:'EL AL LY375: תל אביב 16:55 → ליסבון 20:55 · קוד הזמנה: ZC3EOS'},
+      {label:'21/9 — אלגרבה→מדיירה', text:'TAP TP1717: Faro 11:15 → Funchal 13:05'},
+      {label:'26/9 — מדיירה→ליסבון', text:'easyJet EJU7624: Funchal 15:10 → Lisbon 16:55 · קוד הזמנה: KBSHRL3'},
+      {label:'28/9 — חזור', text:'EL AL LY376: Lisbon 22:15 → תל אביב 05:25 (+1)'}
+    ],
+    hotels:[
+      {label:'17–21/9 — אלגרבה', text:'Tivoli Carvoeiro Algarve Resort, 2 חדרים Deluxe Ocean View & Terrace, 4 לילות · כתובת: Praia do Vale Covo, 8400-526 Carvoeiro, Portugal'},
+      {label:'21–26/9 — מדיירה', text:'Hotel Porto Mare, Funchal, 2 חדרים עם נוף לים, 5 לילות'},
+      {label:'26–28/9 — ליסבון', text:'Look Living Lisbon Design Apartments, דירת 2 חדרי שינה, 5 לילות'}
+    ],
+    cars:[
+      {label:'17–21/9 — אלגרבה', text:'Avis, Peugeot 5008 או דומה — איסוף והחזרה ב-Faro'},
+      {label:'21–26/9 — מדיירה', text:'RentX, Citroën C3 Aircross או דומה — איסוף והחזרה ב-Funchal. פעולה חשובה: לעדכן את שעת האיסוף (הרשומה 12:30 אינה מתאימה לנחיתה 13:05) ולבקש אישור בכתב, סביב 13:40–13:50.'}
+    ],
+    tasklist:[
+      {text:'RentX — תיקון שעת האיסוף ב-21/9', done:false},
+      {text:'שבילי מדיירה PR1 ו-PR8 — הזמנה מראש דרך SIMplifica (PR6 ירד מהתוכנית)', done:false},
+      {text:'PR1 — לשקול הזמנת העסה מתואמת מנקודת ההתחלה ואיסוף בסיום', done:false},
+      {text:'Benagil — סיור קאיקים מודרך עם מפעיל מורשה', done:false},
+      {text:'24/9 — צפייה בלווייתנים ודולפינים, עדיף עם אפשרות ביטול גמישה', done:false},
+      {text:'Jerónimos Monastery — כרטיסים לשעה מוגדרת', done:false},
+      {text:'27/9 — להזמין מראש ארוחת פאדו', done:false},
+      {text:'מסעדות מיוחדות — Le Crô, Avista, Taberna Sal Grosso — לבדוק פתיחה ולשמור מקום', done:false}
+    ],
+    restaurantIdeas:{
+      algarve:[],
+      madeira:[],
+      lisbon:[
+        {name:'Koppu Ramen Izakaya (Chiado)', links:[{label:'Google Maps',url:'https://maps.app.goo.gl/6jchb32WrVBb72vz9'}]},
+        {name:'Ola Nepal House', links:[{label:'Google Maps',url:'https://maps.app.goo.gl/zZh6wAm7bc2obip77'},{label:'Tripadvisor',url:'https://www.tripadvisor.com/Restaurant_Review-g189158-d28394700-Reviews-Ola_Nepal_House-Lisbon_Lisbon_District_Central_Portugal.html'}]}
+      ]
+    }
+  },
+  openQuestions:[
+    {text:'23/9 — חלופה 1 (כולם ביחד, PR1 מקוצר) או חלופה 2 (מתפצלים, PR1 מלא + הסעת transfer)?', answer:'', resolved:false},
+    {text:'RentX — האם שעת האיסוף ל-21/9 כבר תוקנה מול החברה, והתקבל אישור בכתב?', answer:'', resolved:false},
+    {text:'Benagil — האם כבר נבחר/הוזמן מפעיל קאיקים מורשה?', answer:'', resolved:false},
+    {text:'שבילי מדיירה PR1 / PR8 — האם ההזמנה מראש דרך SIMplifica כבר בוצעה?', answer:'', resolved:false},
+    {text:'צפייה בלווייתנים ודולפינים (24/9) — איזה מפעיל נבחר, ומה מדיניות הביטול שלו?', answer:'', resolved:false},
+    {text:'Jerónimos Monastery — האם כרטיסים לשעה מוגדרת כבר הוזמנו?', answer:'', resolved:false},
+    {text:'ארוחת פאדו (27/9) — לאיזו מסעדה/אולם פאדו סופית מזמינים?', answer:'', resolved:false},
+    {text:'יום 11 (27/9) — MAAT או LX Factory?', answer:'', resolved:false},
+    {text:'ימים 4 ו-9 בערב — איזו מסעדה לארוחת הערב האחרונה בכל אזור?', answer:'', resolved:false},
+    {text:'Avis — איך מטופלים כבישי אגרה אלקטרוניים באלגרבה?', answer:'', resolved:false},
+    {text:'האם יש נהג שני שיצטרך להירשם בחוזה השכרת הרכב?', answer:'', resolved:false},
+    {text:'Look Living — האם כבר תואם מראש מול בעל הדירה לגבי שעת ההגעה ב-26/9?', answer:'', resolved:false}
+  ],
+  alerts:[
+    {level:'red', text:'PR1, PR8 במדיירה — חובת הזמנה מראש (מ-1.1.2026, חלון הזמנה של 30 דקות, מחיר כללי €4.50 לרוקח)', done:false},
+    {level:'red', text:'Benagil — סיור קאיקים/סירה מודרך מומלץ מאוד', done:false},
+    {level:'red', text:'צפייה בלווייתנים ודולפינים — מומלץ מאוד, לבחור מפעיל עם מדיניות ביטול ברורה', done:false},
+    {level:'red', text:'Jerónimos Monastery — כרטיסים לפי סוג הכרטיס, נדרש/מומלץ', done:false},
+    {level:'red', text:'Belém Tower — אם נכנסים פנימה, יש להזמין תאריך ושעה', done:false},
+    {level:'red', text:'ארוחת פאדו — כמעט חובה מבחינת זמינות, כדאי להזמין כבר עכשיו', done:false},
+    {level:'red', text:'RentX — לתאם שעת איסוף מתוקנת ל-21/9 ולבקש אישור בכתב', done:false},
+    {level:'orange', text:'Castelo de São Jorge — מומלץ להזמין מראש בעומס', done:false},
+    {level:'orange', text:'Avista (23/9) — להזמין 1–3 שבועות מראש, מסעדה שף/נוף', done:false},
+    {level:'orange', text:'Avis — לברר איך מטופלים כבישי אגרה אלקטרוניים', done:false},
+    {level:'yellow', text:'Casal da Penha (21/9) — להזמין כשבוע מראש', done:false},
+    {level:'yellow', text:'Dona Nina (24/9) — להזמין 3–7 ימים מראש', done:false},
+    {level:'yellow', text:'Le Crô Wine & Tapas (18/9) — להזמין 3–7 ימים מראש', done:false},
+    {level:'yellow', text:'Black Salt (19/9) — להזמין 2–5 ימים מראש', done:false},
+    {level:'yellow', text:'Taberna Sal Grosso (28/9) — להזמין 3–7 ימים מראש', done:false},
+    {level:'green', text:'Look Living — לתאם מראש הגעה, חלון הצ׳ק-אין נסגר ב-18:00', done:false},
+    {level:'green', text:'Praia da Marinha, Praia do Camilo, Algar Seco, Fanal, Seixal Beach, Alfama, Baixa, Chiado — אין צורך בהזמנה', done:false},
+    {level:'green', text:'לפני כל טיול הרים או שייט — בדיקת מזג אוויר יומית', done:false}
+  ],
+  fieldNotes:[
+    'כבודת יד: לתכנן לפי הקטע המחמיר ביותר ולבדוק מחדש את כללי החברות',
+    'נהיגה: רישיונות מקוריים, מסמכי השכרה, כל הנהגים הרשומים, וצילום הרכב באיסוף ובהחזרה',
+    'חניה: להשתמש בחניונים רשמיים ולא להשאיר תיקים גלויים ברכב',
+    'מדיירה: לא לתדלק בצורה מאולתרת בכבישי הרים',
+    'הליכות: נעליים עם אחיזה, שכבת גשם, 1.5–2 ליטר מים לטייל, הגנה מהשמש, טלפון טעון, מפה לא מקוונת וחטיפים',
+    'ימי ים: קאיקים וטיול נתייונים יכולים להידחות/להתבטל — לשמור תוכנית יבשתית',
+    'כסף: כרטיסים שימושיים מאוד, כדאי להחזיק מעט מזומן באירו',
+    'ניווט: להוריד מפות לא מקוונות לאלגרבה ולמדיירה'
+  ],
+  preTripChecklist:[
+    {text:'לאשר את כל הטיסות ולבצע Check-in', done:false},
+    {text:'למדוד משקל ומידות כבודת היד', done:false},
+    {text:'להוריד לטלפון אישורי מלונות, רכבים, שבילים ואטרקציות', done:false},
+    {text:'Benagil — לבדוק מצב ים והודעת מפעיל', done:false},
+    {text:'PR1 / PR8 — לבדוק מצב שביל עדכני ותחזית הרים', done:false},
+    {text:'RentX — לוודא שהשעה המתוקנת אושרה', done:false},
+    {text:'Look Living — לוודא תוכנית הגעה ואחסון מזוודות', done:false},
+    {text:'לוודא שעות פתיחה של מסעדות ואטרקציות עם שעות מוגדרות', done:false},
+    {text:'לשתף את המסלול ואת פרטי החירום עם המבוגרים בקבוצה', done:false}
+  ]
+};}
+
+/* ===================== STATE / PERSISTENCE ===================== */
+const STORAGE_KEY = 'portugalTripData_v1';
+let DATA = loadData();
+
+function loadData(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  return DEFAULT_DATA();
+}
+let saveTimer=null;
+function scheduleSave(){
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA));
+    showToast();
+  }, 250);
+}
+function showToast(){
+  const t=document.getElementById('toast');
+  t.classList.add('show');
+  clearTimeout(showToast._h);
+  showToast._h=setTimeout(()=>t.classList.remove('show'),1200);
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify(DATA,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download='גיבוי_טיול_פורטוגל_'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+function importData(ev){
+  const file=ev.target.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const parsed=JSON.parse(e.target.result);
+      DATA=parsed;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA));
+      renderAll();
+      showToast();
+    }catch(err){
+      alert('הקובץ לא תקין. ודאי שזה קובץ גיבוי שיוצא מהאפליקציה הזו.');
+    }
+  };
+  reader.readAsText(file,'utf-8');
+  ev.target.value='';
+}
+function resetToDefault(){
+  if(!confirm('לאפס את כל השינויים ולחזור לתוכן המקורי של המסמך? לא ניתן לבטל פעולה זו (אלא אם יוצא גיבוי קודם).')) return;
+  DATA=DEFAULT_DATA();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA));
+  renderAll();
+}
+
+/* ===================== TABS ===================== */
+const TABS=[
+  {id:'home', label:'🏠 בית'},
+  {id:'algarve', label:'🌊 אלגרבה'},
+  {id:'madeira', label:'🏝️ מדיירה'},
+  {id:'lisbon', label:'🏛️ ליסבון'},
+  {id:'logistics', label:'✈️ לוגיסטיקה'},
+  {id:'alerts', label:'🔔 התראות'},
+  {id:'info', label:'ℹ️ מידע שימושי'}
+];
+let activeTab='home';
+function renderTabs(){
+  const nav=document.getElementById('tabsNav');
+  nav.innerHTML='';
+  TABS.forEach(t=>{
+    const b=document.createElement('button');
+    b.textContent=t.label;
+    if(t.id===activeTab) b.classList.add('active');
+    b.onclick=()=>switchTab(t.id);
+    nav.appendChild(b);
+  });
+}
+function switchTab(id){
+  activeTab=id;
+  document.querySelectorAll('.tabpanel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  renderTabs();
+  renderTabContent(id);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function renderAll(){
+  renderTabs();
+  TABS.forEach(t=>{ if(t.id===activeTab) renderTabContent(t.id); });
+  document.getElementById('tab-'+activeTab).classList.add('active');
+}
+function renderTabContent(id){
+  if(id==='home') return renderHome();
+  if(['algarve','madeira','lisbon'].includes(id)) return renderWorld(id);
+  if(id==='logistics') return renderLogistics();
+  if(id==='alerts') return renderAlerts();
+  if(id==='info') return renderInfo();
+}
+
+function esc(s){
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ===================== HOME ===================== */
+function renderHome(){
+  const el=document.getElementById('tab-home');
+  const start=new Date('2026-09-17T00:00:00');
+  const end=new Date('2026-09-28T23:59:59');
+  const now=new Date();
+  let countText, dateText='17–28 בספטמבר 2026';
+  if(now<start){
+    const days=Math.ceil((start-now)/86400000);
+    countText='עוד '+days+' ימים לטיסה! ✈️';
+  } else if(now>=start && now<=end){
+    const dayNum=Math.floor((now-start)/86400000)+1;
+    countText='אנחנו בטיול! יום '+dayNum+' מתוך 12 🎒';
+  } else {
+    countText='הטיול הסתיים — מקווים שהיה נהדר! 🇵🇹';
+  }
+  const openAlerts=DATA.alerts.filter(a=>!a.done && a.level==='red').length;
+
+  el.innerHTML=`
+    <div class="hero">
+      <div class="countdown">${countText}</div>
+      <div class="dates">${dateText} · אלגרבה · מדיירה · ליסבון</div>
+    </div>
+    ${openAlerts>0?`<div class="home-alert-banner" onclick="switchTab('alerts')">
+      <div>🔴 יש <b>${openAlerts}</b> פעולות דחופות שטרם סומנו כבוצעו</div>
+      <div>לפתיחת ההתראות ›</div>
+    </div>`:''}
+    <div class="world-grid">
+      <button class="world-card wc-algarve" onclick="switchTab('algarve')">
+        <div class="icon">🌊</div><h3>אלגרבה</h3><div class="meta">17–21/9 · Carvoeiro, Benagil, Lagos</div>
+      </button>
+      <button class="world-card wc-madeira" onclick="switchTab('madeira')">
+        <div class="icon">🏝️</div><h3>מדיירה</h3><div class="meta">21–26/9 · Funchal, שבילי הרים</div>
+      </button>
+      <button class="world-card wc-lisbon" onclick="switchTab('lisbon')">
+        <div class="icon">🏛️</div><h3>ליסבון</h3><div class="meta">26–28/9 · Belém, Alfama</div>
+      </button>
+      <button class="world-card wc-logistics" onclick="switchTab('logistics')">
+        <div class="icon">✈️</div><h3>לוגיסטיקה</h3><div class="meta">טיסות, מלונות ורכבים</div>
+      </button>
+    </div>
+    <div class="section-note">💡 ניתן לגרור ימים כדי לשנות סדר, ללחוץ על כל טקסט כדי לערוך אותו, ולהוסיף הערות אישיות בכל כרטיסייה. כל שינוי נשמר אוטומטית בדפדפן הזה — מומלץ ללחוץ מדי פעם על "ייצוא גיבוי" בפינה העליונה כדי לשמור עותק.</div>
+  `;
+}
+
+/* ===================== WORLDS ===================== */
+let draggedIndex=null;
+function renderWorld(worldId){
+  const meta=WORLD_META[worldId];
+  const world=DATA.worlds[worldId];
+  const el=document.getElementById('tab-'+worldId);
+  let html=`<div class="world-header"><div class="badge" style="background:${meta.color}">${meta.icon}</div><h2>${meta.title}</h2></div>`;
+
+  world.days.forEach((day,idx)=>{
+    html+=renderDayCard(worldId, day, idx, meta.color);
+  });
+  html+=`<button class="add-day-btn" onclick="addDay('${worldId}')">+ הוספת יום חדש</button>`;
+
+  html+=`<div class="attr-section"><h2 style="color:${meta.color}">אטרקציות באזור — לבחירה</h2>
+    <div class="section-note">לחצו על התג כדי לשנות סטטוס (טרם הוחלט → בתוכנית → לשקול → לא הפעם), ואפשר להוסיף הערה אישית או אטרקציה חדשה.</div>`;
+  world.attractions.forEach((grp,gi)=>{
+    html+=`<div class="attr-group-title" style="color:${meta.color}">${esc(grp.group)}</div>`;
+    grp.items.forEach((item,ii)=>{
+      html+=renderAttrCard(worldId,gi,ii,item);
+    });
+    html+=`<button class="add-attr-btn" onclick="addAttraction('${worldId}',${gi})">+ הוספת אטרקציה ל${esc(grp.group)}</button>`;
+  });
+  html+=`</div>`;
+  el.innerHTML=html;
+}
+
+function wazeUrl(place){
+  return 'https://waze.com/ul?q='+encodeURIComponent(place)+'&navigate=yes';
+}
+function wazeControlsHtml(worldId,dayIdx,actIdx,waze,trackIdx){
+  const addFn = trackIdx===undefined ? `addWaze('${worldId}',${dayIdx},${actIdx})` : `addTrackWaze('${worldId}',${dayIdx},${trackIdx},${actIdx})`;
+  if(waze){
+    return `<a class="icon-btn waze-link" href="${wazeUrl(waze)}" target="_blank" rel="noopener" title="ניווט בוויז אל: ${esc(waze)}">🧭</a><button class="icon-btn" onclick="${addFn}" title="עריכת/מחיקת יעד וויז">✎</button>`;
+  }
+  return `<button class="icon-btn waze-add" onclick="${addFn}" title="הוספת ניווט וויז">🧭</button>`;
+}
+function renderDayCard(worldId, day, idx, color){
+  const hasTracks = day.tracks && day.tracks.length;
+  const bodyMainHtml = hasTracks
+    ? renderTracksHtml(worldId, idx, day.tracks, color)
+    : `${day.activities.map((a,ai)=>`
+    <div class="activity-row">
+      <div class="time" contenteditable="true" data-world="${worldId}" data-day="${idx}" data-act="${ai}" data-field="time" oninput="updateActivityField(this)">${esc(a.time)}</div>
+      <div class="text" contenteditable="true" data-world="${worldId}" data-day="${idx}" data-act="${ai}" data-field="text" oninput="updateActivityField(this)">${esc(a.text)}</div>
+      ${wazeControlsHtml(worldId,idx,ai,a.waze)}
+      <button class="icon-btn" onclick="deleteActivity('${worldId}',${idx},${ai})" title="מחיקה">🗑</button>
+    </div>`).join('')}
+      <button class="add-row-btn" onclick="addActivity('${worldId}',${idx})">+ הוספת פעילות</button>`;
+  const linksHtml = (day.links&&day.links.length)? `<div class="links-row">${day.links.map(l=>`<a href="${esc(l.url)}" target="_blank" rel="noopener">🔗 ${esc(l.label)}</a>`).join('')}</div>` : '';
+  const splitBadge = hasTracks ? `<span class="split-badge">🔀 יום עם חלופות</span>` : '';
+
+  return `
+  <div class="day-card" draggable="true" style="--accent:${color}"
+       ondragstart="dragStart(event,'${worldId}',${idx})" ondragover="dragOver(event)" ondrop="dragDrop(event,'${worldId}',${idx})">
+    <div class="day-head" onclick="toggleDay(this)">
+      <span class="icon-btn drag-handle" title="גרירה לשינוי סדר">⠿</span>
+      <div class="day-num" style="background:${color}">${idx+1}</div>
+      <div class="day-titles">
+        <div class="dtitle" contenteditable="true" onclick="event.stopPropagation()" data-world="${worldId}" data-day="${idx}" data-field="title" oninput="updateDayField(this)">${esc(day.title)}</div>
+        <div class="ddate" contenteditable="true" onclick="event.stopPropagation()" data-world="${worldId}" data-day="${idx}" data-field="date" oninput="updateDayField(this)">${esc(day.date)} · ${esc(day.weekday)} ${splitBadge}</div>
+      </div>
+      <div class="day-controls" onclick="event.stopPropagation()">
+        <button class="icon-btn" onclick="moveDay('${worldId}',${idx},-1)" title="הזזה למעלה">▲</button>
+        <button class="icon-btn" onclick="moveDay('${worldId}',${idx},1)" title="הזזה למטה">▼</button>
+        <button class="icon-btn" onclick="deleteDay('${worldId}',${idx})" title="מחיקת יום">🗑</button>
+      </div>
+    </div>
+    <div class="day-body" id="body-${worldId}-${idx}">
+      ${bodyMainHtml}
+      <div class="tip-box" contenteditable="true" data-world="${worldId}" data-day="${idx}" data-field="tip" oninput="updateDayField(this)">${esc(day.tip)}</div>
+      ${linksHtml}
+      <label class="notes-label">הערות אישיות</label>
+      <textarea class="notes-box" data-world="${worldId}" data-day="${idx}" data-field="notes" oninput="updateDayField(this)" placeholder="הוסיפו כאן הערה חופשית ליום הזה...">${esc(day.notes)}</textarea>
+    </div>
+  </div>`;
+}
+
+function renderTracksHtml(worldId, dayIdx, tracks, color){
+  const trackCards = tracks.map((tr,ti)=>{
+    const actsHtml = tr.activities.map((a,ai)=>`
+      <div class="activity-row">
+        <div class="time" contenteditable="true" data-world="${worldId}" data-day="${dayIdx}" data-track="${ti}" data-act="${ai}" data-field="time" oninput="updateTrackActivityField(this)">${esc(a.time)}</div>
+        <div class="text" contenteditable="true" data-world="${worldId}" data-day="${dayIdx}" data-track="${ti}" data-act="${ai}" data-field="text" oninput="updateTrackActivityField(this)">${esc(a.text)}</div>
+        ${wazeControlsHtml(worldId,dayIdx,ai,a.waze,ti)}
+        <button class="icon-btn" onclick="deleteTrackActivity('${worldId}',${dayIdx},${ti},${ai})" title="מחיקה">🗑</button>
+      </div>`).join('');
+    return `
+    <div class="track-card">
+      <div class="track-head">
+        <div class="track-label" contenteditable="true" data-world="${worldId}" data-day="${dayIdx}" data-track="${ti}" data-field="label" oninput="updateTrackField(this)">${esc(tr.label)}</div>
+        <button class="icon-btn" onclick="deleteTrack('${worldId}',${dayIdx},${ti})" title="מחיקת חלופה">🗑</button>
+      </div>
+      <div class="track-note" contenteditable="true" data-world="${worldId}" data-day="${dayIdx}" data-track="${ti}" data-field="note" oninput="updateTrackField(this)">${esc(tr.note)}</div>
+      ${actsHtml}
+      <button class="add-row-btn" onclick="addTrackActivity('${worldId}',${dayIdx},${ti})">+ הוספת פעילות לחלופה</button>
+    </div>`;
+  }).join('');
+  return `<div class="tracks-wrap">${trackCards}</div>
+    <button class="add-day-btn" style="margin:6px 0 14px" onclick="addTrack('${worldId}',${dayIdx})">+ הוספת חלופה נוספת</button>`;
+}
+
+function toggleDay(headEl){
+  const body=headEl.nextElementSibling;
+  body.classList.toggle('open');
+}
+
+function dragStart(ev,worldId,idx){ draggedIndex={worldId,idx}; ev.currentTarget.classList.add('dragging'); }
+function dragOver(ev){ ev.preventDefault(); }
+function dragDrop(ev,worldId,idx){
+  ev.preventDefault();
+  document.querySelectorAll('.day-card.dragging').forEach(c=>c.classList.remove('dragging'));
+  if(!draggedIndex || draggedIndex.worldId!==worldId || draggedIndex.idx===idx) return;
+  const arr=DATA.worlds[worldId].days;
+  const [moved]=arr.splice(draggedIndex.idx,1);
+  arr.splice(idx,0,moved);
+  draggedIndex=null;
+  scheduleSave();
+  renderWorld(worldId);
+}
+function moveDay(worldId, idx, dir){
+  const arr=DATA.worlds[worldId].days;
+  const newIdx=idx+dir;
+  if(newIdx<0||newIdx>=arr.length) return;
+  [arr[idx],arr[newIdx]]=[arr[newIdx],arr[idx]];
+  scheduleSave();
+  renderWorld(worldId);
+}
+function deleteDay(worldId, idx){
+  if(!confirm('למחוק את היום הזה מהתוכנית?')) return;
+  DATA.worlds[worldId].days.splice(idx,1);
+  scheduleSave();
+  renderWorld(worldId);
+}
+function addDay(worldId){
+  DATA.worlds[worldId].days.push({
+    id:'d_'+Date.now(), isoDate:'', date:'תאריך חדש', weekday:'', dayNum:DATA.worlds[worldId].days.length+1,
+    title:'יום חדש', notes:'', activities:[{time:'',text:'פעילות חדשה'}], tip:'', links:[]
+  });
+  scheduleSave();
+  renderWorld(worldId);
+}
+function addActivity(worldId, dayIdx){
+  DATA.worlds[worldId].days[dayIdx].activities.push({time:'',text:'פעילות חדשה'});
+  scheduleSave();
+  renderWorld(worldId);
+  document.getElementById('body-'+worldId+'-'+dayIdx).classList.add('open');
+}
+function deleteActivity(worldId, dayIdx, actIdx){
+  DATA.worlds[worldId].days[dayIdx].activities.splice(actIdx,1);
+  scheduleSave();
+  renderWorld(worldId);
+  document.getElementById('body-'+worldId+'-'+dayIdx).classList.add('open');
+}
+function updateDayField(elm){
+  const {world,day,field}=elm.dataset;
+  const d=DATA.worlds[world].days[day];
+  const val = elm.tagName==='TEXTAREA' ? elm.value : elm.innerText;
+  if(field==='date'){
+    d.date = val; // combined date/weekday free-text field
+  } else {
+    d[field]=val;
+  }
+  scheduleSave();
+}
+function updateActivityField(elm){
+  const {world,day,act,field}=elm.dataset;
+  DATA.worlds[world].days[day].activities[act][field]=elm.innerText;
+  scheduleSave();
+}
+
+/* ---- tracks (split-decision days) ---- */
+function updateTrackField(elm){
+  const {world,day,track,field}=elm.dataset;
+  DATA.worlds[world].days[day].tracks[track][field]=elm.innerText;
+  scheduleSave();
+}
+function updateTrackActivityField(elm){
+  const {world,day,track,act,field}=elm.dataset;
+  DATA.worlds[world].days[day].tracks[track].activities[act][field]=elm.innerText;
+  scheduleSave();
+}
+function addTrackActivity(worldId,dayIdx,trackIdx){
+  DATA.worlds[worldId].days[dayIdx].tracks[trackIdx].activities.push({time:'',text:'פעילות חדשה'});
+  scheduleSave();
+  renderWorld(worldId);
+  document.getElementById('body-'+worldId+'-'+dayIdx).classList.add('open');
+}
+function deleteTrackActivity(worldId,dayIdx,trackIdx,actIdx){
+  DATA.worlds[worldId].days[dayIdx].tracks[trackIdx].activities.splice(actIdx,1);
+  scheduleSave();
+  renderWorld(worldId);
+  document.getElementById('body-'+worldId+'-'+dayIdx).classList.add('open');
+}
+function addTrack(worldId,dayIdx){
+  DATA.worlds[worldId].days[dayIdx].tracks.push({label:'חלופה חדשה', note:'', activities:[{time:'',text:'פעילות חדשה'}]});
+  scheduleSave();
+  renderWorld(worldId);
+  document.getElementById('body-'+worldId+'-'+dayIdx).classList.add('open');
+}
+function deleteTrack(worldId,dayIdx,trackIdx){
+  if(!confirm('למחוק את החלופה הזו?')) return;
+  DATA.worlds[worldId].days[dayIdx].tracks.splice(trackIdx,1);
+  scheduleSave();
+  renderWorld(worldId);
+  document.getElementById('body-'+worldId+'-'+dayIdx).classList.add('open');
+}
+
+/* ---- waze navigation links ---- */
+function addWaze(worldId,dayIdx,actIdx){
+  const act=DATA.worlds[worldId].days[dayIdx].activities[actIdx];
+  const val=prompt('שם מקום / כתובת לניווט בוויז:', act.waze||'');
+  if(val===null) return;
+  if(val.trim()==='') delete act.waze; else act.waze=val.trim();
+  scheduleSave();
+  renderWorld(worldId);
+  document.getElementById('body-'+worldId+'-'+dayIdx).classList.add('open');
+}
+function addTrackWaze(worldId,dayIdx,trackIdx,actIdx){
+  const act=DATA.worlds[worldId].days[dayIdx].tracks[trackIdx].activities[actIdx];
+  const val=prompt('שם מקום / כתובת לניווט בוויז:', act.waze||'');
+  if(val===null) return;
+  if(val.trim()==='') delete act.waze; else act.waze=val.trim();
+  scheduleSave();
+  renderWorld(worldId);
+  document.getElementById('body-'+worldId+'-'+dayIdx).classList.add('open');
+}
+
+/* ---- attractions ---- */
+function renderAttrCard(worldId, gi, ii, item){
+  const statusLabels={undecided:'טרם הוחלט',planned:'בתוכנית',maybe:'לשקול',skip:'לא הפעם'};
+  return `
+  <div class="attr-card">
+    <div class="attr-stars">${item.stars}</div>
+    <div class="attr-main">
+      <div class="attr-name" contenteditable="true" data-world="${worldId}" data-gi="${gi}" data-ii="${ii}" data-field="name" oninput="updateAttrField(this)">${esc(item.name)}</div>
+      <div class="attr-note" contenteditable="true" data-world="${worldId}" data-gi="${gi}" data-ii="${ii}" data-field="note" oninput="updateAttrField(this)">${esc(item.note)}</div>
+      <span class="attr-book">${esc(item.book)}</span>
+      <textarea class="attr-usernote" placeholder="הערה אישית..." data-world="${worldId}" data-gi="${gi}" data-ii="${ii}" data-field="userNote" oninput="updateAttrField(this)">${esc(item.userNote)}</textarea>
+    </div>
+    <button class="status-pill status-${item.status}" onclick="cycleAttrStatus('${worldId}',${gi},${ii})">${statusLabels[item.status]}</button>
+    <button class="attr-del" onclick="deleteAttraction('${worldId}',${gi},${ii})" title="מחיקה">✕</button>
+  </div>`;
+}
+function cycleAttrStatus(worldId,gi,ii){
+  const order=['undecided','planned','maybe','skip'];
+  const item=DATA.worlds[worldId].attractions[gi].items[ii];
+  item.status=order[(order.indexOf(item.status)+1)%order.length];
+  scheduleSave();
+  renderWorld(worldId);
+}
+function updateAttrField(elm){
+  const {world,gi,ii,field}=elm.dataset;
+  const val = elm.tagName==='TEXTAREA' ? elm.value : elm.innerText;
+  DATA.worlds[world].attractions[gi].items[ii][field]=val;
+  scheduleSave();
+}
+function deleteAttraction(worldId,gi,ii){
+  DATA.worlds[worldId].attractions[gi].items.splice(ii,1);
+  scheduleSave();
+  renderWorld(worldId);
+}
+function addAttraction(worldId,gi){
+  DATA.worlds[worldId].attractions[gi].items.push({stars:'⭐',name:'אתר חדש',note:'',book:'הזמנה: לא ידוע',status:'undecided',userNote:''});
+  scheduleSave();
+  renderWorld(worldId);
+}
+
+/* ===================== LOGISTICS ===================== */
+function renderLogistics(){
+  const el=document.getElementById('tab-logistics');
+  function block(title, arr, key){
+    return `<div class="log-card"><h4>${title}</h4>${arr.map((it,i)=>`
+      <div class="log-line" contenteditable="true" data-key="${key}" data-idx="${i}" oninput="updateLogField(this)">
+        <b>${esc(it.label)}:</b> ${esc(it.text)}
+      </div>`).join('')}</div>`;
+  }
+  const tasksHtml = DATA.logistics.tasklist.map((t,i)=>`
+    <div class="checklist-item ${t.done?'done':''}">
+      <input type="checkbox" ${t.done?'checked':''} onchange="toggleTask(${i})">
+      <div class="txt" contenteditable="true" data-idx="${i}" oninput="updateTaskText(this)">${esc(t.text)}</div>
+      <button class="icon-btn" onclick="deleteTask(${i})">🗑</button>
+    </div>`).join('');
+  el.innerHTML=`
+    <div class="world-header"><div class="badge" style="background:var(--logistics)">✈️</div><h2>לוגיסטיקה</h2></div>
+    <div class="privacy-note">🔒 פרטי ההזמנה שלהלן אישיים — מומלץ לא לשתף צילומי מסך שלהם בפומבי.</div>
+    ${block('טיסות', DATA.logistics.flights, 'flights')}
+    ${block('מלונות', DATA.logistics.hotels, 'hotels')}
+    ${block('רכב', DATA.logistics.cars, 'cars')}
+    <div class="log-card">
+      <h4>מה להזמין מראש — רשימת מטלות</h4>
+      ${tasksHtml}
+      <div class="add-alert-row">
+        <input type="text" id="newTaskInput" placeholder="הוספת מטלה חדשה...">
+        <button onclick="addTask()">+ הוספה</button>
+      </div>
+    </div>
+    <div class="log-card">
+      <h4>רעיונות למסעדות — לפי אזור</h4>
+      <div class="section-note">מקומות לבדוק/לשקול, עם קישורים ל-Google Maps או Tripadvisor. אפשר להוסיף מסעדה חדשה או קישור נוסף לכל מסעדה.</div>
+      ${renderRestaurantIdeas()}
+    </div>
+  `;
+}
+function renderRestaurantIdeas(){
+  return ['algarve','madeira','lisbon'].map(region=>{
+    const meta=WORLD_META[region];
+    const list=DATA.logistics.restaurantIdeas[region]||[];
+    const cards=list.map((r,ri)=>`
+      <div class="restau-card">
+        <div class="restau-head">
+          <div class="restau-name" contenteditable="true" data-region="${region}" data-idx="${ri}" oninput="updateRestaurantName(this)">${esc(r.name)}</div>
+          <button class="icon-btn" onclick="deleteRestaurant('${region}',${ri})" title="מחיקה">🗑</button>
+        </div>
+        <div class="restau-links">
+          ${r.links.map((l,li)=>`<a class="restau-link-chip" href="${esc(l.url)}" target="_blank" rel="noopener">🔗 ${esc(l.label)}<span class="rm" onclick="event.preventDefault();deleteRestaurantLink('${region}',${ri},${li})">✕</span></a>`).join('')}
+          <button class="add-restau-link" onclick="addRestaurantLink('${region}',${ri})">+ קישור</button>
+        </div>
+      </div>`).join('');
+    return `<div class="restau-region-title" style="color:${meta.color}">${meta.icon} ${meta.title}</div>
+      <div class="restau-grid">${cards}</div>
+      <button class="add-restau-btn" onclick="addRestaurant('${region}')">+ הוספת מסעדה ל${meta.title}</button>`;
+  }).join('');
+}
+function guessLinkLabel(url){
+  if(/tripadvisor/i.test(url)) return 'Tripadvisor';
+  if(/maps\.(app\.)?goo\.gl|google\.[a-z.]+\/maps/i.test(url)) return 'Google Maps';
+  if(/instagram/i.test(url)) return 'Instagram';
+  return 'קישור';
+}
+function addRestaurant(region){
+  const name=prompt('שם המסעדה:');
+  if(!name || !name.trim()) return;
+  const url=prompt('קישור (Google Maps / Tripadvisor / אתר) — אפשר להשאיר ריק ולהוסיף אחר כך:');
+  const links=(url&&url.trim())?[{label:guessLinkLabel(url.trim()),url:url.trim()}]:[];
+  DATA.logistics.restaurantIdeas[region].push({name:name.trim(), links});
+  scheduleSave();
+  renderLogistics();
+}
+function deleteRestaurant(region,idx){
+  DATA.logistics.restaurantIdeas[region].splice(idx,1);
+  scheduleSave();
+  renderLogistics();
+}
+function updateRestaurantName(elm){
+  const {region,idx}=elm.dataset;
+  DATA.logistics.restaurantIdeas[region][idx].name=elm.innerText;
+  scheduleSave();
+}
+function addRestaurantLink(region,idx){
+  const url=prompt('קישור (Google Maps / Tripadvisor / אתר):');
+  if(!url || !url.trim()) return;
+  DATA.logistics.restaurantIdeas[region][idx].links.push({label:guessLinkLabel(url.trim()),url:url.trim()});
+  scheduleSave();
+  renderLogistics();
+}
+function deleteRestaurantLink(region,idx,linkIdx){
+  DATA.logistics.restaurantIdeas[region][idx].links.splice(linkIdx,1);
+  scheduleSave();
+  renderLogistics();
+}
+function updateLogField(elm){
+  const {key,idx}=elm.dataset;
+  const item=DATA.logistics[key][idx];
+  const raw=elm.innerText;
+  const parts=raw.split(':');
+  item.text = parts.slice(1).join(':').trim() || item.text;
+  scheduleSave();
+}
+function toggleTask(i){ DATA.logistics.tasklist[i].done=!DATA.logistics.tasklist[i].done; scheduleSave(); renderLogistics(); }
+function updateTaskText(elm){ DATA.logistics.tasklist[elm.dataset.idx].text=elm.innerText; scheduleSave(); }
+function deleteTask(i){ DATA.logistics.tasklist.splice(i,1); scheduleSave(); renderLogistics(); }
+function addTask(){
+  const input=document.getElementById('newTaskInput');
+  if(!input.value.trim()) return;
+  DATA.logistics.tasklist.push({text:input.value.trim(), done:false});
+  scheduleSave();
+  renderLogistics();
+}
+
+/* ===================== ALERTS ===================== */
+const LEVEL_META={
+  red:{emoji:'🔴',label:'דחוף',color:'var(--red)'},
+  orange:{emoji:'🟠',label:'בקרוב',color:'var(--orange)'},
+  yellow:{emoji:'🟡',label:'לקראת המועד',color:'var(--yellow)'},
+  green:{emoji:'🟢',label:'תזכורת/גמיש',color:'var(--green)'}
+};
+function renderAlerts(){
+  const el=document.getElementById('tab-alerts');
+  let html=`<div class="world-header"><div class="badge" style="background:var(--red)">🔔</div><h2>התראות ומעקב הזמנות</h2></div>`;
+
+  html+=`<div class="alert-group">
+    <div class="alert-group-title">❓ נקודות פתוחות להחלטה <span class="alert-count">${DATA.openQuestions.length}</span></div>
+    <div class="section-note">דברים שעדיין אין לגביהם תשובה. אפשר לכתוב תשובה כשהיא תתברר, ולסמן כ"נסגר" כשההחלטה נופלת.</div>`;
+  DATA.openQuestions.forEach((q,i)=>{
+    html+=`<div class="question-card ${q.resolved?'resolved':''}">
+      <div class="qrow">
+        <input type="checkbox" ${q.resolved?'checked':''} onchange="toggleQuestion(${i})" title="סמן כנסגר">
+        <div class="qtext" contenteditable="true" style="flex:1" data-idx="${i}" oninput="updateQuestionText(this)">${esc(q.text)}</div>
+        <button class="del" onclick="deleteQuestion(${i})">✕</button>
+      </div>
+      <textarea class="qanswer" placeholder="תשובה / החלטה..." data-idx="${i}" oninput="updateQuestionAnswer(this)">${esc(q.answer)}</textarea>
+    </div>`;
+  });
+  html+=`<div class="add-alert-row">
+      <input type="text" id="newQuestionInput" placeholder="הוספת נקודה פתוחה חדשה...">
+      <button onclick="addQuestion()">+ הוספה</button>
+    </div>
+  </div>`;
+
+  html+=`<div class="section-note">סמנו ✓ כשמשהו בוצע. לחיצה על העיגול הצבעוני משנה את רמת הדחיפות.</div>`;
+  ['red','orange','yellow','green'].forEach(level=>{
+    const items=DATA.alerts.map((a,i)=>({...a,idx:i})).filter(a=>a.level===level);
+    const meta=LEVEL_META[level];
+    html+=`<div class="alert-group">
+      <div class="alert-group-title">${meta.emoji} ${meta.label} <span class="alert-count">${items.length}</span></div>`;
+    items.forEach(a=>{
+      html+=`<div class="alert-item ${a.done?'done':''}" style="--lvl:${meta.color}">
+        <input type="checkbox" ${a.done?'checked':''} onchange="toggleAlert(${a.idx})">
+        <div class="txt" contenteditable="true" data-idx="${a.idx}" oninput="updateAlertText(this)">${esc(a.text)}</div>
+        <button class="lvl-btn" onclick="cycleAlertLevel(${a.idx})" title="שינוי רמת דחיפות">${meta.emoji}</button>
+        <button class="del" onclick="deleteAlert(${a.idx})">✕</button>
+      </div>`;
+    });
+    html+=`</div>`;
+  });
+  html+=`<div class="add-alert-row">
+      <input type="text" id="newAlertInput" placeholder="הוספת התראה חדשה...">
+      <button onclick="addAlert()">+ הוספה</button>
+    </div>`;
+  el.innerHTML=html;
+}
+function toggleAlert(i){ DATA.alerts[i].done=!DATA.alerts[i].done; scheduleSave(); renderAlerts(); }
+function updateAlertText(elm){ DATA.alerts[elm.dataset.idx].text=elm.innerText; scheduleSave(); }
+function deleteAlert(i){ DATA.alerts.splice(i,1); scheduleSave(); renderAlerts(); }
+function cycleAlertLevel(i){
+  const order=['red','orange','yellow','green'];
+  const a=DATA.alerts[i];
+  a.level=order[(order.indexOf(a.level)+1)%order.length];
+  scheduleSave();
+  renderAlerts();
+}
+function addAlert(){
+  const input=document.getElementById('newAlertInput');
+  if(!input.value.trim()) return;
+  DATA.alerts.push({level:'yellow', text:input.value.trim(), done:false});
+  scheduleSave();
+  renderAlerts();
+}
+function toggleQuestion(i){ DATA.openQuestions[i].resolved=!DATA.openQuestions[i].resolved; scheduleSave(); renderAlerts(); }
+function updateQuestionText(elm){ DATA.openQuestions[elm.dataset.idx].text=elm.innerText; scheduleSave(); }
+function updateQuestionAnswer(elm){ DATA.openQuestions[elm.dataset.idx].answer=elm.value; scheduleSave(); }
+function deleteQuestion(i){ DATA.openQuestions.splice(i,1); scheduleSave(); renderAlerts(); }
+function addQuestion(){
+  const input=document.getElementById('newQuestionInput');
+  if(!input.value.trim()) return;
+  DATA.openQuestions.push({text:input.value.trim(), answer:'', resolved:false});
+  scheduleSave();
+  renderAlerts();
+}
+
+/* ===================== INFO ===================== */
+function renderInfo(){
+  const el=document.getElementById('tab-info');
+  const notesHtml=DATA.fieldNotes.map((n,i)=>`
+    <div class="checklist-item">
+      <span>•</span>
+      <div class="txt" contenteditable="true" data-idx="${i}" oninput="updateFieldNote(this)">${esc(n)}</div>
+      <button class="icon-btn" onclick="deleteFieldNote(${i})">🗑</button>
+    </div>`).join('');
+  const checklistHtml=DATA.preTripChecklist.map((t,i)=>`
+    <div class="checklist-item ${t.done?'done':''}">
+      <input type="checkbox" ${t.done?'checked':''} onchange="togglePreTrip(${i})">
+      <div class="txt" contenteditable="true" data-idx="${i}" oninput="updatePreTripText(this)">${esc(t.text)}</div>
+      <button class="icon-btn" onclick="deletePreTrip(${i})">🗑</button>
+    </div>`).join('');
+  el.innerHTML=`
+    <div class="world-header"><div class="badge" style="background:var(--logistics)">ℹ️</div><h2>מידע שימושי</h2></div>
+    <div class="emergency"><div>מספר חירום אירופי</div><div class="num">112</div></div>
+    <div class="info-card">
+      <h4>דברים שכדאי לזכור בשטח</h4>
+      ${notesHtml}
+      <div class="add-alert-row">
+        <input type="text" id="newNoteInput" placeholder="הוספת הערה חדשה...">
+        <button onclick="addFieldNote()">+ הוספה</button>
+      </div>
+    </div>
+    <div class="info-card">
+      <h4>בדיקה סופית — 72 שעות לפני כל קטע מרכזי</h4>
+      ${checklistHtml}
+      <div class="add-alert-row">
+        <input type="text" id="newPreTripInput" placeholder="הוספת בדיקה חדשה...">
+        <button onclick="addPreTrip()">+ הוספה</button>
+      </div>
+    </div>
+    <div class="info-card">
+      <h4>קישורים רשמיים</h4>
+      <div class="link-line">
+        <a href="https://www.visitportugal.com/en" target="_blank" rel="noopener">Visit Portugal — אתר רשמי</a>
+        <a href="https://visitmadeira.com/en/what-to-do/nature-seekers/activities/hiking/" target="_blank" rel="noopener">Visit Madeira — שבילי הליכה</a>
+        <a href="https://www.visitmadeira.com/en/what-to-do/sea-lovers/activities/dolphin-whale-watching/" target="_blank" rel="noopener">Visit Madeira — צפייה בלווייתנים</a>
+        <a href="https://www.visitlisboa.com/en" target="_blank" rel="noopener">Visit Lisboa — אתר רשמי</a>
+        <a href="https://www.casaldapenha.com/restaurant/" target="_blank" rel="noopener">Casal da Penha — הזמנה</a>
+        <a href="https://tabernasalgrosso.pt/" target="_blank" rel="noopener">Taberna Sal Grosso — הזמנה</a>
+      </div>
+    </div>
+  `;
+}
+function updateFieldNote(elm){ DATA.fieldNotes[elm.dataset.idx]=elm.innerText; scheduleSave(); }
+function deleteFieldNote(i){ DATA.fieldNotes.splice(i,1); scheduleSave(); renderInfo(); }
+function addFieldNote(){
+  const input=document.getElementById('newNoteInput');
+  if(!input.value.trim()) return;
+  DATA.fieldNotes.push(input.value.trim());
+  scheduleSave();
+  renderInfo();
+}
+function togglePreTrip(i){ DATA.preTripChecklist[i].done=!DATA.preTripChecklist[i].done; scheduleSave(); renderInfo(); }
+function updatePreTripText(elm){ DATA.preTripChecklist[elm.dataset.idx].text=elm.innerText; scheduleSave(); }
+function deletePreTrip(i){ DATA.preTripChecklist.splice(i,1); scheduleSave(); renderInfo(); }
+function addPreTrip(){
+  const input=document.getElementById('newPreTripInput');
+  if(!input.value.trim()) return;
+  DATA.preTripChecklist.push({text:input.value.trim(), done:false});
+  scheduleSave();
+  renderInfo();
+}
+
+/* ===================== INIT ===================== */
+renderAll();
+</script>
