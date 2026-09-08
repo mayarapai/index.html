@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>דשבורד ניהול תקלות — מבט</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800;900&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Heebo', 'Segoe UI', Arial, sans-serif;
+  font-size: 14px;
+  background: #f0f2f7;
+  color: #1a1a2e;
+  direction: rtl;
+  min-height: 100vh;
+}
+
+/* ─── HEADER ─── */
+.header {
+  background: linear-gradient(135deg, #0f1b3d 0%, #1a2f6e 100%);
+  color: #fff;
+  padding: 20px 32px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.header-title h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+.header-title p  { color: #8ba3d8; font-size: 12px; margin-top: 5px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+
+.header-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.header-filters label { color: #a8bcdf; font-size: 12px; }
+.header-filters select {
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  outline: none;
+}
+.header-filters select option { background: #1a2f6e; color: #fff; }
+
+.refresh-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+.refresh-box .refresh-label { color: #8ba3d8; font-size: 11px; }
+.refresh-box .refresh-timer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #5ee8a0;
+  font-size: 12px;
+  font-weight: 600;
+}
+.dot-live {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #5ee8a0;
+  animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.4; transform: scale(0.8); }
+}
+
+/* ─── MAIN LAYOUT ─── */
+.page { max-width: 1300px; margin: 0 auto; padding: 24px 24px 60px; }
+
+/* ─── KPI ROW ─── */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 22px;
+}
+.kpi-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 18px 20px;
+  border-right: 4px solid #1a2f6e;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.kpi-card.red    { border-right-color: #e53e3e; }
+.kpi-card.orange { border-right-color: #e07400; }
+.kpi-card.green  { border-right-color: #2e8b57; }
+.kpi-card.blue   { border-right-color: #3b5fc0; }
+.kpi-label { font-size: 12px; color: #2a3a60; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+.kpi-value { font-size: 32px; font-weight: 800; color: #0d1a3a; line-height: 1; }
+.kpi-sub   { font-size: 12px; color: #4a5578; margin-top: 2px; font-weight: 500; }
+
+/* ─── SECTION TITLE ─── */
+.section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a1a2e;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-right: 3px solid #3b5fc0;
+  padding-right: 10px;
+  margin-bottom: 12px;
+}
+
+/* ─── TABLE CARD ─── */
+.card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+  margin-bottom: 18px;
+}
+
+/* ─── DATA TABLES ─── */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.data-table thead th {
+  background: #f5f7fc;
+  color: #4a5578;
+  font-weight: 700;
+  padding: 9px 14px;
+  text-align: center;
+  border-bottom: 2px solid #e2e8f4;
+  white-space: nowrap;
+}
+.data-table thead th:first-child { text-align: right; }
+.data-table tbody td {
+  padding: 9px 14px;
+  border-bottom: 1px solid #edf0f7;
+  text-align: center;
+  color: #2a2e45;
+}
+.data-table tbody td:first-child { text-align: right; font-weight: 600; }
+.data-table tbody tr:last-child td { border-bottom: none; }
+.data-table tbody tr:hover { background: #f9fbff; }
+
+/* severity badges */
+.sev {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.sev-high   { background: #fff0f0; color: #c0392b; }
+.sev-mid    { background: #fff7ed; color: #c05900; }
+.sev-low    { background: #f0faf4; color: #2e7d52; }
+
+/* number pills */
+.num { font-weight: 700; font-size: 14px; }
+.num-high { color: #c0392b; }
+.num-mid  { color: #c05900; }
+.num-low  { color: #2e7d52; }
+.num-gray { color: #6b7a99; }
+.num-blue { color: #3b5fc0; }
+
+/* ─── DOMAIN GRID ─── */
+.domain-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.domain-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+  overflow: hidden;
+}
+.domain-header {
+  padding: 10px 14px;
+  font-weight: 800;
+  font-size: 13px;
+  color: #fff;
+}
+.domain-digital { background: #1a4fc4; }
+.domain-chat    { background: #6d28d9; }
+.domain-infra   { background: #0f766e; }
+.domain-data    { background: #c2500a; }
+
+.domain-body { padding: 10px 14px; }
+.domain-team-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid #f0f2f7;
+  font-size: 12px;
+}
+.domain-team-row:last-child { border-bottom: none; }
+.domain-team-name { color: #3a4260; font-weight: 600; }
+.domain-pills { display: flex; gap: 4px; }
+.pill {
+  display: inline-block;
+  min-width: 22px;
+  padding: 1px 6px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+}
+.pill-h { background: #ffeaea; color: #c0392b; }
+.pill-m { background: #fff3e0; color: #c05900; }
+.pill-l { background: #e8f8ee; color: #2e7d52; }
+
+/* ─── TWO-COL LAYOUT ─── */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+/* ─── STATUS BADGES ─── */
+.st-badge { display:inline-block; padding:2px 9px; border-radius:12px; font-size:11px; font-weight:700; white-space:nowrap; }
+.st-open    { background:#e8f0fe; color:#1a4fc4; }
+.st-fixing  { background:#fff3e0; color:#c05900; }
+.st-closed  { background:#e8f8ee; color:#2e7d52; }
+
+/* ─── AVG TIME TABLE ─── */
+.avg-bar-wrap { display: flex; align-items: center; gap: 8px; }
+.avg-bar-bg {
+  flex: 1;
+  background: #edf0f7;
+  border-radius: 6px;
+  height: 8px;
+  overflow: hidden;
+}
+.avg-bar-fill {
+  height: 100%;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #3b5fc0, #6b8ef5);
+  transition: width 0.6s ease;
+}
+.avg-days { font-weight: 700; font-size: 13px; color: #3b5fc0; white-space: nowrap; }
+
+/* ─── STATUS RIBBON ─── */
+.status-bar {
+  display: flex;
+  gap: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  height: 10px;
+  margin-bottom: 16px;
+}
+.status-bar div { transition: width 0.5s ease; }
+
+/* ─── LAUNCH TIMER ─── */
+.launch-banner {
+  padding: 10px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  transition: background 0.5s ease;
+}
+.launch-banner.pre  { background: #07111f; }
+.launch-banner.post { background: #071a0f; }
+.launch-label {
+  color: rgba(255,255,255,0.55);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 2px;
+}
+.launch-title {
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+}
+.launch-units {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  direction: ltr;
+}
+.launch-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(255,255,255,0.07);
+  border-radius: 7px;
+  padding: 4px 10px;
+  min-width: 46px;
+}
+.launch-num {
+  font-size: 20px;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.launch-unit-label {
+  font-size: 9px;
+  color: rgba(255,255,255,0.45);
+  margin-top: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.launch-sep {
+  font-size: 16px;
+  font-weight: 900;
+  color: rgba(255,255,255,0.3);
+  margin-bottom: 8px;
+}
+.launch-icon { font-size: 18px; margin-left: 6px; }
+.strip-filters {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.strip-filters select {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+}
+.strip-filters select option { background: #0f1e30; color: #fff; }
+.launch-date-edit {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+.launch-date-edit label {
+  color: rgba(255,255,255,0.55);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.launch-date-edit input[type="date"] {
+  background: rgba(0,0,0,0.25);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+  direction: ltr;
+}
+.launch-date-edit input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) opacity(0.6);
+  cursor: pointer;
+}
+
+@media (max-width: 540px) {
+  .launch-banner { padding: 8px 14px; gap: 10px; }
+  .launch-num { font-size: 16px; }
+  .launch-unit { min-width: 36px; padding: 3px 7px; }
+  .launch-icon { font-size: 14px; }
+  .launch-title { font-size: 12px; }
+}
+
+/* ─── FOOTER ─── */
+.footer {
+  text-align: center;
+  color: #aab0c8;
+  font-size: 11px;
+  margin-top: 40px;
+}
+
+/* ─── RESPONSIVE ─── */
+
+/* טאבלט */
+@media (max-width: 900px) {
+  .page { padding: 16px 16px 48px; }
+  .kpi-row { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .domain-grid { grid-template-columns: repeat(2, 1fr); }
+  .two-col { grid-template-columns: 1fr; }
+  .header { padding: 16px 20px 14px; gap: 14px; }
+  .header-title h1 { font-size: 18px; }
+}
+
+/* מובייל */
+@media (max-width: 540px) {
+  .page { padding: 12px 10px 40px; }
+
+  /* header — כל אחד בשורה משלו */
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 14px 16px 12px;
+    gap: 12px;
+  }
+  .header-title h1 { font-size: 17px; }
+  .header-title p  { font-size: 11px; }
+  .header-filters { width: 100%; gap: 8px; }
+  .header-filters select { width: 100%; font-size: 14px; padding: 8px 10px; }
+  .refresh-box { width: 100%; flex-direction: row; justify-content: space-between; align-items: center; }
+
+  /* KPI — עמודה אחת */
+  .kpi-row { grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  .kpi-card { padding: 14px 14px; }
+  .kpi-value { font-size: 26px; }
+  .kpi-label { font-size: 10px; }
+
+  /* תחומים — עמודה אחת */
+  .domain-grid { grid-template-columns: 1fr; }
+
+  /* card — גלילה אופקית לטבלאות */
+  .card { padding: 14px 12px; overflow-x: auto; }
+
+  /* טבלאות — גודל קטן יותר */
+  .data-table { font-size: 12px; min-width: 420px; }
+  .data-table thead th { padding: 7px 8px; }
+  .data-table tbody td { padding: 7px 8px; }
+
+  /* section title */
+  .section-title { font-size: 11px; margin-bottom: 10px; }
+
+  /* avg bar קצר יותר */
+  .avg-bar-bg { min-width: 40px; }
+
+  /* ribbon */
+  .status-bar { height: 7px; margin-bottom: 12px; }
+}
+
+/* ─── STATUS SUMMARY BAR ─── */
+.status-summary {
+  background: #0f1b3d;
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.ss-label {
+  color: rgba(255,255,255,0.45);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-left: 6px;
+  white-space: nowrap;
+}
+.ss-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 20px;
+  padding: 4px 12px 4px 10px;
+  font-size: 12px;
+  white-space: nowrap;
+  cursor: default;
+}
+.ss-pill-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.ss-pill-name { color: rgba(255,255,255,0.7); font-weight: 600; }
+.ss-pill-count {
+  font-weight: 900;
+  font-size: 13px;
+  color: #fff;
+  margin-right: 2px;
+}
+.ss-divider {
+  width: 1px; height: 22px;
+  background: rgba(255,255,255,0.12);
+  margin: 0 4px;
+}
+@media (max-width: 540px) {
+  .status-summary { padding: 8px 14px; gap: 7px; }
+  .ss-pill { font-size: 11px; padding: 3px 9px 3px 8px; }
+}
+
+/* ─── STATUS LABEL COLORS ─── */
+.sl-ready    { background:#d1fae5; color:#065f46; }   /* מועד להעברה לקדם ייצור */
+.sl-dev      { background:#fef9c3; color:#854d0e; }   /* בפיתוח */
+.sl-wait-dev { background:#ffedd5; color:#9a3412; }   /* ממתין לפיתוח */
+.sl-wait-req { background:#ede9fe; color:#5b21b6; }   /* ממתין לדרישה */
+.sl-wait-qa  { background:#dbeafe; color:#1e40af; }   /* ממתין לבדיקות מסירה */
+.sl-spec     { background:#e0e7ff; color:#3730a3; }   /* באפיון / אפיון */
+.sl-closed   { background:#dcfce7; color:#166534; }   /* הסתיים */
+.sl-open     { background:#e8f0fe; color:#1a4fc4; }   /* פתוח */
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ HEADER ═══════════════ -->
+<div class="header">
+  <div class="header-title">
+    <h1>דשבורד ניהול תקלות</h1>
+    <p>מקור נתונים: מערכת מבט &nbsp;|&nbsp; עודכן: <span id="lastRefresh">—</span> &nbsp;
+      <span class="dot-live" style="display:inline-block;vertical-align:middle"></span>&nbsp;
+      רענון בעוד <span id="countdown">30</span> שנ׳
+    </p>
+  </div>
+  <div class="header-filters">
+    <select id="filterProject" onchange="render()">
+      <option value="all">כל הפרויקטים</option>
+      <option value="אמבולטורי" selected>אמבולטורי</option>
+      <option value="טרקר">טרקר</option>
+    </select>
+    <select id="filterEnv" onchange="render()">
+      <option value="all">כל הסביבות</option>
+      <option value="ייצור" selected>ייצור</option>
+      <option value="קדם">קדם</option>
+      <option value="טסט">טסט</option>
+      <option value="לא ידוע">לא ידוע</option>
+    </select>
+  </div>
+</div>
+
+<!-- ═══════════════ LAUNCH STRIP ═══════════════ -->
+<div class="launch-banner pre" id="launchBanner">
+  <div style="display:flex;align-items:center;gap:10px">
+    <span class="launch-icon" id="launchIcon">&#9203;</span>
+    <div>
+      <div class="launch-label" id="launchLabel">זמן עד ההשקה</div>
+      <div class="launch-title" id="launchTitle">Go-Live — 26.8.2026</div>
+    </div>
+  </div>
+  <div class="launch-units">
+    <div class="launch-unit"><div class="launch-num" id="lt-days">—</div><div class="launch-unit-label">ימים</div></div>
+    <div class="launch-sep">:</div>
+    <div class="launch-unit"><div class="launch-num" id="lt-hours">—</div><div class="launch-unit-label">שעות</div></div>
+    <div class="launch-sep">:</div>
+    <div class="launch-unit"><div class="launch-num" id="lt-min">—</div><div class="launch-unit-label">דקות</div></div>
+    <div class="launch-sep">:</div>
+    <div class="launch-unit"><div class="launch-num" id="lt-sec">—</div><div class="launch-unit-label">שניות</div></div>
+  </div>
+  <div class="launch-date-edit">
+    <label>עדכון תאריך יעד</label>
+    <input type="date" id="launchDateInput" value="2026-08-26" onchange="updateLaunchDate()">
+  </div>
+</div>
+
+<!-- ═══════════════ PAGE ═══════════════ -->
+<div class="page">
+
+  <!-- KPI ROW -->
+  <div class="kpi-row">
+    <div class="kpi-card blue">
+      <div class="kpi-label">תקלות פתוחות כרגע</div>
+      <div class="kpi-value" id="kpi-open">—</div>
+      <div class="kpi-sub" id="kpi-open-sub">—</div>
+    </div>
+    <div class="kpi-card red">
+      <div class="kpi-label">תקלות בינוניות — פתוח</div>
+      <div class="kpi-value" id="kpi-high">—</div>
+      <div class="kpi-sub" id="kpi-high-sub">—</div>
+    </div>
+    <div class="kpi-card orange">
+      <div class="kpi-label">בטיפול / בתיקון</div>
+      <div class="kpi-value" id="kpi-new">—</div>
+      <div class="kpi-sub" id="kpi-new-sub">—</div>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-label">ממוצע ימי טיפול (סגורות)</div>
+      <div class="kpi-value" id="kpi-avg">—</div>
+      <div class="kpi-sub" id="kpi-avg-sub">—</div>
+    </div>
+  </div>
+
+  <!-- STATUS SUMMARY -->
+  <div class="status-summary" id="statusSummaryBar" style="border-radius:12px;margin-bottom:22px;padding:10px 18px;"></div>
+
+  <!-- DOMAIN CARDS -->
+  <div class="section-title">כמות תקלות פתוחות לפי תחום וצוות</div>
+  <div class="domain-grid" id="domainGrid"></div>
+
+  <!-- OPEN DEFECTS LIST -->
+  <div class="card" style="margin-bottom:18px">
+    <div class="section-title">רשימת תקלות פתוחות</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="text-align:right">תיאור</th>
+          <th>חומרה</th>
+          <th>צוות</th>
+          <th>סביבה</th>
+          <th>ימים פתוח</th>
+          <th>צפי תיקון</th>
+          <th>סטטוס</th>
+        </tr>
+      </thead>
+      <tbody id="tbl-open-list"></tbody>
+    </table>
+  </div>
+
+  <!-- TABLE 1: OPEN BY SEVERITY × AGE -->
+  <div class="card">
+    <div class="section-title">תקלות פתוחות לפי חומרה וגיל</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>חומרה</th>
+          <th>סה"כ פתוח</th>
+          <th>חדש היום</th>
+          <th>1–2 ימים</th>
+          <th>3–5 ימים</th>
+          <th>מעל 5 ימים</th>
+        </tr>
+      </thead>
+      <tbody id="tbl-age"></tbody>
+    </table>
+  </div>
+
+  <!-- TWO COL: Teams table + Closed -->
+  <div class="two-col">
+    <!-- Team breakdown -->
+    <div class="card">
+      <div class="section-title">כמות תקלות לפי צוות</div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>צוות</th>
+            <th>פתוח</th>
+            <th><span class="sev sev-high">גבוהה</span></th>
+            <th><span class="sev sev-mid">בינונית</span></th>
+            <th><span class="sev sev-low">נמוכה</span></th>
+            <th>נסגרו</th>
+          </tr>
+        </thead>
+        <tbody id="tbl-teams"></tbody>
+      </table>
+    </div>
+
+    <!-- Avg resolution time -->
+    <div class="card">
+      <div class="section-title">ממוצע זמן טיפול לפי צוות (ימים)</div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>צוות</th>
+            <th><span class="sev sev-high">גבוהה</span></th>
+            <th><span class="sev sev-mid">בינונית</span></th>
+            <th><span class="sev sev-low">נמוכה</span></th>
+            <th>ממוצע כולל</th>
+          </tr>
+        </thead>
+        <tbody id="tbl-avg"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CLOSED DEFECTS LIST -->
+  <div class="card" style="margin-bottom:18px">
+    <div class="section-title">פרוט תקלות שנסגרו</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="text-align:right">תיאור</th>
+          <th>צוות</th>
+          <th>סביבה</th>
+          <th>נפתחה</th>
+          <th>נסגרה</th>
+          <th>ימי טיפול</th>
+          <th>סטטוס סגירה</th>
+        </tr>
+      </thead>
+      <tbody id="tbl-closed-list"></tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    דשבורד ניהול תקלות | מקור: מערכת מבט | נתוני דמו — יש לחבר למקור האמיתי
+  </div>
+</div>
+
+<!-- ═══════════════ DATA & LOGIC ═══════════════ -->
+<script>
+// ─── נתונים אמיתיים מתוך מערכת מבט ───────────────────────────────────────────
+// Fields: id, project, env, status, openDate, closeDate, severity, domain, team
+// status: 'פתוח' | 'בטיפול' | 'סגור'
+// severity: 'גבוהה' | 'בינונית' | 'נמוכה'
+const TODAY = new Date().toISOString().slice(0, 10); // תאריך אמיתי מהמחשב
+
+const RAW = [
+  // ── סגורות ──────────────────────────────────────────────────────────────────
+  {id:'TK-011',project:'אמבולטורי',env:'קדם', status:'סגור', openDate:'2026-08-12',closeDate:'2026-08-16', severity:'בינונית', domain:'חסכון ארוך טווח', team:'צוות פיתוח דיגיטל 6', desc:'קיים חריג בפוליסה - מסלול אדום',                                        fixDate:null},
+  {id:'TK-018',project:'אמבולטורי',env:'קדם', status:'סגור', openDate:'2026-08-17',closeDate:'2026-08-18', severity:'בינונית', domain:'חסכון ארוך טווח', team:'פיתוח BPR NG תביעות', desc:'לא תקין מכתב דחייה בתהליך משידור - סטטוסים בירוק, דחייה',             fixDate:null},
+  {id:'TK-019',project:'אמבולטורי',env:'קדם', status:'סגור', openDate:'2026-08-17',closeDate:'2026-08-18', severity:'בינונית', domain:'חסכון ארוך טווח', team:'פיתוח BPR NG תביעות', desc:'תביעה משידור עם שגיאה ריקה בעת הזנת תאריך טיפול - נדחתה',             fixDate:null},
+  {id:'TK-021',project:'אמבולטורי',env:'קדם', status:'סגור', openDate:'2026-08-13',closeDate:'2026-08-16', severity:'נמוכה',   domain:'דאטה ו-AI',        team:'DOCAH',               desc:'אי חילוץ ת.ז של לקוח',                                                fixDate:null},
+  {id:'TK-022',project:'אמבולטורי',env:'קדם', status:'סגור', openDate:'2026-08-13',closeDate:'2026-08-16', severity:'נמוכה',   domain:'דאטה ו-AI',        team:'DOCAH',               desc:'אי חילוץ סכומים נכונים מקבלות',                                       fixDate:null},
+  {id:'TK-023',project:'אמבולטורי',env:'קדם', status:'סגור', openDate:'2026-08-13',closeDate:'2026-08-16', severity:'נמוכה',   domain:'דאטה ו-AI',        team:'DOCAH',               desc:'אי חילוץ שני תאריכי טיפול שונים',                                     fixDate:null},
+  {id:'TK-024',project:'אמבולטורי',env:'קדם', status:'סגור', openDate:'2026-08-13',closeDate:'2026-08-16', severity:'בינונית', domain:'דאטה ו-AI',        team:'DOCAH',               desc:'חילוץ מספר קבלה עם וודאות 0',                                         fixDate:null},
+
+  // ── גבוהה פתוחות — תחום דיגיטל — צוות פיתוח דיגיטל 6 ──────────────────────
+  {id:'TK-025',project:'אמבולטורי',env:'קדם', status:'סגור', openDate:'2026-08-18',closeDate:'2026-09-08', severity:'גבוהה',   domain:'דיגיטל', team:'צוות פיתוח דיגיטל 6', desc:'רופא מומחה עם מספר מומחיויות - דיגיטל לא שולחים עוד מומחיות שיש לרופא', fixDate:null},
+  {id:'TK-026',project:'אמבולטורי',env:'טסט', status:'סגור', openDate:'2026-08-18',closeDate:'2026-09-08', severity:'גבוהה',   domain:'דיגיטל', team:'צוות פיתוח דיגיטל 6', desc:'העלאת קבצים - 3/4 קבצים חולצו במסך',                                    fixDate:null},
+  {id:'TK-027',project:'אמבולטורי',env:'טסט', status:'סגור', openDate:'2026-08-18',closeDate:'2026-09-08', severity:'גבוהה',   domain:'דיגיטל', team:'צוות פיתוח דיגיטל 6', desc:'שגיאת SLA מ-NG - לשלוף פרטי התהליך, גם אם אין מספר פוליסה',            fixDate:null},
+
+  // ── בינונית פתוחות — תחום דיגיטל — צוות פיתוח דיגיטל 6 ────────────────────
+  {id:'TK-028',project:'אמבולטורי',env:'קדם', status:'סגור', openDate:'2026-08-18',closeDate:'2026-09-08', severity:'בינונית', domain:'דיגיטל', team:'צוות פיתוח דיגיטל 6', desc:'חסרון ב-5-2 שידור טיפול פסיכולוגים - לא נפתחה תביעה NG',               fixDate:'2026-08-18'},
+  {id:'TK-016',project:'אמבולטורי',env:'קדם', status:'סגור', openDate:'2026-08-17',closeDate:'2026-08-18', severity:'בינונית', domain:'דיגיטל', team:'צוות פיתוח דיגיטל 6', desc:'בסיום השידור לא נפתח תהליך ב-NG, ללא ס׳ תביעה וללא זמן טיפול',         fixDate:null},
+  {id:'TK-015',project:'אמבולטורי',env:'קדם', status:'סגור', openDate:'2026-08-17',closeDate:'2026-09-08', severity:'בינונית', domain:'דיגיטל', team:'צוות פיתוח דיגיטל 6', desc:'לאחר שידור נפתחו 2 תהליכים ללא מס׳ תביעה שניהם',                       fixDate:'2026-08-18'},
+  {id:'TK-017',project:'אמבולטורי',env:'קדם', status:'סגור', openDate:'2026-08-15',closeDate:'2026-09-08', severity:'בינונית', domain:'דיגיטל', team:'צוות פיתוח דיגיטל 6', desc:'בכניסה לתהליך לאחר שידור - הודעה שמסמך קבלה לא תקין, למרות שנסרק',     fixDate:'2026-08-18'},
+
+  // ── בינונית — חסכון ארוך טווח — פיתוח BPR NG תביעות ───────────────────────
+  {id:'TK-029',project:'אמבולטורי',env:'קדם', status:'פתוח', openDate:'2026-08-18',closeDate:null, severity:'בינונית', domain:'חסכון ארוך טווח', team:'פיתוח BPR NG תביעות', desc:'לבטל חובת סימון צ׳קבוקס למבוטח עם צו שיפוטי / חוב כאשר מבצעים דחיית תביעה', fixDate:'2026-08-18'},
+
+  // ── ייצור — מאז עליה לאוויר 26.8.2026 ───────────────────────────────────────
+  {id:'TK-030',project:'אמבולטורי',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-26',closeDate:'2026-08-30',          severity:'בינונית', domain:'חסכון ארוך טווח', team:'פיתוח BPR NG תביעות',   desc:'הגשת תביעה משולחן עבודה לסוכן במסלול אדום ארעה שגיאת מערכת',          fixDate:null},
+  {id:'TK-032',project:'אמבולטורי',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-27',closeDate:'2026-08-30',          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'כפתור המשך לא מוצג ברזולוציה של 100',                                   fixDate:null},
+  {id:'TK-034',project:'אמבולטורי',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-27',closeDate:'2026-09-02',                   severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'בהזנקה משולחן עבודה - מבוטח מוביל שבוחר קטין, התהליך נכשל',           fixDate:null},
+  {id:'TK-038',project:'אמבולטורי',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-27',closeDate:'2026-08-27', severity:'בינונית', domain:'תשתיות',            team:'תשתיות חא"ט',           desc:'חזרת שגיאה מ-SLA לחוקה בגלל עומסים',                                   fixDate:null},
+  {id:'TK-039',project:'אמבולטורי',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-27',closeDate:'2026-08-30',          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'העלאת קובץ עם תוים מיוחדים - נכשל',                                    fixDate:null},
+  {id:'TK-040',project:'אמבולטורי',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-27',closeDate:'2026-08-30',          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'שו"ש - ביטול אפשרות BIT במקרה של סלולרי חסר',                           fixDate:null},
+  {id:'TK-041',project:'אמבולטורי',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-27',closeDate:'2026-08-27', severity:'בינונית', domain:'חסכון ארוך טווח', team:'פיתוח BPR NG תביעות',   desc:'שגיאה בתביעה - נעצר עקב תקלה במנגנון בקרה',                            fixDate:null},
+  {id:'TK-042',project:'אמבולטורי',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-27',closeDate:'2026-08-30',          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'סשן קצר של 15 דקות - לקוח מתנתק באמצע תהליך',                          fixDate:null},
+  {id:'TK-043',project:'אמבולטורי',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-27',closeDate:'2026-08-30',          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'לקוח התקדם בתהליך גם כאשר הקובץ לא זוהה באופן מלא',                   fixDate:null},
+  {id:'TK-044',project:'אמבולטורי',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-27',closeDate:'2026-08-30',          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'שר"ש - חסימה אפשרות הגשת תביעה ישירות מקטין דרך שולחן עבודה',          fixDate:null},
+  {id:'TK-045',project:'אמבולטורי',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-27',closeDate:'2026-09-08',          severity:'בינונית', domain:'דאטה ו-AI',        team:'מודל',                 desc:'הוספת לוגיקה של זיהוי שם בין שם פרטי ומשפחה ממקורות שונים',            fixDate:null},
+
+  // ── ייצור — 30–31.8.2026 ──────────────────────────────────────────────────
+  {id:'TK-046',project:'אמבולטורי',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-30',closeDate:'2026-08-30',          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'במקרה של כישלון בשידור - המייל נשלח לתיבה לא נכונה',                   fixDate:null},
+  {id:'TK-047',project:'אמבולטורי',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-30',closeDate:'2026-08-31',          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'לחיצה על כפתור אישור הצהרות לא מאופשרת',                               fixDate:null},
+  {id:'TK-048',project:'אמבולטורי',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-30',closeDate:'2026-08-31',          severity:'בינונית', domain:'חסכון ארוך טווח', team:'פיתוח BPR NG תביעות',   desc:'תהליך משידור אדום לאחר פניה לחוקה - הכפלת שורת התשלום והסכום',         fixDate:null},
+  {id:'TK-049',project:'אמבולטורי',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-30',closeDate:'2026-08-31',          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'כאשר לא נשלח מהזנקה משולחן עבודה מספר טלפון - השידור נכשל',           fixDate:null},
+  {id:'TK-050',project:'אמבולטורי',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-30',closeDate:'2026-09-02',                   severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'שוש - כאשר לא כל מסמכי החובה עלו בהצלחה, לא יוצג הבאנר הירוק',        fixDate:null},
+  {id:'TK-053',project:'אמבולטורי',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-31',closeDate:'2026-08-31', severity:'בינונית', domain:'דאטה ו-AI',        team:'VISION',               desc:'מספר קבלה חולץ עם אותיות',                                              fixDate:null},
+  // ── אמבולטורי — תקלות חדשות 30–31.8.2026 ────────────────────────────────
+  {id:'TK-051',project:'אמבולטורי',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-30',closeDate:'2026-09-08',          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'לחיצה על כפתור יציאה מהתהליך - מביאה למיקום של אותה נקודה בתהליך',    fixDate:null},
+  {id:'TK-052',project:'אמבולטורי',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-30',closeDate:'2026-09-02',                   severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'ניתוק סשן בעת הזנקה משולחן עבודה - הסוכן עובר למסך לוגי',      fixDate:null},
+  {id:'TK-054',project:'אמבולטורי',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-30',closeDate:'2026-09-08',          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 6', desc:'שוש - עדכון פרטי התקשרות בשלוחין ובלובי תביעות יחייב לאוכף כל התהליך', fixDate:null},
+  {id:'TK-055',project:'אמבולטורי',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-30',closeDate:'2026-09-02',                   severity:'בינונית', domain:'חסכון ארוך טווח', team:'פיתוח BPR NG תביעות',   desc:'מציאת התעריף הנכון מבין 2 תעריפים זהים ולפי תאריכים',                  fixDate:null},
+
+  // ── אמבולטורי — תקלות חדשות 31.8.2026 ──────────────────────────────────
+  {id:'TK-059',project:'אמבולטורי',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-31',closeDate:'2026-09-08', severity:'בינונית', domain:'דיגיטל',    team:'צוות פיתוח דיגיטל 6', desc:'שדה נותן טיפול אוטומטית ללקוח ללא בחינה שה-CONFIDENCE נמוך', fixDate:null},
+  {id:'TK-060',project:'אמבולטורי',env:'ייצור', status:'בטיפול', statusLabel:'בפיתוח',              openDate:'2026-08-31',closeDate:null, severity:'בינונית', domain:'דיגיטל',    team:'צוות פיתוח דיגיטל 6', desc:'תקלה בעת העלאת מסמכים - בתחקור מול EFU',                     fixDate:null},
+  {id:'TK-061',project:'אמבולטורי',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-31',closeDate:'2026-09-08', severity:'בינונית', domain:'דאטה ו-AI', team:'מודל',                 desc:'duplicate receipt in same claim',                             fixDate:null},
+  // ── אמבולטורי — תקלות חדשות 01.9.2026 ──────────────────────────────────
+  {id:'TK-062',project:'אמבולטורי',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-09-01',closeDate:'2026-09-08', severity:'בינונית', domain:'דיגיטל', team:'צוות פיתוח דיגיטל 6', desc:'שוש - מבוטח עם שם אמצעי - לא נמצא ברשימה לבחירה',               fixDate:null},
+  {id:'TK-063',project:'אמבולטורי',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-09-01',closeDate:'2026-09-02', severity:'בינונית', domain:'דיגיטל', team:'צוות פיתוח דיגיטל 6', desc:'שוש - עדכון נספחי הודעות',                                       fixDate:null},
+  {id:'TK-064',project:'אמבולטורי',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-09-01',closeDate:'2026-09-08', severity:'בינונית', domain:'דיגיטל', team:'צוות פיתוח דיגיטל 6', desc:'שוש - עדכון דוא"ל בשלוחין ובלובי תביעות יחייב לאוכף כל התהליך', fixDate:null},
+  {id:'TK-065',project:'אמבולטורי',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-09-01',closeDate:'2026-09-08', severity:'בינונית', domain:'דיגיטל', team:'צוות פיתוח דיגיטל 6', desc:'שוש - ביטול אפשרות לתשלום ב-BIT לסוכן משולחן עבודה',             fixDate:null},
+  // ── אמבולטורי — תקלות חדשות 02.9.2026 ──────────────────────────────────
+  {id:'TK-066',project:'אמבולטורי',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-09-02',closeDate:'2026-09-02', severity:'בינונית', domain:'דיגיטל', team:'צוות פיתוח דיגיטל 6', desc:'כישלון ב-SLA - המייל לא נשלח עם צרופות ולכן לא תקין', fixDate:null},
+  // ── אמבולטורי — תקלות חדשות 03–08.9.2026 ────────────────────────────────
+  {id:'TK-069',project:'אמבולטורי',env:'ייצור', status:'בטיפול', statusLabel:'באפיון',              openDate:'2026-09-03',closeDate:null, severity:'בינונית', domain:'חסכון ארוך טווח', team:'אפיון תפעול NG',         desc:'שוש - החרגת פוליסות קולקטיב ממסלול אדום עקב חוב בפוליסה באמבולטורי', fixDate:null},
+  {id:'TK-070',project:'אמבולטורי',env:'ייצור', status:'פתוח',   statusLabel:'ממתין לבדיקות מסירה', openDate:'2026-09-03',closeDate:null, severity:'בינונית', domain:'חסכון ארוך טווח', team:'פיתוח BPR NG תביעות',   desc:'שוש - החרגת פוליסות קולקטיב ממסלול אדום עקב חוב בפוליסה באמבולטורי', fixDate:null},
+  {id:'TK-071',project:'אמבולטורי',env:'ייצור', status:'פתוח',   statusLabel:'ממתין לדרישה',        openDate:'2026-09-03',closeDate:null, severity:'בינונית', domain:'חסכון ארוך טווח', team:'אפיון תפעול NG',         desc:'שוש - החרגת פוליסות קולקטיב ממסלול אדום עקב חוב בפוליסה באמבולטורי שלב ב', fixDate:null},
+  {id:'TK-072',project:'אמבולטורי',env:'ייצור', status:'בטיפול', statusLabel:'באפיון',              openDate:'2026-09-03',closeDate:null, severity:'בינונית', domain:'חסכון ארוך טווח', team:'פיתוח BPR NG תביעות',   desc:'שוש - החרגת פוליסות קולקטיב ממסלול אדום עקב חוב בפוליסה באמבולטורי שלב ב', fixDate:null},
+  {id:'TK-073',project:'אמבולטורי',env:'ייצור', status:'פתוח',   statusLabel:'ממתין לפיתוח',        openDate:'2026-09-06',closeDate:null, severity:'בינונית', domain:'דיגיטל',           team:'פיתוח מערכות ארגוניות', desc:'הוספת תווים מיוחדים', fixDate:null},
+  {id:'TK-074',project:'אמבולטורי',env:'ייצור', status:'פתוח',   statusLabel:'ממתין לדרישה',        openDate:'2026-09-06',closeDate:null, severity:'בינונית', domain:'דיגיטל',           team:'פיתוח מערכות ארגוניות', desc:'תקלת ייצור', fixDate:null},
+  {id:'TK-075',project:'אמבולטורי',env:'ייצור', status:'פתוח',   statusLabel:'ממתין לדרישה',        openDate:'2026-09-06',closeDate:null, severity:'בינונית', domain:'דיגיטל',           team:'פיתוח מערכות ארגוניות', desc:'השלמת ניטורים', fixDate:null},
+  {id:'TK-076',project:'אמבולטורי',env:'ייצור', status:'בטיפול', statusLabel:'מיועד להעברה לקדם ייצור', openDate:'2026-09-08',closeDate:null, severity:'בינונית', domain:'דאטה ו-AI',  team:'דאטה מערכות חאט ודיגיטל', desc:'טיוב מודל קנוני עם תווים מיוחדים', fixDate:null},
+
+  // ── טרקר אמבולטורי — 9743 ────────────────────────────────────────────────
+  // ── אמבולטורי — תקלות מודל 01–02.9.2026 ────────────────────────────────
+  {id:'TK-067',project:'אמבולטורי',env:'ייצור', status:'סגור',   statusLabel:'הסתיים',  openDate:'2026-09-01',closeDate:'2026-09-08', severity:'בינונית', domain:'דאטה ו-AI', team:'מודל + דיגיטל', desc:'קבלה כפולה כתוצאה מנטישה', fixDate:null},
+  {id:'TK-068',project:'אמבולטורי',env:'ייצור', status:'סגור',   statusLabel:'הסתיים', openDate:'2026-09-02',closeDate:'2026-09-08', severity:'בינונית', domain:'דאטה ו-AI', team:'מודל', desc:'אי זיהוי קבלה מהעבר - בשל בעייה טכנית של הסרת רווחים בשם נותן השירות', fixDate:null},
+
+  {id:'TK-056',project:'טרקר',     env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-27',closeDate:'2026-09-08',          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 3', desc:'בתביעה יצא מכתב תשלום, לא מוצג בטרקר',                                fixDate:null},
+  {id:'TK-057',project:'טרקר',     env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-30',closeDate:'2026-09-08',          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 3', desc:'בכניסה דרך הדשבורד - מוצג שם ההורה ולא שם הילד',                      fixDate:null},
+  {id:'TK-058',project:'טרקר',     env:'ייצור', status:'סגור',   statusLabel:'הסתיים',              openDate:'2026-08-30',closeDate:'2026-09-08',          severity:'בינונית', domain:'דיגיטל',           team:'צוות פיתוח דיגיטל 3', desc:'הגשת תביעה לפי לוגיקה ODS גם עבור תביעות משירות חאט',                  fixDate:null},
+];
+
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
+const DOMAINS = ['דיגיטל','חסכון ארוך טווח','תשתיות','דאטה ו-AI'];
+const DOMAIN_CSS = {'דיגיטל':'domain-digital','חסכון ארוך טווח':'domain-chat','תשתיות':'domain-infra','דאטה ו-AI':'domain-data'};
+const TEAMS_ORDER = ['צוות פיתוח דיגיטל 6','צוות פיתוח דיגיטל 3','אפיון תפעול NG','פיתוח BPR NG תביעות','פיתוח מערכות ארגוניות','תשתיות חא"ט','DOCAH','מודל','מודל + דיגיטל','דאטה מערכות חאט ודיגיטל','VISION'];
+
+function daysBetween(d1, d2) {
+  return Math.round((new Date(d2) - new Date(d1)) / 86400000);
+}
+function ageOf(rec) {
+  return daysBetween(rec.openDate, TODAY);
+}
+function ageBucket(rec) {
+  const d = ageOf(rec);
+  if (d === 0) return 'today';
+  if (d <= 2)  return '1-2';
+  if (d <= 5)  return '3-5';
+  return '5+';
+}
+function isOpen(r) { return r.status !== 'סגור'; }
+
+// ─── FILTER ───────────────────────────────────────────────────────────────────
+function filtered() {
+  const proj = document.getElementById('filterProject').value;
+  const env  = document.getElementById('filterEnv').value;
+  return RAW.filter(r =>
+    (proj === 'all' || r.project === proj) &&
+    (env  === 'all' || r.env    === env)
+  );
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+function render() {
+  const data = filtered();
+  const open = data.filter(isOpen);
+  const closed = data.filter(r => r.status === 'סגור');
+  const newToday = open.filter(r => r.openDate === TODAY);
+  const highOpen = open.filter(r => r.severity === 'גבוהה');
+
+  // Status summary bar
+  const STATUS_DEFS = [
+    { key:'מאושר להעברה לייצור', label:'מאושר — ממתין לייצור', color:'#5ee8a0' },
+    { key:'בפיתוח',              label:'בפיתוח',               color:'#f59e0b' },
+    { key:'ממתין לפיתוח',       label:'ממתין לפיתוח',         color:'#fb923c' },
+    { key:'ממתין לדרישה',       label:'ממתין לדרישה',         color:'#a78bfa' },
+    { key:'אפיון',               label:'באפיון',               color:'#60a5fa' },
+    { key:'בעבודה',              label:'בעבודה',               color:'#f59e0b' },
+  ];
+  const closedCount = closed.length;
+  let ssHtml = '<span class="ss-label">סטטוס תקלות:</span>';
+  STATUS_DEFS.forEach(function(def) {
+    var cnt = data.filter(function(r){ return (r.statusLabel === def.key || r.status === def.key) && r.status !== 'סגור'; }).length;
+    if (cnt === 0) return;
+    ssHtml += '<div class="ss-pill"><span class="ss-pill-dot" style="background:' + def.color + '"></span><span class="ss-pill-name">' + def.label + '</span><span class="ss-pill-count">' + cnt + '</span></div>';
+  });
+  ssHtml += '<div class="ss-divider"></div>';
+  ssHtml += '<div class="ss-pill"><span class="ss-pill-dot" style="background:#94a3b8"></span><span class="ss-pill-name">נסגרו</span><span class="ss-pill-count">' + closedCount + '</span></div>';
+  document.getElementById('statusSummaryBar').innerHTML = ssHtml;
+
+  // Avg resolution days
+  const closedWithDays = closed.filter(r => r.closeDate);
+  const avgDays = closedWithDays.length
+    ? (closedWithDays.reduce((s,r) => s + daysBetween(r.openDate, r.closeDate), 0) / closedWithDays.length).toFixed(1)
+    : '—';
+
+  // KPIs
+  document.getElementById('kpi-open').textContent = open.length;
+  document.getElementById('kpi-open-sub').textContent = `מתוכן ${data.filter(r=>r.status==='בטיפול').length} בטיפול פעיל`;
+  document.getElementById('kpi-high').textContent = highOpen.length;
+  document.getElementById('kpi-high-sub').textContent = `${Math.round(highOpen.length/Math.max(open.length,1)*100)}% מסך הפתוחות`;
+  const inProgress = data.filter(r => r.status === 'בטיפול').length;
+  document.getElementById('kpi-new').textContent = inProgress;
+  document.getElementById('kpi-new-sub').textContent = `${closed.length} נסגרו | ${newToday.length} נפתחו היום`;
+  document.getElementById('kpi-avg').textContent = avgDays;
+  document.getElementById('kpi-avg-sub').textContent = `מבוסס על ${closedWithDays.length} תקלות שנסגרו`;
+
+
+  // Severity helpers (shared)
+  const SEVS = ['גבוהה','בינונית','נמוכה'];
+  const SEV_CSS   = {גבוהה:'num-high', בינונית:'num-mid', נמוכה:'num-low'};
+  const SEV_BADGE = {גבוהה:'sev-high', בינונית:'sev-mid', נמוכה:'sev-low'};
+
+  // Table 1: severity × age
+  let ageHtml = '';
+  let totals = {today:0,'1-2':0,'3-5':0,'5+':0, all:0};
+  SEVS.forEach(sev => {
+    const rows = open.filter(r => r.severity === sev);
+    const byBucket = b => rows.filter(r => ageBucket(r) === b).length;
+    const t = rows.length, td=byBucket('today'), t12=byBucket('1-2'), t35=byBucket('3-5'), t5=byBucket('5+');
+    totals.all += t; totals.today += td; totals['1-2'] += t12; totals['3-5'] += t35; totals['5+'] += t5;
+    ageHtml += `<tr>
+      <td><span class="sev ${SEV_BADGE[sev]}">${sev}</span></td>
+      <td class="num ${SEV_CSS[sev]}">${t}</td>
+      <td class="num-gray">${td}</td>
+      <td class="num-gray">${t12}</td>
+      <td class="num-gray">${t35}</td>
+      <td class="${t5>0?'num-high':'num-gray'}">${t5}</td>
+    </tr>`;
+  });
+  ageHtml += `<tr style="background:#f5f7fc;font-weight:700">
+    <td>סה"כ</td>
+    <td class="num-blue">${totals.all}</td>
+    <td>${totals.today}</td>
+    <td>${totals['1-2']}</td>
+    <td>${totals['3-5']}</td>
+    <td class="${totals['5+']>0?'num-high':''}">${totals['5+']}</td>
+  </tr>`;
+  document.getElementById('tbl-age').innerHTML = ageHtml;
+
+  // Open defects list
+  const ST_LABEL = {'פתוח':'פתוח','בטיפול':'בתיקון','סגור':'נסגר'};
+  const ST_CSS   = {'פתוח':'st-open','בטיפול':'st-fixing','סגור':'st-closed'};
+  const SL_COLOR = {
+    'מועד להעברה לקדם ייצור':'sl-ready','בבדיקות בקדם ייצור':'sl-ready','מיועד להעברה לקדם ייצור':'sl-ready',
+    'בפיתוח':'sl-dev',
+    'ממתין לפיתוח':'sl-wait-dev',
+    'ממתין לדרישה':'sl-wait-req',
+    'ממתין לבדיקות מסירה':'sl-wait-qa',
+    'ממתין לבדיקת מסירה':'sl-wait-qa',
+    'באפיון':'sl-spec', 'אפיון':'sl-spec',
+    'הסתיים':'sl-closed','הסתיים - לא תקלה':'sl-closed',
+    'פתוח':'sl-open'
+  };
+  function statusBadge(r) {
+    var lbl = r.statusLabel || ST_LABEL[r.status] || r.status;
+    var cls = SL_COLOR[lbl] || (r.status==='סגור'?'sl-closed':r.status==='בטיפול'?'sl-dev':'sl-open');
+    return '<span class="st-badge ' + cls + '">' + lbl + '</span>';
+  }
+  const SL_CSS   = {
+    'ממתין לבדיקות':'st-open','ממתין לפיתוח':'st-open','ממתין לדרישה':'st-open',
+    'בעבודה':'st-fixing','בפיתוח':'st-fixing','באפיון':'st-fixing','אפיון':'st-fixing',
+    'מאושר להעברה לייצור':'st-fixing',
+    'הסתיים':'st-closed','הסתיים - לא תקלה':'st-closed','ממתין לבדיקות מסירה':'st-open','מועד להעברה לקדם ייצור':'st-fixing','בבדיקות בקדם ייצור':'st-fixing','מיועד להעברה לקדם ייצור':'st-fixing'
+  };
+  const STATUS_ORDER = [
+    'בבדיקות בקדם ייצור','מיועד להעברה לקדם ייצור','ממתין לבדיקות מסירה',
+    'בפיתוח',
+    'ממתין לפיתוח',
+    'באפיון','אפיון',
+    'ממתין לדרישה'
+  ];
+  const openList = data.filter(r => r.status !== 'סגור').sort((a,b) => {
+    const ai = STATUS_ORDER.indexOf(a.statusLabel || a.status);
+    const bi = STATUS_ORDER.indexOf(b.statusLabel || b.status);
+    return (ai===-1?99:ai) - (bi===-1?99:bi);
+  });
+  let openListHtml = '';
+  openList.forEach(r => {
+    const age = ageOf(r);
+    openListHtml += `<tr>
+      <td style="text-align:right;max-width:260px">${r.desc || '—'}</td>
+      <td><span class="sev ${SEV_BADGE[r.severity]}">${r.severity}</span></td>
+      <td style="font-size:12px;color:#4a5578">${r.team}</td>
+      <td style="font-size:12px">${r.env}</td>
+      <td class="${age>=5?'num-high':age>=3?'num-mid':'num-gray'}">${age === 0 ? 'היום' : age + ' י׳'}</td>
+      <td style="font-size:12px;color:#1a4fc4;font-weight:600">${r.fixDate ? r.fixDate.slice(8,10)+'.'+r.fixDate.slice(5,7) : '—'}</td>
+      <td>${statusBadge(r)}</td>
+    </tr>`;
+  });
+  if (!openListHtml) openListHtml = '<tr><td colspan="7" style="text-align:center;color:#aaa;padding:14px">אין תקלות פתוחות</td></tr>';
+  document.getElementById('tbl-open-list').innerHTML = openListHtml;
+
+  // Domain cards
+  let domainHtml = '';
+  DOMAINS.forEach(domain => {
+    const domainOpen = open.filter(r => r.domain === domain);
+    const teams = [...new Set(domainOpen.map(r => r.team))].sort();
+    const COL = 'width:38px;text-align:center;flex-shrink:0';
+    const teamRows = teams.map(team => {
+      const tr = domainOpen.filter(r => r.team === team);
+      return `<div style="display:flex;align-items:center;padding:5px 0;border-bottom:1px solid #f0f2f7">
+        <span class="domain-team-name" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${team}</span>
+        <span class="pill pill-h" style="${COL}">${tr.filter(r=>r.severity==='גבוהה').length}</span>
+        <span class="pill pill-m" style="${COL};margin:0 3px">${tr.filter(r=>r.severity==='בינונית').length}</span>
+        <span class="pill pill-l" style="${COL}">${tr.filter(r=>r.severity==='נמוכה').length}</span>
+      </div>`;
+    }).join('');
+    domainHtml += `<div class="domain-card">
+      <div class="domain-header ${DOMAIN_CSS[domain]}">
+        ${domain} <span style="float:left;font-size:18px;font-weight:800">${domainOpen.length}</span>
+      </div>
+      <div class="domain-body">
+        <div style="display:flex;align-items:center;margin-bottom:4px;padding-bottom:4px;border-bottom:2px solid #e8ecf5">
+          <div style="flex:1"></div>
+          <span class="pill pill-h" style="${COL};font-size:9px;padding:1px 3px">גבוהה</span>
+          <span class="pill pill-m" style="${COL};font-size:9px;padding:1px 3px;margin:0 3px">בינונית</span>
+          <span class="pill pill-l" style="${COL};font-size:9px;padding:1px 3px">נמוכה</span>
+        </div>
+        ${teamRows || '<div style="color:#aaa;font-size:12px;padding:6px 0">אין תקלות פתוחות</div>'}
+        ${domainOpen.filter(r=>r.severity==='גבוהה'&&r.desc).map(r=>`
+          <div style="margin-top:7px;background:#fff0f0;border-right:3px solid #c0392b;border-radius:5px;padding:5px 8px;font-size:11px;color:#c0392b;font-weight:600">
+            &#9888; ${r.desc}
+          </div>`).join('')}
+      </div>
+    </div>`;
+  });
+  document.getElementById('domainGrid').innerHTML = domainHtml;
+
+  // Team table
+  const allTeams = [...new Set(data.map(r => r.team))].sort((a,b) => {
+    return TEAMS_ORDER.indexOf(a) - TEAMS_ORDER.indexOf(b);
+  });
+  let teamHtml = '';
+  allTeams.forEach(team => {
+    const tOpen   = open.filter(r => r.team === team);
+    const tClosed = closed.filter(r => r.team === team);
+    const dom = data.find(r => r.team === team)?.domain || '';
+    teamHtml += `<tr>
+      <td><span style="font-weight:700">${team}</span><br><span style="font-size:11px;color:#8b93ab">${dom}</span></td>
+      <td class="num-blue">${tOpen.length}</td>
+      <td class="num-high">${tOpen.filter(r=>r.severity==='גבוהה').length}</td>
+      <td class="num-mid">${tOpen.filter(r=>r.severity==='בינונית').length}</td>
+      <td class="num-low">${tOpen.filter(r=>r.severity==='נמוכה').length}</td>
+      <td class="num-gray">${tClosed.length}</td>
+    </tr>`;
+  });
+  document.getElementById('tbl-teams').innerHTML = teamHtml;
+
+  // Avg time by team
+  let avgHtml = '';
+  const MAX_AVG = 14;
+  allTeams.forEach(team => {
+    const dom = data.find(r => r.team === team)?.domain || '';
+    function avgBySev(sev) {
+      const recs = closed.filter(r => r.team === team && r.severity === sev && r.closeDate);
+      if (!recs.length) return '—';
+      return (recs.reduce((s,r) => s + daysBetween(r.openDate, r.closeDate), 0) / recs.length).toFixed(1);
+    }
+    const allClosed = closed.filter(r => r.team === team && r.closeDate);
+    const allAvg = allClosed.length
+      ? (allClosed.reduce((s,r) => s + daysBetween(r.openDate, r.closeDate), 0) / allClosed.length)
+      : null;
+    const barPct = allAvg ? Math.min(allAvg / MAX_AVG * 100, 100) : 0;
+    avgHtml += `<tr>
+      <td><span style="font-weight:700">${team}</span><br><span style="font-size:11px;color:#8b93ab">${dom}</span></td>
+      <td>${avgBySev('גבוהה')}</td>
+      <td>${avgBySev('בינונית')}</td>
+      <td>${avgBySev('נמוכה')}</td>
+      <td>
+        <div class="avg-bar-wrap">
+          <div class="avg-bar-bg"><div class="avg-bar-fill" style="width:${barPct}%"></div></div>
+          <span class="avg-days">${allAvg ? allAvg.toFixed(1) : '—'}</span>
+        </div>
+      </td>
+    </tr>`;
+  });
+  document.getElementById('tbl-avg').innerHTML = avgHtml;
+
+  // Closed defects list
+  const closedList = data.filter(r => r.status === 'סגור').sort((a,b) => (b.closeDate||'').localeCompare(a.closeDate||''));
+  let closedListHtml = '';
+  closedList.forEach(r => {
+    const days = r.closeDate ? daysBetween(r.openDate, r.closeDate) : '—';
+    const openFmt = r.openDate ? r.openDate.slice(8,10)+'.'+r.openDate.slice(5,7)+'.'+r.openDate.slice(0,4) : '—';
+    const closeFmt = r.closeDate ? r.closeDate.slice(8,10)+'.'+r.closeDate.slice(5,7)+'.'+r.closeDate.slice(0,4) : '—';
+    closedListHtml += '<tr>' +
+      '<td style="text-align:right;max-width:280px">' + (r.desc||'—') + '</td>' +
+      '<td style="font-size:12px;color:#4a5578">' + r.team + '</td>' +
+      '<td style="font-size:12px">' + r.env + '</td>' +
+      '<td style="font-size:12px;color:#6b7a99">' + openFmt + '</td>' +
+      '<td style="font-size:12px;font-weight:600;color:#2e7d52">' + closeFmt + '</td>' +
+      '<td class="' + (days===0?'num-low':days<=2?'num-low':days<=5?'num-mid':'num-high') + '">' + (days===0?'אותו יום':days+' י׳') + '</td>' +
+      '<td>' + statusBadge(r) + '</td>' +
+    '</tr>';
+  });
+  if (!closedListHtml) closedListHtml = '<tr><td colspan="7" style="text-align:center;color:#aaa;padding:14px">אין תקלות סגורות</td></tr>';
+  document.getElementById('tbl-closed-list').innerHTML = closedListHtml;
+
+  // Last refresh
+  const now = new Date();
+  document.getElementById('lastRefresh').textContent =
+    now.toLocaleTimeString('he-IL', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+
+// ─── AUTO REFRESH ─────────────────────────────────────────────────────────────
+let secondsLeft = 30;
+function tick() {
+  secondsLeft--;
+  if (secondsLeft <= 0) {
+    secondsLeft = 30;
+    render();
+  }
+  document.getElementById('countdown').textContent = secondsLeft;
+}
+
+// ─── LAUNCH TIMER ─────────────────────────────────────────────────────────────
+let LAUNCH_DATE = new Date('2026-08-26T00:00:00');
+
+function pad(n) { return String(n).padStart(2, '0'); }
+
+function updateLaunchDate() {
+  const val = document.getElementById('launchDateInput').value;
+  if (val) {
+    LAUNCH_DATE = new Date(val + 'T00:00:00');
+    tickLaunch();
+  }
+}
+
+function formatDateHE(d) {
+  return d.getDate() + '.' + (d.getMonth()+1) + '.' + d.getFullYear();
+}
+
+function tickLaunch() {
+  const now     = new Date();
+  const diff    = LAUNCH_DATE - now;
+  const isLive  = diff <= 0;
+  const absDiff = Math.abs(diff);
+
+  const totalSec = Math.floor(absDiff / 1000);
+  const days  = Math.floor(totalSec / 86400);
+  const hours = Math.floor((totalSec % 86400) / 3600);
+  const mins  = Math.floor((totalSec % 3600) / 60);
+  const secs  = totalSec % 60;
+
+  document.getElementById('lt-days').textContent  = days;
+  document.getElementById('lt-hours').textContent = pad(hours);
+  document.getElementById('lt-min').textContent   = pad(mins);
+  document.getElementById('lt-sec').textContent   = pad(secs);
+
+  const dateStr = formatDateHE(LAUNCH_DATE);
+  const banner  = document.getElementById('launchBanner');
+  if (isLive) {
+    banner.className = 'launch-banner post';
+    document.getElementById('launchLabel').textContent = 'המערכת באוויר כבר';
+    document.getElementById('launchTitle').textContent = 'Go-Live הושק ב-' + dateStr;
+  } else {
+    banner.className = 'launch-banner pre';
+    document.getElementById('launchLabel').textContent = 'זמן עד ההשקה';
+    document.getElementById('launchTitle').textContent = 'Go-Live — ' + dateStr;
+  }
+}
+
+render();
+tickLaunch();
+setInterval(tick, 1000);
+setInterval(tickLaunch, 1000);
+</script>
+</body>
+</html>
