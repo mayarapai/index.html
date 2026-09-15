@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>עדכון סטטוס — ספטמבר 2026</title>
+<style>
+@font-face {
+  font-family: "Migdal RagSans";
+  src: url("Migdal Design System (4) (1)/apex/fonts/1_Migdal_RagSans-Light.otf") format("opentype");
+  font-weight: 300;
+}
+@font-face {
+  font-family: "Migdal RagSans";
+  src: url("Migdal Design System (4) (1)/apex/fonts/1_Migdal_RagSans-Light.otf") format("opentype");
+  font-weight: 400;
+}
+@font-face {
+  font-family: "Migdal RagSans";
+  src: url("Migdal Design System (4) (1)/apex/fonts/1_Migdal_RagSans-Bold.otf") format("opentype");
+  font-weight: 700;
+}
+@font-face {
+  font-family: "Migdal RagSans";
+  src: url("Migdal Design System (4) (1)/apex/fonts/1_Migdal_RagSans-Black.otf") format("opentype");
+  font-weight: 800;
+}
+
+:root {
+  --mig-ink:        #020140;
+  --mig-ink-2:      #212058;
+  --mig-blue:       #3c65e3;
+  --mig-green:      #a2eb9a;
+  --mig-green-700:  #74cf6f;
+  --mig-white:      #ffffff;
+  --mig-paper:      #fbfbfd;
+  --mig-mist:       #f3f6fb;
+  --mig-line:       #d4ddec;
+  --mig-slate-400:  #9aa3bd;
+  --mig-slate-600:  #5b658a;
+  --font-main: "Migdal RagSans", "Heebo", system-ui, sans-serif;
+  --st-green-bg: #e6f7e4; --st-green-fg: #1e6b1a;
+  --st-yellow-bg: #fdf6e3; --st-yellow-fg: #7a6318;
+  --st-red-bg: #fdecea;   --st-red-fg: #b83030;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-main);
+  background: var(--mig-paper);
+  color: var(--mig-ink);
+  direction: rtl;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 430px;
+  margin: 0 auto;
+  padding-bottom: 48px;
+}
+
+/* ── HEADER ── */
+.header {
+  background: var(--mig-ink);
+  padding: 22px 20px 18px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.header-logo {
+  color: var(--mig-green);
+  font-weight: 800;
+  font-size: 16px;
+  letter-spacing: 0.08em;
+}
+.header-date {
+  color: rgba(255,255,255,0.45);
+  font-size: 12px;
+}
+.header-title {
+  color: #fff;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1.2;
+}
+.header-sub {
+  color: rgba(255,255,255,0.55);
+  font-size: 12px;
+  margin-top: 3px;
+}
+
+/* ── ATTENTION ── */
+.attention-section {
+  background: var(--mig-ink-2);
+  padding: 14px 20px 16px;
+  border-bottom: 3px solid var(--mig-green);
+}
+.attention-label {
+  color: var(--mig-green);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  margin-bottom: 10px;
+}
+.attention-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 0;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.attention-item:first-of-type { border-top: none; }
+.att-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--mig-green);
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+.att-text {
+  color: rgba(255,255,255,0.82);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.att-text b { color: #fff; font-weight: 700; }
+
+/* ── SECTION LABEL ── */
+.section-label {
+  padding: 16px 20px 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--mig-slate-400);
+}
+
+/* ── PROJECT CARD ── */
+.card {
+  margin: 0 12px 8px;
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid var(--mig-line);
+  box-shadow: 0 1px 4px rgba(2,1,64,0.05);
+  overflow: hidden;
+}
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.card-header:active { background: var(--mig-mist); }
+
+.card-info { flex: 1; min-width: 0; }
+.card-name {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--mig-ink);
+  line-height: 1.2;
+}
+.card-sub {
+  font-size: 11px;
+  color: var(--mig-slate-400);
+  margin-top: 2px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.badge::before {
+  content: "";
+  width: 6px; height: 6px;
+  border-radius: 50%;
+}
+.green  { background: var(--st-green-bg);  color: var(--st-green-fg); }
+.green::before  { background: var(--st-green-fg); }
+.yellow { background: var(--st-yellow-bg); color: var(--st-yellow-fg); }
+.yellow::before { background: var(--st-yellow-fg); }
+.red    { background: var(--st-red-bg);    color: var(--st-red-fg); }
+.red::before    { background: var(--st-red-fg); }
+
+.chevron {
+  color: var(--mig-slate-400);
+  font-size: 11px;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+.card.open .chevron,
+.launches.open .chevron { transform: rotate(180deg); }
+
+.card-body {
+  display: none;
+  padding: 0 16px 14px;
+  border-top: 1px solid var(--mig-mist);
+}
+.card.open .card-body { display: block; }
+
+.point {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--mig-mist);
+}
+.point:last-child { border-bottom: none; }
+.pdot {
+  width: 6px; height: 6px;
+  border-radius: 1px;
+  transform: rotate(45deg);
+  background: var(--mig-blue);
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+.ptext {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--mig-slate-600);
+}
+.ptext b { color: var(--mig-ink); font-weight: 700; }
+.ptext .d { color: var(--mig-blue); font-weight: 700; }
+
+/* ── LAUNCHES ── */
+.launches {
+  margin: 0 12px 8px;
+  background: var(--mig-ink);
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.launches-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+}
+.launches-title {
+  flex: 1;
+  font-weight: 700;
+  font-size: 15px;
+  color: #fff;
+}
+.launches-count {
+  background: var(--mig-green);
+  color: var(--mig-ink);
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 999px;
+}
+.launches-body {
+  display: none;
+  padding: 0 16px 14px;
+}
+.launches.open .launches-body { display: block; }
+.launch {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 0;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.lnum {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--mig-green);
+  min-width: 18px;
+  padding-top: 1px;
+}
+.ltext {
+  font-size: 13px;
+  line-height: 1.45;
+  color: rgba(255,255,255,0.78);
+}
+.ltext b { color: #fff; font-weight: 700; }
+
+/* ── FOOTER ── */
+.footer {
+  padding: 20px;
+  text-align: center;
+  font-size: 11px;
+  color: var(--mig-slate-400);
+}
+
+@media (min-width: 430px) {
+  .container { border-left: 1px solid var(--mig-line); border-right: 1px solid var(--mig-line); }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-top">
+      <div class="header-logo">מגדל</div>
+      <div class="header-date">ספטמבר 2026</div>
+    </div>
+    <div class="header-title">עדכון סטטוס — פרויקטים אסטרטגיים</div>
+    <div class="header-sub">דאטה · AI · פרויקטים מרכזיים</div>
+  </div>
+
+  <!-- ATTENTION -->
+  <div class="attention-section">
+    <div class="attention-label">דורש תשומת לב</div>
+    <div class="attention-item">
+      <div class="att-dot"></div>
+      <div class="att-text"><b>מסלול מהיר לרכש כלים:</b> הבירוקרטיה מתישה ומעכבת. צריך לקבוע שיחה עם רוני על דרך פעולה מהירה</div>
+    </div>
+    <div class="attention-item">
+      <div class="att-dot"></div>
+      <div class="att-text"><b>פיילוט AI בכספים:</b> חברה עם כלי תצפית על עבודה נפגשת עם נאור ביום ה׳ — ממתינה לאישור פיילוט</div>
+    </div>
+    <div class="attention-item">
+      <div class="att-dot"></div>
+      <div class="att-text"><b>תמחור ואופטימייז:</b> הדיון אצל רונן היה קשה. חשוב לקיים שיחה אסטרטגית על הכיוון</div>
+    </div>
+  </div>
+
+  <!-- PROJECTS -->
+  <div class="section-label">פרויקטים אסטרטגיים</div>
+
+  <!-- 1. Data Strategy -->
+  <div class="card" onclick="toggle(this)">
+    <div class="card-header">
+      <div class="card-info">
+        <div class="card-name">אסטרטגיית דאטה</div>
+        <div class="card-sub">POC · ארכיטקטורת-על</div>
+      </div>
+      <div class="badge yellow">בתהליך</div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="card-body">
+      <div class="point">
+        <div class="pdot"></div>
+        <div class="ptext"><b>Cloudera:</b> הסביבה הוקמה היום. ממשיכים לשאוף לסיום POC עד <span class="d">30.9</span></div>
+      </div>
+      <div class="point">
+        <div class="pdot"></div>
+        <div class="ptext"><b>Databricks:</b> שלבים מתקדמים, צפי סיום <span class="d">25.9</span></div>
+      </div>
+      <div class="point">
+        <div class="pdot"></div>
+        <div class="ptext"><b>ארכיטקטורת-על:</b> גורם ב-One מוביל (בקשת נאור). גיוס ארכיטקט דאטה — עבר ראיון, נאור אישר</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. AI -->
+  <div class="card" onclick="toggle(this)">
+    <div class="card-header">
+      <div class="card-info">
+        <div class="card-name">הטמעת AI</div>
+        <div class="card-sub">תשתית · פיילוטים · חטיבה · תקציב</div>
+      </div>
+      <div class="badge yellow">בתהליך</div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="card-body">
+      <div class="point">
+        <div class="pdot"></div>
+        <div class="ptext"><b>תשתית:</b> רכש F5 ו-LiteLLM בתהליך. Copilot Studio חסום — ממתין לאישורי אבטחת מידע. Kiro — יעד אוקטובר. Claude Code מייצר תוצרים מרשימים בשטח</div>
+      </div>
+      <div class="point">
+        <div class="pdot"></div>
+        <div class="ptext"><b>פיילוטים:</b> משפטי — Lizy מתחיל (3 חודשים חינם). כספים — ממתינה לאישור נאור לפיילוט חברת תצפית (פגישה ביום ה׳). שרית — שלב איפיון. דוד סיטון — מיפוי בקרות בתהליך</div>
+      </div>
+      <div class="point">
+        <div class="pdot"></div>
+        <div class="ptext"><b>חטיבה טכנולוגית:</b> יום אמזון נקבע (AI SDLC). באוקטובר — פיילוט מנוהל עם צוות חיתום + הכשרת צוות מוצר. 2 צ׳מפיונים פעילים. מיפוי צרכים בוצע ומועבר לתרגום לתקציב ופרופילים</div>
+      </div>
+      <div class="point">
+        <div class="pdot"></div>
+        <div class="ptext"><b>תקציב:</b> עושה סדר בעלויות תשתית + רישיונות. נדרש דיון עם רוני — שנה נוכחית ועתידית</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Pricing -->
+  <div class="card" onclick="toggle(this)">
+    <div class="card-header">
+      <div class="card-info">
+        <div class="card-name">תמחור ואופטימייז</div>
+        <div class="card-sub">פגישה עם רונן · כיוון אסטרטגי</div>
+      </div>
+      <div class="badge red">דורש שיחה</div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="card-body">
+      <div class="point">
+        <div class="pdot"></div>
+        <div class="ptext">הדיון אצל רונן היה קשה. מרגישה שיש חוסר הבנה בשורש הבעיות — נדרשת שיחה אסטרטגית על הכיוון</div>
+      </div>
+      <div class="point">
+        <div class="pdot"></div>
+        <div class="ptext">כלי לבחינת תמחור הועבר לצוות — אך חסר משאב מקצועי שינהל אותו עד גיוס מישהו מתאים</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Scan Room -->
+  <div class="card" onclick="toggle(this)">
+    <div class="card-header">
+      <div class="card-info">
+        <div class="card-name">חדר סריקה</div>
+        <div class="card-sub">אמבולטורי · הפקות</div>
+      </div>
+      <div class="badge green">מתקדם</div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="card-body">
+      <div class="point">
+        <div class="pdot"></div>
+        <div class="ptext"><b>אמבולטורי:</b> 54% מהמיילים מ-Be Well מעובדים אוטומטית. מסלול ירוק מול BPR — מדלגים על צוות טפסים (בקשת העסק). יעד: <span class="d">נובמבר</span></div>
+      </div>
+      <div class="point">
+        <div class="pdot"></div>
+        <div class="ptext"><b>הפקות:</b> מתקדמים עם פנסיה, עוברים בקרוב להפקות בריאות</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Seniority -->
+  <div class="card" onclick="toggle(this)">
+    <div class="card-header">
+      <div class="card-info">
+        <div class="card-name">סניוריטי</div>
+        <div class="card-sub">דשבורד הנהלה</div>
+      </div>
+      <div class="badge green">עומד ביעד</div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="card-body">
+      <div class="point">
+        <div class="pdot"></div>
+        <div class="ptext">לא עלינו היום — הבדיקות לא עמדו בסטנדרט. נדרשו תיקונים. <b>לא נחצה את תאריך היעד — עולים לאוויר עד סוף החודש</b></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Cross-sell -->
+  <div class="card" onclick="toggle(this)">
+    <div class="card-header">
+      <div class="card-info">
+        <div class="card-name">מכירות צולבות</div>
+        <div class="card-sub">NBO · דשבורד קמפיינים</div>
+      </div>
+      <div class="badge green">הושלם</div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="card-body">
+      <div class="point">
+        <div class="pdot"></div>
+        <div class="ptext">הוצג לרונן — מודל NBO, לוגיקת עבודה ודשבורד ניתוח + בקרת קמפיינים. <b>רונן: אין צורך בפגישות נוספות בנושא</b></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. Underwriting -->
+  <div class="card" onclick="toggle(this)">
+    <div class="card-header">
+      <div class="card-info">
+        <div class="card-name">חיתום</div>
+        <div class="card-sub">מנוע חיתום · Feature Team</div>
+      </div>
+      <div class="badge yellow">בתהליך</div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="card-body">
+      <div class="point">
+        <div class="pdot"></div>
+        <div class="ptext"><b>SWSRI נחתם</b> — מתחילים לעבוד על מנוע החיתום. תשתית מוכנה תוך שבוע, עבודה בחול המועד</div>
+      </div>
+      <div class="point">
+        <div class="pdot"></div>
+        <div class="ptext">Feature Team הוקם — ישיבה משותפת + חברה חיצונית למתודולוגיה וסוכנים. מנהל מוצר הוא צ׳מפיון AI</div>
+      </div>
+      <div class="point">
+        <div class="pdot"></div>
+        <div class="ptext">פרופיל רפואי בדיוק מול העסק. <b>לחץ מהעסק לתוצרים ממשיים עד סוף השנה</b></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LAUNCHES -->
+  <div class="section-label">השקות אחרונות</div>
+  <div class="launches" onclick="toggle(this)">
+    <div class="launches-header">
+      <div class="launches-title">יוזמות שהשקנו החודש</div>
+      <div class="launches-count">5</div>
+      <div class="chevron" style="color:rgba(255,255,255,0.4)">▼</div>
+    </div>
+    <div class="launches-body">
+      <div class="launch">
+        <div class="lnum">01</div>
+        <div class="ltext"><b>דשבורדים לחטיבת ירון</b> — נבנו ב-AI ללא מעורבות פיתוח או צוות דאטה</div>
+      </div>
+      <div class="launch">
+        <div class="lnum">02</div>
+        <div class="ltext"><b>כלי ניהול cycle פיתוח</b> — ממחלקת הדאטה: מהדרישה העסקית עד SQL, טבלו ותסריטי QA. ממשק ניהול באגים ישירות לג׳ירה</div>
+      </div>
+      <div class="launch">
+        <div class="lnum">03</div>
+        <div class="ltext"><b>אוטומציה שיוך כספים</b> — עולה לאוויר מחר. הדגמה ללקוח הסתיימה בהצלחה</div>
+      </div>
+      <div class="launch">
+        <div class="lnum">04</div>
+        <div class="ltext"><b>כלי חקירת תמחור</b> לאלי ברגלס — ניתוח תמחור לפני סגירת מחירים ואחריה</div>
+      </div>
+      <div class="launch">
+        <div class="lnum">05</div>
+        <div class="ltext"><b>ניוד יוצא — 64% ללא מגע יד אדם</b> לאחר שיפורים בתהליך</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">עדכון סטטוס חודשי · מגדל · ספטמבר 2026</div>
+</div>
+
+<script>
+function toggle(el) {
+  el.classList.toggle('open');
+}
+</script>
+</body>
+</html>
