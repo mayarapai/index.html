@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>העובדים החדשים שלנו</title>
+<style>
+  :root{--navy:#0b1437;--ink:#1f2937;--muted:#64748b;--bg:#f4f6fb;--line:#e5e7eb;--gold:#f5b301}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI","Arial Hebrew",Arial,sans-serif;line-height:1.5}
+
+  .hero{background:radial-gradient(circle at 80% 0%,#3b4fd8 0,transparent 45%),radial-gradient(circle at 0% 100%,#0ea5a4 0,transparent 40%),var(--navy);
+    color:#fff;padding:56px 16px 90px;text-align:center}
+  .hero .tag{display:inline-block;border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:4px 14px;font-size:13px}
+  .hero h1{font-size:clamp(32px,5.5vw,60px);margin:14px 0 6px;line-height:1.1}
+  .hero h1 span{color:var(--gold)}
+  .hero p{margin:0 auto;max-width:640px;font-size:clamp(16px,2.2vw,20px);opacity:.9}
+  .stats{max-width:1000px;margin:-56px auto 0;padding:0 16px;display:grid;grid-template-columns:repeat(4,1fr);gap:14px;position:relative}
+  .stat{background:#fff;border-radius:16px;padding:18px 12px;text-align:center;box-shadow:0 10px 30px rgba(11,20,55,.1)}
+  .stat b{display:block;font-size:34px;color:var(--navy);line-height:1.1}
+  .stat span{font-size:13.5px;color:var(--muted)}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:40px 16px 56px}
+  h2{font-size:clamp(22px,3vw,30px);color:var(--navy);margin:0 0 6px;text-align:center}
+  .lead{color:var(--muted);text-align:center;margin:0 0 28px}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:22px}
+  .badge{background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 6px 24px rgba(11,20,55,.08);
+    display:flex;flex-direction:column;transition:transform .2s,box-shadow .2s}
+  .badge:hover{transform:translateY(-4px);box-shadow:0 14px 34px rgba(11,20,55,.14)}
+  .badge.star{outline:3px solid var(--gold)}
+  .band{background:var(--c);height:92px;position:relative}
+  .band::before{content:"";position:absolute;top:12px;left:50%;transform:translateX(-50%);width:54px;height:10px;border-radius:6px;background:rgba(255,255,255,.55)}
+  .band .lvl{position:absolute;top:12px;right:14px;background:rgba(255,255,255,.95);color:var(--navy);font-size:12px;font-weight:800;padding:3px 10px;border-radius:999px}
+  .band .first{position:absolute;top:12px;left:14px;background:var(--gold);color:#3b2600;font-size:12px;font-weight:800;padding:3px 10px;border-radius:999px}
+  .avatar{width:92px;height:92px;border-radius:50%;background:#fff;border:5px solid #fff;box-shadow:0 4px 14px rgba(0,0,0,.12);
+    margin:-46px auto 0;display:flex;align-items:center;justify-content:center;font-size:44px;position:relative;z-index:1}
+  .avatar::after{content:"AI";position:absolute;bottom:-2px;left:-2px;background:var(--c);color:#fff;font-size:11px;font-weight:800;border-radius:999px;padding:1px 7px;border:2px solid #fff}
+  .who{text-align:center;padding:10px 18px 0}
+  .who h3{margin:0;font-size:24px;color:var(--navy)}
+  .who .role{font-weight:700;color:var(--c)}
+  .who .dept{display:inline-block;margin-top:6px;background:#f1f5f9;color:#475569;font-size:12.5px;padding:2px 10px;border-radius:999px}
+  .motto{margin:12px 18px 0;font-style:italic;color:#475569;text-align:center;font-size:14.5px}
+  .before{margin:14px 18px 0;background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:8px 12px;font-size:13.5px;color:#475569}
+  .before b{color:#b91c1c}
+  .with-me{margin:12px 18px 0;font-size:12.5px;font-weight:800;color:var(--c)}
+  ul{list-style:none;margin:4px 18px 0;padding:0}
+  li{position:relative;padding:5px 22px 5px 0;font-size:14px;border-top:1px dashed var(--line)}
+  li:first-child{border-top:0}
+  li::before{content:"✓";position:absolute;right:0;top:5px;color:var(--c);font-weight:800}
+  li.wip::before{content:"◔";color:#d97706}
+  li.soon::before{content:"✦";color:#6366f1}
+  li .tagw{font-size:11px;border-radius:6px;padding:0 6px;margin-right:4px;white-space:nowrap}
+  li.wip .tagw{background:#fef3c7;color:#92400e}
+  li.soon .tagw{background:#e0e7ff;color:#3730a3}
+  li .aud{font-size:11px;background:#f1f5f9;color:#334155;border-radius:6px;padding:0 6px;margin-left:4px;font-weight:700}
+  .win{margin:14px 18px 0;background:var(--cl);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px}
+  .win .trophy{font-size:26px}
+  .win small{display:block;font-size:11.5px;color:#475569;font-weight:700}
+  .win b{font-size:17px;color:var(--navy)}
+  .foot{margin-top:auto;padding:14px 18px 16px;display:flex;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--muted);flex-wrap:wrap}
+  .foot .on{color:#047857;font-weight:700}
+  .foot .on::before{content:"● "}
+  .keys{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;font-size:13px;color:var(--muted);margin:-14px 0 24px}
+
+  .ladder{margin-top:56px;background:#fff;border-radius:22px;padding:28px 20px;box-shadow:0 6px 24px rgba(11,20,55,.06)}
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:18px;align-items:end}
+  .step{border-radius:16px;padding:16px;color:#fff;text-align:center}
+  .step .n{font-size:32px;font-weight:800;line-height:1}
+  .step .t{font-weight:800;font-size:17px;margin-top:4px}
+  .step .d{font-size:13px;opacity:.9}
+  .step .c{display:inline-block;margin-top:8px;background:rgba(255,255,255,.2);border-radius:999px;padding:2px 10px;font-size:12.5px;font-weight:700}
+  .s1{background:#6fb78c;min-height:130px}.s2{background:#2f855a;min-height:160px}.s3{background:#3b5bdb;min-height:190px}.s4{background:var(--navy);min-height:220px}
+
+  .closing{text-align:center;margin-top:48px}
+  .closing h2{font-size:clamp(24px,3.6vw,38px)}
+  .closing h2 span{color:#3b5bdb}
+  .closing p{color:var(--muted);margin:6px 0 0;font-size:17px}
+
+  @media (max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}.steps{grid-template-columns:1fr 1fr}.step{min-height:0!important}}
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <span class="tag">📣 הודעה לכל העובדים</span>
+  <h1>הכירו את <span>העובדים החדשים</span> שלנו</h1>
+  <p>הם כבר עובדים לצד הצוותים שלנו: מסכמים, מנתחים, מתעדפים ומתריעים. ההחלטות? נשארות אצלנו.</p>
+</section>
+
+<div class="stats">
+  <div class="stat"><b>12</b><span>עובדים דיגיטליים חדשים</span></div>
+  <div class="stat"><b>44</b><span>משימות שכבר בידיים שלהם</span></div>
+  <div class="stat"><b>51%</b><span>יותר מכירות מלידים מתועדפים</span></div>
+  <div class="stat"><b>60%</b><span>מהניוד היוצא בפנסיה אוטומטי</span></div>
+</div>
+
+<main class="wrap">
+  <h2>נעים להכיר 👋</h2>
+  <p class="lead">כל אחד מהם הצטרף לצוות אחר, ועובד צמוד לאנשים שלנו</p>
+  <div class="keys"><span>✓ כבר עושה</span><span>◔ בחפיפה (בדרך)</span><span>✦ בקרוב</span></div>
+  <div class="grid" id="grid"></div>
+
+  <section class="ladder">
+    <h2>מסלול הקריירה שלהם</h2>
+    <p class="lead" style="margin:0">גם עובדים דיגיטליים מתחילים כמתמחים ומתקדמים עם הזמן</p>
+    <div class="steps">
+      <div class="step s1"><div class="n">L1</div><div class="t">מתמחה</div><div class="d">סוכן אישי שעוזר לעובד אחד</div><span class="c">10 משימות</span></div>
+      <div class="step s2"><div class="n">L2</div><div class="t">ג׳וניור</div><div class="d">מחובר לנתוני הארגון</div><span class="c">14 משימות</span></div>
+      <div class="step s3"><div class="n">L3</div><div class="t">בכיר</div><div class="d">מריץ תהליך שלם מקצה לקצה</div><span class="c">8 משימות</span></div>
+      <div class="step s4"><div class="n">L4</div><div class="t">מומחה</div><div class="d">משולב במערכות הליבה של מגדל</div><span class="c">12 משימות</span></div>
+    </div>
+  </section>
+
+  <section class="closing">
+    <h2>הם לא מחליפים אף אחד. <span>הם מצטרפים לצוות.</span></h2>
+    <p>פחות העתק-הדבק, יותר זמן ללקוחות, להחלטות ולאנשים.</p>
+  </section>
+</main>
+
+<script>
+/* משימה: [טקסט, מצב (0=עושה, 1=בחפיפה, 2=בקרוב), קהל (לא חובה)] */
+const team = [
+  {name:"ליה", role:"הקונסיירג׳ של מגדל", emoji:"🛎️", c:"#b45309", cl:"#fffbeb", dept:"כל העובדים החדשים", lvl:"L1 · מתמחה", star:true,
+   motto:"״ברוכים הבאים למגדל. מכאן אני דואגת להכול.״",
+   before:"ימים של המתנה להרשאות, מסמכי חפיפה מפוזרים ו״את מי שואלים?״",
+   tasks:[["מלווה חפיפה בשיחה, במקום ערימת מסמכים"],["בונה תכנית חפיפה אישית לפי התפקיד והצוות",1],["מרכזת את כל בקשות ההרשאות במקום אחד ועוקבת עד שהן מאושרות",2],["עונה 24/7 על ״איפה? מי? איך?״",2],["מכירה לעובד את האנשים, הנהלים והמערכות שרלוונטיים לו",2]],
+   win:"חפיפה עם סוכן במקום מסמכים", with:"כל מי שמצטרף"},
+  {name:"לידור", role:"האנליסט המושלם של המכירות", emoji:"🎯", c:"#ea580c", cl:"#fff7ed", dept:"קול מגדל · מרחב מעסיקים · מסעות", lvl:"L4 · מומחה",
+   motto:"״למוקד אני אומר למי להתקשר. למנהלים אני אומר מה יקרה.״",
+   before:"המוקד מתקשר לפי הסדר, והמנהלים מחכים לדוח של סוף החודש",
+   tasks:[["מתעדף לידים חכם, כך שהנציג מתקשר קודם למי שהכי סביר שיקנה","","למוקד"],["עוקב אחרי כל ליד: פגישה ← פרמיה, בזמן אמת","","למנהלים"],["משקף ביצועים לפי קמפיין, ערוץ ונציג","","למנהלים"],["מציג תחזית מכירות קדימה",2,"למנהלים"],["מאתר לקוחות שאפשר להעביר לדיוור דיגיטלי","","לשיווק"]],
+   win:"51% יותר מכירות · 3 ימי אנליסט ← לחיצה", with:"המוקד והמנהלים"},
+  {name:"חן", role:"מתמחרת רכב", emoji:"🚗", c:"#2563eb", cl:"#eff6ff", dept:"ביטוח כללי", lvl:"L4 · מומחית",
+   motto:"״לכל לקוח המחיר הנכון, ולכל מחיר יש הסבר.״",
+   before:"עוגני התמחור מפוזרים בין היחידות, וההסבר מגיע רק בסוף",
+   tasks:[["אוספת את עוגני התמחור מכל היחידות: העסק והאקטואריה"],["בונה מודלים בעצמה ומתמחרת לכל לקוח מחיר אישי"],["משקפת לעסק בקרות והסברים כבר בזמן התמחור"],["מנתחת את התוצאות אחרי ההשקה ומגישה המלצות"],["מזהה מגמות וחריגות בתמחור"]],
+   win:"מחיר אישי, לשימור ולצמיחה", with:"העסק והאקטואריה"},
+  {name:"רום", role:"העוזרת לאסטרטגיה", emoji:"🌍", c:"#0f766e", cl:"#f0fdfa", dept:"אסטרטגיה · הנהלה", lvl:"L3 · בכירה",
+   motto:"״ההנהלה תמיד יודעת מה קורה בחוץ, לפני שזה מגיע אלינו.״",
+   before:"סקירת שוק פעם ברבעון, וכשהיא מגיעה היא כבר לא עדכנית",
+   tasks:[["סוקרת את המתחרים כל שבוע, אוטומטית"],["מנתחת מה קורה בשוק הביטוח והחיסכון בארץ ובעולם",2],["עוקבת אחרי חידושי AI בביטוח ובפיננסים",2],["מגישה להנהלה תקציר עם ״מה זה אומר לנו?״",2]],
+   win:"סקירת מתחרים שבועית, אוטומטית", with:"ההנהלה והאסטרטגיה"},
+  {name:"שירי", role:"נציגת-על לשירות לקוחות", emoji:"🎧", c:"#e11d74", cl:"#fdf2f8", dept:"שירות לקוחות", lvl:"L4 · מומחית",
+   motto:"״אני זוכרת כל שיחה, כדי שהנציג יוכל להקשיב ללקוח.״",
+   before:"הנציג מקליד סיכום אחרי כל שיחה ומחפש תשובות בכמה מערכות",
+   tasks:[["מתמללת כל שיחה ומסכמת אותה ישר למערכת הלקוחות"],["עונה ללקוח מיד על ״מה מגיע לי?״"],["שולפת תשובות ממנהלת הידע"],["מסדרת פריטי ידע במבנה אחיד",1],["ממיינת הודעות WhatsApp לפי נושא",1]],
+   win:"כל שיחה מסוכמת · 30 נציגים בפיילוט", with:"נציגי השירות"},
+  {name:"תובי", role:"אנליסט תביעות", emoji:"🔍", c:"#dc2626", cl:"#fef2f2", dept:"תפעול תביעות", lvl:"L4 · מומחה",
+   motto:"״אני מכין את התיק, המיישב מחליט.״",
+   before:"המיישב קורא תיק שלם רק כדי להבין מה יש בו",
+   tasks:[["מסכם תיקי תביעות אובדן כושר עבודה"],["נותן ציון סיכון להונאה והסבר לכל תביעה"],["מדמה מראש את ההשפעה של כל חוק"],["מתרגם יומני מערכת לשפה עסקית"],["ממיר קבצי תביעות לאקסל",1]],
+   win:"ציון סיכון והסבר לכל תביעה אמבולטורית", with:"מיישבי התביעות"},
+  {name:"מתי", role:"מומחה תפעול פנסיה", emoji:"⚙️", c:"#0d9488", cl:"#f0fdfa", dept:"תפעול חיסכון ופנסיה", lvl:"L4 · מומחה",
+   motto:"״את העבודה הסיזיפית תשאירו לי.״",
+   before:"ניוד והפקדות מטופלים ידנית, ואיחורים עולים בקנסות",
+   tasks:[["מטפל אוטומטית בניוד יוצא ומצמצם קנסות"],["משייך הפקדות של עצמאים (MATCH-UP)"],["מקודד מכתבים בחדר הסריקה"],["עוקב אחרי הסכמים מפעליים בלי עבודה ידנית",1]],
+   win:"60% מהניוד אוטומטי · הפקדות ← יומיים", with:"צוותי התפעול"},
+  {name:"נביא", role:"חזאי לקוחות", emoji:"🔮", c:"#7c3aed", cl:"#f5f3ff", dept:"אסטרטגיה · חיסכון ופנסיה", lvl:"L4 · מומחה",
+   motto:"״אני רואה מה הלקוח יצטרך, עוד לפני שהוא יודע.״",
+   before:"מגלים שלקוח עוזב רק אחרי שהוא כבר עזב",
+   tasks:[["חוזה את השכר של העמיתים"],["מזהה קשרים בתוך התא המשפחתי"],["חוזה סיכוי לפרישה או לעזיבה"],["מדרג לקוחות לפי ערך לאורך זמן",1]],
+   win:"4 מודלים חוזי-עתיד בעבודה", with:"צוותי האסטרטגיה"},
+  {name:"נתן", role:"אנליסט נתונים", emoji:"📊", c:"#0891b2", cl:"#ecfeff", dept:"אנליסטים · כלל מגדל", lvl:"L2 · ג׳וניור",
+   motto:"״תשאלו בעברית, אני אביא את הנתונים.״",
+   before:"כל שאלה על נתונים נכנסת לתור של צוות הדוחות",
+   tasks:[["שולף נתונים לפי שאלה בשפה חופשית"],["בונה דשבורד לפי דרישה, בלי לחכות בתור"],["עוזר לאנליסטים בעבודה השוטפת"]],
+   win:"דשבורד בלי לחכות בתור", with:"האנליסטים"},
+  {name:"אפי", role:"מנהלת מוצר", emoji:"🧩", c:"#db2777", cl:"#fdf2f8", dept:"מוצר · AI & Data", lvl:"L2 · ג׳וניורית",
+   motto:"״מרעיון לאב-טיפוס חי, במקום עוד מסמך.״",
+   before:"כל מסמך דרישות נכתב בפורמט אחר, והמצגות לוקחות ימים",
+   tasks:[["כותבת מסמכי דרישות בתבנית אחידה"],["הופכת ראיונות משתמשים לתובנות"],["מסכמת פגישות בפורמט ארגוני"],["מכינה מצגות ברוח המותג"]],
+   win:"מצגות: מימים לשעות", with:"מנהלי המוצר"},
+  {name:"קודי", role:"מפתח", emoji:"💻", c:"#4f46e5", cl:"#eef2ff", dept:"פיתוח · חיתום והפקה", lvl:"L2 · ג׳וניור",
+   motto:"״אני כותב קוד, והמפתח מחליט מה נכנס.״",
+   before:"הלוגיקה של מערכות הליבה נמצאת רק בקוד ובראש של מעטים",
+   tasks:[["ממפה קוד ישן למסמך שהחתמים מבינים ומאשרים"],["מפתח לפי מפרט מסודר מראש"],["פותח משימות פיתוח במבנה אחיד"],["בונה רכיבים למערכת הניטור"]],
+   win:"קיצור הזמן מרעיון לייצור", with:"צוותי הפיתוח"},
+  {name:"שקד", role:"עוזרת למנהלים", emoji:"🧭", c:"#475569", cl:"#f1f5f9", dept:"הנהלה · מנהלי פרויקטים", lvl:"L3 · בכירה",
+   motto:"״תמונת מצב על סמך עובדות, לא על סמך תחושות.״",
+   before:"סטטוס פרויקט = תחושת בטן בישיבה",
+   tasks:[["מסכמת כל שבוע מה תקוע ומה מתקדם בפרויקט",1],["מסבירה למנהלים מה קורה בפיתוח"],["מציגה דשבורד הנהלה על אב-טיפוס חי"]],
+   win:"דוח שבועי על סמך ראיות בלבד", with:"המנהלים"},
+];
+
+const TAG = {1:"בחפיפה", 2:"בקרוב"};
+const CLS = {1:"wip", 2:"soon"};
+document.getElementById("grid").innerHTML = team.map(e => `
+  <article class="badge ${e.star?'star':''}" style="--c:${e.c};--cl:${e.cl}">
+    <div class="band"><span class="lvl">${e.lvl}</span>${e.star?'<span class="first">הראשונה שתפגשו</span>':''}</div>
+    <div class="avatar">${e.emoji}</div>
+    <div class="who">
+      <h3>${e.name}</h3>
+      <div class="role">${e.role}</div>
+      <span class="dept">${e.dept}</span>
+    </div>
+    <p class="motto">${e.motto}</p>
+    <div class="before"><b>לפני:</b> ${e.before}</div>
+    <div class="with-me">איתי:</div>
+    <ul>${e.tasks.map(([t,s,aud]) => `<li class="${CLS[s]||''}">${aud?`<span class="aud">${aud}</span>`:''}${t}${TAG[s]?` <span class="tagw">${TAG[s]}</span>`:''}</li>`).join("")}</ul>
+    <div class="win"><span class="trophy">🏆</span><div><small>ההישג הראשון</small><b>${e.win}</b></div></div>
+    <div class="foot"><span>עובד/ת לצד: <b>${e.with}</b></span><span class="on">במשרה מלאה</span></div>
+  </article>`).join("");
+</script>
+</body>
+</html>
